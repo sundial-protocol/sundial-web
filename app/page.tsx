@@ -10,10 +10,10 @@ export default function Home() {
             <div className="flex flex-col justify-center space-y-4">
               <div className="space-y-2">
                 <h1 className="text-4xl md:text-6xl font-bold tracking-tighter">
-                  Maximize Bitcoin Staking Yields with <span className="text-[#ffb70b]">Dual Staking</span>
+                <span className="text-[#ffb70b]">Sundial</span> The Super UTxO L2 Networking
                 </h1>
                 <p className="text-xl md:text-2xl text-gray-700">
-                  Unlock Bitcoin&apos;s $1.5 Trillion Potential with <span className="text-[#ffb70b]">Sundial</span>
+                  Unlock Bitcoin&apos;s $1.5 Trillion Liquidity, Yield & Utility with <span className="text-[#0033AA]">Cardano</span> Smart Contracts.
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-4">
