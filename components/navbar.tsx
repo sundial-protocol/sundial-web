@@ -6,12 +6,27 @@ import { cn } from "@/lib/utils"
 import { useTheme } from "next-themes"
 import { Button } from "./ui/button"
 
-export default function Navbar() {
+function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
   const pathname = usePathname()
+
+  return (
+    <Link
+      href={href}
+      className={cn(
+        "text-sm font-medium transition-colors hover:text-primary",
+        pathname === href ? "text-primary" : "text-muted-foreground",
+      )}
+    >
+      {children}
+    </Link>
+  )
+}
+
+export default function Navbar() {
   const { theme, setTheme } = useTheme()
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
@@ -25,59 +40,33 @@ export default function Navbar() {
         </div>
 
         <nav className="hidden md:flex items-center gap-6">
-          <Link
-            href="/validators"
-            className={cn(
-              "text-sm font-medium transition-colors hover:text-primary",
-              pathname === "/validators" ? "text-primary" : "text-muted-foreground",
-            )}
-          >
-            Validators
-          </Link>
-          <Link
-            href="/staking"
-            className={cn(
-              "text-sm font-medium transition-colors hover:text-primary",
-              pathname === "/staking" ? "text-primary" : "text-muted-foreground",
-            )}
-          >
-            Staking
-          </Link>
-          <Link
-            href="/liquid-staking"
-            className={cn(
-              "text-sm font-medium transition-colors hover:text-primary",
-              pathname === "/liquid-staking" ? "text-primary" : "text-muted-foreground",
-            )}
-          >
-            Liquid Staking
-          </Link>
-          <Link
-            href="/docs"
-            className={cn(
-              "text-sm font-medium transition-colors hover:text-primary",
-              pathname === "/docs" ? "text-primary" : "text-muted-foreground",
-            )}
-          >
-            Docs
-          </Link>
+          <NavLink href="/validators" children="Validators" />
+          <NavLink href="/staking" children="Staking" />
+          <NavLink href="/liquid-staking" children="Liquid Staking" />
+          <NavLink href="/docs" children="Docs" />
         </nav>
 
-        <div>
-          <Button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="h-10 mx-4 text-sm font-medium"
-          >
-            {theme === "dark" ? "Light Mode" : "Dark Mode"}
-          </Button>
+        <div className="hidden md:flex items-center">
+
           <Link
             href="/stake"
-            className="inline-flex items-center justify-center rounded-full bg-black text-white h-10 px-6 text-sm font-medium transition-colors hover:bg-gray-900"
+            className="inline-flex items-center justify-center rounded-full h-10 px-6 text-sm font-medium transition-colors bg-accent-foreground text-accent hover:bg-accent-foreground/80"
           >
             Stake Now
           </Link>
+
         </div>
+
       </div>
+
+      
+      <div className="container flex items-center w-min px-0 mx-4">
+            <input type="checkbox" id="theme-toggle" checked={ theme == "dark" } onChange={(e) => {
+              const { checked } = e.target as HTMLInputElement
+              setTheme(checked ? "dark" : "light")
+            }}/>
+            <label htmlFor="theme-toggle"></label>
+          </div>
     </header>
   )
 }

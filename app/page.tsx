@@ -19,7 +19,7 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   href="/stake"
-                  className="inline-flex items-center justify-center rounded-full bg-black text-white h-12 px-8 text-base font-medium transition-colors hover:bg-gray-900"
+                  className="inline-flex items-center justify-center rounded-full h-12 px-8 text-base font-medium transition-colors bg-accent-foreground text-accent hover:bg-accent-foreground/80"
                 >
                   Stake Now
                   <ArrowRight className="ml-2 h-4 w-4" />

@@ -71,3 +71,25 @@
   }
 }
 
+#theme-toggle {
+  visibility: hidden;
+}
+
+#theme-toggle + label {
+  content: '';
+  display: inline-block;
+  cursor: pointer;
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  transition: all 0.3s ease-in-out;
+}
+
+#theme-toggle:not(:checked) + label {
+  background-color: #ffb70b;
+}
+
+#theme-toggle:checked + label {
+  background-color: transparent;
+  box-shadow: inset -7px -6px 1px 1px #fff;
+}
