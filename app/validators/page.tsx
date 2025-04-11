@@ -9,7 +9,7 @@ const validators = Array.from({ length: 20 }, (_, i) => ({
   apy: (7 + (i % 6)).toFixed(1),
   totalStaked: (1000 * (i + 1)).toFixed(0),
   uptime: (99 + (i % 2) * 0.9).toFixed(1),
-  status: i % 10 === 0 ? "Jailed" : "Active",
+  status: i % 10 === 0 ? "Slashed" : "Active",
 }))
 
 export default function ValidatorsPage() {

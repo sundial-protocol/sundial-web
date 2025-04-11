@@ -1,6 +1,32 @@
 import Link from "next/link"
 import { ArrowLeft, ArrowRight, Book } from "lucide-react"
 
+type GuideLinkProps = {
+  href: string
+  title: string
+  description: string
+}
+
+function GuideLink(props: GuideLinkProps) {
+  const { href, title, description } = props
+  return (
+    <Link
+    href={href}
+    className="flex flex-col space-y-3 rounded-lg border p-6 shadow-sm hover:shadow-md transition-shadow"
+  >
+    <div className="flex items-center space-x-3">
+      <Book className="h-6 w-6 text-[#ffb70b]" />
+      <h3 className="text-xl font-bold">{title}</h3>
+    </div>
+    <p className="text-gray-500">{description}</p>
+    <div className="flex items-center text-[#ffb70b]">
+      <span>Read Guide</span>
+      <ArrowRight className="ml-1 h-4 w-4" />
+    </div>
+  </Link>
+  )
+}
+
 export default function GuidesPage() {
   return (
     <div className="flex flex-col min-h-screen">
@@ -28,182 +54,77 @@ export default function GuidesPage() {
             <div>
               <h2 className="text-2xl font-bold mb-6">Getting Started</h2>
               <div className="grid gap-6 md:grid-cols-2 lg:gap-8">
-                <Link
-                  href="/docs/guides/getting-started"
-                  className="flex flex-col space-y-3 rounded-lg border p-6 shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-center space-x-3">
-                    <Book className="h-6 w-6 text-[#ffb70b]" />
-                    <h3 className="text-xl font-bold">Getting Started with Sundial Staking</h3>
-                  </div>
-                  <p className="text-gray-500">Learn how to stake your Bitcoin with Sundial in a few simple steps.</p>
-                  <div className="flex items-center text-[#ffb70b]">
-                    <span>Read Guide</span>
-                    <ArrowRight className="ml-1 h-4 w-4" />
-                  </div>
-                </Link>
-                <Link
-                  href="/docs/guides/wallet-setup"
-                  className="flex flex-col space-y-3 rounded-lg border p-6 shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-center space-x-3">
-                    <Book className="h-6 w-6 text-[#ffb70b]" />
-                    <h3 className="text-xl font-bold">Setting Up Your Wallet</h3>
-                  </div>
-                  <p className="text-gray-500">How to set up and connect your Bitcoin wallet to Sundial.</p>
-                  <div className="flex items-center text-[#ffb70b]">
-                    <span>Read Guide</span>
-                    <ArrowRight className="ml-1 h-4 w-4" />
-                  </div>
-                </Link>
+                <GuideLink 
+                  href="/docs/guides/getting-started" 
+                  title="Getting Started with Sundial Staking" 
+                  description="Learn how to stake your Bitcoin with Sundial in a few simple steps." />
+                <GuideLink 
+                  href="/docs/guides/wallet-setup" 
+                  title="Setting Up Your Wallet" 
+                  description="How to set up and connect your Bitcoin wallet to Sundial." />
               </div>
             </div>
 
             <div>
               <h2 className="text-2xl font-bold mb-6">Staking</h2>
               <div className="grid gap-6 md:grid-cols-2 lg:gap-8">
-                <Link
-                  href="/docs/guides/staking-process"
-                  className="flex flex-col space-y-3 rounded-lg border p-6 shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-center space-x-3">
-                    <Book className="h-6 w-6 text-[#ffb70b]" />
-                    <h3 className="text-xl font-bold">The Staking Process Explained</h3>
-                  </div>
-                  <p className="text-gray-500">A detailed explanation of how staking works on Sundial.</p>
-                  <div className="flex items-center text-[#ffb70b]">
-                    <span>Read Guide</span>
-                    <ArrowRight className="ml-1 h-4 w-4" />
-                  </div>
-                </Link>
-                <Link
+                <GuideLink
+                  href="docs/guides/staking-process"
+                  title="The Staking Process Explained"
+                  description="A detailed explanation of how staking works on Sundial."
+                />
+                <GuideLink
                   href="/docs/guides/validators"
-                  className="flex flex-col space-y-3 rounded-lg border p-6 shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-center space-x-3">
-                    <Book className="h-6 w-6 text-[#ffb70b]" />
-                    <h3 className="text-xl font-bold">Choosing a Validator</h3>
-                  </div>
-                  <p className="text-gray-500">How to select the right validator for your staking needs.</p>
-                  <div className="flex items-center text-[#ffb70b]">
-                    <span>Read Guide</span>
-                    <ArrowRight className="ml-1 h-4 w-4" />
-                  </div>
-                </Link>
-                <Link
+                  title="Choosing a Validator"
+                  description="How to select the right validator for your staking needs."
+                />
+                <GuideLink
                   href="/docs/guides/rewards"
-                  className="flex flex-col space-y-3 rounded-lg border p-6 shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-center space-x-3">
-                    <Book className="h-6 w-6 text-[#ffb70b]" />
-                    <h3 className="text-xl font-bold">Staking Rewards Explained</h3>
-                  </div>
-                  <p className="text-gray-500">Learn how staking rewards are calculated and distributed.</p>
-                  <div className="flex items-center text-[#ffb70b]">
-                    <span>Read Guide</span>
-                    <ArrowRight className="ml-1 h-4 w-4" />
-                  </div>
-                </Link>
-                <Link
+                  title="Staking Rewards Explained"
+                  description="Learn how staking rewards are calculated and distributed."
+                />
+                <GuideLink
                   href="/docs/guides/unstaking"
-                  className="flex flex-col space-y-3 rounded-lg border p-6 shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-center space-x-3">
-                    <Book className="h-6 w-6 text-[#ffb70b]" />
-                    <h3 className="text-xl font-bold">Unstaking Process</h3>
-                  </div>
-                  <p className="text-gray-500">How to unstake your Bitcoin and withdraw your assets.</p>
-                  <div className="flex items-center text-[#ffb70b]">
-                    <span>Read Guide</span>
-                    <ArrowRight className="ml-1 h-4 w-4" />
-                  </div>
-                </Link>
+                  title="Unstaking Your Bitcoin"
+                  description="How to unstake your Bitcoin and withdraw your assets."
+                />
               </div>
             </div>
 
             <div>
               <h2 className="text-2xl font-bold mb-6">Liquid Staking</h2>
               <div className="grid gap-6 md:grid-cols-2 lg:gap-8">
-                <Link
+                <GuideLink
                   href="/docs/guides/liquid-staking"
-                  className="flex flex-col space-y-3 rounded-lg border p-6 shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-center space-x-3">
-                    <Book className="h-6 w-6 text-[#ffb70b]" />
-                    <h3 className="text-xl font-bold">Understanding Liquid Staking</h3>
-                  </div>
-                  <p className="text-gray-500">
-                    Everything you need to know about Sundial&apos;s liquid staking solution.
-                  </p>
-                  <div className="flex items-center text-[#ffb70b]">
-                    <span>Read Guide</span>
-                    <ArrowRight className="ml-1 h-4 w-4" />
-                  </div>
-                </Link>
-                <Link
+                  title="Understanding Liquid Staking"
+                  description="Everything you need to know about Sundial's liquid staking solution."
+                />
+                <GuideLink
                   href="/docs/guides/$SUN"
-                  className="flex flex-col space-y-3 rounded-lg border p-6 shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-center space-x-3">
-                    <Book className="h-6 w-6 text-[#ffb70b]" />
-                    <h3 className="text-xl font-bold">$SUN: Sundial&apos;s Liquid Staking Token</h3>
-                  </div>
-                  <p className="text-gray-500">
-                    Learn about $SUN, how it works, and how to use it in DeFi applications.
-                  </p>
-                  <div className="flex items-center text-[#ffb70b]">
-                    <span>Read Guide</span>
-                    <ArrowRight className="ml-1 h-4 w-4" />
-                  </div>
-                </Link>
-                <Link
+                  title="$SUN: Sundial's Liquid Staking Token"
+                  description="Learn about $SUN, how it works, and how to use it in DeFi applications."
+                />
+                <GuideLink
                   href="/docs/guides/redeeming-$SUN"
-                  className="flex flex-col space-y-3 rounded-lg border p-6 shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-center space-x-3">
-                    <Book className="h-6 w-6 text-[#ffb70b]" />
-                    <h3 className="text-xl font-bold">Redeeming $SUN for Bitcoin</h3>
-                  </div>
-                  <p className="text-gray-500">How to redeem your $SUN tokens for Bitcoin.</p>
-                  <div className="flex items-center text-[#ffb70b]">
-                    <span>Read Guide</span>
-                    <ArrowRight className="ml-1 h-4 w-4" />
-                  </div>
-                </Link>
+                  title="Redeeming $SUN for Bitcoin"
+                  description="How to redeem your $SUN tokens for Bitcoin."
+                />
               </div>
             </div>
 
             <div>
               <h2 className="text-2xl font-bold mb-6">Security</h2>
               <div className="grid gap-6 md:grid-cols-2 lg:gap-8">
-                <Link
+                <GuideLink
                   href="/docs/guides/security"
-                  className="flex flex-col space-y-3 rounded-lg border p-6 shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-center space-x-3">
-                    <Book className="h-6 w-6 text-[#ffb70b]" />
-                    <h3 className="text-xl font-bold">Security Best Practices</h3>
-                  </div>
-                  <p className="text-gray-500">Tips for keeping your staked assets secure.</p>
-                  <div className="flex items-center text-[#ffb70b]">
-                    <span>Read Guide</span>
-                    <ArrowRight className="ml-1 h-4 w-4" />
-                  </div>
-                </Link>
-                <Link
+                  title="Security Best Practices"
+                  description="Tips for keeping your staked assets secure."
+                />
+                <GuideLink
                   href="/docs/guides/wallet-security"
-                  className="flex flex-col space-y-3 rounded-lg border p-6 shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-center space-x-3">
-                    <Book className="h-6 w-6 text-[#ffb70b]" />
-                    <h3 className="text-xl font-bold">Wallet Security</h3>
-                  </div>
-                  <p className="text-gray-500">How to secure your Bitcoin wallet when staking.</p>
-                  <div className="flex items-center text-[#ffb70b]">
-                    <span>Read Guide</span>
-                    <ArrowRight className="ml-1 h-4 w-4" />
-                  </div>
-                </Link>
+                  title="Wallet Security"
+                  description="How to secure your Bitcoin wallet when staking."
+                />
               </div>
             </div>
           </div>

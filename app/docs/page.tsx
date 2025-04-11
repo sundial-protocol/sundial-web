@@ -1,6 +1,25 @@
 import Link from "next/link"
 import { ArrowRight, Book, FileText, HelpCircle } from "lucide-react"
 
+type GuideLinkProps = {
+  href: string
+  title: string
+  description: string
+}
+
+function GuideLink(props: GuideLinkProps) {
+  const { href, title, description } = props
+  return (
+    <Link
+    href={href}
+    className="rounded-lg border shadow-sm p-6 hover:shadow-md transition-shadow shadow-[#ffb70b] hover:shadow-[#ffb70b]/50"
+  >
+    <h3 className="text-xl font-bold mb-2">{title}</h3>
+    <p className="text-gray-500">{description}</p>
+  </Link>
+  )
+}
+
 export default function DocsPage() {
   return (
     <div className="flex flex-col min-h-screen">
@@ -77,48 +96,36 @@ export default function DocsPage() {
             </div>
           </div>
           <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-2 lg:gap-12">
-            <Link
+            <GuideLink
               href="/docs/guides/getting-started"
-              className="rounded-lg border shadow-sm p-6 hover:shadow-md transition-shadow"
-            >
-              <h3 className="text-xl font-bold mb-2">Getting Started with Sundial Staking</h3>
-              <p className="text-gray-500">Learn how to stake your Bitcoin with Sundial in a few simple steps.</p>
-            </Link>
-            <Link
+              title="Getting Started with Sundial Staking"
+              description="Learn how to stake your Bitcoin with Sundial in a few simple steps."
+            />
+            <GuideLink
               href="/docs/guides/liquid-staking"
-              className="rounded-lg border shadow-sm p-6 hover:shadow-md transition-shadow"
-            >
-              <h3 className="text-xl font-bold mb-2">Understanding Liquid Staking</h3>
-              <p className="text-gray-500">Everything you need to know about Sundial&apos;s liquid staking solution.</p>
-            </Link>
-            <Link
+              title="Understanding Liquid Staking"
+              description="Everything you need to know about Sundial's liquid staking solution."
+            />
+            <GuideLink
               href="/docs/guides/validators"
-              className="rounded-lg border shadow-sm p-6 hover:shadow-md transition-shadow"
-            >
-              <h3 className="text-xl font-bold mb-2">Choosing a Validator</h3>
-              <p className="text-gray-500">How to select the right validator for your staking needs.</p>
-            </Link>
-            <Link
+              title="Choosing a Validator"
+              description="How to select the right validator for your staking needs."
+            />
+            <GuideLink
               href="/docs/guides/rewards"
-              className="rounded-lg border shadow-sm p-6 hover:shadow-md transition-shadow"
-            >
-              <h3 className="text-xl font-bold mb-2">Staking Rewards Explained</h3>
-              <p className="text-gray-500">Learn how staking rewards are calculated and distributed.</p>
-            </Link>
-            <Link
+              title="Staking Rewards Explained"
+              description="Learn how staking rewards are calculated and distributed."
+            />
+            <GuideLink
               href="/docs/guides/security"
-              className="rounded-lg border shadow-sm p-6 hover:shadow-md transition-shadow"
-            >
-              <h3 className="text-xl font-bold mb-2">Security Best Practices</h3>
-              <p className="text-gray-500">Tips for keeping your staked assets secure.</p>
-            </Link>
-            <Link
+              title="Security Best Practices"
+              description="Tips for keeping your staked assets secure."
+            />
+            <GuideLink
               href="/docs/guides/unstaking"
-              className="rounded-lg border shadow-sm p-6 hover:shadow-md transition-shadow"
-            >
-              <h3 className="text-xl font-bold mb-2">Unstaking Process</h3>
-              <p className="text-gray-500">How to unstake your Bitcoin and withdraw your assets.</p>
-            </Link>
+              title="Unstaking Process"
+              description="How to unstake your Bitcoin and withdraw your assets."
+            />
           </div>
         </div>
       </section>
