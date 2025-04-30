@@ -1,7 +1,3 @@
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-
-import { Section } from "@/components/ui/section";
 import HowLSWorks from "./how-ls-works";
 import WhatIsLS from "./what-is-ls";
 import { SunToken } from "./sun-token";

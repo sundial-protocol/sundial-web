@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
+import { useState } from "react";
 
 function NavLink({
   href,
@@ -24,6 +25,62 @@ function NavLink({
     >
       {children}
     </Link>
+  );
+}
+
+function NavDropdown({
+  label,
+  links,
+}: {
+  label: string;
+  links: { href: string; label: string }[];
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+
+  return (
+    <div
+      className="relative"
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+          setIsOpen(false);
+        }
+      }}
+    >
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={cn(
+          "text-sm font-medium transition-colors hover:text-primary",
+          links.some((l) => l.href === pathname)
+            ? "text-primary"
+            : "text-muted-foreground"
+        )}
+      >
+        {label}
+      </button>
+      {isOpen && (
+        <div className="absolute top-full mt-2 w-48 bg-background border border-border rounded-md shadow-lg">
+          <ul className="flex flex-col">
+            {links.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className={cn(
+                    "block px-4 py-2 text-sm transition-colors hover:bg-muted hover:text-primary",
+                    pathname === link.href
+                      ? "text-primary"
+                      : "text-muted-foreground"
+                  )}
+                  onClick={() => setIsOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -59,8 +116,13 @@ export default function Navbar() {
 
         <nav className="hidden md:flex items-center gap-6">
           <NavLink href="/validators">Validators</NavLink>
-          <NavLink href="/staking">Staking</NavLink>
-          <NavLink href="/liquid-staking">Liquid Staking</NavLink>
+          <NavDropdown
+            label="Staking"
+            links={[
+              { href: "/staking", label: "Learn" },
+              { href: "/liquid-staking", label: "Liquid Staking" },
+            ]}
+          />
           <NavLink href="/docs">Docs</NavLink>
         </nav>
 
