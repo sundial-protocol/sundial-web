@@ -1,5 +1,6 @@
 import Link from "next/link";
 import StakeCTA from "@/components/reusable-sections/stake-cta";
+import { HeroSection } from "@/components/ui/hero-section";
 
 // Mock data for validators
 const validators = Array.from({ length: 20 }, (_, i) => ({
@@ -15,21 +16,19 @@ const validators = Array.from({ length: 20 }, (_, i) => ({
 export default function ValidatorsPage() {
   return (
     <div className="flex flex-col min-h-screen">
-      <section className="py-12 md:py-16 bg-secondary">
-        <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center justify-center space-y-4 text-center">
-            <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                Validators
-              </h1>
-              <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl">
-                Explore our network of trusted validators securing the Sundial
-                network.
-              </p>
-            </div>
+      <HeroSection>
+        <div className="flex flex-col items-center justify-center space-y-4 text-center">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+              Validators
+            </h1>
+            <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl">
+              Explore our network of trusted validators securing the Sundial
+              network.
+            </p>
           </div>
         </div>
-      </section>
+      </HeroSection>
 
       <section className="py-12">
         <div className="container px-4 md:px-6">

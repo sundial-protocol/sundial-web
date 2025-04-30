@@ -17,6 +17,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { HeroSection } from "@/components/ui/hero-section";
+import { StakeHero } from "./stake-hero";
 
 // Mock data for validators
 const validators = Array.from({ length: 20 }, (_, i) => ({
@@ -67,27 +69,7 @@ function PageContent() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <section className="py-12 md:py-16 bg-secondary">
-        <div className="container px-4 md:px-6">
-          <div className="flex flex-col space-y-4">
-            <Link
-              href="/"
-              className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900"
-            >
-              <ArrowLeft className="mr-1 h-4 w-4" />
-              Back to Home
-            </Link>
-            <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl">
-                Stake Bitcoin
-              </h1>
-              <p className="text-gray-500 md:text-lg">
-                Stake your Bitcoin with Sundial and start earning rewards.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <StakeHero />
 
       <section className="py-12">
         <div className="container px-4 md:px-6">
