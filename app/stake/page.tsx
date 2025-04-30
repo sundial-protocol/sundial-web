@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ArrowLeft, Check, Info } from "lucide-react";
@@ -30,6 +30,14 @@ const validators = Array.from({ length: 20 }, (_, i) => ({
 }));
 
 export default function StakePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PageContent />
+    </Suspense>
+  );
+}
+
+function PageContent() {
   const searchParams = useSearchParams();
   const validatorId = searchParams.get("validator");
   const stakeType = searchParams.get("type") || "regular";
