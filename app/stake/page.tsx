@@ -1,15 +1,22 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { useSearchParams } from "next/navigation"
-import { ArrowLeft, Check, Info } from "lucide-react"
+import { useState } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { ArrowLeft, Check, Info } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Mock data for validators
 const validators = Array.from({ length: 20 }, (_, i) => ({
@@ -20,46 +27,55 @@ const validators = Array.from({ length: 20 }, (_, i) => ({
   totalStaked: (1000 * (i + 1)).toFixed(0),
   uptime: (99 + (i % 2) * 0.9).toFixed(1),
   status: i % 10 === 0 ? "Jailed" : "Active",
-}))
+}));
 
 export default function StakePage() {
-  const searchParams = useSearchParams()
-  const validatorId = searchParams.get("validator")
-  const stakeType = searchParams.get("type") || "regular"
+  const searchParams = useSearchParams();
+  const validatorId = searchParams.get("validator");
+  const stakeType = searchParams.get("type") || "regular";
 
-  const [selectedValidator, setSelectedValidator] = useState(validatorId ? Number.parseInt(validatorId) : null)
-  const [amount, setAmount] = useState("")
-  const [step, setStep] = useState(1)
+  const [selectedValidator, setSelectedValidator] = useState(
+    validatorId ? Number.parseInt(validatorId) : null
+  );
+  const [amount, setAmount] = useState("");
+  const [step, setStep] = useState(1);
 
   const handleValidatorSelect = (id: number) => {
-    setSelectedValidator(id)
-  }
+    setSelectedValidator(id);
+  };
 
   const handleNextStep = () => {
-    setStep(step + 1)
-  }
+    setStep(step + 1);
+  };
 
   const handlePrevStep = () => {
-    setStep(step - 1)
-  }
+    setStep(step - 1);
+  };
 
   const handleStake = () => {
     // This would be where the actual staking logic would go
-    alert(`Staked ${amount} BTC with Validator ${selectedValidator}`)
-  }
+    alert(`Staked ${amount} BTC with Validator ${selectedValidator}`);
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
       <section className="py-12 md:py-16 bg-secondary">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col space-y-4">
-            <Link href="/" className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900">
+            <Link
+              href="/"
+              className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900"
+            >
               <ArrowLeft className="mr-1 h-4 w-4" />
               Back to Home
             </Link>
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl">Stake Bitcoin</h1>
-              <p className="text-gray-500 md:text-lg">Stake your Bitcoin with Sundial and start earning rewards.</p>
+              <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl">
+                Stake Bitcoin
+              </h1>
+              <p className="text-gray-500 md:text-lg">
+                Stake your Bitcoin with Sundial and start earning rewards.
+              </p>
             </div>
           </div>
         </div>
@@ -76,13 +92,17 @@ export default function StakePage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Regular Staking</CardTitle>
-                  <CardDescription>Stake your Bitcoin with a validator and earn rewards.</CardDescription>
+                  <CardDescription>
+                    Stake your Bitcoin with a validator and earn rewards.
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   {step === 1 && (
                     <div className="space-y-6">
                       <div>
-                        <h3 className="text-lg font-medium mb-4">Step 1: Choose a Validator</h3>
+                        <h3 className="text-lg font-medium mb-4">
+                          Step 1: Choose a Validator
+                        </h3>
                         <div className="space-y-4">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {validators.slice(0, 6).map((validator) => (
@@ -93,23 +113,36 @@ export default function StakePage() {
                                     ? "border-[#ffb70b] bg-[#ffb70b]/5"
                                     : "hover:border-gray-300"
                                 }`}
-                                onClick={() => handleValidatorSelect(validator.id)}
+                                onClick={() =>
+                                  handleValidatorSelect(validator.id)
+                                }
                               >
                                 <div className="flex justify-between items-start">
                                   <div>
-                                    <h4 className="font-medium">{validator.name}</h4>
-                                    <p className="text-sm text-gray-500">Commission: {validator.commission}%</p>
+                                    <h4 className="font-medium">
+                                      {validator.name}
+                                    </h4>
+                                    <p className="text-sm text-gray-500">
+                                      Commission: {validator.commission}%
+                                    </p>
                                   </div>
-                                  {selectedValidator === validator.id && <Check className="h-5 w-5 text-[#ffb70b]" />}
+                                  {selectedValidator === validator.id && (
+                                    <Check className="h-5 w-5 text-[#ffb70b]" />
+                                  )}
                                 </div>
                                 <div className="mt-2 flex justify-between text-sm">
                                   <span>APY</span>
-                                  <span className="font-bold text-green-600">{validator.apy}%</span>
+                                  <span className="font-bold text-green-600">
+                                    {validator.apy}%
+                                  </span>
                                 </div>
                               </div>
                             ))}
                           </div>
-                          <Link href="/validators" className="text-sm text-[#ffb70b] hover:underline">
+                          <Link
+                            href="/validators"
+                            className="text-sm text-[#ffb70b] hover:underline"
+                          >
                             View all validators
                           </Link>
                         </div>
@@ -120,7 +153,9 @@ export default function StakePage() {
                   {step === 2 && (
                     <div className="space-y-6">
                       <div>
-                        <h3 className="text-lg font-medium mb-4">Step 2: Enter Amount</h3>
+                        <h3 className="text-lg font-medium mb-4">
+                          Step 2: Enter Amount
+                        </h3>
                         <div className="space-y-4">
                           <div className="space-y-2">
                             <Label htmlFor="amount">Amount (BTC)</Label>
@@ -146,10 +181,23 @@ export default function StakePage() {
                             <div className="flex items-start">
                               <Info className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
                               <div>
-                                <h4 className="text-sm font-medium text-blue-800">Staking Information</h4>
+                                <h4 className="text-sm font-medium text-blue-800">
+                                  Staking Information
+                                </h4>
                                 <p className="text-sm text-blue-700 mt-1">
-                                  You are about to stake with {validators.find((v) => v.id === selectedValidator)?.name}
-                                  . The current APY is {validators.find((v) => v.id === selectedValidator)?.apy}%.
+                                  You are about to stake with{" "}
+                                  {
+                                    validators.find(
+                                      (v) => v.id === selectedValidator
+                                    )?.name
+                                  }
+                                  . The current APY is{" "}
+                                  {
+                                    validators.find(
+                                      (v) => v.id === selectedValidator
+                                    )?.apy
+                                  }
+                                  %.
                                 </p>
                               </div>
                             </div>
@@ -162,14 +210,24 @@ export default function StakePage() {
                   {step === 3 && (
                     <div className="space-y-6">
                       <div>
-                        <h3 className="text-lg font-medium mb-4">Step 3: Confirm Staking</h3>
+                        <h3 className="text-lg font-medium mb-4">
+                          Step 3: Confirm Staking
+                        </h3>
                         <div className="space-y-4">
                           <div className="rounded-lg border p-4">
-                            <h4 className="font-medium mb-4">Staking Summary</h4>
+                            <h4 className="font-medium mb-4">
+                              Staking Summary
+                            </h4>
                             <div className="space-y-2">
                               <div className="flex justify-between">
                                 <span className="text-gray-500">Validator</span>
-                                <span>{validators.find((v) => v.id === selectedValidator)?.name}</span>
+                                <span>
+                                  {
+                                    validators.find(
+                                      (v) => v.id === selectedValidator
+                                    )?.name
+                                  }
+                                </span>
                               </div>
                               <div className="flex justify-between">
                                 <span className="text-gray-500">Amount</span>
@@ -178,15 +236,31 @@ export default function StakePage() {
                               <div className="flex justify-between">
                                 <span className="text-gray-500">APY</span>
                                 <span className="text-green-600">
-                                  {validators.find((v) => v.id === selectedValidator)?.apy}%
+                                  {
+                                    validators.find(
+                                      (v) => v.id === selectedValidator
+                                    )?.apy
+                                  }
+                                  %
                                 </span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-gray-500">Commission</span>
-                                <span>{validators.find((v) => v.id === selectedValidator)?.commission}%</span>
+                                <span className="text-gray-500">
+                                  Commission
+                                </span>
+                                <span>
+                                  {
+                                    validators.find(
+                                      (v) => v.id === selectedValidator
+                                    )?.commission
+                                  }
+                                  %
+                                </span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-gray-500">Unbonding Period</span>
+                                <span className="text-gray-500">
+                                  Unbonding Period
+                                </span>
                                 <span>7 days</span>
                               </div>
                             </div>
@@ -195,10 +269,14 @@ export default function StakePage() {
                             <div className="flex items-start">
                               <Info className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
                               <div>
-                                <h4 className="text-sm font-medium text-blue-800">Important Information</h4>
+                                <h4 className="text-sm font-medium text-blue-800">
+                                  Important Information
+                                </h4>
                                 <p className="text-sm text-blue-700 mt-1">
-                                  By staking your Bitcoin, you agree to a 7-day unbonding period when you decide to
-                                  unstake. During this period, your Bitcoin will not earn rewards.
+                                  By staking your Bitcoin, you agree to a 7-day
+                                  unbonding period when you decide to unstake.
+                                  During this period, your Bitcoin will not earn
+                                  rewards.
                                 </p>
                               </div>
                             </div>
@@ -217,7 +295,10 @@ export default function StakePage() {
                   {step < 3 ? (
                     <Button
                       onClick={handleNextStep}
-                      disabled={(step === 1 && !selectedValidator) || (step === 2 && !amount)}
+                      disabled={
+                        (step === 1 && !selectedValidator) ||
+                        (step === 2 && !amount)
+                      }
                     >
                       Continue
                     </Button>
@@ -232,14 +313,17 @@ export default function StakePage() {
                 <CardHeader>
                   <CardTitle>Liquid Staking</CardTitle>
                   <CardDescription>
-                    Stake your Bitcoin and receive $SUN tokens that you can use in DeFi applications.
+                    Stake your Bitcoin and receive $SUN tokens that you can use
+                    in DeFi applications.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   {step === 1 && (
                     <div className="space-y-6">
                       <div>
-                        <h3 className="text-lg font-medium mb-4">Step 1: Enter Amount</h3>
+                        <h3 className="text-lg font-medium mb-4">
+                          Step 1: Enter Amount
+                        </h3>
                         <div className="space-y-4">
                           <div className="space-y-2">
                             <Label htmlFor="amount">Amount (BTC)</Label>
@@ -265,11 +349,14 @@ export default function StakePage() {
                             <div className="flex items-start">
                               <Info className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
                               <div>
-                                <h4 className="text-sm font-medium text-blue-800">Liquid Staking Information</h4>
+                                <h4 className="text-sm font-medium text-blue-800">
+                                  Liquid Staking Information
+                                </h4>
                                 <p className="text-sm text-blue-700 mt-1">
-                                  When you liquid stake, you receive $SUN tokens that represent your staked Bitcoin.
-                                  These tokens can be used in DeFi applications while your Bitcoin earns staking
-                                  rewards.
+                                  When you liquid stake, you receive $SUN tokens
+                                  that represent your staked Bitcoin. These
+                                  tokens can be used in DeFi applications while
+                                  your Bitcoin earns staking rewards.
                                 </p>
                               </div>
                             </div>
@@ -282,25 +369,35 @@ export default function StakePage() {
                   {step === 2 && (
                     <div className="space-y-6">
                       <div>
-                        <h3 className="text-lg font-medium mb-4">Step 2: Confirm Liquid Staking</h3>
+                        <h3 className="text-lg font-medium mb-4">
+                          Step 2: Confirm Liquid Staking
+                        </h3>
                         <div className="space-y-4">
                           <div className="rounded-lg border p-4">
-                            <h4 className="font-medium mb-4">Staking Summary</h4>
+                            <h4 className="font-medium mb-4">
+                              Staking Summary
+                            </h4>
                             <div className="space-y-2">
                               <div className="flex justify-between">
                                 <span className="text-gray-500">Amount</span>
                                 <span>{amount} BTC</span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-gray-500">You Receive</span>
+                                <span className="text-gray-500">
+                                  You Receive
+                                </span>
                                 <span>{amount} $SUN</span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-gray-500">Current APY</span>
+                                <span className="text-gray-500">
+                                  Current APY
+                                </span>
                                 <span className="text-green-600">8.5%</span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-gray-500">Protocol Fee</span>
+                                <span className="text-gray-500">
+                                  Protocol Fee
+                                </span>
                                 <span>0.5%</span>
                               </div>
                             </div>
@@ -309,10 +406,13 @@ export default function StakePage() {
                             <div className="flex items-start">
                               <Info className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
                               <div>
-                                <h4 className="text-sm font-medium text-blue-800">Important Information</h4>
+                                <h4 className="text-sm font-medium text-blue-800">
+                                  Important Information
+                                </h4>
                                 <p className="text-sm text-blue-700 mt-1">
-                                  $SUN tokens represent your staked Bitcoin and can be redeemed at any time. The value
-                                  of $SUN increases over time as staking rewards accrue.
+                                  $SUN tokens represent your staked Bitcoin and
+                                  can be redeemed at any time. The value of $SUN
+                                  increases over time as staking rewards accrue.
                                 </p>
                               </div>
                             </div>
@@ -342,6 +442,5 @@ export default function StakePage() {
         </div>
       </section>
     </div>
-  )
+  );
 }
-

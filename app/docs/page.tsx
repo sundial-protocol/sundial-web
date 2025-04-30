@@ -1,23 +1,23 @@
-import Link from "next/link"
-import { ArrowRight, Book, FileText, HelpCircle } from "lucide-react"
+import Link from "next/link";
+import { ArrowRight, Book, FileText, HelpCircle } from "lucide-react";
 
 type GuideLinkProps = {
-  href: string
-  title: string
-  description: string
-}
+  href: string;
+  title: string;
+  description: string;
+};
 
 function GuideLink(props: GuideLinkProps) {
-  const { href, title, description } = props
+  const { href, title, description } = props;
   return (
     <Link
-    href={href}
-    className="rounded-lg border shadow-sm p-6 hover:shadow-md transition-shadow shadow-[#ffb70b] hover:shadow-[#ffb70b]/50"
-  >
-    <h3 className="text-xl font-bold mb-2">{title}</h3>
-    <p className="text-gray-500">{description}</p>
-  </Link>
-  )
+      href={href}
+      className="rounded-lg border shadow-sm p-6 hover:shadow-md transition-shadow shadow-[#ffb70b] hover:shadow-[#ffb70b]/50"
+    >
+      <h3 className="text-xl font-bold mb-2">{title}</h3>
+      <p className="text-gray-500">{description}</p>
+    </Link>
+  );
 }
 
 export default function DocsPage() {
@@ -27,7 +27,9 @@ export default function DocsPage() {
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Documentation</h1>
+              <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+                Documentation
+              </h1>
               <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl">
                 Learn everything you need to know about Sundial staking.
               </p>
@@ -47,7 +49,10 @@ export default function DocsPage() {
                 <Book className="h-6 w-6 text-[#ffb70b]" />
                 <h2 className="text-xl font-bold">Guides</h2>
               </div>
-              <p className="text-gray-500">Step-by-step guides to help you get started with Sundial staking.</p>
+              <p className="text-gray-500">
+                Step-by-step guides to help you get started with Sundial
+                staking.
+              </p>
               <div className="flex items-center text-[#ffb70b]">
                 <span>View Guides</span>
                 <ArrowRight className="ml-1 h-4 w-4" />
@@ -61,7 +66,9 @@ export default function DocsPage() {
                 <HelpCircle className="h-6 w-6 text-[#ffb70b]" />
                 <h2 className="text-xl font-bold">FAQ</h2>
               </div>
-              <p className="text-gray-500">Frequently asked questions about Sundial staking.</p>
+              <p className="text-gray-500">
+                Frequently asked questions about Sundial staking.
+              </p>
               <div className="flex items-center text-[#ffb70b]">
                 <span>View FAQ</span>
                 <ArrowRight className="ml-1 h-4 w-4" />
@@ -75,7 +82,9 @@ export default function DocsPage() {
                 <FileText className="h-6 w-6 text-[#ffb70b]" />
                 <h2 className="text-xl font-bold">API Reference</h2>
               </div>
-              <p className="text-gray-500">Technical documentation for developers.</p>
+              <p className="text-gray-500">
+                Technical documentation for developers.
+              </p>
               <div className="flex items-center text-[#ffb70b]">
                 <span>View API Reference</span>
                 <ArrowRight className="ml-1 h-4 w-4" />
@@ -89,7 +98,9 @@ export default function DocsPage() {
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
             <div className="space-y-2">
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Popular Topics</h2>
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">
+                Popular Topics
+              </h2>
               <p className="mx-auto max-w-[700px] text-gray-500 md:text-lg">
                 Quick access to our most frequently visited documentation.
               </p>
@@ -134,9 +145,12 @@ export default function DocsPage() {
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Need Help?</h2>
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">
+                Need Help?
+              </h2>
               <p className="mx-auto max-w-[700px] text-gray-500 md:text-lg">
-                Can&apos;t find what you&apos;re looking for? Our support team is here to help.
+                Can&apos;t find what you&apos;re looking for? Our support team
+                is here to help.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4">
@@ -159,6 +173,5 @@ export default function DocsPage() {
         </div>
       </section>
     </div>
-  )
+  );
 }
-

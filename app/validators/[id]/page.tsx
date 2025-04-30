@@ -1,9 +1,9 @@
-import Link from "next/link"
-import { ArrowRight, Check, Info } from "lucide-react"
+import Link from "next/link";
+import { ArrowRight, Check, Info } from "lucide-react";
 
 // Function to get validator data by ID
 function getValidatorById(id: string) {
-  const numId = Number.parseInt(id)
+  const numId = Number.parseInt(id);
   return {
     id: numId,
     name: `Validator ${numId}`,
@@ -17,12 +17,16 @@ function getValidatorById(id: string) {
     address: `sundial1${numId}abcdef1234567890abcdef1234567890`,
     delegators: 50 + numId * 5,
     votingPower: ((numId * 0.5) % 10).toFixed(2),
-  }
+  };
 }
 
-export default async function ValidatorDetailPage({ params }: { params: { id: string } }) {
+export default async function ValidatorDetailPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const awaitedParams = await params;
-  const validator = getValidatorById(awaitedParams.id)
+  const validator = getValidatorById(awaitedParams.id);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -37,16 +41,22 @@ export default async function ValidatorDetailPage({ params }: { params: { id: st
             </Link>
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div className="space-y-1">
-                <h1 className="text-3xl font-bold tracking-tighter">{validator.name}</h1>
+                <h1 className="text-3xl font-bold tracking-tighter">
+                  {validator.name}
+                </h1>
                 <div className="flex items-center gap-2">
                   <span
                     className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                      validator.status === "Active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                      validator.status === "Active"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-800"
                     }`}
                   >
                     {validator.status}
                   </span>
-                  <span className="text-sm text-gray-500">Uptime: {validator.uptime}%</span>
+                  <span className="text-sm text-gray-500">
+                    Uptime: {validator.uptime}%
+                  </span>
                 </div>
               </div>
               <Link
@@ -71,7 +81,9 @@ export default async function ValidatorDetailPage({ params }: { params: { id: st
 
                 <div className="mt-6 grid grid-cols-2 gap-4">
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500">Website</h3>
+                    <h3 className="text-sm font-medium text-gray-500">
+                      Website
+                    </h3>
                     <a
                       href={validator.website}
                       target="_blank"
@@ -82,8 +94,12 @@ export default async function ValidatorDetailPage({ params }: { params: { id: st
                     </a>
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500">Address</h3>
-                    <p className="text-sm text-gray-900 truncate">{validator.address}</p>
+                    <h3 className="text-sm font-medium text-gray-500">
+                      Address
+                    </h3>
+                    <p className="text-sm text-gray-900 truncate">
+                      {validator.address}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -93,22 +109,36 @@ export default async function ValidatorDetailPage({ params }: { params: { id: st
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <div>
-                      <h3 className="text-sm font-medium text-gray-500">Commission</h3>
-                      <p className="text-2xl font-bold">{validator.commission}%</p>
+                      <h3 className="text-sm font-medium text-gray-500">
+                        Commission
+                      </h3>
+                      <p className="text-2xl font-bold">
+                        {validator.commission}%
+                      </p>
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-500">APY</h3>
-                      <p className="text-2xl font-bold text-green-600">{validator.apy}%</p>
+                      <p className="text-2xl font-bold text-green-600">
+                        {validator.apy}%
+                      </p>
                     </div>
                   </div>
                   <div className="space-y-4">
                     <div>
-                      <h3 className="text-sm font-medium text-gray-500">Total Staked</h3>
-                      <p className="text-2xl font-bold">{validator.totalStaked} BTC</p>
+                      <h3 className="text-sm font-medium text-gray-500">
+                        Total Staked
+                      </h3>
+                      <p className="text-2xl font-bold">
+                        {validator.totalStaked} BTC
+                      </p>
                     </div>
                     <div>
-                      <h3 className="text-sm font-medium text-gray-500">Delegators</h3>
-                      <p className="text-2xl font-bold">{validator.delegators}</p>
+                      <h3 className="text-sm font-medium text-gray-500">
+                        Delegators
+                      </h3>
+                      <p className="text-2xl font-bold">
+                        {validator.delegators}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -118,8 +148,12 @@ export default async function ValidatorDetailPage({ params }: { params: { id: st
                 <h2 className="text-xl font-bold mb-4">Voting Power</h2>
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500">Voting Power</h3>
-                    <p className="text-2xl font-bold">{validator.votingPower}%</p>
+                    <h3 className="text-sm font-medium text-gray-500">
+                      Voting Power
+                    </h3>
+                    <p className="text-2xl font-bold">
+                      {validator.votingPower}%
+                    </p>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2.5">
                     <div
@@ -137,19 +171,27 @@ export default async function ValidatorDetailPage({ params }: { params: { id: st
                 <div className="space-y-4">
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">Commission</span>
-                    <span className="text-sm font-medium">{validator.commission}%</span>
+                    <span className="text-sm font-medium">
+                      {validator.commission}%
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">APY</span>
-                    <span className="text-sm font-medium text-green-600">{validator.apy}%</span>
+                    <span className="text-sm font-medium text-green-600">
+                      {validator.apy}%
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">Total Staked</span>
-                    <span className="text-sm font-medium">{validator.totalStaked} BTC</span>
+                    <span className="text-sm font-medium">
+                      {validator.totalStaked} BTC
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">Uptime</span>
-                    <span className="text-sm font-medium">{validator.uptime}%</span>
+                    <span className="text-sm font-medium">
+                      {validator.uptime}%
+                    </span>
                   </div>
                 </div>
                 <div className="mt-6">
@@ -163,23 +205,33 @@ export default async function ValidatorDetailPage({ params }: { params: { id: st
               </div>
 
               <div className="rounded-lg border shadow-sm p-6">
-                <h2 className="text-xl font-bold mb-4">Why Stake with {validator.name}?</h2>
+                <h2 className="text-xl font-bold mb-4">
+                  Why Stake with {validator.name}?
+                </h2>
                 <ul className="space-y-3">
                   <li className="flex items-start">
                     <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">High uptime of {validator.uptime}%</span>
+                    <span className="text-sm text-gray-700">
+                      High uptime of {validator.uptime}%
+                    </span>
                   </li>
                   <li className="flex items-start">
                     <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">Competitive APY at {validator.apy}%</span>
+                    <span className="text-sm text-gray-700">
+                      Competitive APY at {validator.apy}%
+                    </span>
                   </li>
                   <li className="flex items-start">
                     <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">Trusted by {validator.delegators} delegators</span>
+                    <span className="text-sm text-gray-700">
+                      Trusted by {validator.delegators} delegators
+                    </span>
                   </li>
                   <li className="flex items-start">
                     <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">Secure infrastructure</span>
+                    <span className="text-sm text-gray-700">
+                      Secure infrastructure
+                    </span>
                   </li>
                 </ul>
               </div>
@@ -188,15 +240,24 @@ export default async function ValidatorDetailPage({ params }: { params: { id: st
                 <div className="flex items-start">
                   <Info className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
                   <div>
-                    <h3 className="text-sm font-medium text-blue-800">Need Help?</h3>
+                    <h3 className="text-sm font-medium text-blue-800">
+                      Need Help?
+                    </h3>
                     <p className="text-sm text-blue-700 mt-1">
-                      If you have any questions about staking with this validator, check our
-                      <Link href="/docs/faq" className="text-blue-800 font-medium hover:underline">
+                      If you have any questions about staking with this
+                      validator, check our
+                      <Link
+                        href="/docs/faq"
+                        className="text-blue-800 font-medium hover:underline"
+                      >
                         {" "}
                         FAQ{" "}
                       </Link>
                       or
-                      <Link href="/docs/guides" className="text-blue-800 font-medium hover:underline">
+                      <Link
+                        href="/docs/guides"
+                        className="text-blue-800 font-medium hover:underline"
+                      >
                         {" "}
                         Guides
                       </Link>
@@ -210,6 +271,5 @@ export default async function ValidatorDetailPage({ params }: { params: { id: st
         </div>
       </section>
     </div>
-  )
+  );
 }
-

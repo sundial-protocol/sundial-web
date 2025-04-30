@@ -1,30 +1,30 @@
-import Link from "next/link"
-import { ArrowLeft, ArrowRight, Book } from "lucide-react"
+import Link from "next/link";
+import { ArrowLeft, ArrowRight, Book } from "lucide-react";
 
 type GuideLinkProps = {
-  href: string
-  title: string
-  description: string
-}
+  href: string;
+  title: string;
+  description: string;
+};
 
 function GuideLink(props: GuideLinkProps) {
-  const { href, title, description } = props
+  const { href, title, description } = props;
   return (
     <Link
-    href={href}
-    className="flex flex-col space-y-3 rounded-lg border p-6 shadow-sm hover:shadow-md transition-shadow"
-  >
-    <div className="flex items-center space-x-3">
-      <Book className="h-6 w-6 text-[#ffb70b]" />
-      <h3 className="text-xl font-bold">{title}</h3>
-    </div>
-    <p className="text-gray-500">{description}</p>
-    <div className="flex items-center text-[#ffb70b]">
-      <span>Read Guide</span>
-      <ArrowRight className="ml-1 h-4 w-4" />
-    </div>
-  </Link>
-  )
+      href={href}
+      className="flex flex-col space-y-3 rounded-lg border p-6 shadow-sm hover:shadow-md transition-shadow"
+    >
+      <div className="flex items-center space-x-3">
+        <Book className="h-6 w-6 text-[#ffb70b]" />
+        <h3 className="text-xl font-bold">{title}</h3>
+      </div>
+      <p className="text-gray-500">{description}</p>
+      <div className="flex items-center text-[#ffb70b]">
+        <span>Read Guide</span>
+        <ArrowRight className="ml-1 h-4 w-4" />
+      </div>
+    </Link>
+  );
 }
 
 export default function GuidesPage() {
@@ -41,8 +41,13 @@ export default function GuidesPage() {
               Back to Documentation
             </Link>
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl">Guides</h1>
-              <p className="text-gray-500 md:text-lg">Step-by-step guides to help you get started with Sundial staking.</p>
+              <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl">
+                Guides
+              </h1>
+              <p className="text-gray-500 md:text-lg">
+                Step-by-step guides to help you get started with Sundial
+                staking.
+              </p>
             </div>
           </div>
         </div>
@@ -54,14 +59,16 @@ export default function GuidesPage() {
             <div>
               <h2 className="text-2xl font-bold mb-6">Getting Started</h2>
               <div className="grid gap-6 md:grid-cols-2 lg:gap-8">
-                <GuideLink 
-                  href="/docs/guides/getting-started" 
-                  title="Getting Started with Sundial Staking" 
-                  description="Learn how to stake your Bitcoin with Sundial in a few simple steps." />
-                <GuideLink 
-                  href="/docs/guides/wallet-setup" 
-                  title="Setting Up Your Wallet" 
-                  description="How to set up and connect your Bitcoin wallet to Sundial." />
+                <GuideLink
+                  href="/docs/guides/getting-started"
+                  title="Getting Started with Sundial Staking"
+                  description="Learn how to stake your Bitcoin with Sundial in a few simple steps."
+                />
+                <GuideLink
+                  href="/docs/guides/wallet-setup"
+                  title="Setting Up Your Wallet"
+                  description="How to set up and connect your Bitcoin wallet to Sundial."
+                />
               </div>
             </div>
 
@@ -131,6 +138,5 @@ export default function GuidesPage() {
         </div>
       </section>
     </div>
-  )
+  );
 }
-

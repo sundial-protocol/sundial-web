@@ -3,7 +3,11 @@
 import { ThemeProvider } from "next-themes";
 import { useState, useEffect } from "react";
 
-export default function CustomThemeProvider({ children }: { children: React.ReactNode }) {
+export default function CustomThemeProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -14,5 +18,9 @@ export default function CustomThemeProvider({ children }: { children: React.Reac
     return <>{children}</>; // Render children without ThemeProvider during SSR
   }
 
-  return <ThemeProvider attribute="class" enableSystem={true} defaultTheme="dark">{children}</ThemeProvider>; // Wrap children with ThemeProvider after mount
+  return (
+    <ThemeProvider attribute="class" enableSystem={true} defaultTheme="dark">
+      {children}
+    </ThemeProvider>
+  ); // Wrap children with ThemeProvider after mount
 }

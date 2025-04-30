@@ -76,7 +76,7 @@
 }
 
 #theme-toggle + label {
-  content: '';
+  content: "";
   display: inline-block;
   cursor: pointer;
   height: 30px;
