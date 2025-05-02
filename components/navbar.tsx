@@ -115,11 +115,11 @@ export default function Navbar() {
         </div>
 
         <nav className="hidden md:flex items-center gap-6">
-          <NavLink href="/validators">Validators</NavLink>
           <NavDropdown
             label="Staking"
             links={[
-              { href: "/staking", label: "Learn" },
+              { href: "/staking", label: "About" },
+              { href: "/validators", label: "Validators" },
               { href: "/liquid-staking", label: "Liquid Staking" },
             ]}
           />
