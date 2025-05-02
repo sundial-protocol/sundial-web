@@ -123,6 +123,7 @@ export default function Navbar() {
               { href: "/liquid-staking", label: "Liquid Staking" },
             ]}
           />
+          <NavLink href="/news">News</NavLink>
           <NavLink href="/docs">Docs</NavLink>
         </nav>
 
