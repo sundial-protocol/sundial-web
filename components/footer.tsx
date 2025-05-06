@@ -114,6 +114,16 @@ export default function Footer() {
                   GitHub
                 </a>
               </li>
+              <li>
+                <a
+                  href="https://linkedin.com/company/sundial-protocol/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-500 hover:text-gray-900"
+                >
+                  LinkedIn
+                </a>
+              </li>
             </ul>
           </div>
         </div>
