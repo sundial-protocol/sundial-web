@@ -243,7 +243,7 @@ export default function RoadmapPage() {
         onMouseUp={stopMove}
       >
         <div>
-          <h1 className="text-4xl font-bold text-center text-white z-100">
+          <h1 className="text-4xl font-bold text-center text-white z-100 pt-24">
             Big things are on the horizon.
           </h1>
         </div>
@@ -273,7 +273,17 @@ export default function RoadmapPage() {
         onMouseDown={startMove}
         onMouseUp={stopMove}
       ></div>
-      <div id="darknessOverlay" className={styles.darknessOverlay}></div>
+      <div id="darknessOverlay" className={styles.darknessOverlay}>
+        <div className="text-xl font-bold text-center text-primary z-100 pt-12 space-y-8">
+          <h1 className="text-4xl font-bold text-center text-primary z-100">
+            Join us on our journey to the moon.
+          </h1>
+          <li>Phase 1: Incentivized Testnet</li>
+          <li>Phase 2: IPO</li>
+          <li>Phase 3: Mainnet Launch</li>
+          <li>More to come... </li>
+        </div>
+      </div>
       <div
         id="oceanRippleContainer"
         className={styles.oceanRippleContainer}
