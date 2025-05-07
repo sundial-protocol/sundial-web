@@ -243,15 +243,6 @@
   -ms-transform: rotateX(-90deg);
 }
 
-.mountainRange {
-  position: absolute;
-  left: 0px;
-  width: 100%;
-  bottom: 50%;
-  display: none;
-  z-index: 30;
-}
-
 .star {
   position: absolute;
   display: block;
@@ -304,16 +295,24 @@
   content: "";
 }
 
+.mountainRange {
+  position: absolute;
+  left: 400px;
+  width: 100%;
+  bottom: 50%;
+  z-index: 40;
+}
+
 .mountain {
-  border-bottom: 100px solid #000;
-  border-right: 100px solid transparent;
+  border-bottom: 100px solid #ffb70b;
+  border-left: 100px solid transparent;
   border-width-right: 50%;
   width: 0px;
   height: 0px;
   position: absolute;
   left: 0px;
   bottom: 50%;
-  z-index: 30;
+  z-index: 40;
 }
 
 .horizon {
@@ -482,7 +481,7 @@
   z-index: 10;
 }
 
-#waterReflectionContainer {
+.waterReflectionContainer {
   -webkit-perspective: 30;
   perspective: 30;
   -webkit-perspective-origin: 50% -12%;
@@ -498,7 +497,6 @@
 
 .waterReflectionMiddle {
   position: absolute;
-  top: -30px;
   left: -50%;
   width: 200%;
   height: 55%;

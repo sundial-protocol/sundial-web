@@ -62,7 +62,6 @@ export default function RoadmapPage() {
     const starsContainer = document.getElementById("starsContainer");
     const waterDistance = document.getElementById("waterDistance");
     const sky = document.getElementById("sky");
-    const water = document.getElementById("water");
 
     const bodyWidth = document.body.clientWidth;
     const myHeight = window.innerHeight;
@@ -255,7 +254,6 @@ export default function RoadmapPage() {
         >
           <div
             id="waterReflectionMiddle"
-            className={styles.waterReflectionMiddle}
             onMouseDown={startMove}
             onMouseUp={stopMove}
           ></div>
