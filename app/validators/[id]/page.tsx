@@ -97,7 +97,7 @@ export default async function ValidatorDetailPage({
                     <h3 className="text-sm font-medium text-gray-500">
                       Address
                     </h3>
-                    <p className="text-sm text-gray-900 truncate">
+                    <p className="text-sm text-gray-700 truncate">
                       {validator.address}
                     </p>
                   </div>
