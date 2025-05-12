@@ -295,7 +295,7 @@
   content: "";
 }
 
-.mountainRange {
+.dialContainer {
   position: absolute;
   left: 400px;
   width: 100%;
@@ -303,7 +303,7 @@
   z-index: 40;
 }
 
-.mountain {
+.dial {
   border-bottom: 100px solid #ffb70b;
   border-left: 100px solid transparent;
   border-width-right: 50%;
@@ -313,6 +313,16 @@
   left: 0px;
   bottom: 50%;
   z-index: 40;
+}
+
+.shadow {
+  width: 100%;
+  top: 50%;
+  height: 50%;
+  background-color: rgba(0, 0, 0, 0.61);
+  position: absolute;
+  z-index: 40;
+  clip-path: polygon(400px 0%, 500px 0%, 550px 50px);
 }
 
 .horizon {

@@ -40,11 +40,13 @@ export default function RoadmapPage() {
     }
   }
 
-  function handleMouseMove(event: React.MouseEvent<HTMLDivElement>) {
+  function handleMouseMove(
+    event: React.MouseEvent<HTMLDivElement> | React.WheelEvent<HTMLDivElement>
+  ) {
     // if (!mouseIsDown) return;
 
     mouse.x = event.clientX;
-    mouse.y = event.clientY;
+    mouse.y = event.clientY + window.scrollY;
 
     const sun = document.getElementById("sun");
     const sunDay = document.getElementById("sunDay");
@@ -62,9 +64,16 @@ export default function RoadmapPage() {
     const starsContainer = document.getElementById("starsContainer");
     const waterDistance = document.getElementById("waterDistance");
     const sky = document.getElementById("sky");
+    const shadow = document.getElementById("shadow");
 
     const bodyWidth = document.body.clientWidth;
     const myHeight = window.innerHeight;
+
+    if (shadow) {
+      shadow.style.clipPath = `polygon(400px 0px, 500px 0px, ${
+        900 - mouse.x
+      }px ${mouse.y / 3}px)`;
+    }
 
     if (sun) {
       sun.style.background = `-webkit-radial-gradient(${mouse.x}px ${mouse.y}px, circle, rgba(242,248,247,1) 0%,rgba(249,249,28,1) 3%,rgba(247,214,46,1) 8%, rgba(248,200,95,1) 12%,rgba(201,165,132,1) 30%,rgba(115,130,133,1) 51%,rgba(46,97,122,1) 85%,rgba(24,75,106,1) 100%)`;
@@ -150,6 +159,7 @@ export default function RoadmapPage() {
     <div
       className={styles.bodydiv + "flex flex-col min-h-screen"}
       onMouseMove={handleMouseMove}
+      onScroll={handleMouseMove}
     >
       <div
         id="starsContainer"
@@ -219,14 +229,21 @@ export default function RoadmapPage() {
         onMouseUp={stopMove}
       ></div>
 
-      <div id="mountainRange" className={styles.mountainRange}>
+      <div id="dialContainer" className={styles.dialContainer}>
         <div
-          id="mountain"
-          className={styles.mountain}
+          id="dial"
+          className={styles.dial}
           onMouseDown={startMove}
           onMouseUp={stopMove}
         ></div>
       </div>
+
+      <div
+        id="shadow"
+        className={styles.shadow}
+        onMouseDown={startMove}
+        onMouseUp={stopMove}
+      ></div>
 
       <div
         id="division"
@@ -248,7 +265,7 @@ export default function RoadmapPage() {
         </div>
         <div
           id="waterReflectionContainer"
-          className={styles.waterReflectionContainer}
+          //className={styles.waterReflectionContainer}
           onMouseDown={startMove}
           onMouseUp={stopMove}
         >
