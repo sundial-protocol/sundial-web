@@ -319,7 +319,7 @@
   width: 100%;
   top: 50%;
   height: 50%;
-  background-color: rgba(0, 0, 0, 0.61);
+  background-color: rgba(0, 0, 0, 0.7);
   position: absolute;
   z-index: 40;
   clip-path: polygon(400px 0%, 500px 0%, 550px 50px);

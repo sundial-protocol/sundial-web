@@ -1,13 +1,17 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import styles from "./page.module.css";
 
 export default function RoadmapPage() {
   var mouse = { x: 0, y: 0 };
+  var sunPos = { x: 0, y: 0 };
   var myWidth = 0,
     myHeight = 0;
   var mouseIsDown = false;
   var mouseIsDownDivision = false;
+
+  const animationFrameRef = useRef<number | null>(null);
 
   function startMove() {
     mouseIsDown = true;
@@ -40,13 +44,12 @@ export default function RoadmapPage() {
     }
   }
 
-  function handleMouseMove(
-    event: React.MouseEvent<HTMLDivElement> | React.WheelEvent<HTMLDivElement>
-  ) {
-    // if (!mouseIsDown) return;
+  function animateSunPosition() {
+    const lerpFactor = 0.02; // Adjust this value for more or less delay
+    sunPos.x += (mouse.x - sunPos.x) * lerpFactor;
+    sunPos.y += (mouse.y - sunPos.y) * lerpFactor;
 
-    mouse.x = event.clientX;
-    mouse.y = event.clientY + window.scrollY;
+    console.log("Sun Position:", sunPos.x, sunPos.y);
 
     const sun = document.getElementById("sun");
     const sunDay = document.getElementById("sunDay");
@@ -71,84 +74,109 @@ export default function RoadmapPage() {
 
     if (shadow) {
       shadow.style.clipPath = `polygon(400px 0px, 500px 0px, ${
-        900 - mouse.x
-      }px ${mouse.y / 3}px)`;
+        975 - sunPos.x
+      }px ${sunPos.y / 3}px)`;
+      shadow.style.opacity = `${1 - sunPos.y / myHeight}`;
     }
 
     if (sun) {
-      sun.style.background = `-webkit-radial-gradient(${mouse.x}px ${mouse.y}px, circle, rgba(242,248,247,1) 0%,rgba(249,249,28,1) 3%,rgba(247,214,46,1) 8%, rgba(248,200,95,1) 12%,rgba(201,165,132,1) 30%,rgba(115,130,133,1) 51%,rgba(46,97,122,1) 85%,rgba(24,75,106,1) 100%)`;
-      sun.style.background = `-moz-radial-gradient(${mouse.x}px ${mouse.y}px, circle, rgba(242,248,247,1) 0%,rgba(249,249,28,1) 3%,rgba(247,214,46,1) 8%, rgba(248,200,95,1) 12%,rgba(201,165,132,1) 30%,rgba(115,130,133,1) 51%,rgba(46,97,122,1) 85%,rgba(24,75,106,1) 100%)`;
-      sun.style.background = `-ms-radial-gradient(${mouse.x}px ${mouse.y}px, circle, rgba(242,248,247,1) 0%,rgba(249,249,28,1) 3%,rgba(247,214,46,1) 8%, rgba(248,200,95,1) 12%,rgba(201,165,132,1) 30%,rgba(115,130,133,1) 51%,rgba(46,97,122,1) 85%,rgba(24,75,106,1) 100%)`;
+      sun.style.background = `-webkit-radial-gradient(${sunPos.x}px ${sunPos.y}px, circle, rgba(242,248,247,1) 0%,rgba(249,249,28,1) 3%,rgba(247,214,46,1) 8%, rgba(248,200,95,1) 12%,rgba(201,165,132,1) 30%,rgba(115,130,133,1) 51%,rgba(46,97,122,1) 85%,rgba(24,75,106,1) 100%)`;
+      sun.style.background = `-moz-radial-gradient(${sunPos.x}px ${sunPos.y}px, circle, rgba(242,248,247,1) 0%,rgba(249,249,28,1) 3%,rgba(247,214,46,1) 8%, rgba(248,200,95,1) 12%,rgba(201,165,132,1) 30%,rgba(115,130,133,1) 51%,rgba(46,97,122,1) 85%,rgba(24,75,106,1) 100%)`;
+      sun.style.background = `-ms-radial-gradient(${sunPos.x}px ${sunPos.y}px, circle, rgba(242,248,247,1) 0%,rgba(249,249,28,1) 3%,rgba(247,214,46,1) 8%, rgba(248,200,95,1) 12%,rgba(201,165,132,1) 30%,rgba(115,130,133,1) 51%,rgba(46,97,122,1) 85%,rgba(24,75,106,1) 100%)`;
       sun.style.width = `${bodyWidth}px`;
       sun.style.left = "0px";
     }
 
     if (sunDay) {
-      sunDay.style.background = `-webkit-radial-gradient(${mouse.x}px ${mouse.y}px, circle, rgba(252,255,251,0.9) 0%,rgba(253,250,219,0.4) 30%,rgba(226,219,197,0.01) 70%, rgba(226,219,197,0.0) 70%,rgba(201,165,132,0) 100%)`;
-      sunDay.style.background = `-moz-radial-gradient(${mouse.x}px ${mouse.y}px, circle, rgba(252,255,251,0.9) 0%,rgba(253,250,219,0.4) 30%,rgba(226,219,197,0.01) 70%, rgba(226,219,197,0.0) 70%,rgba(201,165,132,0) 100%)`;
-      sunDay.style.background = `-ms-radial-gradient(${mouse.x}px ${mouse.y}px, circle, rgba(252,255,251,0.9) 0%,rgba(253,250,219,0.4) 30%,rgba(226,219,197,0.01) 70%, rgba(226,219,197,0.0) 70%,rgba(201,165,132,0) 100%)`;
+      sunDay.style.background = `-webkit-radial-gradient(${sunPos.x}px ${sunPos.y}px, circle, rgba(252,255,251,0.9) 0%,rgba(253,250,219,0.4) 30%,rgba(226,219,197,0.01) 70%, rgba(226,219,197,0.0) 70%,rgba(201,165,132,0) 100%)`;
+      sunDay.style.background = `-moz-radial-gradient(${sunPos.x}px ${sunPos.y}px, circle, rgba(252,255,251,0.9) 0%,rgba(253,250,219,0.4) 30%,rgba(226,219,197,0.01) 70%, rgba(226,219,197,0.0) 70%,rgba(201,165,132,0) 100%)`;
+      sunDay.style.background = `-ms-radial-gradient(${sunPos.x}px ${sunPos.y}px, circle, rgba(252,255,251,0.9) 0%,rgba(253,250,219,0.4) 30%,rgba(226,219,197,0.01) 70%, rgba(226,219,197,0.0) 70%,rgba(201,165,132,0) 100%)`;
       sunDay.style.width = `${bodyWidth}px`;
       sunDay.style.left = "0px";
-      sunDay.style.opacity = `${1 - mouse.y / myHeight}`;
+      sunDay.style.opacity = `${1 - sunPos.y / myHeight}`;
     }
 
     if (sunSet) {
-      sunSet.style.background = `-webkit-radial-gradient(${mouse.x}px ${mouse.y}px, circle, rgba(254,255,255,0.8) 5%,rgba(236,255,0,1) 10%,rgba(253,50,41,1) 25%, rgba(243,0,0,1) 40%,rgba(93,0,0,1) 100%)`;
-      sunSet.style.background = `-moz-radial-gradient(${mouse.x}px ${mouse.y}px, circle, rgba(254,255,255,0.8) 5%,rgba(236,255,0,1) 10%,rgba(253,50,41,1) 25%, rgba(243,0,0,1) 40%,rgba(93,0,0,1) 100%)`;
-      sunSet.style.background = `-ms-radial-gradient(${mouse.x}px ${mouse.y}px, circle, rgba(254,255,255,0.8) 5%,rgba(236,255,0,1) 10%,rgba(253,50,41,1) 25%, rgba(243,0,0,1) 40%,rgba(93,0,0,1) 100%)`;
-      sunSet.style.opacity = `${mouse.y / myHeight - 0.2}`;
+      sunSet.style.background = `-webkit-radial-gradient(${sunPos.x}px ${sunPos.y}px, circle, rgba(254,255,255,0.8) 5%,rgba(236,255,0,1) 10%,rgba(253,50,41,1) 25%, rgba(243,0,0,1) 40%,rgba(93,0,0,1) 100%)`;
+      sunSet.style.background = `-moz-radial-gradient(${sunPos.x}px ${sunPos.y}px, circle, rgba(254,255,255,0.8) 5%,rgba(236,255,0,1) 10%,rgba(253,50,41,1) 25%, rgba(243,0,0,1) 40%,rgba(93,0,0,1) 100%)`;
+      sunSet.style.background = `-ms-radial-gradient(${sunPos.x}px ${sunPos.y}px, circle, rgba(254,255,255,0.8) 5%,rgba(236,255,0,1) 10%,rgba(253,50,41,1) 25%, rgba(243,0,0,1) 40%,rgba(93,0,0,1) 100%)`;
+      sunSet.style.opacity = `${sunPos.y / myHeight - 0.2}`;
     }
 
     if (waterReflectionContainer) {
       waterReflectionContainer.style.perspectiveOrigin = `${
-        (mouse.x / bodyWidth) * 100
+        (sunPos.x / bodyWidth) * 100
       }% -15%`;
     }
 
     if (waterReflectionMiddle) {
       waterReflectionMiddle.style.left = `${
-        mouse.x - bodyWidth - bodyWidth * 0.03
+        sunPos.x - bodyWidth - bodyWidth * 0.03
       }px`;
     }
 
     if (darknessOverlay) {
       darknessOverlay.style.opacity = `${Math.min(
-        (mouse.y - myHeight / 2) / (myHeight / 2),
+        (sunPos.y - myHeight / 2) / (myHeight / 2),
         1
       )}`;
     }
 
     if (darknessOverlaySky) {
       darknessOverlaySky.style.opacity = `${Math.min(
-        (mouse.y - myHeight * 0.7) / (myHeight - myHeight * 0.7),
+        (sunPos.y - myHeight * 0.7) / (myHeight - myHeight * 0.7),
         1
       )}`;
     }
 
     if (moon) {
       moon.style.opacity = `${Math.min(
-        (mouse.y - myHeight * 0.9) / (myHeight - myHeight * 0.9),
+        (sunPos.y - myHeight * 0.9) / (myHeight - myHeight * 0.9),
         0.65
       )}`;
     }
 
     if (horizonNight) {
       horizonNight.style.opacity = `${
-        (mouse.y - myHeight * 0.8) / (myHeight - myHeight * 0.8)
+        (sunPos.y - myHeight * 0.8) / (myHeight - myHeight * 0.8)
       }`;
     }
 
     if (starsContainer) {
-      starsContainer.style.opacity = `${mouse.y / myHeight - 0.6}`;
+      starsContainer.style.opacity = `${sunPos.y / myHeight - 0.6}`;
     }
 
     if (waterDistance) {
-      waterDistance.style.opacity = `${mouse.y / myHeight + 0.6}`;
+      waterDistance.style.opacity = `${sunPos.y / myHeight + 0.6}`;
     }
 
     if (sky) {
-      sky.style.opacity = `${Math.min(1 - mouse.y / myHeight, 0.99)}`;
+      sky.style.opacity = `${Math.min(1 - sunPos.y / myHeight, 0.99)}`;
     }
+
+    animationFrameRef.current = requestAnimationFrame(animateSunPosition);
+  }
+
+  useEffect(() => {
+    // Start the animation loop
+    animationFrameRef.current = requestAnimationFrame(animateSunPosition);
+
+    // Cleanup on component unmount
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, []);
+
+  function handleMouseMove(
+    event: React.MouseEvent<HTMLDivElement> | React.WheelEvent<HTMLDivElement>
+  ) {
+    // if (!mouseIsDown) return;
+    console.log("Mouse Move:", event.clientX, event.clientY);
+
+    mouse.x = event.clientX;
+    mouse.y = event.clientY + window.scrollY;
   }
 
   function startDraggingDivision() {
