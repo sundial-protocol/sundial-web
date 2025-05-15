@@ -304,15 +304,35 @@
 }
 
 .dial {
-  border-bottom: 100px solid #ffb70b;
-  border-left: 100px solid transparent;
-  border-width-right: 50%;
-  width: 0px;
-  height: 0px;
+  content: "";
   position: absolute;
-  left: 0px;
-  bottom: 50%;
-  z-index: 40;
+  left: 0;
+  top: -100px; /* Match the width of the triangle */
+  width: 100px; /* Match the width of the triangle */
+  height: 100px; /* Match the height of the triangle */
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 183, 11, 1) 0%,
+    rgba(0, 0, 0, 1) 100%
+  ); /* Gradient from orange to black */
+  clip-path: polygon(100% 0%, 0% 100%, 100% 100%); /* Triangle shape */
+  z-index: -1;
+}
+
+.dialBefore {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100px; /* Match the width of the triangle */
+  width: 100px; /* Match the width of the triangle */
+  height: 100px; /* Match the height of the triangle */
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 183, 11, 1) 0%,
+    rgba(0, 0, 0, 1) 100%
+  ); /* Gradient from orange to black */
+  clip-path: polygon(100% 0%, 0% 100%, 100% 100%); /* Triangle shape */
+  z-index: -1; /* Place behind the triangle */
 }
 
 .shadow {
