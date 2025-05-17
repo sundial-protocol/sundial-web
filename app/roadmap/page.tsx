@@ -94,6 +94,14 @@ export default function RoadmapPage() {
     }
 
     if (sun) {
+      const bitcoinLogo = document.getElementById("bitcoinLogo");
+      if (bitcoinLogo) {
+        bitcoinLogo.style.top = `${sunPos.current.y}px`;
+        bitcoinLogo.style.left = `${sunPos.current.x}px`;
+        bitcoinLogo.style.height = `${80 - sunHeightPct * 50}px`;
+        bitcoinLogo.style.width = `${80 - sunHeightPct * 50}px`;
+      }
+
       sun.style.background = `-webkit-radial-gradient(${sunPos.current.x}px ${sunPos.current.y}px, circle, rgba(242,248,247,1) 0%,rgba(249,249,28,1) 3%,rgba(247,214,46,1) 8%, rgba(248,200,95,1) 12%,rgba(201,165,132,1) 30%,rgba(115,130,133,1) 51%,rgba(46,97,122,1) 85%,rgba(24,75,106,1) 100%)`;
       sun.style.background = `-moz-radial-gradient(${sunPos.current.x}px ${sunPos.current.y}px, circle, rgba(242,248,247,1) 0%,rgba(249,249,28,1) 3%,rgba(247,214,46,1) 8%, rgba(248,200,95,1) 12%,rgba(201,165,132,1) 30%,rgba(115,130,133,1) 51%,rgba(46,97,122,1) 85%,rgba(24,75,106,1) 100%)`;
       sun.style.background = `-ms-radial-gradient(${sunPos.current.x}px ${sunPos.current.y}px, circle, rgba(242,248,247,1) 0%,rgba(249,249,28,1) 3%,rgba(247,214,46,1) 8%, rgba(248,200,95,1) 12%,rgba(201,165,132,1) 30%,rgba(115,130,133,1) 51%,rgba(46,97,122,1) 85%,rgba(24,75,106,1) 100%)`;
@@ -218,12 +226,14 @@ export default function RoadmapPage() {
         ></div>
       </div>
 
-      <div
-        id="sun"
-        className={styles.sun}
-        onMouseDown={startMove}
-        onMouseUp={stopMove}
-      ></div>
+      <div id="sun" className={styles.sun}>
+        <img
+          id="bitcoinLogo"
+          src="/bitcoin-btc-logo.svg"
+          alt="Bitcoin Logo"
+          className={styles.bitcoinLogo}
+        />
+      </div>
 
       <div
         id="sunDay"

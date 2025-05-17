@@ -52,6 +52,16 @@
   opacity: 0.5;
 }
 
+.bitcoinLogo {
+  position: absolute;
+  top: 50%; /* Center vertically */
+  left: 50%; /* Center horizontally */
+  transform: translate(-50%, -50%); /* Adjust for centering */
+  width: 80px; /* Adjust size as needed */
+  height: 80px; /* Adjust size as needed */
+  pointer-events: none; /* Prevent interaction with the logo */
+}
+
 .sunDay {
   position: absolute;
   top: 0px;
