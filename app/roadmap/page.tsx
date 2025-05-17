@@ -305,22 +305,23 @@ export default function RoadmapPage() {
         onMouseDown={startMove}
         onMouseUp={stopMove}
       >
-        <div>
-          <h1 className="text-4xl font-bold text-center text-white z-100 pt-24">
-            Big things are on the horizon.
-          </h1>
-        </div>
         <div
           id="waterReflectionContainer"
-          //className={styles.waterReflectionContainer}
+          className={styles.waterReflectionContainer}
           onMouseDown={startMove}
           onMouseUp={stopMove}
         >
           <div
             id="waterReflectionMiddle"
+            className={styles.waterReflectionMiddle}
             onMouseDown={startMove}
             onMouseUp={stopMove}
           ></div>
+        </div>
+        <div>
+          <h1 className="text-4xl font-bold text-center text-white z-100 pt-24">
+            Big things are on the horizon.
+          </h1>
         </div>
       </div>
       <div

@@ -528,7 +528,7 @@
   perspective-origin: 50% -12%;
   overflow: hidden;
   position: absolute;
-  top: 50%;
+  top: 0%;
   left: -3%;
   width: 103%;
   height: 50%;
