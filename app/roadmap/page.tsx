@@ -83,7 +83,7 @@ export default function RoadmapPage() {
     if (dial) {
       // Calculate gradient based on sun's position
       const ygradientStart = `rgba(255, 183, 11, 1) ${
-        100 * (1 - sunHeightPct * (sunXPct ^ 2) * 0.5)
+        100 * (1 - sunHeightPct * (sunXPct ^ 2) * 0.5) - 25
       }%`;
 
       const gradientEnd = `rgba(0, 0, 0, 0.7) 100%`;
