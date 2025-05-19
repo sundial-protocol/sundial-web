@@ -327,6 +327,7 @@
   ); /* Gradient from orange to black */
   clip-path: polygon(100% 0%, 0% 100%, 100% 100%); /* Triangle shape */
   z-index: -1;
+  opacity: 70%;
 }
 
 .dialBefore {

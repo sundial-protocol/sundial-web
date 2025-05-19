@@ -139,7 +139,7 @@ export default function RoadmapPage() {
 
     if (darknessOverlay) {
       darknessOverlay.style.opacity = `${Math.min(
-        (sunPos.current.y - myHeight / 1.9) / (myHeight / 2),
+        (sunPos.current.y - myHeight / 1.9) / (myHeight / 2) + 0.3,
         1
       )}`;
     }
