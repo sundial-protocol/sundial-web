@@ -5,13 +5,17 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import { useState } from "react";
+import { FileText, BadgeCheck, Sunrise, Database } from "lucide-react";
+import Image from "next/image";
 
 function NavLink({
   href,
   children,
+  classes,
 }: {
   href: string;
   children: React.ReactNode;
+  classes?: string;
 }) {
   const pathname = usePathname();
 
@@ -19,8 +23,9 @@ function NavLink({
     <Link
       href={href}
       className={cn(
-        "text-sm font-medium transition-colors hover:text-primary",
-        pathname === href ? "text-primary" : "text-muted-foreground"
+        "flex flex-col hover:text-primary bg-secondary/70 hover:bg-gray-600/70 rounded-full p-2 items-center justify-center",
+        pathname === href ? "text-primary" : "text-muted-foreground",
+        classes
       )}
     >
       {children}
@@ -88,9 +93,9 @@ export default function Navbar() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex">
-      <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-2">
+    <header className="sticky top-0 z-50 pt-16 w-full bg-transparent">
+      <div className="container flex h-16 items-center justify-center">
+        {/* <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
             <div className="relative h-8 w-8">
               <svg
@@ -112,32 +117,52 @@ export default function Navbar() {
               </svg>
             </div>
           </Link>
-        </div>
+        </div> */}
 
-        <nav className="hidden md:flex items-center gap-6">
-          <NavDropdown
-            label="Staking"
-            links={[
-              { href: "/staking", label: "About" },
-              { href: "/validators", label: "Validators" },
-              { href: "/liquid-staking", label: "Liquid Staking" },
-            ]}
-          />
-          <NavLink href="/news">News</NavLink>
-          <NavLink href="/docs">Docs</NavLink>
+        <nav className="hidden md:flex items-center justify-center gap-6 bg-gray-900/70 backdrop-blur-md rounded-full p-2">
+          <NavLink href="/validators">
+            {" "}
+            <Database className="h-5 w-5" />
+          </NavLink>
+          <NavLink href="/staking">
+            {" "}
+            <BadgeCheck className="h-5 w-5" />
+          </NavLink>
+          <Link
+            href="/"
+            className="h-12 w-12 hover:h-14 hover:w-14 transition-all duration-300"
+          >
+            <Image
+              src="./logo.png"
+              className="rounded-full"
+              alt="Sundial Logo"
+              width={100}
+              height={100}
+            />
+          </Link>
+          <NavLink href="/docs">
+            <FileText className="h-5 w-5" />
+            {
+              //Docs (TODO: add logic to show when drawer is open)
+            }
+          </NavLink>
+          <NavLink href="/roadmap">
+            {" "}
+            <Sunrise className="h-5 w-5" />
+          </NavLink>
         </nav>
 
-        <div className="hidden md:flex items-center">
+        {/* <div className="hidden md:flex items-center">
           <Link
             href="/stake"
             className="inline-flex items-center justify-center rounded-full h-10 px-6 text-sm font-medium transition-colors bg-accent-foreground text-accent hover:bg-accent-foreground/80"
           >
             Stake Now
           </Link>
-        </div>
+        </div> */}
       </div>
 
-      <div className="container flex items-center w-min px-0 mx-4">
+      {/* <div className="container flex items-center w-min px-0 mx-4">
         <input
           type="checkbox"
           id="theme-toggle"
@@ -148,7 +173,7 @@ export default function Navbar() {
           }}
         />
         <label htmlFor="theme-toggle"></label>
-      </div>
+      </div> */}
     </header>
   );
 }
