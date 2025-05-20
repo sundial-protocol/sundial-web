@@ -8,42 +8,9 @@ export default function RoadmapPage() {
   const [scrollY, setScrollY] = useState(0); // Scroll position
   const animationFrameRef = useRef<number | null>(null);
   const sunPos = useRef({ x: 0, y: 0 }); // Sun position
-  var mouseIsDown = false;
-  var mouseIsDownDivision = false;
-
-  function startMove() {
-    mouseIsDown = true;
-  }
-
-  function stopMove() {
-    mouseIsDown = false;
-    mouseIsDownDivision = false;
-    var sky = document.getElementById("sun");
-  }
-
-  // function updateDimensions() {
-  //   if (typeof window.innerWidth == "number") {
-  //     //Non-IE
-  //     myWidth = window.innerWidth;
-  //     myHeight = window.innerHeight;
-  //   } else if (
-  //     document.documentElement &&
-  //     (document.documentElement.clientWidth ||
-  //       document.documentElement.clientHeight)
-  //   ) {
-  //     myWidth = document.documentElement.clientWidth;
-  //     myHeight = document.documentElement.clientHeight;
-  //   } else if (
-  //     document.body &&
-  //     (document.body.clientWidth || document.body.clientHeight)
-  //   ) {
-  //     myWidth = document.body.clientWidth;
-  //     myHeight = document.body.clientHeight;
-  //   }
-  // }
 
   function animateSunPosition() {
-    const lerpFactor = 0.02; // Adjust this value for more or less delay
+    const lerpFactor = 0.05; // Adjust this value for more or less delay
     const combinedY = mouse.y + scrollY; // Combine mouse position and scroll offset
 
     sunPos.current.x += (mouse.x - sunPos.current.x) * lerpFactor;
@@ -90,7 +57,6 @@ export default function RoadmapPage() {
 
       // Apply gradient to the dial
       dial.style.background = `linear-gradient(115deg, ${ygradientStart}, ${gradientEnd})`;
-      // dial.style.clipPath = "polygon(100% 0%, 0% 100%, 100% 100%)"; // Ensure the gradient matches the triangle shape
     }
 
     if (sun) {
@@ -200,7 +166,6 @@ export default function RoadmapPage() {
   function handleMouseMove(
     event: React.MouseEvent<HTMLDivElement> | React.WheelEvent<HTMLDivElement>
   ) {
-    // if (!mouseIsDown) return;
     setMouse({
       x: event.clientX,
       y: event.clientY,
@@ -213,17 +178,8 @@ export default function RoadmapPage() {
       onMouseMove={handleMouseMove}
       onScroll={handleMouseMove}
     >
-      <div
-        id="starsContainer"
-        className={styles.starsContainer}
-        onMouseDown={startMove}
-        onMouseUp={stopMove}
-      >
-        <div
-          id={styles.stars}
-          onMouseDown={startMove}
-          onMouseUp={stopMove}
-        ></div>
+      <div id="starsContainer" className={styles.starsContainer}>
+        <div id={styles.stars}></div>
       </div>
 
       <div id="sun" className={styles.sun}>
@@ -235,26 +191,11 @@ export default function RoadmapPage() {
         />
       </div>
 
-      <div
-        id="sunDay"
-        className={styles.sunDay}
-        onMouseDown={startMove}
-        onMouseUp={stopMove}
-      ></div>
+      <div id="sunDay" className={styles.sunDay}></div>
 
-      <div
-        id="sunSet"
-        className={styles.sunSet}
-        onMouseDown={startMove}
-        onMouseUp={stopMove}
-      ></div>
+      <div id="sunSet" className={styles.sunSet}></div>
 
-      <div
-        id="sky"
-        className={styles.sky}
-        onMouseDown={startMove}
-        onMouseUp={stopMove}
-      ></div>
+      <div id="sky" className={styles.sky}></div>
 
       <div className="star left-[250px] top-[30px]"></div>
       <div className="star left-[300px] top-[25px]"></div>
@@ -262,60 +203,22 @@ export default function RoadmapPage() {
       <div className="star right-[80px] top-[45px]"></div>
       <div className="star right-[120px] top-[20px]"></div>
 
-      <div
-        id="horizon"
-        className={styles.horizon}
-        onMouseDown={startMove}
-        onMouseUp={stopMove}
-      ></div>
-
-      <div
-        id="horizonNight"
-        className={styles.horizonNight}
-        onMouseDown={startMove}
-        onMouseUp={stopMove}
-      ></div>
-
-      <div
-        id="moon"
-        className={styles.moon}
-        onMouseDown={startMove}
-        onMouseUp={stopMove}
-      ></div>
+      <div id="moon" className={styles.moon}></div>
 
       <div id="dialContainer" className={styles.dialContainer}>
-        <div
-          id="dial"
-          className={styles.dial}
-          onMouseDown={startMove}
-          onMouseUp={stopMove}
-        ></div>
+        <div id="dial" className={styles.dial}></div>
       </div>
 
-      <div
-        id="shadow"
-        className={styles.shadow}
-        onMouseDown={startMove}
-        onMouseUp={stopMove}
-      ></div>
+      <div id="shadow" className={styles.shadow}></div>
 
-      <div
-        id="water"
-        className={styles.water}
-        onMouseDown={startMove}
-        onMouseUp={stopMove}
-      >
+      <div id="water" className={styles.water}>
         <div
           id="waterReflectionContainer"
           className={styles.waterReflectionContainer}
-          onMouseDown={startMove}
-          onMouseUp={stopMove}
         >
           <div
             id="waterReflectionMiddle"
             className={styles.waterReflectionMiddle}
-            onMouseDown={startMove}
-            onMouseUp={stopMove}
           ></div>
         </div>
         <div>
@@ -324,18 +227,8 @@ export default function RoadmapPage() {
           </h1>
         </div>
       </div>
-      <div
-        id="waterDistance"
-        className={styles.waterDistance}
-        onMouseDown={startMove}
-        onMouseUp={stopMove}
-      ></div>
-      <div
-        id="darknessOverlaySky"
-        className={styles.darknessOverlaySky}
-        onMouseDown={startMove}
-        onMouseUp={stopMove}
-      ></div>
+      <div id="waterDistance" className={styles.waterDistance}></div>
+      <div id="darknessOverlaySky" className={styles.darknessOverlaySky}></div>
       <div id="darknessOverlay" className={styles.darknessOverlay}>
         <div className="text-xl font-bold text-center text-primary z-100 pt-12 space-y-8">
           <h1 className="text-4xl font-bold text-center text-primary z-100">
