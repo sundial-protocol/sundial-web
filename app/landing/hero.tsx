@@ -11,7 +11,7 @@ export function OrbitTrace({ size }: { size: number }) {
         marginLeft: `-${size}px`,
         marginTop: `-${size}px`,
       }}
-      className={`p-[${size}px] ml-[-${size}px] opacity-20 absolute block rounded-full border border-gray-100 left-[50%]`}
+      className={`p-[${size}px] ml-[-${size}px] opacity-20 absolute block rounded-full border border-gray-100 left-[50%] -z-10`}
     />
   );
 }
@@ -20,11 +20,11 @@ export default function Hero() {
   return (
     <HeroSection classes="bg-backgrdound">
       <div className="flex flex-col items-center justify-center space-y-4 text-center">
-        <div className="flex items-center justify-center pl-8">
+        <div className="flex items-center justify-center pl-12 pb-8">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="210"
-            height="46"
+            width="315"
+            height="69"
             fill="none"
             viewBox="0 0 500 80"
           >
@@ -39,42 +39,51 @@ export default function Hero() {
             ></path>
           </svg>
         </div>
-        <div className="flex items-center justify-center space-x-12 mb-8">
-          <div className="w-16 h-16 rounded-full overflow-hidden mb-4">
+        <div className="flex items-center justify-center space-x-20 mb-8">
+          <div className="w-20 h-20 rounded-full overflow-hidden mb-4">
             <Image
               src="./ada.svg"
-              className="w-full h-full rounded-full"
+              className="w-full h-full rounded-full hover:brightness-125 transition-all"
               alt="Ada Logo"
               width={100}
               height={100}
             />
+            {/* Dotted Line */}
+            <div
+              className="absolute overflow-visible justify-center w-96 h-20 border-t-2 border-dashed border-gray-100 opacity-20 -z-10"
+              style={{ transform: "translateY(-50%)" }}
+            ></div>
           </div>
-          <div className="w-24 h-24 rounded-full overflow-hidden mb-4">
+
+          <div className="w-32 h-32 rounded-full overflow-hidden mb-4">
             <Image
               src="./bitcoin-btc-logo.svg"
-              className="w-full h-full rounded-full"
+              className="w-full h-full rounded-full hover:brightness-125 transition-all "
               alt="Bitcoin Logo"
               width={100}
               height={100}
             />
-            <OrbitTrace size={650} />
-            <OrbitTrace size={500} />
-            <OrbitTrace size={345} />
-            <OrbitTrace size={230} />
-            <OrbitTrace size={130} />
-            <OrbitTrace size={65} />
           </div>
-          <div className="w-16 h-16 rounded-full overflow-hidden mb-4">
+          <div className="w-20 h-20 rounded-full overflow-hidden mb-4">
             <Image
               src="./logo.png"
-              className="w-full h-full rounded-full"
+              className="w-full h-full rounded-full hover:brightness-125 transition-all"
               alt="Sundial Logo"
               width={100}
               height={100}
             />
           </div>
         </div>
-        <div className="space-y-2">
+        <OrbitTrace size={1800} />
+        <OrbitTrace size={1300} />
+        <OrbitTrace size={1000} />
+        <OrbitTrace size={800} />
+        <OrbitTrace size={650} />
+        <OrbitTrace size={500} />
+        <OrbitTrace size={345} />
+        <OrbitTrace size={230} />
+        <OrbitTrace size={130} />
+        <div className="py-8">
           <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
             maximize <span className="text-[#f7931a]">Bitcoin</span> staking
             yield with <span className="text-primary">Optimistic Rollups</span>
@@ -87,6 +96,12 @@ export default function Hero() {
           Start Staking
           <ArrowRight className="ml-2 h-4 w-4" />
         </Link>
+        <div className="py-4">
+          <span>
+            Unlock Bitcoin's $1.5 Trillion Potential with{" "}
+            <span className="text-primary">Sundial</span>
+          </span>
+        </div>
       </div>
     </HeroSection>
   );
