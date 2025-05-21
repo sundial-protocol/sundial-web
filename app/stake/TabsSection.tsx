@@ -41,7 +41,7 @@ const TabsSection: React.FC<TabsSectionProps> = ({ stakeType }) => {
                             key={validator.id}
                             className={`rounded-lg border p-4 cursor-pointer transition-colors ${
                               selectedValidator === validator.id
-                                ? "border-[#ffb70b] bg-[#ffb70b]/5"
+                                ? "border-primary bg-primary/5"
                                 : "hover:border-gray-300"
                             }`}
                             onClick={() => handleValidatorSelect(validator.id)}
@@ -56,7 +56,7 @@ const TabsSection: React.FC<TabsSectionProps> = ({ stakeType }) => {
                                 </p>
                               </div>
                               {selectedValidator === validator.id && (
-                                <Check className="h-5 w-5 text-[#ffb70b]" />
+                                <Check className="h-5 w-5 text-primary" />
                               )}
                             </div>
                             <div className="mt-2 flex justify-between text-sm">
@@ -70,7 +70,7 @@ const TabsSection: React.FC<TabsSectionProps> = ({ stakeType }) => {
                       </div>
                       <Link
                         href="/validators"
-                        className="text-sm text-[#ffb70b] hover:underline"
+                        className="text-sm text-primary hover:underline"
                       >
                         View all validators
                       </Link>
@@ -99,7 +99,7 @@ const TabsSection: React.FC<TabsSectionProps> = ({ stakeType }) => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="absolute right-0 top-0 h-full px-3 text-sm font-medium text-[#ffb70b]"
+                            className="absolute right-0 top-0 h-full px-3 text-sm font-medium text-primary"
                             onClick={() => setAmount("0.1")}
                           >
                             MAX
@@ -263,7 +263,7 @@ const TabsSection: React.FC<TabsSectionProps> = ({ stakeType }) => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="absolute right-0 top-0 h-full px-3 text-sm font-medium text-[#ffb70b]"
+                            className="absolute right-0 top-0 h-full px-3 text-sm font-medium text-primary"
                             onClick={() => setAmount("0.1")}
                           >
                             MAX

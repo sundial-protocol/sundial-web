@@ -12,7 +12,7 @@ function GuideLink(props: GuideLinkProps) {
   return (
     <Link
       href={href}
-      className="rounded-lg border shadow-sm p-6 hover:shadow-md transition-shadow shadow-[#ffb70b] hover:shadow-[#ffb70b]/50"
+      className="rounded-lg border shadow-sm p-6 hover:shadow-md transition-shadow shadow-primary hover:shadow-primary/50"
     >
       <h3 className="text-xl font-bold mb-2">{title}</h3>
       <p className="text-gray-500">{description}</p>

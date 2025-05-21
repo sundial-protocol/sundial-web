@@ -29,13 +29,13 @@ export default function DocsPage() {
             className="flex flex-col space-y-3 rounded-lg border p-6 shadow-sm hover:shadow-md transition-shadow"
           >
             <div className="flex items-center space-x-3">
-              <Book className="h-6 w-6 text-[#ffb70b]" />
+              <Book className="h-6 w-6 text-primary" />
               <h2 className="text-xl font-bold">Guides</h2>
             </div>
             <p className="text-gray-500">
               Step-by-step guides to help you get started with Sundial staking.
             </p>
-            <div className="flex items-center text-[#ffb70b]">
+            <div className="flex items-center text-primary">
               <span>View Guides</span>
               <ArrowRight className="ml-1 h-4 w-4" />
             </div>
@@ -45,13 +45,13 @@ export default function DocsPage() {
             className="flex flex-col space-y-3 rounded-lg border p-6 shadow-sm hover:shadow-md transition-shadow"
           >
             <div className="flex items-center space-x-3">
-              <HelpCircle className="h-6 w-6 text-[#ffb70b]" />
+              <HelpCircle className="h-6 w-6 text-primary" />
               <h2 className="text-xl font-bold">FAQ</h2>
             </div>
             <p className="text-gray-500">
               Frequently asked questions about Sundial staking.
             </p>
-            <div className="flex items-center text-[#ffb70b]">
+            <div className="flex items-center text-primary">
               <span>View FAQ</span>
               <ArrowRight className="ml-1 h-4 w-4" />
             </div>
@@ -61,13 +61,13 @@ export default function DocsPage() {
             className="flex flex-col space-y-3 rounded-lg border p-6 shadow-sm hover:shadow-md transition-shadow"
           >
             <div className="flex items-center space-x-3">
-              <FileText className="h-6 w-6 text-[#ffb70b]" />
+              <FileText className="h-6 w-6 text-primary" />
               <h2 className="text-xl font-bold">API Reference</h2>
             </div>
             <p className="text-gray-500">
               Technical documentation for developers.
             </p>
-            <div className="flex items-center text-[#ffb70b]">
+            <div className="flex items-center text-primary">
               <span>View API Reference</span>
               <ArrowRight className="ml-1 h-4 w-4" />
             </div>

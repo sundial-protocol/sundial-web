@@ -16,7 +16,7 @@ export function HowItWorks() {
       </div>
       <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 md:grid-cols-3 mt-12">
         <div className="flex flex-col items-center space-y-2 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#ffb70b] text-white">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white">
             1
           </div>
           <h3 className="text-xl font-bold">Deposit Bitcoin</h3>
@@ -25,7 +25,7 @@ export function HowItWorks() {
           </p>
         </div>
         <div className="flex flex-col items-center space-y-2 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#ffb70b] text-white">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white">
             2
           </div>
           <h3 className="text-xl font-bold">Choose Validators</h3>
@@ -34,7 +34,7 @@ export function HowItWorks() {
           </p>
         </div>
         <div className="flex flex-col items-center space-y-2 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#ffb70b] text-white">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white">
             3
           </div>
           <h3 className="text-xl font-bold">Earn Rewards</h3>

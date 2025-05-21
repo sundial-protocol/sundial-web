@@ -77,7 +77,7 @@ export default function ValidatorsPage() {
                       <td className="px-4 py-4">
                         <Link
                           href={`/validators/${validator.id}`}
-                          className="text-sm font-medium textforeground hover:text-[#ffb70b]"
+                          className="text-sm font-medium textforeground hover:text-primary"
                         >
                           {validator.name}
                         </Link>
