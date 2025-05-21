@@ -11,7 +11,11 @@ export default function RoadmapPage() {
 
   function animateSunPosition() {
     const lerpFactor = 0.05; // Adjust this value for more or less delay
-    const combinedY = mouse.y + scrollY; // Combine mouse position and scroll offset
+
+    const bodyWidth = document.body.clientWidth;
+    const myHeight = window.innerHeight;
+
+    const combinedY = Math.min(mouse.y + scrollY, myHeight);
 
     sunPos.current.x += (mouse.x - sunPos.current.x) * lerpFactor;
     sunPos.current.y += (combinedY - sunPos.current.y) * lerpFactor;
@@ -35,8 +39,6 @@ export default function RoadmapPage() {
     const shadow = document.getElementById("shadow");
     const dial = document.getElementById("dial");
 
-    const bodyWidth = document.body.clientWidth;
-    const myHeight = window.innerHeight;
     const sunHeightPct = sunPos.current.y / myHeight;
     const sunXPct = sunPos.current.x / bodyWidth;
 
