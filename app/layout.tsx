@@ -23,7 +23,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <CustomThemeProvider>
           <Navbar />
-          <main>{children}</main>
+          <main className="pt-12">{children}</main>
           <Footer />
         </CustomThemeProvider>
       </body>
