@@ -59,18 +59,6 @@ export default function RoadmapPage() {
       shadow.style.opacity = `${1 - sunHeightPct}`;
     }
 
-    if (dial) {
-      // Calculate gradient based on sun's position
-      const ygradientStart = `rgba(255, 183, 11, 1) ${
-        100 * (1 - sunHeightPct * (sunXPct ^ 2) * 0.5) - 25
-      }%`;
-
-      const gradientEnd = `rgba(0, 0, 0, 0.7) 100%`;
-
-      // Apply gradient to the dial
-      dial.style.background = `linear-gradient(115deg, ${ygradientStart}, ${gradientEnd})`;
-    }
-
     if (sun) {
       const bitcoinLogo = document.getElementById("bitcoinLogo");
       if (bitcoinLogo) {
@@ -85,6 +73,18 @@ export default function RoadmapPage() {
       sun.style.background = `-ms-radial-gradient(${sunPos.current.x}px ${sunPos.current.y}px, circle, rgba(242,248,247,1) 0%,rgba(249,249,28,1) 3%,rgba(247,214,46,1) 8%, rgba(248,200,95,1) 12%,rgba(201,165,132,1) 30%,rgba(115,130,133,1) 51%,rgba(46,97,122,1) 85%,rgba(24,75,106,1) 100%)`;
       sun.style.width = `${bodyWidth}px`;
       sun.style.left = "0px";
+    }
+
+    if (dial) {
+      // Calculate gradient based on sun's position
+      const ygradientStart = `rgba(255, 183, 11, 1) ${
+        100 * (1 - sunHeightPct * (sunXPct ^ 2) * 0.5) - 25
+      }%`;
+
+      const gradientEnd = `rgba(40, 40, 40, 1) 100%`;
+
+      // Apply gradient to the dial
+      dial.style.background = `linear-gradient(115deg, ${ygradientStart}, ${gradientEnd})`;
     }
 
     if (sunDay) {
@@ -194,14 +194,13 @@ export default function RoadmapPage() {
         <div id={styles.stars}></div>
       </div>
 
-      <div id="sun" className={styles.sun}>
-        <img
-          id="bitcoinLogo"
-          src="/bitcoin-btc-logo.svg"
-          alt="Bitcoin Logo"
-          className={styles.bitcoinLogo}
-        />
-      </div>
+      <div id="sun" className={styles.sun}></div>
+      <img
+        id="bitcoinLogo"
+        src="/bitcoin-btc-logo.svg"
+        alt="Bitcoin Logo"
+        className={styles.bitcoinLogo}
+      />
 
       <div id="sunDay" className={styles.sunDay}></div>
 
