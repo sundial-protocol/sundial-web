@@ -49,7 +49,7 @@
   );
 
   z-index: 10;
-  opacity: 0.5;
+  opacity: 0.9;
 }
 
 .bitcoinLogo {
@@ -326,7 +326,7 @@
     rgba(0, 0, 0, 1) 100%
   ); /* Gradient from orange to black */
   clip-path: polygon(100% 0%, 0% 100%, 100% 100%); /* Triangle shape */
-  z-index: -1;
+  z-index: 15;
   opacity: 70%;
 }
 
@@ -343,7 +343,7 @@
     rgba(0, 0, 0, 1) 100%
   ); /* Gradient from orange to black */
   clip-path: polygon(100% 0%, 0% 100%, 100% 100%); /* Triangle shape */
-  z-index: -1; /* Place behind the triangle */
+  z-index: 15;
 }
 
 .shadow {

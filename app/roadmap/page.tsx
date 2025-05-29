@@ -10,15 +10,25 @@ export default function RoadmapPage() {
   const sunPos = useRef({ x: 0, y: 0 }); // Sun position
 
   function animateSunPosition() {
-    const lerpFactor = 0.05; // Adjust this value for more or less delay
-
+    // screen dimension values
     const bodyWidth = document.body.clientWidth;
     const myHeight = window.innerHeight;
+    const horizon = window.innerHeight / 2;
+
+    // sunpos calculations
+    const interpf = 0.6;
+
+    const dialCenter = 475;
+    const interpx = dialCenter + (mouse.x - dialCenter) * interpf;
 
     const combinedY = Math.min(mouse.y + scrollY, myHeight);
+    const interpy =
+      combinedY > horizon ? combinedY : horizon - (horizon - mouse.y) * interpf;
 
-    sunPos.current.x += (mouse.x - sunPos.current.x) * lerpFactor;
-    sunPos.current.y += (combinedY - sunPos.current.y) * lerpFactor;
+    const lerpFactor = 0.02; // Adjust this value for more or less delay
+
+    sunPos.current.x += (interpx - sunPos.current.x) * lerpFactor;
+    sunPos.current.y += (interpy - sunPos.current.y) * lerpFactor;
 
     const sun = document.getElementById("sun");
     const sunDay = document.getElementById("sunDay");
