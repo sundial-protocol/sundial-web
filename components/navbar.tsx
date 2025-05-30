@@ -48,8 +48,8 @@ export default function Navbar() {
   return (
     <header
       className={cn(
-        `sticky top-0 z-50 pt-16 w-full transition-all`,
-        drawerOpen ? "bg-gray-900/70 h-48" : "bg-transparent"
+        `sticky top-0 z-50 pt-8 w-full transition-all`,
+        drawerOpen ? "bg-gray-900/70 h-36" : "bg-transparent"
       )}
     >
       <div className="container flex h-16 items-center justify-center">
@@ -130,7 +130,7 @@ export default function Navbar() {
           }}
           className={cn(
             `h-12 w-12 hover:h-14 hover:w-14 transition-all duration-300 absolute`,
-            drawerOpen && "mt-48"
+            drawerOpen && "mt-40"
           )}
         >
           <Image
@@ -143,7 +143,7 @@ export default function Navbar() {
         </div>
       </div>
       {drawerOpen && (
-        <div className="container flex items-center w-min mx-4 pb-2 absolute right-20 top-0 justify-center pt-4 lg:pt-20">
+        <div className="container flex items-center w-min mx-4 pb-2 absolute right-20 top-0 justify-center pt-4 lg:pt-12">
           <input
             type="checkbox"
             id="theme-toggle"
