@@ -2,6 +2,7 @@ import { ValidatorsPreview } from "./staking/validators-preview";
 import { Hero } from "./landing/hero";
 import { AdvancedFeatures } from "./landing/advanced-features";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
+import { Team } from "./landing/team";
 
 export default function Home() {
   return (
@@ -10,6 +11,7 @@ export default function Home() {
       <Hero />
       <AdvancedFeatures />
       <ValidatorsPreview />
+      <Team />
     </div>
   );
 }
