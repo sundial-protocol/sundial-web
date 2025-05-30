@@ -83,7 +83,7 @@ export default function Navbar() {
           className={cn(
             `grid grid-cols-5 justify-center gap-6 rounded-full p-2 transition-all duration-300`,
             drawerOpen
-              ? "bg-transparent gap-10"
+              ? "bg-transparent gap-10 mt-4 lg:mt-0"
               : "bg-gray-900/70 backdrop-blur-md"
           )}
         >
