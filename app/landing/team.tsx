@@ -37,7 +37,7 @@ export function Team() {
           <TeamMember
             name="Sheldon Hunt"
             role="CEO"
-            image="/team/Sheldon.jpg"
+            image="/team/sheldon.jpg"
             link="https://x.com/_MrHunt_"
             description="Ex-Head of Cardano Ecosystem"
           />
