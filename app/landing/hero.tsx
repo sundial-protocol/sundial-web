@@ -12,7 +12,7 @@ export function OrbitTrace({ size }: { size: number }) {
         marginLeft: `-${size}px`,
         marginTop: `-${size}px`,
       }}
-      className={`p-[${size}px] ml-[-${size}px] opacity-20 absolute block rounded-full border border-gray-100 left-[50%] top-[50%] -z-10`}
+      className={`p-[${size}px] ml-[-${size}px] opacity-20 absolute block rounded-full border border-gray-100 left-[50%] top-[50%] -z-50`}
     />
   );
 }
@@ -74,7 +74,7 @@ export default function Hero() {
               ></path>
             </svg>
           </div>
-          <div className="flex items-center justify-center space-x-20 mb-8 scale-75 md:scale-100">
+          <div className="flex items-center justify-center space-x-20 md:mb-8 scale-75 md:scale-100">
             <div className="w-20 h-20 rounded-full overflow-hidden mb-4">
               <Image
                 src="./ada.svg"
@@ -98,7 +98,7 @@ export default function Hero() {
                 width={100}
                 height={100}
               />
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none -z-10">
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none -z-50">
                 <OrbitTrace size={1800} />
                 <OrbitTrace size={1300} />
                 <OrbitTrace size={1000} />
