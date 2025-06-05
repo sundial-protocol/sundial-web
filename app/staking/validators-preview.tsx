@@ -48,7 +48,7 @@ export function ValidatorsPreview() {
       <div className="flex justify-center mt-12">
         <Link
           href="/validators"
-          className="inline-flex items-center justify-center rounded-full border border-gray-300 bg-white text-gray-700 h-12 px-8 text-base font-medium transition-colors hover:bg-secondary"
+          className="inline-flex items-center justify-center rounded-full h-12 px-8 text-base font-medium transition-colors bg-accent-foreground text-accent hover:bg-accent-foreground/80"
         >
           View All Validators
         </Link>
