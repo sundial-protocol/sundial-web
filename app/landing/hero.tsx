@@ -11,16 +11,16 @@ export function OrbitTrace({ size }: { size: number }) {
         marginLeft: `-${size}px`,
         marginTop: `-${size}px`,
       }}
-      className={`p-[${size}px] ml-[-${size}px] opacity-20 absolute block rounded-full border border-gray-100 left-[50%] -z-10`}
+      className={`p-[${size}px] ml-[-${size}px] opacity-20 absolute block rounded-full border border-gray-100 left-[50%] top-[50%] -z-10`}
     />
   );
 }
 
 export default function Hero() {
   return (
-    <HeroSection classes="bg-backgrdound">
+    <HeroSection classes="bg-transparent">
       <div className="flex flex-col items-center justify-center space-y-4 text-center">
-        <div className="flex items-center justify-center pl-12 pb-8">
+        <div className="flex items-center justify-center pl-12 md:pb-8">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="315"
@@ -39,7 +39,7 @@ export default function Hero() {
             ></path>
           </svg>
         </div>
-        <div className="flex items-center justify-center space-x-20 mb-8">
+        <div className="flex items-center justify-center space-x-20 mb-8 scale-75 md:scale-100">
           <div className="w-20 h-20 rounded-full overflow-hidden mb-4">
             <Image
               src="./ada.svg"
@@ -63,6 +63,16 @@ export default function Hero() {
               width={100}
               height={100}
             />
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none -z-10">
+              <OrbitTrace size={1800} />
+              <OrbitTrace size={1300} />
+              <OrbitTrace size={1000} />
+              <OrbitTrace size={700} />
+              {/*<OrbitTrace size={650} />*/}
+              <OrbitTrace size={400} />
+              {/*<OrbitTrace size={345} />*/}
+              <OrbitTrace size={185} />
+            </div>
           </div>
           <div className="w-20 h-20 rounded-full overflow-hidden mb-4">
             <Image
@@ -74,15 +84,7 @@ export default function Hero() {
             />
           </div>
         </div>
-        <OrbitTrace size={1800} />
-        <OrbitTrace size={1300} />
-        <OrbitTrace size={1000} />
-        <OrbitTrace size={800} />
-        <OrbitTrace size={650} />
-        <OrbitTrace size={500} />
-        <OrbitTrace size={345} />
-        <OrbitTrace size={230} />
-        <OrbitTrace size={130} />
+
         <div className="py-8">
           <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
             maximize <span className="text-[#f7931a]">Bitcoin</span> staking

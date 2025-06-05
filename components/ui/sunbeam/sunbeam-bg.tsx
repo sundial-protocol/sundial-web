@@ -4,7 +4,7 @@ export default function SunbeamBackground() {
       <div className="beam-1" />
       <div className="beam-2" />
       <div className="beam-3" />
-      <div className="beam-4" />
+      {/*<div className="beam-4" />*/}
       <div className="beam-5" />
       <div className="beam-6" />
     </div>
