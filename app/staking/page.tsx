@@ -5,6 +5,7 @@ import StakingFAQ from "./staking-faq";
 import StakingCTA from "./staking-cta";
 import { WhyStake } from "./why-stake";
 import { ValidatorsPreview } from "./validators-preview";
+import MaintenanceOverlay from "@/components/ui/maintenance-overlay";
 
 export default function StakingPage() {
   return (
@@ -22,6 +23,8 @@ export default function StakingPage() {
       <StakingFAQ />
 
       <StakingCTA />
+
+      <MaintenanceOverlay />
     </div>
   );
 }
