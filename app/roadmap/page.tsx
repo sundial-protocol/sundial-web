@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import styles from "./page.module.css";
+import { MousePointerClick } from "lucide-react";
 
 export default function RoadmapPage() {
   const [mouse, setMouse] = useState({ x: 0, y: 0 }); // Mouse position relative to viewport
@@ -18,7 +19,7 @@ export default function RoadmapPage() {
     // sunpos calculations
     const interpf = 0.6;
 
-    const dialCenter = 475;
+    const dialCenter = bodyWidth > 600 ? 475 : 100;
     const interpx = dialCenter + (mouse.x - dialCenter) * interpf;
 
     const combinedY = Math.min(mouse.y + scrollY, myHeight);
@@ -48,14 +49,22 @@ export default function RoadmapPage() {
     const sky = document.getElementById("sky");
     const shadow = document.getElementById("shadow");
     const dial = document.getElementById("dial");
+    const dialContainer = document.getElementById("dialContainer");
+    const clickMePrompt = document.getElementById("clickMePrompt");
 
     const sunHeightPct = sunPos.current.y / myHeight;
     const sunXPct = sunPos.current.x / bodyWidth;
 
+    if (sunPos.current.y > myHeight / 1.5 && clickMePrompt) {
+      clickMePrompt.style.display = "none";
+    }
+
     if (shadow) {
-      shadow.style.clipPath = `polygon(400px 0px, 500px 0px, ${
-        975 - sunPos.current.x
-      }px ${sunPos.current.y / 3}px)`;
+      shadow.style.clipPath = `polygon(${dialCenter - 75}px 0px, ${
+        dialCenter + 25
+      }px 0px, ${dialCenter * 2 - sunPos.current.x}px ${
+        sunPos.current.y / 3
+      }px)`;
       shadow.style.opacity = `${1 - sunHeightPct}`;
     }
 
@@ -73,6 +82,10 @@ export default function RoadmapPage() {
       sun.style.background = `-ms-radial-gradient(${sunPos.current.x}px ${sunPos.current.y}px, circle, rgba(242,248,247,1) 0%,rgba(249,249,28,1) 3%,rgba(247,214,46,1) 8%, rgba(248,200,95,1) 12%,rgba(201,165,132,1) 30%,rgba(115,130,133,1) 51%,rgba(46,97,122,1) 85%,rgba(24,75,106,1) 100%)`;
       sun.style.width = `${bodyWidth}px`;
       sun.style.left = "0px";
+    }
+
+    if (dialContainer) {
+      dialContainer.style.left = `${dialCenter - 75}px`;
     }
 
     if (dial) {
@@ -232,10 +245,12 @@ export default function RoadmapPage() {
             className={styles.waterReflectionMiddle}
           ></div>
         </div>
-        <div>
-          <h1 className="text-4xl font-bold text-center text-white z-100 pt-24">
-            Big things are on the horizon.
-          </h1>
+        <div className="text-4xl font-bold text-center text-white z-100 space-y-36 py-24">
+          <h1>Big things are on the horizon.</h1>
+          <MousePointerClick
+            id="clickMePrompt"
+            className="animate-pulse mx-auto h-10 w-10"
+          />
         </div>
       </div>
       <div id="waterDistance" className={styles.waterDistance}></div>
