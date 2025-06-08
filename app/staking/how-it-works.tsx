@@ -1,7 +1,7 @@
 import { Section } from "@/components/ui/section";
 import Link from "next/link";
 
-export function HowItWorks() {
+export default function HowItWorks() {
   return (
     <Section>
       <div className="flex flex-col items-center justify-center space-y-4 text-center">

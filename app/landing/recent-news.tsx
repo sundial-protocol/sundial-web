@@ -10,13 +10,7 @@ type NewsWidgetProps = {
   image: string;
 };
 
-function NewsWidget({
-  date,
-  title,
-  description,
-  link,
-  image,
-}: NewsWidgetProps) {
+function NewsWidget({ date, title, link, image }: NewsWidgetProps) {
   return (
     <div
       className={styles.newsItem}
