@@ -1,5 +1,5 @@
 import { Section } from "@/components/ui/section";
-import { Fuel, Gamepad2, LockKeyhole } from "lucide-react";
+import { Gamepad2, LockKeyhole } from "lucide-react";
 
 export function AdvancedFeatures() {
   return (

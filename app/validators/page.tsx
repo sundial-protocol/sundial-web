@@ -1,6 +1,7 @@
 import Link from "next/link";
 import StakeCTA from "@/components/reusable-sections/stake-cta";
 import { HeroSection } from "@/components/ui/hero-section";
+import MaintenanceOverlay from "@/components/ui/maintenance-overlay";
 
 // Mock data for validators
 const validators = Array.from({ length: 20 }, (_, i) => ({
@@ -122,6 +123,8 @@ export default function ValidatorsPage() {
         </div>
       </section>
       <StakeCTA />
+
+      <MaintenanceOverlay />
     </div>
   );
 }
