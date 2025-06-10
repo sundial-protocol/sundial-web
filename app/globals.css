@@ -207,3 +207,27 @@
   z-index: -1;
   opacity: 30%;
 }
+
+.btn-effect-shine {
+  position: relative;
+  overflow: hidden;
+}
+.btn-effect-shine::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.5),
+    transparent
+  );
+  transform: skewX(-20deg);
+  transition: all 0.5s;
+}
+.btn-effect-shine:hover::after {
+  left: 130%;
+}
