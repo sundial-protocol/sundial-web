@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./page.module.css";
 import { MousePointerClick } from "lucide-react";
+import MaintenanceOverlay from "@/components/ui/maintenance-overlay";
 
 export default function RoadmapPage() {
   const [mouse, setMouse] = useState({ x: 0, y: 0 }); // Mouse position relative to viewport
@@ -271,6 +272,7 @@ export default function RoadmapPage() {
         className={styles.oceanRippleContainer}
       ></div>
       <div id="oceanRipple" className={styles.oceanRipple}></div>
+      <MaintenanceOverlay />
     </div>
   );
 }

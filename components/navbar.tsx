@@ -9,8 +9,8 @@ import {
   FileText,
   BadgeCheck,
   Sunrise,
-  Database,
   HomeIcon,
+  Landmark,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -41,7 +41,7 @@ function NavLink({
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(true);
   const pathname = usePathname();
 
   const navIconCn = drawerOpen ? "h-6 w-6" : "h-5 w-5";
@@ -92,18 +92,18 @@ export default function Navbar() {
           )}
         >
           <NavLink
-            href="/validators"
-            classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
-          >
-            <Database className={navIconCn} />
-            {drawerOpen && <span className="text-sm">Validators</span>}
-          </NavLink>
-          <NavLink
             href="/staking"
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
             <BadgeCheck className={navIconCn} />
             {drawerOpen && <span className="text-sm">Stake</span>}
+          </NavLink>
+          <NavLink
+            href="/portfolio"
+            classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
+          >
+            <Landmark className={navIconCn} />
+            {drawerOpen && <span className="text-sm">Portfolio</span>}
           </NavLink>
           <NavLink
             href="/"
