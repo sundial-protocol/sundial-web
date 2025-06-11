@@ -21,6 +21,9 @@ const nextConfig = {
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
   },
+  resolve: {
+    alias: { canvas: false }
+  }
 };
 
 mergeConfig(nextConfig, userConfig);
