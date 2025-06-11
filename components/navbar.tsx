@@ -118,6 +118,7 @@ export default function Navbar() {
           </NavLink>
           <NavLink
             href="/docs"
+            subpages={["/docs/guides", "/docs/faq", "/docs/whitepaper"]}
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
             <FileText className={navIconCn} />
