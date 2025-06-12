@@ -17,10 +17,15 @@ export default function Whitepaper() {
         <Document
           file="/sundial.pdf"
           loading="Loading document..."
-          className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center justify-center z-0"
+          className="grid grid-cols-1 lg:grid-cols-2 lg:gap-12 items-center justify-center z-0"
         >
           {Array.from({ length: 99 }, (_, i) => (
-            <Page key={i + 1} pageNumber={i + 1} width={500} className="z-0" />
+            <Page
+              key={i + 1}
+              pageNumber={i + 1}
+              width={Math.min(500, document.body.clientWidth)}
+              className="z-0"
+            />
           ))}
         </Document>
       </div>

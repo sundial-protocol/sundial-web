@@ -5,13 +5,13 @@ import { useState } from "react";
 import { Drawer } from "vaul";
 
 export default function NavDrawer() {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   return (
     <Drawer.Root open={open} direction="left">
       <Drawer.Trigger
         onClick={() => setOpen(!open)}
-        className={`mt-36 z-10 top-4 fixed rounded-full ${
+        className={`mt-36 z-10 ml-4 top-4 fixed rounded-full ${
           open ? "bg-primary/70" : "bg-primary"
         } p-4 text-sm font-medium text-black shadow-sm transition-all hover:bg-primary/70`}
       >
