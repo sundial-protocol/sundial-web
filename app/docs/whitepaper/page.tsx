@@ -13,11 +13,11 @@ export default function Whitepaper() {
     <Section>
       <div className="flex items-center justify-center">
         <Document
-          file="/midgard.pdf"
+          file="/sundial.pdf"
           loading="Loading document..."
           className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center justify-center"
         >
-          {Array.from({ length: 92 }, (_, i) => (
+          {Array.from({ length: 99 }, (_, i) => (
             <Page key={i + 1} pageNumber={i + 1} width={500} />
           ))}
         </Document>
