@@ -1,6 +1,7 @@
 "use client";
 
-import { SidebarCloseIcon, TableOfContents } from "lucide-react";
+import { ArrowLeft, SidebarCloseIcon, TableOfContents } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { Drawer } from "vaul";
 
@@ -74,6 +75,13 @@ export default function NavDrawer({
                     text="A. General Onchain Data Structures"
                   />
                 </ol>
+                <Link
+                  href="/docs"
+                  className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-foreground"
+                >
+                  <ArrowLeft className="mr-1 h-4 w-4" />
+                  Back to Documentation
+                </Link>
               </div>
             </div>
           </div>
