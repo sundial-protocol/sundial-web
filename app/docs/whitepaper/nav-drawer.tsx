@@ -4,14 +4,37 @@ import { SidebarCloseIcon, TableOfContents } from "lucide-react";
 import { useState } from "react";
 import { Drawer } from "vaul";
 
-export default function NavDrawer() {
+export default function NavDrawer({
+  scrollCallback,
+}: {
+  scrollCallback: (pageNumber: number) => void;
+}) {
   const [open, setOpen] = useState(false);
+
+  const ToCLink = ({
+    pageNumber,
+    text,
+  }: {
+    pageNumber: number;
+    text: string;
+  }) => {
+    return (
+      <li>
+        <a
+          onClick={() => scrollCallback(pageNumber)}
+          className="underline cursor-pointer"
+        >
+          {text}
+        </a>
+      </li>
+    );
+  };
 
   return (
     <Drawer.Root open={open} direction="left">
       <Drawer.Trigger
         onClick={() => setOpen(!open)}
-        className={`mt-36 z-10 ml-4 top-4 fixed rounded-full ${
+        className={`mt-48 z-10 ml-4 top-4 fixed rounded-full ${
           open ? "bg-primary/70" : "bg-primary"
         } p-4 text-sm font-medium text-black shadow-sm transition-all hover:bg-primary/70`}
       >
@@ -19,26 +42,44 @@ export default function NavDrawer() {
       </Drawer.Trigger>
       <Drawer.Portal>
         <Drawer.Content
-          className="left-2 top-2 bottom-2 py-36 fixed z-20 outline-none w-[310px] flex"
+          className="left-2 top-2 bottom-2 py-48 fixed z-20 outline-none w-[310px] flex"
           // The gap between the edge of the screen and the drawer is 8px in this case.
           style={
             { "--initial-transform": "calc(100% + 8px)" } as React.CSSProperties
           }
         >
-          <div className="bg-background border-primary/50 border min-h-[200px] h-full w-full grow p-5 flex flex-col rounded-[16px]">
-            <div className="max-w-md mx-auto">
-              <Drawer.Title className="font-medium mb-2 text-foreground">
-                It supports all directions.
+          <div className="bg-background border-primary/50 border min-h-[400px] h-full w-full grow p-5 flex flex-col rounded-[16px]">
+            <div className="max-w-md m-auto w-full">
+              <Drawer.Title className="font-bold mb-2 text-foreground text-center">
+                Table of Contents
               </Drawer.Title>
-              <Drawer.Description className="text-foreground mb-2">
-                This one specifically is not touching the edge of the screen,
-                but that&apos;s not required for a side drawer.
-              </Drawer.Description>
+              <div className="text-foreground mb-2">
+                <ol className="space-y-2 py-6">
+                  <ToCLink pageNumber={6} text="Introduction" />
+                  <ToCLink pageNumber={8} text="1. Ledger State" />
+                  <ToCLink pageNumber={18} text="2. User Event Protocol" />
+                  <ToCLink pageNumber={25} text="3. Consensus Protocol" />
+                  <ToCLink pageNumber={50} text="4. Proof Protocol" />
+                  <ToCLink
+                    pageNumber={56}
+                    text="5. Ledger Rules & Fraud Proofs"
+                  />
+                  <ToCLink
+                    pageNumber={71}
+                    text="6. Offchain Data Architecture"
+                  />
+                  <ToCLink pageNumber={75} text="7. Phase 2 Validation" />
+                  <ToCLink
+                    pageNumber={82}
+                    text="A. General Onchain Data Structures"
+                  />
+                </ol>
+              </div>
             </div>
           </div>
           <Drawer.Close
             onClick={() => setOpen(false)}
-            className="mt-36 top-4 right-2 fixed rounded-full z-10 bg-background/70 border-2 border-primary p-2 text-sm font-medium text-primary shadow-sm transition-all hover:bg-background"
+            className="mt-48 top-4 right-2 fixed rounded-full z-10 bg-background/70 border-2 border-primary p-2 text-sm font-medium text-primary shadow-sm transition-all hover:bg-background"
           >
             <SidebarCloseIcon className="h-5 w-5" />
           </Drawer.Close>
