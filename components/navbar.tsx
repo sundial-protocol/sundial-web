@@ -16,10 +16,12 @@ import Image from "next/image";
 
 function NavLink({
   href,
+  subpages = [""],
   children,
   classes,
 }: {
   href: string;
+  subpages?: string[];
   children: React.ReactNode;
   classes?: string;
 }) {
@@ -30,7 +32,9 @@ function NavLink({
       href={href}
       className={cn(
         "flex flex-col hover:text-primary bg-gray-700/50 border-gray-800/50 rounded-full p-2 items-center justify-center pointer-events-auto",
-        pathname === href ? "text-primary" : "text-gray-400",
+        href == pathname || subpages.includes(pathname)
+          ? "text-primary"
+          : "text-gray-400",
         classes
       )}
     >
@@ -114,6 +118,7 @@ export default function Navbar() {
           </NavLink>
           <NavLink
             href="/docs"
+            subpages={["/docs/guides", "/docs/faq", "/docs/whitepaper"]}
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
             <FileText className={navIconCn} />
@@ -138,7 +143,7 @@ export default function Navbar() {
           )}
         >
           <Image
-            src="./logo.png"
+            src="/logo.png"
             className="rounded-full"
             alt="Sundial Logo"
             width={100}

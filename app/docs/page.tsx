@@ -57,18 +57,16 @@ export default function DocsPage() {
             </div>
           </Link>
           <Link
-            href="/docs/api"
+            href="/docs/whitepaper"
             className="flex flex-col space-y-3 rounded-lg border p-6 shadow-sm hover:shadow-md transition-shadow"
           >
             <div className="flex items-center space-x-3">
               <FileText className="h-6 w-6 text-[#ffb70b]" />
-              <h2 className="text-xl font-bold">API Reference</h2>
+              <h2 className="text-xl font-bold">Whitepaper</h2>
             </div>
-            <p className="text-gray-500">
-              Technical documentation for developers.
-            </p>
+            <p className="text-gray-500">Learn how it all works!</p>
             <div className="flex items-center text-[#ffb70b]">
-              <span>View API Reference</span>
+              <span>View Whitepaper</span>
               <ArrowRight className="ml-1 h-4 w-4" />
             </div>
           </Link>
