@@ -26,7 +26,7 @@ export default function DocsPage() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-12">
           <Link
             href="/docs/guides"
-            className="flex flex-col space-y-3 rounded-lg border p-6 shadow-sm hover:shadow-md transition-shadow"
+            className="flex flex-col space-y-3 rounded-sm border p-6 shadow-sm hover:shadow-md transition-shadow"
           >
             <div className="flex items-center space-x-3">
               <Book className="h-6 w-6 text-[#ffb70b]" />
@@ -42,7 +42,7 @@ export default function DocsPage() {
           </Link>
           <Link
             href="/docs/faq"
-            className="flex flex-col space-y-3 rounded-lg border p-6 shadow-sm hover:shadow-md transition-shadow"
+            className="flex flex-col space-y-3 rounded-sm border p-6 shadow-sm hover:shadow-md transition-shadow"
           >
             <div className="flex items-center space-x-3">
               <HelpCircle className="h-6 w-6 text-[#ffb70b]" />
@@ -58,7 +58,7 @@ export default function DocsPage() {
           </Link>
           <Link
             href="/docs/api"
-            className="flex flex-col space-y-3 rounded-lg border p-6 shadow-sm hover:shadow-md transition-shadow"
+            className="flex flex-col space-y-3 rounded-sm border p-6 shadow-sm hover:shadow-md transition-shadow"
           >
             <div className="flex items-center space-x-3">
               <FileText className="h-6 w-6 text-[#ffb70b]" />

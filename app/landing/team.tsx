@@ -17,7 +17,7 @@ function TeamMember({
   return (
     <a
       href={link}
-      className="flex flex-col items-center text-center p-6 rounded-lg shadow-sm hover:shadow-primary/60 transition-shadow btn-effect-shine"
+      className="flex flex-col items-center text-center p-6 rounded-xs shadow-sm hover:shadow-primary/60 transition-shadow btn-effect-shine"
     >
       <Image
         src={image}

@@ -75,7 +75,7 @@ export default async function ValidatorDetailPage({
         <div className="container px-4 md:px-6">
           <div className="grid gap-8 md:grid-cols-3">
             <div className="md:col-span-2 space-y-8">
-              <div className="rounded-lg border shadow-sm p-6">
+              <div className="rounded-sm border shadow-sm p-6">
                 <h2 className="text-xl font-bold mb-4">About</h2>
                 <p className="text-gray-700">{validator.description}</p>
 
@@ -104,7 +104,7 @@ export default async function ValidatorDetailPage({
                 </div>
               </div>
 
-              <div className="rounded-lg border shadow-sm p-6">
+              <div className="rounded-sm border shadow-sm p-6">
                 <h2 className="text-xl font-bold mb-4">Performance</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
@@ -144,7 +144,7 @@ export default async function ValidatorDetailPage({
                 </div>
               </div>
 
-              <div className="rounded-lg border shadow-sm p-6">
+              <div className="rounded-sm border shadow-sm p-6">
                 <h2 className="text-xl font-bold mb-4">Voting Power</h2>
                 <div className="space-y-4">
                   <div>
@@ -166,7 +166,7 @@ export default async function ValidatorDetailPage({
             </div>
 
             <div className="space-y-6">
-              <div className="rounded-lg border shadow-sm p-6 bg-secondary">
+              <div className="rounded-sm border shadow-sm p-6 bg-secondary">
                 <h2 className="text-xl font-bold mb-4">Staking Stats</h2>
                 <div className="space-y-4">
                   <div className="flex justify-between">
@@ -204,7 +204,7 @@ export default async function ValidatorDetailPage({
                 </div>
               </div>
 
-              <div className="rounded-lg border shadow-sm p-6">
+              <div className="rounded-sm border shadow-sm p-6">
                 <h2 className="text-xl font-bold mb-4">
                   Why Stake with {validator.name}?
                 </h2>
@@ -236,7 +236,7 @@ export default async function ValidatorDetailPage({
                 </ul>
               </div>
 
-              <div className="rounded-lg border shadow-sm p-6 bg-blue-50">
+              <div className="rounded-sm border shadow-sm p-6 bg-blue-50">
                 <div className="flex items-start">
                   <Info className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
                   <div>

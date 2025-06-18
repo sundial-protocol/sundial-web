@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 
 function Question({ q, a }: { q: string; a: string }) {
   return (
-    <div className="rounded-lg border shadow-sm p-6">
+    <div className="rounded-sm border shadow-sm p-6">
       <h3 className="text-xl font-bold mb-2">{q}</h3>
       <p className="text-gray-700">{a}</p>
     </div>

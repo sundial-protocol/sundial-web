@@ -15,8 +15,8 @@ export function AdvancedFeatures() {
             </p>
           </div>
         </div>
-        <div className="grid w-full auto-rows-[18rem] grid-cols-1 gap-4 md:grid-cols-2 md:mb-24 lg:grid-cols-3 lg:gap-3 md:grid-rows-[200px_250px] md:max-h-[500px] grid-rows-none max-h-none">
-          <div className="flex flex-col col-span-2 justify-center p-6 bg-secondary rounded-lg shadow-sm hover:shadow-primary/60 hover:shadow-md transition-shadow">
+        <div className="grid w-full auto-rows-[18rem] gap-4 grid-cols-2 md:mb-24 lg:grid-cols-3 lg:gap-3 md:grid-rows-[200px_250px] md:max-h-[500px] grid-rows-none max-h-none">
+          <div className="flex flex-col col-span-2 justify-center p-6 bg-secondary rounded-sm shadow-sm hover:shadow-primary/60 hover:shadow-md transition-shadow">
             <LockKeyhole className="text-gray-500 h-16 w-12 pb-4" />
             <h2 className="text-xl font-bold">Native UTXO Security</h2>
             <p className="text-gray-500">
@@ -24,7 +24,7 @@ export function AdvancedFeatures() {
               transactions, no outages. Only full UTXO security.
             </p>
           </div>
-          <div className="flex flex-col justify-center p-6 bg-primary rounded-lg shadow-sm hover:shadow-primary/60 hover:shadow-md transition-shadow">
+          <div className="flex flex-col justify-center p-6 bg-primary rounded-sm shadow-sm hover:shadow-primary/60 hover:shadow-md transition-shadow">
             {/* <Fuel className="text-black h-12 w-8 pb-4" /> */}
             <h2 className="text-xl text-black font-bold">Gas Abstraction</h2>
             <p className="text-gray-500">
@@ -32,14 +32,14 @@ export function AdvancedFeatures() {
               possibilities for Dapps and DeFi.
             </p>
           </div>
-          <div className="flex flex-col justify-center p-6 bg-accent-foreground rounded-lg shadow-sm hover:shadow-primary/60 hover:shadow-md transition-shadow">
+          <div className="flex flex-col justify-center p-6 bg-accent-foreground rounded-sm shadow-sm hover:shadow-primary/60 hover:shadow-md transition-shadow">
             <h2 className="text-xl text-accent font-bold">ZK Bridge</h2>
             <p className="text-gray-500">
               Trustless rollup bridge. Interoperable with metaprotocols and
               secured by ZK proofs.
             </p>
           </div>
-          <div className="flex flex-col col-span-2 justify-center p-6 bg-secondary rounded-lg shadow-sm hover:shadow-primary/60 hover:shadow-md transition-shadow">
+          <div className="flex flex-col col-span-2 justify-center p-6 bg-secondary rounded-sm shadow-sm hover:shadow-primary/60 hover:shadow-md transition-shadow">
             <Gamepad2 className="text-gray-500 h-20 w-16 pb-4" />
             <h2 className="text-xl font-bold">Cardano Defi & Gaming</h2>
             <p className="text-gray-500">

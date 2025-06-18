@@ -97,7 +97,7 @@ function PageContent() {
                             {validators.slice(0, 6).map((validator) => (
                               <div
                                 key={validator.id}
-                                className={`rounded-lg border p-4 cursor-pointer transition-colors ${
+                                className={`rounded-sm border p-4 cursor-pointer transition-colors ${
                                   selectedValidator === validator.id
                                     ? "border-primary bg-primary/5"
                                     : "hover:border-gray-300"
@@ -166,7 +166,7 @@ function PageContent() {
                               </Button>
                             </div>
                           </div>
-                          <div className="rounded-lg bg-blue-50 p-4">
+                          <div className="rounded-sm bg-blue-50 p-4">
                             <div className="flex items-start">
                               <Info className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
                               <div>
@@ -203,7 +203,7 @@ function PageContent() {
                           Step 3: Confirm Staking
                         </h3>
                         <div className="space-y-4">
-                          <div className="rounded-lg border p-4">
+                          <div className="rounded-sm border p-4">
                             <h4 className="font-medium mb-4">
                               Staking Summary
                             </h4>
@@ -254,7 +254,7 @@ function PageContent() {
                               </div>
                             </div>
                           </div>
-                          <div className="rounded-lg bg-blue-50 p-4">
+                          <div className="rounded-sm bg-blue-50 p-4">
                             <div className="flex items-start">
                               <Info className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
                               <div>
@@ -334,7 +334,7 @@ function PageContent() {
                               </Button>
                             </div>
                           </div>
-                          <div className="rounded-lg bg-blue-50 p-4">
+                          <div className="rounded-sm bg-blue-50 p-4">
                             <div className="flex items-start">
                               <Info className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
                               <div>
@@ -362,7 +362,7 @@ function PageContent() {
                           Step 2: Confirm Liquid Staking
                         </h3>
                         <div className="space-y-4">
-                          <div className="rounded-lg border p-4">
+                          <div className="rounded-sm border p-4">
                             <h4 className="font-medium mb-4">
                               Staking Summary
                             </h4>
@@ -391,7 +391,7 @@ function PageContent() {
                               </div>
                             </div>
                           </div>
-                          <div className="rounded-lg bg-blue-50 p-4">
+                          <div className="rounded-sm bg-blue-50 p-4">
                             <div className="flex items-start">
                               <Info className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
                               <div>

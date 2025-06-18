@@ -12,7 +12,7 @@ function GuideLink(props: GuideLinkProps) {
   return (
     <Link
       href={href}
-      className="flex flex-col space-y-3 rounded-lg border p-6 shadow-sm hover:shadow-md transition-shadow"
+      className="flex flex-col space-y-3 rounded-sm border p-6 shadow-sm hover:shadow-md transition-shadow"
     >
       <div className="flex items-center space-x-3">
         <Book className="h-6 w-6 text-[#ffb70b]" />

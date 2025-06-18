@@ -15,7 +15,7 @@ export function WhyStake() {
         </div>
       </div>
       <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3 lg:gap-12 mt-12">
-        <div className="flex flex-col items-center space-y-2 rounded-lg border p-6 shadow-sm">
+        <div className="flex flex-col items-center space-y-2 rounded-sm border p-6 shadow-sm">
           <div className="rounded-full bg-[#ffb70b]/20 p-4">
             <svg
               width="24"
@@ -46,7 +46,7 @@ export function WhyStake() {
             mechanism.
           </p>
         </div>
-        <div className="flex flex-col items-center space-y-2 rounded-lg border p-6 shadow-sm">
+        <div className="flex flex-col items-center space-y-2 rounded-sm border p-6 shadow-sm">
           <div className="rounded-full bg-[#ffb70b]/20 p-4">
             <svg
               width="24"
@@ -83,7 +83,7 @@ export function WhyStake() {
             Your assets are secured by our decentralized network of validators.
           </p>
         </div>
-        <div className="flex flex-col items-center space-y-2 rounded-lg border p-6 shadow-sm">
+        <div className="flex flex-col items-center space-y-2 rounded-sm border p-6 shadow-sm">
           <div className="rounded-full bg-[#ffb70b]/20 p-4">
             <svg
               width="24"

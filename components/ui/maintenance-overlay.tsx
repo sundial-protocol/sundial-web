@@ -34,7 +34,7 @@ export default function MaintenanceOverlay() {
       if (iteration >= value.length) {
         clearInterval(intervalRef.current!);
       }
-      iteration += 1 / 3;
+      iteration += 1;
     }, 30);
   }
 
