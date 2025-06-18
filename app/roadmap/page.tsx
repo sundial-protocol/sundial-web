@@ -215,6 +215,8 @@ export default function RoadmapPage() {
         src="/bitcoin-btc-logo.svg"
         alt="Bitcoin Logo"
         className={styles.bitcoinLogo}
+        width={100}
+        height={100}
       />
 
       <div id="sunDay" className={styles.sunDay}></div>
