@@ -9,17 +9,19 @@ import {
   FileText,
   BadgeCheck,
   Sunrise,
-  Database,
   HomeIcon,
+  Landmark,
 } from "lucide-react";
 import Image from "next/image";
 
 function NavLink({
   href,
+  subpages = [""],
   children,
   classes,
 }: {
   href: string;
+  subpages?: string[];
   children: React.ReactNode;
   classes?: string;
 }) {
@@ -29,8 +31,10 @@ function NavLink({
     <Link
       href={href}
       className={cn(
-        "flex flex-col hover:text-primary bg-gray-700/50 border-gray-800/50 rounded-full p-2 items-center justify-center",
-        pathname === href ? "text-primary" : "text-gray-400",
+        "flex flex-col hover:text-primary bg-gray-700/50 border-gray-800/50 rounded-full p-2 items-center justify-center pointer-events-auto",
+        href == pathname || subpages.includes(pathname)
+          ? "text-primary"
+          : "text-gray-400",
         classes
       )}
     >
@@ -41,7 +45,8 @@ function NavLink({
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(true);
+  const pathname = usePathname();
 
   const navIconCn = drawerOpen ? "h-6 w-6" : "h-5 w-5";
 
@@ -49,12 +54,15 @@ export default function Navbar() {
     <header
       className={cn(
         `sticky top-0 z-50 pt-8 w-full transition-all`,
-        drawerOpen ? "bg-gray-900/70 h-36" : "bg-transparent"
+        drawerOpen
+          ? "bg-gray-900/70 h-36"
+          : "bg-transparent pointer-events-none",
+        pathname == "/roadmap" && "pointer-events-none"
       )}
     >
       <div className="container flex h-16 items-center justify-center">
         {drawerOpen && (
-          <div className="hidden xl:flex items-center gap-2 left-20 absolute">
+          <div className="hidden xl:flex items-center gap-2 left-20 absolute pointer-events-auto">
             <Link href="/" className="flex items-center gap-2">
               <div className="relative h-8 w-8">
                 <svg
@@ -88,18 +96,18 @@ export default function Navbar() {
           )}
         >
           <NavLink
-            href="/validators"
-            classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
-          >
-            <Database className={navIconCn} />
-            {drawerOpen && <span className="text-sm">Validators</span>}
-          </NavLink>
-          <NavLink
             href="/staking"
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
             <BadgeCheck className={navIconCn} />
             {drawerOpen && <span className="text-sm">Stake</span>}
+          </NavLink>
+          <NavLink
+            href="/portfolio"
+            classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
+          >
+            <Landmark className={navIconCn} />
+            {drawerOpen && <span className="text-sm">Portfolio</span>}
           </NavLink>
           <NavLink
             href="/"
@@ -110,6 +118,7 @@ export default function Navbar() {
           </NavLink>
           <NavLink
             href="/docs"
+            subpages={["/docs/guides", "/docs/faq", "/docs/whitepaper"]}
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
             <FileText className={navIconCn} />
@@ -129,12 +138,12 @@ export default function Navbar() {
             setDrawerOpen(!drawerOpen);
           }}
           className={cn(
-            `h-12 w-12 hover:h-14 hover:w-14 transition-all duration-300 absolute`,
+            `h-12 w-12 hover:h-14 hover:w-14 transition-all duration-300 absolute pointer-events-auto cursor-pointer`,
             drawerOpen && "mt-40"
           )}
         >
           <Image
-            src="./logo.png"
+            src="/logo.png"
             className="rounded-full"
             alt="Sundial Logo"
             width={100}
@@ -143,7 +152,7 @@ export default function Navbar() {
         </div>
       </div>
       {drawerOpen && (
-        <div className="container flex items-center w-min mx-4 pb-2 absolute right-20 top-0 justify-center pt-4 lg:pt-12">
+        <div className="container flex items-center w-min mx-4 pb-2 absolute right-20 top-0 justify-center pt-4 lg:pt-12 pointer-events-auto">
           <input
             type="checkbox"
             id="theme-toggle"

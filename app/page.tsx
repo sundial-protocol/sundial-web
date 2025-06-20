@@ -1,8 +1,8 @@
-import { ValidatorsPreview } from "./staking/validators-preview";
 import Hero from "./landing/hero";
 import { AdvancedFeatures } from "./landing/advanced-features";
 import { LegacySunbeamBackground } from "@/components/ui/sunbeam/sunbeam-bg";
 import { Team } from "./landing/team";
+import { HowItWorks } from "./staking/how-it-works";
 
 export default function Home() {
   return (
@@ -10,7 +10,7 @@ export default function Home() {
       <LegacySunbeamBackground />
       <Hero />
       <AdvancedFeatures />
-      <ValidatorsPreview />
+      <HowItWorks />
       <Team />
     </div>
   );

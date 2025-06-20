@@ -1,6 +1,7 @@
 import Link from "next/link";
 import StakeCTA from "@/components/reusable-sections/stake-cta";
 import { HeroSection } from "@/components/ui/hero-section";
+import MaintenanceOverlay from "@/components/ui/maintenance-overlay";
 
 // Mock data for validators
 const validators = Array.from({ length: 20 }, (_, i) => ({
@@ -32,7 +33,7 @@ export default function ValidatorsPage() {
 
       <section className="py-12">
         <div className="container px-4 md:px-6">
-          <div className="rounded-lg border shadow-sm overflow-hidden">
+          <div className="rounded-sm border shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
@@ -108,7 +109,7 @@ export default function ValidatorsPage() {
                       <td className="px-4 py-4">
                         <Link
                           href={`/stake?validator=${validator.id}`}
-                          className="inline-flex items-center justify-center rounded-md bg-black text-white h-8 px-4 text-xs font-medium transition-colors hover:bg-gray-900"
+                          className="inline-flex items-center justify-center rounded-sm bg-black text-white h-8 px-4 text-xs font-medium transition-colors hover:bg-gray-900"
                         >
                           Stake
                         </Link>
@@ -122,6 +123,8 @@ export default function ValidatorsPage() {
         </div>
       </section>
       <StakeCTA />
+
+      <MaintenanceOverlay />
     </div>
   );
 }

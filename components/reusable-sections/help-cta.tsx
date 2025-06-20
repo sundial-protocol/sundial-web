@@ -23,7 +23,7 @@ export default function HelpCTA() {
             Join Discord
           </a>
           <a
-            href="mailto:sheldon@sundialprotocol.com"
+            href="mailto:info@sundialprotocol.com"
             className="inline-flex items-center justify-center rounded-full bg-black text-white h-12 px-8 text-base font-medium transition-colors hover:bg-gray-900"
           >
             Contact Support

@@ -1,5 +1,6 @@
 import { Section } from "@/components/ui/section";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
+import Image from "next/image";
 
 function TeamMember({
   name,
@@ -17,9 +18,15 @@ function TeamMember({
   return (
     <a
       href={link}
-      className="flex flex-col items-center text-center p-6 rounded-lg shadow-sm hover:shadow-primary/60 transition-shadow"
+      className="flex flex-col items-center text-center p-6 rounded-xs shadow-sm hover:shadow-primary/60 transition-shadow btn-effect-shine"
     >
-      <img src={image} alt={name} className="w-36 h-36 rounded-full mb-4" />
+      <Image
+        src={image}
+        alt={name}
+        height={100}
+        width={100}
+        className="w-36 h-36 rounded-full mb-4"
+      />
       <h2 className="text-2xl font-bold text-primary">{name}</h2>
       <p>{role}</p>
       <p className="text-gray-500 text-sm">{description ?? ""}</p>

@@ -1,4 +1,5 @@
 import { Section } from "@/components/ui/section";
+import { BadgeCheck } from "lucide-react";
 import Link from "next/link";
 
 export function ValidatorsPreview() {
@@ -20,32 +21,18 @@ export function ValidatorsPreview() {
           <Link
             key={id}
             href={`/validators/${id}`}
-            className="flex flex-col space-y-2 rounded-lg border p-6 shadow-sm hover:shadow-md transition-shadow"
+            className="flex flex-col space-y-2 rounded-sm border-2 shadow-sm hover:shadow-md transition-shadow bg-background/60 hover:brightness-105 hover:shadow-primary/30"
           >
-            <div className="flex items-center space-x-4">
-              <div className="rounded-full bg-primary-foreground border-foreground/10 border-2 p-2">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
-                    stroke="#ffb70b"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-              <div>
+            <div className="flex items-center px-4 py-2">
+              <div className="pt-2">
                 <h3 className="text-xl font-bold">Validator {id}</h3>
                 <p className="text-sm text-gray-500">Commission: {5 + id}%</p>
               </div>
+              <div className="rounded-full bg-primary-foreground border-foreground/10 border-2 p-2 ml-auto mt-0">
+                <BadgeCheck className="h-6 w-6 text-primary" />
+              </div>
             </div>
-            <div className="mt-4">
+            <div className="p-4 bg-secondary/50 rounded-b-lg border-t">
               <div className="flex justify-between text-sm">
                 <span>APY</span>
                 <span className="font-bold">{7 + id}%</span>
@@ -61,7 +48,7 @@ export function ValidatorsPreview() {
       <div className="flex justify-center mt-12">
         <Link
           href="/validators"
-          className="inline-flex items-center justify-center rounded-full border border-gray-300 bg-white text-gray-700 h-12 px-8 text-base font-medium transition-colors hover:bg-secondary"
+          className="inline-flex items-center justify-center rounded-full h-12 px-8 text-base font-medium transition-colors bg-accent-foreground text-accent hover:bg-accent-foreground/80"
         >
           View All Validators
         </Link>

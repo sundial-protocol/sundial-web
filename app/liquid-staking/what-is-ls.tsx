@@ -21,7 +21,7 @@ export default function WhatIsLS() {
             liquidity of having tradable tokens.
           </p>
         </div>
-        <div className="rounded-lg border shadow-sm p-6 bg-secondary">
+        <div className="rounded-sm border shadow-sm p-6 bg-secondary">
           <h3 className="text-xl font-bold mb-4">Liquid Staking Benefits</h3>
           <ul className="space-y-3">
             <li className="flex items-start">

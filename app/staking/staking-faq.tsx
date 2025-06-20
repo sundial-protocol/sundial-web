@@ -14,7 +14,7 @@ export default function StakingFAQ() {
         </div>
       </div>
       <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-2 lg:gap-12">
-        <div className="rounded-lg border shadow-sm p-6">
+        <div className="rounded-sm border shadow-sm p-6">
           <h3 className="text-xl font-bold mb-2">
             Is there a minimum amount to stake?
           </h3>
@@ -23,7 +23,7 @@ export default function StakingFAQ() {
             Sundial. You can stake any amount you&apos;re comfortable with.
           </p>
         </div>
-        <div className="rounded-lg border shadow-sm p-6">
+        <div className="rounded-sm border shadow-sm p-6">
           <h3 className="text-xl font-bold mb-2">
             How often are rewards distributed?
           </h3>
@@ -32,7 +32,7 @@ export default function StakingFAQ() {
             your staking balance.
           </p>
         </div>
-        <div className="rounded-lg border shadow-sm p-6">
+        <div className="rounded-sm border shadow-sm p-6">
           <h3 className="text-xl font-bold mb-2">
             Can I unstake my Bitcoin at any time?
           </h3>
@@ -41,14 +41,14 @@ export default function StakingFAQ() {
             unbonding period before your Bitcoin is returned to your wallet.
           </p>
         </div>
-        <div className="rounded-lg border shadow-sm p-6">
+        <div className="rounded-sm border shadow-sm p-6">
           <h3 className="text-xl font-bold mb-2">Is staking secure?</h3>
           <p className="text-gray-500">
             Yes, staking with Sundial is secure and non-custodial. You maintain
             control of your Bitcoin at all times.
           </p>
         </div>
-        <div className="rounded-lg border shadow-sm p-6">
+        <div className="rounded-sm border shadow-sm p-6">
           <h3 className="text-xl font-bold mb-2">
             What is the APY for staking?
           </h3>
@@ -57,7 +57,7 @@ export default function StakingFAQ() {
             depending on the validator you choose and network conditions.
           </p>
         </div>
-        <div className="rounded-lg border shadow-sm p-6">
+        <div className="rounded-sm border shadow-sm p-6">
           <h3 className="text-xl font-bold mb-2">
             Do I need technical knowledge to stake?
           </h3>

@@ -12,7 +12,7 @@ const NewsCard: React.FC<NewsCardProps> = ({
   link,
 }) => {
   return (
-    <div className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+    <div className="border rounded-sm p-4 shadow-sm hover:shadow-md transition-shadow">
       <h3 className="text-lg font-bold mb-2">{title}</h3>
       <p className="text-sm text-gray-500 mb-4">{description}</p>
       <div className="text-xs text-gray-400 mb-2">{date}</div>
