@@ -4,7 +4,7 @@ import { Gamepad2, LockKeyhole } from "lucide-react";
 export function AdvancedFeatures() {
   return (
     <Section>
-      <div className="container px-4 md:px-6">
+      <div className="relative container px-4 md:px-6 z-10">
         <div className="flex flex-col justify-center space-y-4">
           <div className="space-y-2 py-6">
             <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">

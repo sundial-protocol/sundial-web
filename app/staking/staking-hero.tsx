@@ -12,7 +12,7 @@ export default function StakingHero() {
           </h1>
           <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl">
             Earn passive income by staking your Bitcoin with{" "}
-            <span className="text-[#ffb70b]">Sundial</span>.
+            <span className="text-primary">Sundial</span>.
           </p>
         </div>
         <Link

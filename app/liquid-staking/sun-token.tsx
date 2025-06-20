@@ -12,7 +12,7 @@ export function SunToken() {
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="relative w-3/4 h-3/4">
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <RefreshCw className="h-16 w-16 text-[#ffb70b] animate-spin-slow" />
+                  <RefreshCw className="h-16 w-16 text-primary animate-spin-slow" />
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="bg-white rounded-full p-4 shadow-lg">
@@ -46,7 +46,7 @@ export function SunToken() {
           <div className="pt-4">
             <Link
               href="/docs/$SUN"
-              className="inline-flex items-center text-[#ffb70b] hover:underline"
+              className="inline-flex items-center text-primary hover:underline"
             >
               Learn more about $SUN
               <ArrowRight className="ml-1 h-4 w-4" />

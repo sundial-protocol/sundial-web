@@ -15,11 +15,11 @@ function GuideLink(props: GuideLinkProps) {
       className="flex flex-col space-y-3 rounded-sm border p-6 shadow-sm hover:shadow-md transition-shadow"
     >
       <div className="flex items-center space-x-3">
-        <Book className="h-6 w-6 text-[#ffb70b]" />
+        <Book className="h-6 w-6 text-primary" />
         <h3 className="text-xl font-bold">{title}</h3>
       </div>
       <p className="text-gray-500">{description}</p>
-      <div className="flex items-center text-[#ffb70b]">
+      <div className="flex items-center text-primary">
         <span>Read Guide</span>
         <ArrowRight className="ml-1 h-4 w-4" />
       </div>

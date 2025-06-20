@@ -88,7 +88,7 @@ export default async function ValidatorDetailPage({
                       href={validator.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[#ffb70b] hover:underline"
+                      className="text-primary hover:underline"
                     >
                       {validator.website.replace("https://", "")}
                     </a>
@@ -157,7 +157,7 @@ export default async function ValidatorDetailPage({
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2.5">
                     <div
-                      className="bg-[#ffb70b] h-2.5 rounded-full"
+                      className="bg-primary h-2.5 rounded-full"
                       style={{ width: `${validator.votingPower}%` }}
                     ></div>
                   </div>
