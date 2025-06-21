@@ -1,4 +1,5 @@
 import { Section } from "@/components/ui/section";
+import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 import Link from "next/link";
 
 type StepProps = {
@@ -21,42 +22,77 @@ function Step({ number, title, description }: StepProps) {
 
 export function HowItWorks() {
   return (
-    <Section className="rounded-lg bg-background/50 px-8 py-24">
-      <div className="flex flex-col items-center justify-center space-y-4 text-center">
-        <div className="space-y-2">
-          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-            How It Works
-          </h2>
-          <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl">
-            Sundial&apos;s dual staking mechanism is simple and efficient.
-          </p>
+    <SunbeamBackground
+      beams={[
+        {
+          styles: {
+            content: '""',
+            position: "absolute",
+            left: "0",
+            top: "-300px",
+            width: "100%",
+            height: "1600px", // Match the height of the triangle
+            background:
+              "linear-gradient(to bottom, rgba(255, 183, 11, 0.9) 0%, rgba(255, 183, 11, 0.9) 40%, rgba(0, 0, 0, 0) 80%, rgba(0, 0, 0, 0) 100%)", // Gradient from orange to black
+            clipPath: "polygon(190% 100%, 0% 0%, 0% 35%)", // Triangle shape
+            zIndex: "-1",
+            opacity: "0.3",
+          },
+        },
+        {
+          styles: {
+            content: '""',
+            position: "absolute",
+            left: "0",
+            top: "150px",
+            width: "100%",
+            height: "600px", // Match the height of the triangle
+            background:
+              "linear-gradient(to bottom right, rgba(255, 183, 11, 0.9) 0%, rgba(255, 183, 11, 0.9) 40%, rgba(0, 0, 0, 0) 80%, rgba(0, 0, 0, 0) 100%)", // Gradient from orange to black
+            clipPath: "polygon(-90% 100%, 100% 0%, 100% 66%)", // Triangle shape
+            zIndex: "-1",
+            opacity: "0.3",
+          },
+        },
+      ]}
+    >
+      <Section className="rounded-lg bg-background/50 px-8 py-24">
+        <div className="flex flex-col items-center justify-center space-y-4 text-center">
+          <div className="space-y-2">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+              How It Works
+            </h2>
+            <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl">
+              Sundial&apos;s dual staking mechanism is simple and efficient.
+            </p>
+          </div>
         </div>
-      </div>
-      <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 md:grid-cols-3 mt-12">
-        <Step
-          number={1}
-          title="Deposit Bitcoin"
-          description="Connect your wallet and deposit your Bitcoin to start staking."
-        />
-        <Step
-          number={2}
-          title="Choose Validators"
-          description="Select from our network of trusted validators to stake with."
-        />
-        <Step
-          number={3}
-          title="Earn Rewards"
-          description="Start earning staking rewards immediately with competitive APY."
-        />
-      </div>
-      <div className="flex justify-center mt-12">
-        <Link
-          href="/stake"
-          className="inline-flex items-center justify-center rounded-full bg-black text-white h-12 px-8 text-base font-medium transition-colors hover:bg-gray-900 border border-primary/20"
-        >
-          Start Staking
-        </Link>
-      </div>
-    </Section>
+        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 md:grid-cols-3 mt-12">
+          <Step
+            number={1}
+            title="Deposit Bitcoin"
+            description="Connect your wallet and deposit your Bitcoin to start staking."
+          />
+          <Step
+            number={2}
+            title="Choose Validators"
+            description="Select from our network of trusted validators to stake with."
+          />
+          <Step
+            number={3}
+            title="Earn Rewards"
+            description="Start earning staking rewards immediately with competitive APY."
+          />
+        </div>
+        <div className="flex justify-center mt-12">
+          <Link
+            href="/stake"
+            className="inline-flex items-center justify-center rounded-full bg-black text-white h-12 px-8 text-base font-medium transition-colors hover:bg-gray-900 border border-primary/20"
+          >
+            Start Staking
+          </Link>
+        </div>
+      </Section>
+    </SunbeamBackground>
   );
 }
