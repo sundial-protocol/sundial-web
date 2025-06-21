@@ -8,7 +8,9 @@ export function HeroSection({
   classes?: string;
 }) {
   return (
-    <section className={cn("py-12 md:py-16 bg-secondary", classes)}>
+    <section
+      className={cn("py-48 bg-secondary snap-start snap-always", classes)}
+    >
       <div className="container px-4 md:px-6">{children}</div>
     </section>
   );

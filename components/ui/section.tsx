@@ -8,7 +8,7 @@ export function Section({
   className?: string;
 }) {
   return (
-    <section className="py-12 md:py-24">
+    <section className="pb-12 pt-40 snap-always snap-start">
       <div className={cn("container px-0 md:px-6", className)}>{children}</div>
     </section>
   );

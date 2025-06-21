@@ -10,8 +10,8 @@ export default function SunbeamBackground({
   beams?: BeamProps[] | null;
 }) {
   return (
-    <div>
-      <div className="-z-50 absolute top-0 left-0 w-full">
+    <div className="snap-always snap-start">
+      <div className="-z-50 relative top-0 left-0 w-full overflow-visible">
         {beams?.map((beam, index) => (
           <div key={index} style={beam.styles} />
         ))}
@@ -23,9 +23,11 @@ export default function SunbeamBackground({
 
 export function LegacySunbeamBackground() {
   return (
-    <div className="-z-50 absolute top-0 left-0 w-full">
+    <div className="-z-50 relative top-0 left-0 w-full">
       <div className="beam-3" />
+      <div className="beam-4" />
       <div className="beam-5" />
+      <div className="beam-6" />
     </div>
   );
 }

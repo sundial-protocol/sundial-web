@@ -3,24 +3,23 @@ import { ArrowRight, Book, FileText, HelpCircle } from "lucide-react";
 import { Section } from "@/components/ui/section";
 import PopularTopics from "./popular-topics";
 import HelpCTA from "@/components/reusable-sections/help-cta";
+import { HeroSection } from "@/components/ui/hero-section";
 
 export default function DocsPage() {
   return (
     <div className="flex flex-col min-h-screen">
-      <section className="py-12 md:py-16 bg-secondary">
-        <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center justify-center space-y-4 text-center">
-            <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                Documentation
-              </h1>
-              <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl">
-                Learn everything you need to know about Sundial staking.
-              </p>
-            </div>
+      <HeroSection>
+        <div className="flex flex-col items-center justify-center space-y-4 text-center">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+              Documentation
+            </h1>
+            <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl">
+              Learn everything you need to know about Sundial staking.
+            </p>
           </div>
         </div>
-      </section>
+      </HeroSection>
 
       <Section>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-12">
