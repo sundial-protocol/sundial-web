@@ -1,4 +1,4 @@
-import Hero from "./landing/legacy_hero";
+import Hero from "./landing/v4_hero";
 import { AdvancedFeatures } from "./landing/advanced-features";
 import { Team } from "./landing/team";
 import { HowItWorks } from "./staking/how-it-works";
