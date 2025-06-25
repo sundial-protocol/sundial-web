@@ -2,6 +2,8 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight, Book } from "lucide-react";
 import { HeroSection } from "@/components/ui/hero-section";
 import { Section } from "@/components/ui/section";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 
 type GuideLinkProps = {
   href: string;
@@ -12,26 +14,25 @@ type GuideLinkProps = {
 function GuideLink(props: GuideLinkProps) {
   const { href, title, description } = props;
   return (
-    <Link
-      href={href}
-      className="flex flex-col space-y-3 rounded-sm border p-6 shadow-sm hover:shadow-md transition-shadow"
-    >
-      <div className="flex items-center space-x-3">
+    <Card>
+      <CardHeader>
         <Book className="h-6 w-6 text-primary" />
         <h3 className="text-xl font-bold">{title}</h3>
-      </div>
-      <p className="text-gray-500">{description}</p>
-      <div className="flex items-center text-primary">
-        <span>Read Guide</span>
-        <ArrowRight className="ml-1 h-4 w-4" />
-      </div>
-    </Link>
+      </CardHeader>
+      <CardContent>
+        <p className="text-gray-500">{description}</p>
+        <Link href={href} className="flex items-center text-primary">
+          <span>Read Guide</span>
+          <ArrowRight className="ml-1 h-4 w-4" />
+        </Link>
+      </CardContent>
+    </Card>
   );
 }
 
 export default function GuidesPage() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen pb-12">
       <HeroSection classes="bg-gradient-to-b from-background to-primary/20">
         <div className="flex flex-col space-y-4">
           <Link
@@ -52,67 +53,87 @@ export default function GuidesPage() {
         </div>
       </HeroSection>
 
-      <Section>
-        <div className="mx-auto max-w-5xl space-y-12">
-          <div>
-            <h2 className="text-2xl font-bold mb-6">Getting Started</h2>
-            <div className="grid gap-6 md:grid-cols-2 lg:gap-8">
-              <GuideLink
-                href="/docs/guides/getting-started"
-                title="Getting Started with Sundial Staking"
-                description="Learn how to stake your Bitcoin with Sundial in a few simple steps."
-              />
-              <GuideLink
-                href="/docs/guides/wallet-setup"
-                title="Setting Up Your Wallet"
-                description="How to set up and connect your Bitcoin wallet to Sundial."
-              />
+      <SunbeamBackground
+        beams={[
+          {
+            styles: {
+              content: '""',
+              position: "absolute",
+              left: "0",
+              top: "150px",
+              width: "100%",
+              height: "600px", // Match the height of the triangle
+              background:
+                " linear-gradient(to bottom right, hsl(var(--primary)) 0%, hsl(var(--primary)) 40%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 80%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)",
+              clipPath: "polygon(-90% 100%, 100% 0%, 100% 66%)", // Triangle shape
+              zIndex: "-1",
+              opacity: "0.3",
+            },
+          },
+        ]}
+      >
+        <Section>
+          <div className="mx-auto max-w-5xl space-y-12">
+            <div>
+              <h2 className="text-2xl font-bold mb-6">Getting Started</h2>
+              <div className="grid gap-6 md:grid-cols-2 lg:gap-8">
+                <GuideLink
+                  href="/docs/guides/getting-started"
+                  title="Getting Started with Sundial Staking"
+                  description="Learn how to stake your Bitcoin with Sundial in a few simple steps."
+                />
+                <GuideLink
+                  href="/docs/guides/wallet-setup"
+                  title="Setting Up Your Wallet"
+                  description="How to set up and connect your Bitcoin wallet to Sundial."
+                />
+              </div>
             </div>
-          </div>
 
-          <div>
-            <h2 className="text-2xl font-bold mb-6">Staking</h2>
-            <div className="grid gap-6 md:grid-cols-2 lg:gap-8">
-              <GuideLink
-                href="docs/guides/staking-process"
-                title="The Staking Process Explained"
-                description="A detailed explanation of how staking works on Sundial."
-              />
-              <GuideLink
-                href="/docs/guides/validators"
-                title="Choosing a Validator"
-                description="How to select the right validator for your staking needs."
-              />
-              <GuideLink
-                href="/docs/guides/rewards"
-                title="Staking Rewards Explained"
-                description="Learn how staking rewards are calculated and distributed."
-              />
-              <GuideLink
-                href="/docs/guides/unstaking"
-                title="Unstaking Your Bitcoin"
-                description="How to unstake your Bitcoin and withdraw your assets."
-              />
+            <div>
+              <h2 className="text-2xl font-bold mb-6">Staking</h2>
+              <div className="grid gap-6 md:grid-cols-2 lg:gap-8">
+                <GuideLink
+                  href="docs/guides/staking-process"
+                  title="The Staking Process Explained"
+                  description="A detailed explanation of how staking works on Sundial."
+                />
+                <GuideLink
+                  href="/docs/guides/validators"
+                  title="Choosing a Validator"
+                  description="How to select the right validator for your staking needs."
+                />
+                <GuideLink
+                  href="/docs/guides/rewards"
+                  title="Staking Rewards Explained"
+                  description="Learn how staking rewards are calculated and distributed."
+                />
+                <GuideLink
+                  href="/docs/guides/unstaking"
+                  title="Unstaking Your Bitcoin"
+                  description="How to unstake your Bitcoin and withdraw your assets."
+                />
+              </div>
             </div>
-          </div>
 
-          <div>
-            <h2 className="text-2xl font-bold mb-6">Security</h2>
-            <div className="grid gap-6 md:grid-cols-2 lg:gap-8">
-              <GuideLink
-                href="/docs/guides/security"
-                title="Security Best Practices"
-                description="Tips for keeping your staked assets secure."
-              />
-              <GuideLink
-                href="/docs/guides/wallet-security"
-                title="Wallet Security"
-                description="How to secure your Bitcoin wallet when staking."
-              />
+            <div>
+              <h2 className="text-2xl font-bold mb-6">Security</h2>
+              <div className="grid gap-6 md:grid-cols-2 lg:gap-8">
+                <GuideLink
+                  href="/docs/guides/security"
+                  title="Security Best Practices"
+                  description="Tips for keeping your staked assets secure."
+                />
+                <GuideLink
+                  href="/docs/guides/wallet-security"
+                  title="Wallet Security"
+                  description="How to secure your Bitcoin wallet when staking."
+                />
+              </div>
             </div>
           </div>
-        </div>
-      </Section>
+        </Section>
+      </SunbeamBackground>
     </div>
   );
 }
