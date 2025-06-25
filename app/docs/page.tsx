@@ -8,7 +8,7 @@ import { HeroSection } from "@/components/ui/hero-section";
 export default function DocsPage() {
   return (
     <div className="flex flex-col min-h-screen">
-      <HeroSection>
+      <HeroSection classes="bg-gradient-to-b from-primary/20 to-background pb-16">
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-2">
             <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
