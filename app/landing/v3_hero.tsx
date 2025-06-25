@@ -30,7 +30,7 @@ export default function Hero() {
             width: "100%",
             height: "600px", // Match the height of the triangle
             background:
-              "linear-gradient(to bottom left, rgba(255, 183, 11, 1) 0%, rgba(255, 183, 11, 1) 30%, rgba(0, 0, 0, 0.1) 80%, rgba(0, 0, 0, 0.1) 100%)", // Gradient from orange to black
+              "linear-gradient(to bottom left, hsl(var(--primary)) 0%, hsl(var(--primary)) 30%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 80%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)",
             clipPath: "polygon(-40% 0%, 100% 0%, 100% 100%)", // Triangle shape
             zIndex: "-1",
             opacity: "0.3",

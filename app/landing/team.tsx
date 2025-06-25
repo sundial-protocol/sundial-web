@@ -47,7 +47,7 @@ export function Team() {
             width: "100%",
             height: "1600px", // Match the height of the triangle
             background:
-              "linear-gradient(to top left, rgba(255, 183, 11, 0.9) 0%, rgba(255, 183, 11, 0.9) 40%, rgba(0, 0, 0, 0) 80%, rgba(0, 0, 0, 0) 100%)", // Gradient from orange to black
+              "linear-gradient(to top left, hsl(var(--primary)) 0%, hsl(var(--primary)) 40%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 80%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)",
             clipPath: "polygon(190% 100%, 0% 0%, 0% 35%)", // Triangle shape
             zIndex: "-1",
             opacity: "0.3",

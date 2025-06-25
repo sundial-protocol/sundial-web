@@ -15,7 +15,7 @@ export function AdvancedFeatures() {
             width: "100%",
             height: "600px", // Match the height of the triangle
             background:
-              "linear-gradient(to bottom right, rgba(255, 183, 11, 0.9) 0%, rgba(255, 183, 11, 0.9) 40%, rgba(0, 0, 0, 0) 80%, rgba(0, 0, 0, 0) 100%)", // Gradient from orange to black
+              " linear-gradient(to bottom right, hsl(var(--primary)) 0%, hsl(var(--primary)) 40%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 80%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)",
             clipPath: "polygon(-90% 100%, 100% 0%, 100% 66%)", // Triangle shape
             zIndex: "-1",
             opacity: "0.3",

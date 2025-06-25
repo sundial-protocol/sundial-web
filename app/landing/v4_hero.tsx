@@ -94,10 +94,18 @@ export default function Hero() {
                   y2="550"
                   gradientUnits="userSpaceOnUse"
                 >
-                  <stop offset="0%" stopColor="rgba(255, 183, 11, 1)" />
-                  <stop offset="30%" stopColor="rgba(255, 183, 11, 1)" />
-                  <stop offset="80%" stopColor="rgba(0, 0, 0, 0.1)" />
-                  <stop offset="100%" stopColor="rgba(0, 0, 0, 0.1)" />
+                  <stop offset="0%" stopColor="hsl(var(--primary))" />
+                  <stop offset="30%" stopColor="hsl(var(--primary))" />
+                  <stop
+                    offset="80%"
+                    stopColor="hsl(var(--background))"
+                    stopOpacity="0"
+                  />
+                  <stop
+                    offset="100%"
+                    stopColor="hsl(var(--background))"
+                    stopOpacity="0"
+                  />
                 </linearGradient>
               </defs>
               <polygon
@@ -114,10 +122,18 @@ export default function Hero() {
                   y2="2200"
                   gradientUnits="userSpaceOnUse"
                 >
-                  <stop offset="0%" stopColor="rgba(255, 183, 11, 1)" />
-                  <stop offset="30%" stopColor="rgba(255, 183, 11, 1)" />
-                  <stop offset="50%" stopColor="rgba(0, 0, 0, 0)" />
-                  <stop offset="100%" stopColor="rgba(0, 0, 0, 0)" />
+                  <stop offset="0%" stopColor="hsl(var(--primary))" />
+                  <stop offset="30%" stopColor="hsl(var(--primary))" />
+                  <stop
+                    offset="50%"
+                    stopColor="hsl(var(--background))"
+                    stopOpacity="0"
+                  />
+                  <stop
+                    offset="100%"
+                    stopColor="hsl(var(--background))"
+                    stopOpacity="0"
+                  />
                 </linearGradient>
               </defs>
 
