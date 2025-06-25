@@ -130,6 +130,35 @@ export default function Hero() {
               <SmallPlanet angle={220} radius={620} color="#999999" />
               <OrbitTrace size={750} />
               <SmallPlanet angle={300} radius={750} color="#f7931a" />
+              <polygon
+                points="1200,2200 -150,-400 -2000,-400"
+                fill="url(#beam3-gradient)"
+                opacity="1"
+                z={-40}
+              />
+              <defs>
+                <linearGradient
+                  id="beam3-gradient"
+                  x1="0"
+                  y1="2200"
+                  x2="1200"
+                  y2="0"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop offset="0%" stopColor="hsl(var(--background))" />
+                  <stop offset="55%" stopColor="hsl(var(--background))" />
+                  <stop
+                    offset="60%"
+                    stopColor="hsl(var(--background))"
+                    stopOpacity="0"
+                  />
+                  <stop
+                    offset="100%"
+                    stopColor="hsl(var(--background))"
+                    stopOpacity="0"
+                  />
+                </linearGradient>
+              </defs>
 
               {/* Central sun */}
 
