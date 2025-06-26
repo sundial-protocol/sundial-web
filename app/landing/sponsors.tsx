@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -15,7 +15,7 @@ function PartnerCard({
 }) {
   return (
     <Card className="h-24 flex flex-col justify-center">
-      <CardContent className="p-4 w-full h-full flex items-center justify-center">
+      <CardHeader className="p-4 w-full h-full flex items-center justify-center">
         <Link href={link}>
           <Image
             src={image}
@@ -27,7 +27,7 @@ function PartnerCard({
             loading="eager"
           />
         </Link>
-      </CardContent>
+      </CardHeader>
     </Card>
   );
 }
