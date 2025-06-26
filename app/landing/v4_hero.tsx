@@ -1,5 +1,6 @@
 import { HeroSection } from "@/components/ui/hero-section";
 import Link from "next/link";
+import Partners from "./sponsors";
 
 function OrbitTrace({ size, color }: { size: number; color?: string }) {
   // Squash the y-radius mathematically
@@ -199,6 +200,7 @@ export default function Hero() {
           </div>
         </div>
       </div>
+      <Partners />
     </HeroSection>
   );
 }
