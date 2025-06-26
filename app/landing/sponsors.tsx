@@ -52,7 +52,7 @@ export default function Partners() {
     {
       name: "Midgard",
       image: "/partners/midgard-icon-white-and-colour.png",
-      link: "https://ethereum.org",
+      link: "https://midgardprotocol.com/",
     },
     {
       name: "Anastasia Labs",
