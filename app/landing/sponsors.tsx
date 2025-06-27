@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -14,21 +14,21 @@ function PartnerCard({
   link: string;
 }) {
   return (
-    <Card className="h-24 flex flex-col justify-center">
-      <CardContent className="p-4 w-full h-full flex items-center justify-center">
-        <Link href={link}>
+    <Link href={link}>
+      <Card className="h-16 flex flex-col justify-center shadow-sm hover:shadow-primary/60 transition-shadow">
+        <CardHeader className="p-4 w-full h-full flex items-center justify-center btn-effect-shine bg-primary-foreground/20">
           <Image
             src={image}
             alt={name}
-            width={200}
+            width={160}
             height={100}
             className="object-contain filter grayscale brightness-50"
             priority
             loading="eager"
           />
-        </Link>
-      </CardContent>
-    </Card>
+        </CardHeader>
+      </Card>
+    </Link>
   );
 }
 
@@ -62,7 +62,7 @@ export default function Partners() {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 items-center justify-center w-full h-full p-4 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 items-center justify-center w-full h-full p-8 gap-4">
       {partners.map((partner) => (
         <PartnerCard
           name={partner.name}

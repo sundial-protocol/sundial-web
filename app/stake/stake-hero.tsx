@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { HeroSection } from "@/components/ui/hero-section";
 
 export function StakeHero() {
   return (
-    <div className="flex flex-col space-y-4">
+    <HeroSection classes="pb-12">
       <Link
         href="/"
         className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900"
@@ -19,6 +20,6 @@ export function StakeHero() {
           Stake your Bitcoin with Sundial and start earning rewards.
         </p>
       </div>
-    </div>
+    </HeroSection>
   );
 }

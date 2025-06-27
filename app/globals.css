@@ -114,7 +114,7 @@ body {
   background: linear-gradient(
     120deg,
     transparent,
-    rgba(255, 255, 255, 0.5),
+    rgba(237, 246, 248, 0.5),
     transparent
   );
   transform: skewX(-20deg);

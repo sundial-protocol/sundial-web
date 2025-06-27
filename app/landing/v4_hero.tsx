@@ -63,10 +63,10 @@ export default function Hero() {
           </div>
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
-              href="/stake"
-              className="inline-flex items-center justify-center rounded-full h-12 px-8 text-black font-bold transition-colors bg-primary text-accent hover:bg-accent-foreground/80"
+              href="/docs"
+              className="inline-flex items-center justify-center rounded-full h-12 px-8 text-black font-bold transition-colors bg-primary text-accent hover:bg-primary/70"
             >
-              Start Staking
+              Learn More
             </Link>
           </div>
         </div>

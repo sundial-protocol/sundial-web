@@ -2,14 +2,15 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { HeroSection } from "@/components/ui/hero-section";
 import { Section } from "@/components/ui/section";
-import WobbleText from "@/components/ui/wobbleText/wobble-text";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 
 function Question({ q, a }: { q: string; a: string }) {
   return (
-    <div className="rounded-sm border shadow-sm p-6">
-      <h3 className="text-xl font-bold mb-2">{q}</h3>
-      <p className="text-gray-700">{a}</p>
-    </div>
+    <Card>
+      <CardHeader className="text-xl font-bold">{q}</CardHeader>
+      <CardContent>{a}</CardContent>
+    </Card>
   );
 }
 
@@ -36,25 +37,45 @@ export default function FaqPage() {
         </div>
       </HeroSection>
 
-      <Section className="py-12">
-        <div>
-          <h2 className="text-2xl font-bold mb-6">General Questions</h2>
-          <div className="space-y-6">
-            <Question
-              q="What is Sundial?"
-              a="Sundial is a blockchain platform that enables Bitcoin staking through a unique dual staking mechanism. It allows Bitcoin holders to earn passive income on their holdings while contributing to the security and decentralization of the network."
-            />
-            <Question
-              q="How does Bitcoin staking work with Sundial?"
-              a="Sundial's Bitcoin staking works by allowing users to delegate their Bitcoin to validators who secure the network. In return, stakers earn rewards proportional to their stake. Sundial uses a dual staking mechanism that maximizes yields while maintaining security."
-            />
-            <Question
-              q="Is staking with Sundial secure?"
-              a="Yes, staking with Sundial is designed with security as a priority. The platform uses a decentralized network of validators, and all smart contracts have been audited by leading security firms. Additionally, Sundial implements various security measures to protect user funds."
-            />
+      <SunbeamBackground
+        beams={[
+          {
+            styles: {
+              content: '""',
+              position: "absolute",
+              left: "0",
+              top: "150px",
+              width: "100%",
+              height: "600px", // Match the height of the triangle
+              background:
+                " linear-gradient(to bottom right, hsl(var(--primary)) 0%, hsl(var(--primary)) 40%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 80%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)",
+              clipPath: "polygon(-90% 100%, 100% 0%, 100% 66%)", // Triangle shape
+              zIndex: "-1",
+              opacity: "0.3",
+            },
+          },
+        ]}
+      >
+        <Section className="py-12">
+          <div>
+            <h2 className="text-2xl font-bold mb-6">General Questions</h2>
+            <div className="space-y-6">
+              <Question
+                q="What is Sundial?"
+                a="Sundial is a blockchain platform that enables Bitcoin staking through a unique dual staking mechanism. It allows Bitcoin holders to earn passive income on their holdings while contributing to the security and decentralization of the network."
+              />
+              <Question
+                q="How does Bitcoin staking work with Sundial?"
+                a="Sundial's Bitcoin staking works by allowing users to delegate their Bitcoin to validators who secure the network. In return, stakers earn rewards proportional to their stake. Sundial uses a dual staking mechanism that maximizes yields while maintaining security."
+              />
+              <Question
+                q="Is staking with Sundial secure?"
+                a="Yes, staking with Sundial is designed with security as a priority. The platform uses a decentralized network of validators, and all smart contracts have been audited by leading security firms. Additionally, Sundial implements various security measures to protect user funds."
+              />
+            </div>
           </div>
-        </div>
-      </Section>
+        </Section>
+      </SunbeamBackground>
       <Section className="py-12">
         <div>
           <h2 className="text-2xl font-bold mb-6">Staking Questions</h2>
