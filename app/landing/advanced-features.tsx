@@ -1,8 +1,68 @@
 import { Section } from "@/components/ui/section";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
-import { Gamepad2, LockKeyhole } from "lucide-react";
+import {
+  CircleGauge,
+  Gamepad2,
+  ShieldCheck,
+  ArrowLeftRight,
+  Activity,
+} from "lucide-react";
+
+export function FeatureCard({
+  icon: Icon,
+  title,
+  description,
+  className,
+}: {
+  icon?: React.ComponentType<{ className?: string }>;
+  title: string;
+  description: string;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`flex flex-col justify-center p-6 bg-secondary rounded-sm shadow-sm hover:shadow-primary/60 hover:shadow-md transition-shadow ${
+        className || ""
+      }`}
+    >
+      {Icon && <Icon className={"text-gray-500 h-12 w-12 pb-4"} />}
+      <h2 className={"text-lg text-primary font-semibold"}>{title}</h2>
+      <p className={"text-gray-500"}>{description}</p>
+    </div>
+  );
+}
 
 export function AdvancedFeatures() {
+  const features = [
+    {
+      icon: ShieldCheck,
+      title: "Native UTXO Security",
+      description:
+        "No wallet drainers, no smart contract compromises, no failed transactions, no outages. Only full UTXO security.",
+      className: "col-span-2 lg:col-span-4",
+    },
+    {
+      icon: CircleGauge,
+      title: "Gas Abstraction",
+      description: "Pay transactions with any token, including Bitcoin.",
+      className: "col-span-1 lg:col-span-2",
+    },
+    {
+      icon: ArrowLeftRight,
+      title: "ZK Bridge",
+      description:
+        "Trustless rollup bridge. Interoperable with metaprotocols and secured by ZK proofs.",
+      className: "col-span-1 lg:col-span-3",
+    },
+    {
+      icon: Activity,
+      title: "Cardano Defi & Gaming",
+      description:
+        "Partnered with Cardano's largest DeFi and gaming protocols.",
+      className: "col-span-2 lg:col-span-3",
+    },
+  ];
+
   return (
     <SunbeamBackground
       beams={[
@@ -13,10 +73,10 @@ export function AdvancedFeatures() {
             left: "0",
             top: "150px",
             width: "100%",
-            height: "600px", // Match the height of the triangle
+            height: "600px",
             background:
               " linear-gradient(to bottom right, hsl(var(--primary)) 0%, hsl(var(--primary)) 40%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 80%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)",
-            clipPath: "polygon(-90% 100%, 100% 0%, 100% 66%)", // Triangle shape
+            clipPath: "polygon(-90% 100%, 100% 0%, 100% 66%)",
             zIndex: "-1",
             opacity: "0.3",
           },
@@ -24,48 +84,28 @@ export function AdvancedFeatures() {
       ]}
     >
       <Section>
-        <div className="relative container px-4 md:px-6 z-10">
-          <div className="flex flex-col justify-center space-y-4">
-            <div className="space-y-2 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 container px-4 md:px-6 z-10">
+          <div className="flex flex-row justify-center space-y-4">
+            <div className="space-y-2 p-6">
               <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
                 Advanced Features
               </h1>
               <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl">
-                Explore the advanced features of Sundial staking.
+                Sundial offers a unique set of features that maximize your
+                Bitcoin yields while maintaining security.
               </p>
             </div>
           </div>
-          <div className="grid w-full auto-rows-[18rem] gap-4 grid-cols-2 md:mb-24 lg:grid-cols-3 lg:gap-3 md:grid-rows-[200px_250px] md:max-h-[500px] grid-rows-none max-h-none">
-            <div className="flex flex-col col-span-2 justify-center p-6 bg-secondary rounded-sm shadow-sm hover:shadow-primary/60 hover:shadow-md transition-shadow">
-              <LockKeyhole className="text-gray-500 h-16 w-12 pb-4" />
-              <h2 className="text-xl font-bold">Native UTXO Security</h2>
-              <p className="text-gray-500">
-                No wallet drainers, no smart contract compromises, no failed
-                transactions, no outages. Only full UTXO security.
-              </p>
-            </div>
-            <div className="flex flex-col justify-center p-6 bg-primary rounded-sm shadow-sm hover:shadow-primary/60 hover:shadow-md transition-shadow">
-              {/* <Fuel className="text-black h-12 w-8 pb-4" /> */}
-              <h2 className="text-xl text-black font-bold">Gas Abstraction</h2>
-              <p className="text-gray-500">
-                Pay transactions with any token, unlocking incredible new
-                possibilities for Dapps and DeFi.
-              </p>
-            </div>
-            <div className="flex flex-col justify-center p-6 bg-accent-foreground rounded-sm shadow-sm hover:shadow-primary/60 hover:shadow-md transition-shadow">
-              <h2 className="text-xl text-accent font-bold">ZK Bridge</h2>
-              <p className="text-gray-500">
-                Trustless rollup bridge. Interoperable with metaprotocols and
-                secured by ZK proofs.
-              </p>
-            </div>
-            <div className="flex flex-col col-span-2 justify-center p-6 bg-secondary rounded-sm shadow-sm hover:shadow-primary/60 hover:shadow-md transition-shadow">
-              <Gamepad2 className="text-gray-500 h-20 w-16 pb-4" />
-              <h2 className="text-xl font-bold">Cardano Defi & Gaming</h2>
-              <p className="text-gray-500">
-                Partnered with Cardano&apos;s largest DeFi and gaming protocols.
-              </p>
-            </div>
+          <div className="grid w-full auto-rows-min gap-4 col-span-2 grid-cols-2 md:mb-24 lg:grid-cols-6 lg:gap-3 md:max-h-[500px] grid-rows-none max-h-none">
+            {features.map((feature, i) => (
+              <FeatureCard
+                key={i}
+                icon={feature.icon}
+                title={feature.title}
+                description={feature.description}
+                className={feature.className}
+              />
+            ))}
           </div>
         </div>
       </Section>
