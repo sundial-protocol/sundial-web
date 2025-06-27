@@ -34,11 +34,29 @@ function NewsWidget({ date, title, link, image }: NewsWidgetProps) {
 export default function RecentNews() {
   return (
     <Section>
+      <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-8 pt-24">
+        Highlights
+      </h1>
       <div className={styles.timeline}>
-        <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-8 pt-24">
-          Highlights
-        </h1>
-        <ol className="w-full scrollbar-hidden">
+        <ol className="w-full">
+          <li>
+            <NewsWidget
+              date="6/25/25"
+              title="Sundial Expands Momentum with Key Encounters and Roadmap Release"
+              description="Sundial Expands Momentum with Key Encounters and Roadmap Release"
+              link="/news"
+              image="/news/62525Momentum.jpg"
+            />
+          </li>
+          <li>
+            <NewsWidget
+              date="6/2/25"
+              title="The Sundial Team Attended BTC Vegas"
+              description="The Sundial Team Attended BTC Vegas"
+              link="/news"
+              image="/news/6225Saylor.jpg"
+            />
+          </li>
           <li>
             <NewsWidget
               date="5/20/25"

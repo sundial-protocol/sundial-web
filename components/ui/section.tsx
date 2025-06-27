@@ -8,8 +8,8 @@ export function Section({
   className?: string;
 }) {
   return (
-    <section className=" pt-24 snap-always snap-center">
-      <div className={cn("container px-0 md:px-6", className)}>{children}</div>
+    <section className="pt-24 snap-always snap-center">
+      <div className={cn("px-0", className)}>{children}</div>
     </section>
   );
 }
