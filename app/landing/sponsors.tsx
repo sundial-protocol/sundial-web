@@ -16,7 +16,7 @@ function PartnerCard({
   return (
     <Link href={link}>
       <Card className="h-16 flex flex-col justify-center shadow-sm hover:shadow-primary/60 transition-shadow">
-        <CardHeader className="p-4 w-full h-full flex items-center justify-center btn-effect-shine">
+        <CardHeader className="p-4 w-full h-full flex items-center justify-center btn-effect-shine bg-primary-foreground/20">
           <Image
             src={image}
             alt={name}
