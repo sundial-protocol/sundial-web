@@ -25,7 +25,7 @@ function Step({ number, title, description }: StepProps) {
   );
 }
 
-export function HowItWorks() {
+export default function HowItWorks() {
   return (
     <SunbeamBackground
       beams={[

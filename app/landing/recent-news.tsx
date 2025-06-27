@@ -1,6 +1,7 @@
 import Link from "next/link";
 import styles from "./recent-news.module.css";
 import { Section } from "@/components/ui/section";
+import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 
 type NewsWidgetProps = {
   date: string;
@@ -33,96 +34,119 @@ function NewsWidget({ date, title, link, image }: NewsWidgetProps) {
 
 export default function RecentNews() {
   return (
-    <Section>
-      <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-8 pt-24">
-        Highlights
-      </h1>
-      <div className={styles.timeline}>
-        <ol className="w-full">
-          <li>
-            <NewsWidget
-              date="6/25/25"
-              title="Sundial Expands Momentum with Key Encounters and Roadmap Release"
-              description="Sundial Expands Momentum with Key Encounters and Roadmap Release"
-              link="/news"
-              image="/news/62525Momentum.jpg"
-            />
-          </li>
-          <li>
-            <NewsWidget
-              date="6/2/25"
-              title="The Sundial Team Attended BTC Vegas"
-              description="The Sundial Team Attended BTC Vegas"
-              link="/news"
-              image="/news/6225Saylor.jpg"
-            />
-          </li>
-          <li>
-            <NewsWidget
-              date="5/20/25"
-              title="Sundial announces partnership with DeltaDeFi"
-              description="Sundial announces partnership with DeltaDeFi"
-              link="/news"
-              image="/news/52025delta.png"
-            />
-          </li>
-          <li>
-            <NewsWidget
-              date="5/19/25"
-              title="Sundial announces partnership with Bodega Market"
-              description="Sundial announces partnership with Bodega Market"
-              link="/news"
-              image="/news/51925Bodega.jpg"
-            />
-          </li>
-          <li>
-            <NewsWidget
-              date="5/12/25"
-              title="Sundial announces partnership with Vespr Wallet"
-              description="Sundial announces partnership with Vespr Wallet"
-              link="/news"
-              image="/news/51225vespr.png"
-            />
-          </li>
-          <li>
-            <NewsWidget
-              date="5/8/25"
-              title="Cardano Joins BTCFi Frontier: Bitlayer & Sundial Forge BitVM Bridge via Strategic Partnerships"
-              description="Cardano Joins BTCFi Frontier: Bitlayer & Sundial Forge BitVM Bridge via Strategic Partnerships"
-              link="/news"
-              image="/news/5825BTCFI.png"
-            />
-          </li>
-          <li>
-            <NewsWidget
-              date="5/5/25"
-              title="Sundial Enables First Cross-Chain BTC Transfer Between Bitcoin and Cardano"
-              description="Sundial Enables First Cross-Chain BTC Transfer Between Bitcoin and Cardano"
-              link="/news"
-              image="/news/5525crosschain.png"
-            />
-          </li>
-          <li>
-            <NewsWidget
-              date="4/22/25"
-              title="Sundial CEO Sheldon Hunt presents in Hong Kong"
-              description="Sundial CEO Sheldon Hunt presents in Hong Kong"
-              link="/news"
-              image="/news/42225hongkong.jpeg"
-            />
-          </li>
-          <li>
-            <NewsWidget
-              date="3/19/25"
-              title="Sundial Protocol PTE. LTD. Incorporated"
-              description="Sundial Protocol PTE. LTD. Incorporated"
-              link="/news"
-              image="/news/31925-incorporated.png"
-            />
-          </li>
-          <li></li>
-        </ol>
-      </div>
-    </Section>
+    <SunbeamBackground
+      beams={[
+        {
+          styles: {
+            content: '""',
+            position: "absolute",
+            left: "0",
+            top: "50px",
+            width: "100%",
+            height: "700px", // Match the height of the triangle
+            background:
+              "linear-gradient(to bottom right, hsl(var(--primary)) 0%, hsl(var(--primary)) 20%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 70%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)",
+            clipPath: "polygon(0% 100%, 0% 0%, 190% 50%)", // Triangle shape
+            zIndex: "-1",
+            opacity: "0.3",
+          },
+        },
+      ]}
+    >
+      <Section>
+        <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-8 pt-24">
+          Highlights
+        </h1>
+        <div className={styles.timeline}>
+          <ol
+            className="w-full mx-auto"
+            style={{ display: "block", textAlign: "center" }}
+          >
+            <li>
+              <NewsWidget
+                date="6/25/25"
+                title="Sundial Expands Momentum with Key Encounters and Roadmap Release"
+                description="Sundial Expands Momentum with Key Encounters and Roadmap Release"
+                link="/news"
+                image="/news/62525Momentum.jpg"
+              />
+            </li>
+            <li>
+              <NewsWidget
+                date="6/2/25"
+                title="The Sundial Team Attended BTC Vegas"
+                description="The Sundial Team Attended BTC Vegas"
+                link="/news"
+                image="/news/6225Saylor.jpg"
+              />
+            </li>
+            <li>
+              <NewsWidget
+                date="5/20/25"
+                title="Sundial announces partnership with DeltaDeFi"
+                description="Sundial announces partnership with DeltaDeFi"
+                link="/news"
+                image="/news/52025delta.png"
+              />
+            </li>
+            <li>
+              <NewsWidget
+                date="5/19/25"
+                title="Sundial announces partnership with Bodega Market"
+                description="Sundial announces partnership with Bodega Market"
+                link="/news"
+                image="/news/51925Bodega.jpg"
+              />
+            </li>
+            <li>
+              <NewsWidget
+                date="5/12/25"
+                title="Sundial announces partnership with Vespr Wallet"
+                description="Sundial announces partnership with Vespr Wallet"
+                link="/news"
+                image="/news/51225vespr.png"
+              />
+            </li>
+            <li>
+              <NewsWidget
+                date="5/8/25"
+                title="Cardano Joins BTCFi Frontier: Bitlayer & Sundial Forge BitVM Bridge via Strategic Partnerships"
+                description="Cardano Joins BTCFi Frontier: Bitlayer & Sundial Forge BitVM Bridge via Strategic Partnerships"
+                link="/news"
+                image="/news/5825BTCFI.png"
+              />
+            </li>
+            <li>
+              <NewsWidget
+                date="5/5/25"
+                title="Sundial Enables First Cross-Chain BTC Transfer Between Bitcoin and Cardano"
+                description="Sundial Enables First Cross-Chain BTC Transfer Between Bitcoin and Cardano"
+                link="/news"
+                image="/news/5525crosschain.png"
+              />
+            </li>
+            <li>
+              <NewsWidget
+                date="4/22/25"
+                title="Sundial CEO Sheldon Hunt presents in Hong Kong"
+                description="Sundial CEO Sheldon Hunt presents in Hong Kong"
+                link="/news"
+                image="/news/42225hongkong.jpeg"
+              />
+            </li>
+            <li>
+              <NewsWidget
+                date="3/19/25"
+                title="Sundial Protocol PTE. LTD. Incorporated"
+                description="Sundial Protocol PTE. LTD. Incorporated"
+                link="/news"
+                image="/news/31925-incorporated.png"
+              />
+            </li>
+            <li></li>
+          </ol>
+        </div>
+      </Section>
+    </SunbeamBackground>
   );
 }
