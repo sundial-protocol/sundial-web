@@ -59,7 +59,7 @@ export default function RecentNews() {
         </h1>
         <div className={styles.timeline}>
           <ol
-            className="w-full mx-auto"
+            className="md:w-full -mx-24 md:mx-auto "
             style={{ display: "block", textAlign: "center" }}
           >
             <li>
