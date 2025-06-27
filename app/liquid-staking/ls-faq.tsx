@@ -14,7 +14,7 @@ export default function LSFAQ() {
         </div>
       </div>
       <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-2 lg:gap-12">
-        <div className="rounded-lg border shadow-sm p-6">
+        <div className="rounded-sm border shadow-sm p-6">
           <h3 className="text-xl font-bold mb-2">
             What is the difference between regular staking and liquid staking?
           </h3>
@@ -25,7 +25,7 @@ export default function LSFAQ() {
             earning staking rewards.
           </p>
         </div>
-        <div className="rounded-lg border shadow-sm p-6">
+        <div className="rounded-sm border shadow-sm p-6">
           <h3 className="text-xl font-bold mb-2">
             How do I redeem my $SUN for Bitcoin?
           </h3>
@@ -36,7 +36,7 @@ export default function LSFAQ() {
             unbonding period).
           </p>
         </div>
-        <div className="rounded-lg border shadow-sm p-6">
+        <div className="rounded-sm border shadow-sm p-6">
           <h3 className="text-xl font-bold mb-2">
             Is there a minimum amount for liquid staking?
           </h3>
@@ -45,7 +45,7 @@ export default function LSFAQ() {
             stake any amount of Bitcoin and receive the equivalent in $SUN.
           </p>
         </div>
-        <div className="rounded-lg border shadow-sm p-6">
+        <div className="rounded-sm border shadow-sm p-6">
           <h3 className="text-xl font-bold mb-2">Where can I use my $SUN?</h3>
           <p className="text-gray-500">
             $SUN can be used in various DeFi applications within the Sundial
@@ -53,7 +53,7 @@ export default function LSFAQ() {
             farming opportunities.
           </p>
         </div>
-        <div className="rounded-lg border shadow-sm p-6">
+        <div className="rounded-sm border shadow-sm p-6">
           <h3 className="text-xl font-bold mb-2">
             How are staking rewards distributed for liquid staking?
           </h3>
@@ -63,7 +63,7 @@ export default function LSFAQ() {
             worth more Bitcoin.
           </p>
         </div>
-        <div className="rounded-lg border shadow-sm p-6">
+        <div className="rounded-sm border shadow-sm p-6">
           <h3 className="text-xl font-bold mb-2">Is liquid staking secure?</h3>
           <p className="text-gray-500">
             Yes, Sundial&apos;s liquid staking solution is built with security

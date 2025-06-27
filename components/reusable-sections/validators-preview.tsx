@@ -21,7 +21,7 @@ export function ValidatorsPreview() {
           <Link
             key={id}
             href={`/validators/${id}`}
-            className="flex flex-col space-y-2 rounded-lg border-2 shadow-sm hover:shadow-md transition-shadow bg-background/60 hover:brightness-105 hover:shadow-primary/30"
+            className="flex flex-col space-y-2 rounded-sm border-2 shadow-sm hover:shadow-md transition-shadow bg-background/60 hover:brightness-105 hover:shadow-primary/30"
           >
             <div className="flex items-center px-4 py-2">
               <div className="pt-2">

@@ -75,7 +75,7 @@ export default async function ValidatorDetailPage({
         <div className="container px-4 md:px-6">
           <div className="grid gap-8 md:grid-cols-3">
             <div className="md:col-span-2 space-y-8">
-              <div className="rounded-lg border shadow-sm p-6">
+              <div className="rounded-sm border shadow-sm p-6">
                 <h2 className="text-xl font-bold mb-4">About</h2>
                 <p className="text-gray-700">{validator.description}</p>
 
@@ -88,7 +88,7 @@ export default async function ValidatorDetailPage({
                       href={validator.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[#ffb70b] hover:underline"
+                      className="text-primary hover:underline"
                     >
                       {validator.website.replace("https://", "")}
                     </a>
@@ -97,14 +97,14 @@ export default async function ValidatorDetailPage({
                     <h3 className="text-sm font-medium text-gray-500">
                       Address
                     </h3>
-                    <p className="text-sm text-gray-900 truncate">
+                    <p className="text-sm text-gray-700 truncate">
                       {validator.address}
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-lg border shadow-sm p-6">
+              <div className="rounded-sm border shadow-sm p-6">
                 <h2 className="text-xl font-bold mb-4">Performance</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
@@ -144,7 +144,7 @@ export default async function ValidatorDetailPage({
                 </div>
               </div>
 
-              <div className="rounded-lg border shadow-sm p-6">
+              <div className="rounded-sm border shadow-sm p-6">
                 <h2 className="text-xl font-bold mb-4">Voting Power</h2>
                 <div className="space-y-4">
                   <div>
@@ -157,7 +157,7 @@ export default async function ValidatorDetailPage({
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2.5">
                     <div
-                      className="bg-[#ffb70b] h-2.5 rounded-full"
+                      className="bg-primary h-2.5 rounded-full"
                       style={{ width: `${validator.votingPower}%` }}
                     ></div>
                   </div>
@@ -166,7 +166,7 @@ export default async function ValidatorDetailPage({
             </div>
 
             <div className="space-y-6">
-              <div className="rounded-lg border shadow-sm p-6 bg-secondary">
+              <div className="rounded-sm border shadow-sm p-6 bg-secondary">
                 <h2 className="text-xl font-bold mb-4">Staking Stats</h2>
                 <div className="space-y-4">
                   <div className="flex justify-between">
@@ -204,7 +204,7 @@ export default async function ValidatorDetailPage({
                 </div>
               </div>
 
-              <div className="rounded-lg border shadow-sm p-6">
+              <div className="rounded-sm border shadow-sm p-6">
                 <h2 className="text-xl font-bold mb-4">
                   Why Stake with {validator.name}?
                 </h2>
@@ -236,7 +236,7 @@ export default async function ValidatorDetailPage({
                 </ul>
               </div>
 
-              <div className="rounded-lg border shadow-sm p-6 bg-blue-50">
+              <div className="rounded-sm border shadow-sm p-6 bg-blue-50">
                 <div className="flex items-start">
                   <Info className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
                   <div>

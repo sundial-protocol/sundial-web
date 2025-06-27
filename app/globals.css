@@ -71,6 +71,12 @@
   }
 }
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 #theme-toggle {
   visibility: hidden;
 }
@@ -94,116 +100,26 @@
   box-shadow: inset -7px -6px 1px 1px #fff;
 }
 
-.beam-1 {
+.btn-effect-shine {
+  position: relative;
+  overflow: hidden;
+}
+.btn-effect-shine::after {
   content: "";
   position: absolute;
-  left: 0;
   top: 0;
-  width: 100%;
-  height: 500px; /* Match the height of the triangle */
+  left: -75%;
+  width: 50%;
+  height: 100%;
   background: linear-gradient(
-    to bottom left,
-    rgba(255, 183, 11, 1) 0%,
-    rgba(255, 183, 11, 1) 30%,
-    rgba(0, 0, 0, 0.1) 80%,
-    rgba(0, 0, 0, 0.1) 100%
-  ); /* Gradient from orange to black */
-  clip-path: polygon(-40% 0%, 100% 0%, 100% 100%); /* Triangle shape */
-  z-index: -1;
-  opacity: 30%;
+    120deg,
+    transparent,
+    rgba(237, 246, 248, 0.5),
+    transparent
+  );
+  transform: skewX(-20deg);
+  transition: all 0.5s;
 }
-
-.beam-2 {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 1200px; /* Match the height of the triangle */
-  background: linear-gradient(
-    to bottom left,
-    rgba(255, 183, 11, 1) 0%,
-    rgba(255, 183, 11, 1) 30%,
-    rgba(0, 0, 0, 0) 40%,
-    rgba(0, 0, 0, 0) 100%
-  ); /* Gradient from orange to black */
-  clip-path: polygon(0% 0%, 60% 0%, 120% 100%); /* Triangle shape */
-  z-index: -1;
-  opacity: 30%;
-}
-
-.beam-3 {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 800px;
-  width: 100%;
-  height: 600px; /* Match the height of the triangle */
-  background: linear-gradient(
-    to top left,
-    rgba(255, 183, 11, 0.9) 0%,
-    rgba(255, 183, 11, 0.9) 40%,
-    rgba(0, 0, 0, 0) 80%,
-    rgba(0, 0, 0, 0) 100%
-  ); /* Gradient from orange to black */
-  clip-path: polygon(-90% 100%, 100% 0%, 100% 66%); /* Triangle shape */
-  z-index: -1;
-  opacity: 30%;
-}
-
-.beam-4 {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 1000px;
-  width: 100%;
-  height: 1600px; /* Match the height of the triangle */
-  background: linear-gradient(
-    to top left,
-    rgba(255, 183, 11, 0.9) 0%,
-    rgba(255, 183, 11, 0.9) 40%,
-    rgba(0, 0, 0, 0) 80%,
-    rgba(0, 0, 0, 0) 100%
-  ); /* Gradient from orange to black */
-  clip-path: polygon(190% 100%, 0% 0%, 0% 35%); /* Triangle shape */
-  z-index: -1;
-  opacity: 30%;
-}
-
-.beam-5 {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 1600px;
-  width: 100%;
-  height: 600px; /* Match the height of the triangle */
-  background: linear-gradient(
-    to top right,
-    rgba(255, 183, 11, 0.9) 0%,
-    rgba(255, 183, 11, 0.9) 40%,
-    rgba(0, 0, 0, 0) 80%,
-    rgba(0, 0, 0, 0) 100%
-  ); /* Gradient from orange to black */
-  clip-path: polygon(190% 100%, 0% 0%, 0% 66%); /* Triangle shape */
-  z-index: -1;
-  opacity: 30%;
-}
-
-.beam-6 {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 2200px;
-  width: 100%;
-  height: 600px; /* Match the height of the triangle */
-  background: linear-gradient(
-    to bottom right,
-    rgba(255, 183, 11, 0.9) 0%,
-    rgba(255, 183, 11, 0.9) 40%,
-    rgba(0, 0, 0, 0) 80%,
-    rgba(0, 0, 0, 0) 100%
-  ); /* Gradient from orange to black */
-  clip-path: polygon(-90% 100%, 100% 0%, 100% 66%); /* Triangle shape */
-  z-index: -1;
-  opacity: 30%;
+.btn-effect-shine:hover::after {
+  left: 130%;
 }

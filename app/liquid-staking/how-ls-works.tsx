@@ -17,7 +17,7 @@ export default function HowLSWorks() {
       </div>
       <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 md:grid-cols-4">
         <div className="flex flex-col items-center space-y-4 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#ffb70b] text-white text-2xl font-bold">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-white text-2xl font-bold">
             1
           </div>
           <h3 className="text-xl font-bold">Deposit Bitcoin</h3>
@@ -26,7 +26,7 @@ export default function HowLSWorks() {
           </p>
         </div>
         <div className="flex flex-col items-center space-y-4 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#ffb70b] text-white text-2xl font-bold">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-white text-2xl font-bold">
             2
           </div>
           <h3 className="text-xl font-bold">Receive $SUN</h3>
@@ -35,7 +35,7 @@ export default function HowLSWorks() {
           </p>
         </div>
         <div className="flex flex-col items-center space-y-4 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#ffb70b] text-white text-2xl font-bold">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-white text-2xl font-bold">
             3
           </div>
           <h3 className="text-xl font-bold">Use in DeFi</h3>
@@ -44,7 +44,7 @@ export default function HowLSWorks() {
           </p>
         </div>
         <div className="flex flex-col items-center space-y-4 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#ffb70b] text-white text-2xl font-bold">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-white text-2xl font-bold">
             4
           </div>
           <h3 className="text-xl font-bold">Earn Rewards</h3>

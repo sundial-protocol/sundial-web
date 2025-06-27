@@ -1,18 +1,16 @@
-import { ValidatorsPreview } from "./staking/validators-preview";
-import { Hero } from "./landing/hero";
+import Hero from "./landing/v4_hero";
 import { AdvancedFeatures } from "./landing/advanced-features";
-import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 import { Team } from "./landing/team";
 import RecentNews from "./landing/recent-news";
+import { HowItWorks } from "./staking/how-it-works";
 
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
-      <SunbeamBackground />
       <Hero />
       <AdvancedFeatures />
       <RecentNews />
-      <ValidatorsPreview />
+      <HowItWorks />
       <Team />
     </div>
   );

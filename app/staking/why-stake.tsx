@@ -15,8 +15,8 @@ export function WhyStake() {
         </div>
       </div>
       <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3 lg:gap-12 mt-12">
-        <div className="flex flex-col items-center space-y-2 rounded-lg border p-6 shadow-sm">
-          <div className="rounded-full bg-[#ffb70b]/20 p-4">
+        <div className="flex flex-col items-center space-y-2 rounded-sm border p-6 shadow-sm">
+          <div className="rounded-full bg-primary/20 p-4">
             <svg
               width="24"
               height="24"
@@ -26,14 +26,14 @@ export function WhyStake() {
             >
               <path
                 d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
-                stroke="#ffb70b"
+                stroke="primary"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
               <path
                 d="M15 9H9V15H15V9Z"
-                stroke="#ffb70b"
+                stroke="primary"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -46,8 +46,8 @@ export function WhyStake() {
             mechanism.
           </p>
         </div>
-        <div className="flex flex-col items-center space-y-2 rounded-lg border p-6 shadow-sm">
-          <div className="rounded-full bg-[#ffb70b]/20 p-4">
+        <div className="flex flex-col items-center space-y-2 rounded-sm border p-6 shadow-sm">
+          <div className="rounded-full bg-primary/20 p-4">
             <svg
               width="24"
               height="24"
@@ -57,21 +57,21 @@ export function WhyStake() {
             >
               <path
                 d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
-                stroke="#ffb70b"
+                stroke="primary"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
               <path
                 d="M12 16V12"
-                stroke="#ffb70b"
+                stroke="primary"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
               <path
                 d="M12 8H12.01"
-                stroke="#ffb70b"
+                stroke="primary"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -83,8 +83,8 @@ export function WhyStake() {
             Your assets are secured by our decentralized network of validators.
           </p>
         </div>
-        <div className="flex flex-col items-center space-y-2 rounded-lg border p-6 shadow-sm">
-          <div className="rounded-full bg-[#ffb70b]/20 p-4">
+        <div className="flex flex-col items-center space-y-2 rounded-sm border p-6 shadow-sm">
+          <div className="rounded-full bg-primary/20 p-4">
             <svg
               width="24"
               height="24"
@@ -94,14 +94,14 @@ export function WhyStake() {
             >
               <path
                 d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
-                stroke="#ffb70b"
+                stroke="primary"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
               <path
                 d="M8 14L12 10L16 14"
-                stroke="#ffb70b"
+                stroke="primary"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"

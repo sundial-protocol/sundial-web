@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="border-t py-12 md:py-16">
+    <footer className="border-t py-12 md:py-16 snap-always snap-end">
       <div className="container px-4 md:px-6">
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-4">
@@ -112,6 +112,16 @@ export default function Footer() {
                   className="text-gray-500 hover:text-gray-900"
                 >
                   GitHub
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://linkedin.com/company/sundial-protocol/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-500 hover:text-gray-900"
+                >
+                  LinkedIn
                 </a>
               </li>
             </ul>

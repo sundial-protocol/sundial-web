@@ -18,6 +18,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StakeHero } from "./stake-hero";
+import { Section } from "@/components/ui/section";
+import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
+import MaintenanceOverlay from "@/components/ui/maintenance-overlay";
 
 // Mock data for validators
 const validators = Array.from({ length: 20 }, (_, i) => ({
@@ -69,9 +72,26 @@ function PageContent() {
   return (
     <div className="flex flex-col min-h-screen">
       <StakeHero />
-
-      <section className="py-12">
-        <div className="container px-4 md:px-6">
+      <SunbeamBackground
+        beams={[
+          {
+            styles: {
+              content: '""',
+              position: "absolute",
+              left: "0",
+              top: "150px",
+              width: "100%",
+              height: "600px", // Match the height of the triangle
+              background:
+                " linear-gradient(to bottom right, hsl(var(--primary)) 0%, hsl(var(--primary)) 40%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 80%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)",
+              clipPath: "polygon(-90% 100%, 100% 0%, 100% 66%)", // Triangle shape
+              zIndex: "-1",
+              opacity: "0.3",
+            },
+          },
+        ]}
+      >
+        <Section>
           <Tabs defaultValue={stakeType} className="w-full max-w-3xl mx-auto">
             <TabsList className="grid w-full grid-cols-2 mb-8">
               <TabsTrigger value="regular">Regular Staking</TabsTrigger>
@@ -97,9 +117,9 @@ function PageContent() {
                             {validators.slice(0, 6).map((validator) => (
                               <div
                                 key={validator.id}
-                                className={`rounded-lg border p-4 cursor-pointer transition-colors ${
+                                className={`rounded-sm border p-4 cursor-pointer transition-colors ${
                                   selectedValidator === validator.id
-                                    ? "border-[#ffb70b] bg-[#ffb70b]/5"
+                                    ? "border-primary bg-primary/5"
                                     : "hover:border-gray-300"
                                 }`}
                                 onClick={() =>
@@ -116,7 +136,7 @@ function PageContent() {
                                     </p>
                                   </div>
                                   {selectedValidator === validator.id && (
-                                    <Check className="h-5 w-5 text-[#ffb70b]" />
+                                    <Check className="h-5 w-5 text-primary" />
                                   )}
                                 </div>
                                 <div className="mt-2 flex justify-between text-sm">
@@ -130,7 +150,7 @@ function PageContent() {
                           </div>
                           <Link
                             href="/validators"
-                            className="text-sm text-[#ffb70b] hover:underline"
+                            className="text-sm text-primary hover:underline"
                           >
                             View all validators
                           </Link>
@@ -159,14 +179,14 @@ function PageContent() {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="absolute right-0 top-0 h-full px-3 text-sm font-medium text-[#ffb70b]"
+                                className="absolute right-0 top-0 h-full px-3 text-sm font-medium text-primary"
                                 onClick={() => setAmount("0.1")}
                               >
                                 MAX
                               </Button>
                             </div>
                           </div>
-                          <div className="rounded-lg bg-blue-50 p-4">
+                          <div className="rounded-sm bg-blue-50 p-4">
                             <div className="flex items-start">
                               <Info className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
                               <div>
@@ -203,7 +223,7 @@ function PageContent() {
                           Step 3: Confirm Staking
                         </h3>
                         <div className="space-y-4">
-                          <div className="rounded-lg border p-4">
+                          <div className="rounded-sm border p-4">
                             <h4 className="font-medium mb-4">
                               Staking Summary
                             </h4>
@@ -254,7 +274,7 @@ function PageContent() {
                               </div>
                             </div>
                           </div>
-                          <div className="rounded-lg bg-blue-50 p-4">
+                          <div className="rounded-sm bg-blue-50 p-4">
                             <div className="flex items-start">
                               <Info className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
                               <div>
@@ -327,14 +347,14 @@ function PageContent() {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="absolute right-0 top-0 h-full px-3 text-sm font-medium text-[#ffb70b]"
+                                className="absolute right-0 top-0 h-full px-3 text-sm font-medium text-primary"
                                 onClick={() => setAmount("0.1")}
                               >
                                 MAX
                               </Button>
                             </div>
                           </div>
-                          <div className="rounded-lg bg-blue-50 p-4">
+                          <div className="rounded-sm bg-blue-50 p-4">
                             <div className="flex items-start">
                               <Info className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
                               <div>
@@ -362,7 +382,7 @@ function PageContent() {
                           Step 2: Confirm Liquid Staking
                         </h3>
                         <div className="space-y-4">
-                          <div className="rounded-lg border p-4">
+                          <div className="rounded-sm border p-4">
                             <h4 className="font-medium mb-4">
                               Staking Summary
                             </h4>
@@ -391,7 +411,7 @@ function PageContent() {
                               </div>
                             </div>
                           </div>
-                          <div className="rounded-lg bg-blue-50 p-4">
+                          <div className="rounded-sm bg-blue-50 p-4">
                             <div className="flex items-start">
                               <Info className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
                               <div>
@@ -428,8 +448,9 @@ function PageContent() {
               </Card>
             </TabsContent>
           </Tabs>
-        </div>
-      </section>
+        </Section>
+      </SunbeamBackground>
+      <MaintenanceOverlay />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import "./globals.css";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import CustomThemeProvider from "@/components/theme-provider";
+import { cn } from "@/lib/utils";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,8 +20,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" className="h-screen overflow-hidden">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <body
+        className={cn(
+          inter.className,
+          "snap-y snap-mandatory overflow-y-scroll h-screen"
+        )}
+      >
         <CustomThemeProvider>
           <Navbar />
           <main className="pt-12">{children}</main>

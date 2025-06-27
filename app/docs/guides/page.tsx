@@ -1,5 +1,9 @@
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Book } from "lucide-react";
+import { HeroSection } from "@/components/ui/hero-section";
+import { Section } from "@/components/ui/section";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 
 type GuideLinkProps = {
   href: string;
@@ -10,51 +14,65 @@ type GuideLinkProps = {
 function GuideLink(props: GuideLinkProps) {
   const { href, title, description } = props;
   return (
-    <Link
-      href={href}
-      className="flex flex-col space-y-3 rounded-lg border p-6 shadow-sm hover:shadow-md transition-shadow"
-    >
-      <div className="flex items-center space-x-3">
-        <Book className="h-6 w-6 text-[#ffb70b]" />
+    <Card>
+      <CardHeader>
+        <Book className="h-6 w-6 text-primary" />
         <h3 className="text-xl font-bold">{title}</h3>
-      </div>
-      <p className="text-gray-500">{description}</p>
-      <div className="flex items-center text-[#ffb70b]">
-        <span>Read Guide</span>
-        <ArrowRight className="ml-1 h-4 w-4" />
-      </div>
-    </Link>
+      </CardHeader>
+      <CardContent>
+        <p className="text-gray-500">{description}</p>
+        <Link href={href} className="flex items-center text-primary">
+          <span>Read Guide</span>
+          <ArrowRight className="ml-1 h-4 w-4" />
+        </Link>
+      </CardContent>
+    </Card>
   );
 }
 
 export default function GuidesPage() {
   return (
-    <div className="flex flex-col min-h-screen">
-      <section className="py-12 md:py-16 bg-secondary">
-        <div className="container px-4 md:px-6">
-          <div className="flex flex-col space-y-4">
-            <Link
-              href="/docs"
-              className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900"
-            >
-              <ArrowLeft className="mr-1 h-4 w-4" />
-              Back to Documentation
-            </Link>
-            <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl">
-                Guides
-              </h1>
-              <p className="text-gray-500 md:text-lg">
-                Step-by-step guides to help you get started with Sundial
-                staking.
-              </p>
-            </div>
+    <div className="flex flex-col min-h-screen pb-12">
+      <HeroSection classes="bg-gradient-to-b from-background to-primary/20">
+        <div className="flex flex-col space-y-4">
+          <Link
+            href="/docs"
+            className="inline-flex items-center text-sm font-medium text-foreground/80 hover:text-foreground/50"
+          >
+            <ArrowLeft className="mr-1 h-4 w-4" />
+            Back to Documentation
+          </Link>
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl">
+              Guides
+            </h1>
+            <p className="text-gray-500 md:text-lg">
+              Step-by-step guides to help you get started with Sundial staking.
+            </p>
           </div>
         </div>
-      </section>
+      </HeroSection>
 
-      <section className="py-12 md:py-24">
-        <div className="container px-4 md:px-6">
+      <SunbeamBackground
+        beams={[
+          {
+            styles: {
+              content: '""',
+              position: "absolute",
+              left: "0",
+              top: "150px",
+              width: "100%",
+              height: "600px", // Match the height of the triangle
+              background:
+                " linear-gradient(to bottom right, hsl(var(--primary)) 0%, hsl(var(--primary)) 40%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 80%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)",
+              clipPath: "polygon(-90% 100%, 100% 0%, 100% 66%)", // Triangle shape
+              zIndex: "-1",
+              opacity: "0.3",
+            },
+          },
+        ]}
+      >
+        <Section>
           <div className="mx-auto max-w-5xl space-y-12">
             <div>
               <h2 className="text-2xl font-bold mb-6">Getting Started</h2>
@@ -99,27 +117,6 @@ export default function GuidesPage() {
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold mb-6">Liquid Staking</h2>
-              <div className="grid gap-6 md:grid-cols-2 lg:gap-8">
-                <GuideLink
-                  href="/docs/guides/liquid-staking"
-                  title="Understanding Liquid Staking"
-                  description="Everything you need to know about Sundial's liquid staking solution."
-                />
-                <GuideLink
-                  href="/docs/guides/$SUN"
-                  title="$SUN: Sundial's Liquid Staking Token"
-                  description="Learn about $SUN, how it works, and how to use it in DeFi applications."
-                />
-                <GuideLink
-                  href="/docs/guides/redeeming-$SUN"
-                  title="Redeeming $SUN for Bitcoin"
-                  description="How to redeem your $SUN tokens for Bitcoin."
-                />
-              </div>
-            </div>
-
-            <div>
               <h2 className="text-2xl font-bold mb-6">Security</h2>
               <div className="grid gap-6 md:grid-cols-2 lg:gap-8">
                 <GuideLink
@@ -135,8 +132,8 @@ export default function GuidesPage() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </Section>
+      </SunbeamBackground>
     </div>
   );
 }
