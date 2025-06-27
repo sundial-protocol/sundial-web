@@ -20,6 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StakeHero } from "./stake-hero";
 import { Section } from "@/components/ui/section";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
+import MaintenanceOverlay from "@/components/ui/maintenance-overlay";
 
 // Mock data for validators
 const validators = Array.from({ length: 20 }, (_, i) => ({
@@ -449,6 +450,7 @@ function PageContent() {
           </Tabs>
         </Section>
       </SunbeamBackground>
+      <MaintenanceOverlay />
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Section } from "@/components/ui/section";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 import Link from "next/link";
@@ -10,13 +11,17 @@ type StepProps = {
 
 function Step({ number, title, description }: StepProps) {
   return (
-    <div className="flex flex-col items-center space-y-2 text-center rounded-lg bg-background border border-primary/20 p-8">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white">
-        {number}
-      </div>
-      <h3 className="text-xl font-bold">{title}</h3>
-      <p className="text-gray-500">{description}</p>
-    </div>
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-left p-4">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-black">
+          {number}
+        </div>
+        <h3 className="text-xl font-bold pl-8">{title}</h3>
+      </CardHeader>
+      <CardContent>
+        <p className="text-foreground">{description}</p>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -86,10 +91,10 @@ export function HowItWorks() {
         </div>
         <div className="flex justify-center mt-12">
           <Link
-            href="/stake"
-            className="inline-flex items-center justify-center rounded-full bg-black text-white h-12 px-8 text-base font-medium transition-colors hover:bg-gray-900 border border-primary/20"
+            href="/docs"
+            className="inline-flex items-center justify-center rounded-full bg-background text-foreground h-12 px-8 text-base shadow-lg font-medium transition-colors hover:bg-foreground/20 border border-primary/70"
           >
-            Start Staking
+            Learn More
           </Link>
         </div>
       </Section>
