@@ -2,6 +2,7 @@ import Link from "next/link";
 import styles from "./recent-news.module.css";
 import { Section } from "@/components/ui/section";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
+import { getNews, NewsCard } from "@/hooks/get-news";
 
 type NewsWidgetProps = {
   date: string;
@@ -33,6 +34,8 @@ function NewsWidget({ date, title, link, image }: NewsWidgetProps) {
 }
 
 export default function RecentNews() {
+  const newsItems: NewsCard[] = getNews();
+
   return (
     <SunbeamBackground
       beams={[
@@ -62,87 +65,17 @@ export default function RecentNews() {
             className="md:w-full -mx-24 md:mx-auto "
             style={{ display: "block", textAlign: "center" }}
           >
-            <li>
-              <NewsWidget
-                date="6/25/25"
-                title="Sundial Expands Momentum with Key Encounters and Roadmap Release"
-                description="Sundial Expands Momentum with Key Encounters and Roadmap Release"
-                link="/news"
-                image="/news/62525Momentum.jpg"
-              />
-            </li>
-            <li>
-              <NewsWidget
-                date="6/2/25"
-                title="The Sundial Team Attended BTC Vegas"
-                description="The Sundial Team Attended BTC Vegas"
-                link="/news"
-                image="/news/6225Saylor.jpg"
-              />
-            </li>
-            <li>
-              <NewsWidget
-                date="5/20/25"
-                title="Sundial announces partnership with DeltaDeFi"
-                description="Sundial announces partnership with DeltaDeFi"
-                link="/news"
-                image="/news/52025delta.png"
-              />
-            </li>
-            <li>
-              <NewsWidget
-                date="5/19/25"
-                title="Sundial announces partnership with Bodega Market"
-                description="Sundial announces partnership with Bodega Market"
-                link="/news"
-                image="/news/51925Bodega.jpg"
-              />
-            </li>
-            <li>
-              <NewsWidget
-                date="5/12/25"
-                title="Sundial announces partnership with Vespr Wallet"
-                description="Sundial announces partnership with Vespr Wallet"
-                link="/news"
-                image="/news/51225vespr.png"
-              />
-            </li>
-            <li>
-              <NewsWidget
-                date="5/8/25"
-                title="Cardano Joins BTCFi Frontier: Bitlayer & Sundial Forge BitVM Bridge via Strategic Partnerships"
-                description="Cardano Joins BTCFi Frontier: Bitlayer & Sundial Forge BitVM Bridge via Strategic Partnerships"
-                link="/news"
-                image="/news/5825BTCFI.png"
-              />
-            </li>
-            <li>
-              <NewsWidget
-                date="5/5/25"
-                title="Sundial Enables First Cross-Chain BTC Transfer Between Bitcoin and Cardano"
-                description="Sundial Enables First Cross-Chain BTC Transfer Between Bitcoin and Cardano"
-                link="/news"
-                image="/news/5525crosschain.png"
-              />
-            </li>
-            <li>
-              <NewsWidget
-                date="4/22/25"
-                title="Sundial CEO Sheldon Hunt presents in Hong Kong"
-                description="Sundial CEO Sheldon Hunt presents in Hong Kong"
-                link="/news"
-                image="/news/42225hongkong.jpeg"
-              />
-            </li>
-            <li>
-              <NewsWidget
-                date="3/19/25"
-                title="Sundial Protocol PTE. LTD. Incorporated"
-                description="Sundial Protocol PTE. LTD. Incorporated"
-                link="/news"
-                image="/news/31925-incorporated.png"
-              />
-            </li>
+            {newsItems.map((item, index) => (
+              <li key={index}>
+                <NewsWidget
+                  date={item.date}
+                  title={item.title}
+                  description={item.description}
+                  link={"/news/" + item.id}
+                  image={item.image}
+                />
+              </li>
+            ))}
             <li></li>
           </ol>
         </div>

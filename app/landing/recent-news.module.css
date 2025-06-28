@@ -131,7 +131,7 @@
 .timeline ol li:nth-child(odd) div::before {
   top: 100%;
   border-width: 8px 8px 0 0;
-  border-color: #fff transparent transparent transparent;
+  border-color: #ffb70b transparent transparent transparent;
 }
 
 .timeline ol li:nth-child(even) div {
@@ -141,7 +141,7 @@
 .timeline ol li:nth-child(even) div::before {
   top: -8px;
   border-width: 8px 0 0 8px;
-  border-color: transparent transparent transparent #fff;
+  border-color: transparent transparent transparent #ffb70b;
 }
 
 .timeline time {
