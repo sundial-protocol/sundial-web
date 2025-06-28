@@ -21,7 +21,7 @@ export function FeatureCard({
 }) {
   return (
     <div
-      className={`relative flex flex-col justify-center p-6 bg-secondary/90 rounded-sm shadow-sm hover:shadow-primary/60 hover:shadow-md transition-shadow overflow-hidden ${
+      className={`relative flex flex-col justify-center p-6 bg-secondary/90 rounded-sm shadow-sm transition-shadow overflow-hidden ${
         className || ""
       }`}
     >
