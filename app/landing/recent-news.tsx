@@ -1,8 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import styles from "./recent-news.module.css";
 import { Section } from "@/components/ui/section";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 import { getNews, NewsCard } from "@/hooks/get-news";
+import React, { useRef, useEffect } from "react";
 
 type NewsWidgetProps = {
   date: string;
@@ -35,6 +38,27 @@ function NewsWidget({ date, title, link, image }: NewsWidgetProps) {
 
 export default function RecentNews() {
   const newsItems: NewsCard[] = getNews();
+  const timelineRef = useRef<HTMLOListElement>(null);
+
+  useEffect(() => {
+    const timeline = timelineRef.current;
+    if (!timeline) return;
+    const onWheel = (e: WheelEvent) => {
+      if (e.deltaY === 0) return;
+      const atStart = timeline.scrollLeft === 0;
+      const atEnd =
+        Math.ceil(timeline.scrollLeft + timeline.clientWidth) >=
+        timeline.scrollWidth;
+      // Scrolling left but already at start
+      if (e.deltaY < 0 && atStart) return;
+      // Scrolling right but already at end
+      if (e.deltaY > 0 && atEnd) return;
+      e.preventDefault();
+      timeline.scrollLeft += e.deltaY;
+    };
+    timeline.addEventListener("wheel", onWheel, { passive: false });
+    return () => timeline.removeEventListener("wheel", onWheel);
+  }, []);
 
   return (
     <SunbeamBackground
@@ -62,6 +86,7 @@ export default function RecentNews() {
         </h1>
         <div className={styles.timeline}>
           <ol
+            ref={timelineRef}
             className="md:w-full -mx-24 md:mx-auto "
             style={{ display: "block", textAlign: "center" }}
           >
