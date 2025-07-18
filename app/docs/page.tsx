@@ -69,7 +69,7 @@ export default function DocsPage() {
         ]}
       >
         <Section>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-12">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-12 px-4">
             <PageLink
               href="/docs/guides"
               title="Guides"
