@@ -1,9 +1,14 @@
 import { Section } from "@/components/ui/section";
 import { getNews, NewsCard } from "@/hooks/get-news";
+import Image from "next/image";
 
-export default function NewsPage({ params }: { params: { id: string } }) {
-  const article = getNews().find((item: NewsCard) => item.id === params.id);
-  console.log("Article:", article);
+export default async function NewsPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const article = getNews().find((item: NewsCard) => item.id === id);
   return (
     <Section>
       {article ? (
@@ -12,10 +17,12 @@ export default function NewsPage({ params }: { params: { id: string } }) {
           <p className="text-sm text-gray-500 mb-2">{article.date}</p>
           <p className="mb-6">{article.description}</p>
           <div>
-            <img
+            <Image
               src={article.image}
               alt={article.title}
               className="w-full h-auto rounded-lg mb-6"
+              width={1000}
+              height={1000}
             />
             <p className="text-gray-700">{article.content}</p>
           </div>
