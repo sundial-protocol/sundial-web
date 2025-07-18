@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { ArrowRight, Book, FileText, HelpCircle } from "lucide-react";
+import { ArrowRight, Book } from "lucide-react";
 import { Section } from "@/components/ui/section";
 import PopularTopics from "./popular-topics";
 import HelpCTA from "@/components/reusable-sections/help-cta";
 import { HeroSection } from "@/components/ui/hero-section";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import Image from "next/image";
 
 export function PageLink({
   href,
@@ -37,16 +38,30 @@ export default function DocsPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <HeroSection classes="bg-gradient-to-b from-primary/20 to-background pb-16">
-        <div className="flex flex-col items-center justify-center space-y-4 text-center">
-          <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-              Documentation
+        {/* Large Hero Section for Sundial Intro */}
+        <section className="w-full py-16 px-4 md:px-0 flex flex-col items-center">
+          <div className="max-w-3xl text-center items-center flex flex-col">
+            <Image
+              src="/sundial-text-logo.png"
+              alt="Sundial Logo"
+              width={500}
+              height={500}
+            />
+            <h1 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">
+              the first sophisticated Layer-2 (L2) solution built on Bitcoin.
             </h1>
-            <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl">
-              Learn everything you need to know about Sundial staking.
+            <p className="text-lg md:text-xl text-foreground/80">
+              Bitcoin and other UTXO chains (Unspent Transaction Output) have
+              remained largely untapped in terms of their vast liquidity
+              potential. Sundial Protocol is set to change this dynamic by
+              seamlessly merging Bitcoin’s liquidity with advanced eUTXO smart
+              contracts. As the first sophisticated Layer-2 (L2) solution built
+              on Bitcoin, Sundial offers scalability, security, and
+              institutional-grade compliance while addressing the limitations of
+              existing blockchain networks.
             </p>
           </div>
-        </div>
+        </section>
       </HeroSection>
 
       <SunbeamBackground

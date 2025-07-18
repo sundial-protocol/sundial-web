@@ -260,14 +260,17 @@ export default function RoadmapPage() {
       <div id="waterDistance" className={styles.waterDistance}></div>
       <div id="darknessOverlaySky" className={styles.darknessOverlaySky}></div>
       <div id="darknessOverlay" className={styles.darknessOverlay}>
-        <div className="text-xl font-bold text-center text-primary z-100 pt-12 space-y-8">
-          <h1 className="text-4xl font-bold text-center text-primary z-100">
+        <div className="text-xl font-bold text-center items-center flex flex-col text-primary z-100 pt-6 space-y-8">
+          {/*<h1 className="text-4xl font-bold text-center text-primary z-100">
             Join us on our journey to the moon.
-          </h1>
-          <li>Phase 1: Incentivized Testnet</li>
-          <li>Phase 2: IPO</li>
-          <li>Phase 3: Mainnet Launch</li>
-          <li>More to come... </li>
+          </h1>*/}
+          <Image
+            src="/Sundial+Roadmap+v2.png"
+            alt="Roadmap"
+            width={800}
+            height={800}
+            className="brightness-200"
+          />
         </div>
       </div>
       <div
@@ -275,7 +278,7 @@ export default function RoadmapPage() {
         className={styles.oceanRippleContainer}
       ></div>
       <div id="oceanRipple" className={styles.oceanRipple}></div>
-      <MaintenanceOverlay />
+      {/*<MaintenanceOverlay />*/}
     </div>
   );
 }
