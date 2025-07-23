@@ -121,8 +121,7 @@ export default function Hero() {
           <div>
             <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
               MAXIMIZE <span className="text-[#f7931a]">BITCOIN</span> STAKING
-              YIELD WITH{" "}
-              <span className="text-primary">OPTIMISTIC ROLLUPS</span>
+              YIELD
             </h1>
             <div className="pt-4">
               <span>

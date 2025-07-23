@@ -31,10 +31,10 @@ function NavLink({
     <Link
       href={href}
       className={cn(
-        "flex flex-col hover:text-primary bg-gray-700/50 border-gray-800/50 rounded-full p-2 items-center justify-center pointer-events-auto",
+        "flex flex-col hover:text-primary rounded-full p-2 items-center justify-center pointer-events-auto",
         href == pathname || subpages.includes(pathname)
           ? "text-primary"
-          : "text-gray-400",
+          : "text-foreground/70",
         classes
       )}
     >
@@ -55,7 +55,7 @@ export default function Navbar() {
       className={cn(
         `sticky top-0 z-50 pt-8 w-full transition-all`,
         drawerOpen
-          ? "bg-gray-900/70 h-36"
+          ? "bg-primary-foreground/70 h-36"
           : "bg-transparent pointer-events-none",
         pathname == "/roadmap" && "pointer-events-none"
       )}
@@ -92,7 +92,7 @@ export default function Navbar() {
             `grid grid-cols-5 justify-center gap-6 rounded-full p-2 transition-all duration-300`,
             drawerOpen
               ? "bg-transparent gap-10 mt-4 lg:mt-0"
-              : "bg-gray-900/70 backdrop-blur-md"
+              : "bg-primary-foreground/70 backdrop-blur-md"
           )}
         >
           <NavLink

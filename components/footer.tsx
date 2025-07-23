@@ -33,35 +33,7 @@ export default function Footer() {
               Unlock Bitcoin&apos;s $1.5 Trillion Potential with Sundial.
             </p>
           </div>
-          <div className="space-y-4">
-            <h4 className="font-bold">Products</h4>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link
-                  href="/staking"
-                  className="text-gray-500 hover:text-gray-900"
-                >
-                  Staking
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/liquid-staking"
-                  className="text-gray-500 hover:text-gray-900"
-                >
-                  Liquid Staking
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/validators"
-                  className="text-gray-500 hover:text-gray-900"
-                >
-                  Validators
-                </Link>
-              </li>
-            </ul>
-          </div>
+          <div className="space-y-4" />
           <div className="space-y-4">
             <h4 className="font-bold">Resources</h4>
             <ul className="space-y-2 text-sm">
@@ -106,7 +78,7 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="https://github.com/ikigai-github"
+                  href="https://github.com/sundial-protocol"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-gray-500 hover:text-gray-900"
