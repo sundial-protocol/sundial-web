@@ -114,6 +114,28 @@ function ImagePlanet({
 }
 
 export default function Hero() {
+  const [marketCap, setMarketCap] = useState<number | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchMarketCap() {
+      // Use the server function via an API route
+      const res = await fetch("/api/btc-marketcap");
+      if (!res.ok) return;
+      const data = await res.json();
+      if (isMounted) setMarketCap(data.marketCap ?? null);
+    }
+
+    fetchMarketCap();
+    const interval = setInterval(fetchMarketCap, 30000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
+
   return (
     <HeroSection>
       <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
@@ -125,8 +147,15 @@ export default function Hero() {
             </h1>
             <div className="pt-4">
               <span>
-                Unlock Bitcoin's $1.5 Trillion Potential with{" "}
-                <span className="text-primary">Sundial</span>
+                Unlock Bitcoin's{" "}
+                <span className="text-primary">
+                  {marketCap
+                    ? `$${marketCap.toLocaleString(undefined, {
+                        maximumFractionDigits: 0,
+                      })}`
+                    : "Multi-Trillion Dollar"}{" "}
+                </span>{" "}
+                Potential with <span className="text-primary">Sundial</span>
               </span>
             </div>
           </div>
