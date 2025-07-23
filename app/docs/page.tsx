@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { ArrowRight, Book } from "lucide-react";
 import { Section } from "@/components/ui/section";
-import PopularTopics from "./popular-topics";
 import HelpCTA from "@/components/reusable-sections/help-cta";
 import { HeroSection } from "@/components/ui/hero-section";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Image from "next/image";
+import NewsList from "@/app/news/newslist";
+import { getNews } from "@/hooks/get-news";
 
 export function PageLink({
   href,
@@ -34,7 +35,10 @@ export function PageLink({
   );
 }
 
-export default function DocsPage() {
+export default async function DocsPage() {
+  const newsData = await getNews();
+  const latestNews = newsData.slice(0, 6);
+
   return (
     <div className="flex flex-col min-h-screen">
       <HeroSection classes="bg-gradient-to-b from-primary/20 to-background pb-16">
@@ -93,7 +97,7 @@ export default function DocsPage() {
             <PageLink
               href="/docs/faq"
               title="FAQ"
-              description="Frequently asked questions about Sundial staking."
+              description="Frequently asked questions about Sundial."
             />
             <PageLink
               href="/docs/litepaper"
@@ -104,7 +108,10 @@ export default function DocsPage() {
         </Section>
       </SunbeamBackground>
 
-      <PopularTopics />
+      <Section className="p-48">
+        <h2 className="text-2xl font-bold mb-6">Latest News</h2>
+        <NewsList news={latestNews} />
+      </Section>
       <HelpCTA />
     </div>
   );
