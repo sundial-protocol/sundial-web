@@ -1,6 +1,9 @@
+"use client";
+
 import { HeroSection } from "@/components/ui/hero-section";
 import Link from "next/link";
 import Partners from "./sponsors";
+import { useEffect, useState } from "react";
 
 function OrbitTrace({ size, color }: { size: number; color?: string }) {
   // Squash the y-radius mathematically
@@ -26,9 +29,25 @@ type SmallPlanetProps = {
   angle: number;
   radius: number;
   color: string;
+  speed?: number;
 };
 
-function SmallPlanet({ angle, radius, color }: SmallPlanetProps) {
+function SmallPlanet({ angle, radius, color, speed = 1 }: SmallPlanetProps) {
+  const [currentAngle, setCurrentAngle] = useState(angle);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const interval = setInterval(() => {
+      setCurrentAngle((prev) => (prev + speed * 0.1) % 360);
+    }, 50);
+
+    return () => clearInterval(interval);
+  }, [speed]);
+
+  // Don't render until mounted on client
+  if (!mounted) return null;
+
   // Center of the ellipse
   const cx = 170;
   const cy = 250 + radius / 7;
@@ -36,11 +55,62 @@ function SmallPlanet({ angle, radius, color }: SmallPlanetProps) {
   const rx = radius;
   const ry = radius * Math.cos((75 * Math.PI) / 180); // squash y-radius by cos(75deg)
   // Convert angle to radians
-  const rad = (angle * Math.PI) / 180;
+  const rad = (currentAngle * Math.PI) / 180;
   // Calculate position on the visually rotated ellipse
   const x = cx + rx * Math.cos(rad);
   const y = cy + ry * Math.sin(rad);
   return <circle cx={x} cy={y} r={5 + y * 0.03} fill={color} />;
+}
+
+function ImagePlanet({
+  angle,
+  radius,
+  speed = 1,
+  imageUrl,
+  size = 70,
+}: {
+  angle: number;
+  radius: number;
+  speed?: number;
+  imageUrl: string;
+  size?: number;
+}) {
+  const [currentAngle, setCurrentAngle] = useState(angle);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const interval = setInterval(() => {
+      setCurrentAngle((prev) => (prev + speed * 0.1) % 360);
+    }, 50);
+
+    return () => clearInterval(interval);
+  }, [speed]);
+
+  // Don't render until mounted on client
+  if (!mounted) return null;
+
+  // Center of the ellipse
+  const cx = 170;
+  const cy = 250 + radius / 7;
+  // Ellipse radii
+  const rx = radius;
+  const ry = radius * Math.cos((75 * Math.PI) / 180);
+  // Convert angle to radians
+  const rad = (currentAngle * Math.PI) / 180;
+  // Calculate position on the visually rotated ellipse
+  const x = cx + rx * Math.cos(rad);
+  const y = cy + ry * Math.sin(rad);
+
+  return (
+    <image
+      href={imageUrl}
+      x={x - size / 2}
+      y={y - size / 2}
+      width={size}
+      height={size}
+    />
+  );
 }
 
 export default function Hero() {
@@ -142,11 +212,34 @@ export default function Hero() {
 
               <OrbitTrace size={90} />
               <OrbitTrace size={350} />
-              <SmallPlanet angle={60} radius={350} color="#f7931a" />
+              <SmallPlanet
+                angle={60}
+                radius={350}
+                color="#f7931a"
+                speed={0.5}
+              />
+              <ImagePlanet
+                angle={0}
+                radius={350}
+                imageUrl="/logo_rd.png"
+                speed={0.6}
+                size={70}
+              />
+
               <OrbitTrace size={620} color="#999999" />
-              <SmallPlanet angle={220} radius={620} color="#999999" />
+              <SmallPlanet
+                angle={220}
+                radius={620}
+                color="#999999"
+                speed={0.3}
+              />
               <OrbitTrace size={750} />
-              <SmallPlanet angle={300} radius={750} color="#f7931a" />
+              <SmallPlanet
+                angle={300}
+                radius={750}
+                color="#f7931a"
+                speed={0.8}
+              />
               <polygon
                 points="1200,2200 -150,-400 -2000,-400"
                 fill="url(#beam3-gradient)"
@@ -195,7 +288,7 @@ export default function Hero() {
               </text>
 
               {/* Sundial logo */}
-              <image href="/logo_rd.png" x="0" y="345" width="70" height="70" />
+              {/*<image href="/logo_rd.png" x="0" y="345" width="70" height="70" />*/}
             </svg>
           </div>
         </div>
