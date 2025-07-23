@@ -86,9 +86,9 @@ export default function DocsPage() {
         <Section>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-12 px-4">
             <PageLink
-              href="/docs/guides"
-              title="Guides"
-              description="Step-by-step guides to help you get started with Sundial staking."
+              href="https://sundial-protocol-docs.readthedocs.io/"
+              title="Technical Documentation"
+              description="Full L2 protocol documentation for developers."
             />
             <PageLink
               href="/docs/faq"

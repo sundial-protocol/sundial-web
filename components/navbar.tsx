@@ -11,6 +11,11 @@ import {
   Sunrise,
   HomeIcon,
   Landmark,
+  Megaphone,
+  Newspaper,
+  Code,
+  FileJson2,
+  FileCode2,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -100,14 +105,16 @@ export default function Navbar() {
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
             <BadgeCheck className={navIconCn} />
-            {drawerOpen && <span className="text-sm">Stake</span>}
+            {drawerOpen && <span className="text-sm">Staking</span>}
           </NavLink>
+
           <NavLink
-            href="/portfolio"
+            href="/docs"
+            subpages={["/docs/guides", "/docs/faq", "/docs/whitepaper"]}
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
-            <Landmark className={navIconCn} />
-            {drawerOpen && <span className="text-sm">Portfolio</span>}
+            <FileCode2 className={navIconCn} />
+            {drawerOpen && <span className="text-sm">Docs</span>}
           </NavLink>
           <NavLink
             href="/"
@@ -117,12 +124,11 @@ export default function Navbar() {
             {drawerOpen && <span className="text-sm">Home</span>}
           </NavLink>
           <NavLink
-            href="/docs"
-            subpages={["/docs/guides", "/docs/faq", "/docs/whitepaper"]}
+            href="/news"
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
-            <FileText className={navIconCn} />
-            {drawerOpen && <span className="text-sm">Docs</span>}
+            <Newspaper className={navIconCn} />
+            {drawerOpen && <span className="text-sm">News</span>}
           </NavLink>
           <NavLink
             href="/roadmap"

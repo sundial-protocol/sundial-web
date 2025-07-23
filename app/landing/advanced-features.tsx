@@ -46,29 +46,30 @@ export function AdvancedFeatures() {
   const features = [
     {
       icon: ShieldCheck,
-      title: "Native UTXO Security",
+      title: "Speed",
       description:
-        "No wallet drainers, no smart contract compromises, no failed transactions, no outages. Only full UTXO security.",
+        "24,000% faster than BTC, with less than .01% the fees - opening up a world of new possibilities.",
       className: "col-span-2 lg:col-span-4",
     },
     {
       icon: CircleGauge,
       title: "Gas Abstraction",
-      description: "Pay transactions with any token, including Bitcoin.",
+      description:
+        "Pay native chain token (BTC, LTC, ADA), unlocking incredible new possibilities for Dapps and DeFi.",
       className: "col-span-1 lg:col-span-2",
     },
     {
       icon: ArrowLeftRight,
-      title: "ZK Bridge",
+      title: "Native UTXO Security",
       description:
-        "Trustless rollup bridge. Interoperable with metaprotocols and secured by ZK proofs.",
+        "Full UTXO security - stateless executions, etc. - leveraging trustless ZK bridge tech.",
       className: "col-span-1 lg:col-span-3",
     },
     {
       icon: Activity,
-      title: "Cardano Defi & Gaming",
+      title: "Ecosystem",
       description:
-        "Partnered with Cardano's largest DeFi and gaming protocols.",
+        "Partnered with the best UTXO ecosystem partners in DeFi, Dapps, and more.",
       className: "col-span-2 lg:col-span-3",
     },
   ];
