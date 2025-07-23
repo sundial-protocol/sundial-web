@@ -326,7 +326,7 @@
     rgba(255, 183, 11, 1) 0%,
     rgba(0, 0, 0, 1) 100%
   ); /* Gradient from orange to black */
-  clip-path: polygon(100% 0%, 0% 100%, 100% 100%); /* Triangle shape */
+  clip-path: polygon(100% 0%, 0% 101%, 100% 101%); /* Triangle shape */
   z-index: 40;
   opacity: 100%;
 }
