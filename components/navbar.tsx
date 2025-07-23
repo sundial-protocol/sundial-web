@@ -6,40 +6,32 @@ import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 import {
-  FileText,
   BadgeCheck,
   Sunrise,
   HomeIcon,
-  Landmark,
-  Megaphone,
   Newspaper,
-  Code,
-  FileJson2,
   FileCode2,
 } from "lucide-react";
 import Image from "next/image";
 
 function NavLink({
   href,
-  subpages = [""],
   children,
-  classes,
+  classes = "",
 }: {
   href: string;
-  subpages?: string[];
   children: React.ReactNode;
   classes?: string;
 }) {
   const pathname = usePathname();
+  const isActive = href == "/" ? pathname === href : pathname.startsWith(href);
 
   return (
     <Link
       href={href}
       className={cn(
         "flex flex-col hover:text-primary rounded-full p-2 items-center justify-center pointer-events-auto",
-        href == pathname || subpages.includes(pathname)
-          ? "text-primary"
-          : "text-foreground/70",
+        isActive ? "text-primary font-bold" : "text-muted-foreground",
         classes
       )}
     >
@@ -110,7 +102,6 @@ export default function Navbar() {
 
           <NavLink
             href="/docs"
-            subpages={["/docs/guides", "/docs/faq", "/docs/whitepaper"]}
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
             <FileCode2 className={navIconCn} />

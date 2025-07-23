@@ -123,3 +123,15 @@ body {
 .btn-effect-shine:hover::after {
   left: 130%;
 }
+
+.no-scroll-snap {
+  scroll-snap-type: none !important;
+}
+
+body,
+.container,
+.main-content,
+.news-page,
+.no-scroll-snap {
+  scroll-snap-type: none !important;
+}

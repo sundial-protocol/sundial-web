@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./page.module.css";
 import { MousePointerClick } from "lucide-react";
-import MaintenanceOverlay from "@/components/ui/maintenance-overlay";
 import Image from "next/image";
 
 export default function RoadmapPage() {
@@ -278,7 +277,6 @@ export default function RoadmapPage() {
         className={styles.oceanRippleContainer}
       ></div>
       <div id="oceanRipple" className={styles.oceanRipple}></div>
-      {/*<MaintenanceOverlay />*/}
     </div>
   );
 }

@@ -1,26 +1,21 @@
+import { NewsArticle } from "@/hooks/get-news";
 import NewsCard from "./newscard";
 
-interface NewsItem {
-  title: string;
-  description: string;
-  date: string;
-  link: string;
-}
-
 interface NewsListProps {
-  news: NewsItem[];
+  news: NewsArticle[];
 }
 
 const NewsList: React.FC<NewsListProps> = ({ news }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {news.map((item, index) => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {news.map((item) => (
         <NewsCard
-          key={index}
+          key={item.id}
           title={item.title}
           description={item.description}
           date={item.date}
-          link={item.link}
+          image={item.image}
+          link={`/news/${item.id}`}
         />
       ))}
     </div>
