@@ -7,19 +7,27 @@ type StepProps = {
   number: number;
   title: string;
   description: string;
+  image: string;
 };
 
-function Step({ number, title, description }: StepProps) {
+function Step({ number, title, description, image }: StepProps) {
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-left p-4">
+    <Card
+      className={` bg-cover bg-center rounded-lg`}
+      style={{
+        backgroundImage: `url(${image})`,
+      }}
+    >
+      <CardHeader className="flex flex-row items-center justify-left p-4 bg-blur-none rounded-lg">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-black">
           {number}
         </div>
         <h3 className="text-xl font-bold pl-8">{title}</h3>
       </CardHeader>
-      <CardContent>
-        <p className="text-foreground">{description}</p>
+      <CardContent className="bg-transparent flex items-center justify-center p-0">
+        <div className="p-6 text-center min-h-[350px] bg-black/20">
+          <p className="text-foreground">{description}</p>
+        </div>
       </CardContent>
     </Card>
   );
@@ -77,16 +85,19 @@ export default function HowItWorks() {
             number={1}
             title="Deposit Bitcoin"
             description="Connect your wallet and deposit your Bitcoin to start staking."
+            image="/arch.jpg"
           />
           <Step
             number={2}
             title="Choose Validators"
             description="Select from our network of trusted validators to stake with."
+            image="/fantasy.jpg"
           />
           <Step
             number={3}
             title="Earn Rewards"
             description="Start earning staking rewards immediately with competitive APY."
+            image="/spaceman.jpg"
           />
         </div>
         <div className="flex justify-center mt-12">
