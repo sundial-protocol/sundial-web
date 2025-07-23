@@ -96,8 +96,8 @@ export default function DocsPage() {
               description="Frequently asked questions about Sundial staking."
             />
             <PageLink
-              href="/docs/whitepaper"
-              title="Whitepaper"
+              href="/docs/litepaper"
+              title="Litepaper"
               description="Learn how it all works!"
             />
           </div>
