@@ -8,7 +8,8 @@ export default async function NewsPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const article = getNews().find((item: NewsCard) => item.id === id);
+  const news = await getNews();
+  const article = news.find((item: NewsCard) => item.id === id);
   return (
     <Section>
       {article ? (

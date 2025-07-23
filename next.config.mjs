@@ -1,3 +1,7 @@
+import "dotenv/config";
+
+console.log("testing in config", process.env.CMC_API_KEY);
+
 let userConfig = undefined;
 try {
   userConfig = await import("./v0-user-next.config");
@@ -20,7 +24,7 @@ const nextConfig = {
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
-  }
+  },
 };
 
 mergeConfig(nextConfig, userConfig);

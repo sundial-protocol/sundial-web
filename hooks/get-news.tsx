@@ -1,3 +1,5 @@
+"use server";
+
 export type NewsCard = {
   date: string;
   title: string;
@@ -10,7 +12,7 @@ export type NewsArticle = NewsCard & {
   content: string;
 };
 
-export function getNews(): NewsArticle[] {
+export async function getNews(): Promise<NewsArticle[]> {
   return [
     {
       date: "6/25/25",
