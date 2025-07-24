@@ -8,7 +8,7 @@ export function Section({
   className?: string;
 }) {
   return (
-    <section className="pt-24 snap-always snap-center">
+    <section className="pt-12 snap-always snap-center">
       <div className={cn("px-0", className)}>{children}</div>
     </section>
   );

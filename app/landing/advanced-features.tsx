@@ -94,7 +94,7 @@ export function AdvancedFeatures() {
         },
       ]}
     >
-      <Section className="min-h-screen flex flex-col items-center justify-center">
+      <Section className="flex flex-col items-center justify-center">
         <div className="grid grid-cols-1 lg:grid-cols-3 container px-4 md:px-6 z-10">
           <div className="flex flex-row justify-center space-y-4">
             <div className="space-y-2 p-6">

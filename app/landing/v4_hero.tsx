@@ -3,7 +3,8 @@
 import { HeroSection } from "@/components/ui/hero-section";
 import Link from "next/link";
 import Partners from "./sponsors";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import ScrambleText, { ScrambleTextRef } from "@/components/ui/scramble-text";
 
 function OrbitTrace({ size, color }: { size: number; color?: string }) {
   // Squash the y-radius mathematically
@@ -118,6 +119,7 @@ function ImagePlanet({
 
 export default function Hero() {
   const [marketCap, setMarketCap] = useState<number | null>(null);
+  const scrambleRef = useRef<ScrambleTextRef>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -127,7 +129,14 @@ export default function Hero() {
       const res = await fetch("/api/btc-marketcap");
       if (!res.ok) return;
       const data = await res.json();
-      if (isMounted) setMarketCap(data.marketCap ?? null);
+      if (isMounted) {
+        setMarketCap(data.marketCap ?? null);
+        scrambleRef.current?.scramble(
+          `$${data.marketCap.toLocaleString(undefined, {
+            maximumFractionDigits: 0,
+          })} `
+        );
+      }
     }
 
     fetchMarketCap();
@@ -151,13 +160,13 @@ export default function Hero() {
             <div className="pt-4">
               <span>
                 Unlock Bitcoin's{" "}
-                <span className="text-primary">
-                  {marketCap
-                    ? `$${marketCap.toLocaleString(undefined, {
-                        maximumFractionDigits: 0,
-                      })}`
-                    : "Multi-Trillion Dollar"}{" "}
-                </span>{" "}
+                <ScrambleText
+                  ref={scrambleRef}
+                  text="Multi-Trillion Dollar "
+                  className="text-primary"
+                  preserveCommas
+                  charset="1234567890"
+                />
                 Potential with <span className="text-primary">Sundial</span>
               </span>
             </div>

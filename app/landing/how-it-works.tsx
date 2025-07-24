@@ -69,7 +69,7 @@ export default function HowItWorks() {
         },
       ]}
     >
-      <Section className="rounded-lg bg-background/50 px-8 py-24">
+      <Section className="rounded-lg px-8 py-24">
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-2">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
