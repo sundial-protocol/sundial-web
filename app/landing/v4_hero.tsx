@@ -59,7 +59,7 @@ function SmallPlanet({ angle, radius, color, speed = 1 }: SmallPlanetProps) {
   // Calculate position on the visually rotated ellipse
   const x = cx + rx * Math.cos(rad);
   const y = cy + ry * Math.sin(rad);
-  return <circle cx={x} cy={y} r={5 + y * 0.03} fill={color} />;
+  return <circle cx={x} cy={y} r={y * 0.05} fill={color} />;
 }
 
 function ImagePlanet({
@@ -102,13 +102,16 @@ function ImagePlanet({
   const x = cx + rx * Math.cos(rad);
   const y = cy + ry * Math.sin(rad);
 
+  // Dynamically update size based on y
+  const dynamicSize = size + (y - 300) * 0.2;
+
   return (
     <image
       href={imageUrl}
-      x={x - size / 2}
-      y={y - size / 2}
-      width={size}
-      height={size}
+      x={x - dynamicSize / 2}
+      y={y - dynamicSize / 2}
+      width={dynamicSize}
+      height={dynamicSize}
     />
   );
 }
@@ -301,7 +304,13 @@ export default function Hero() {
               {/* Central sun */}
 
               {/* Bitcoin logo */}
-              <circle cx="170" cy="208" r="60" fill="#F7931A" />
+              <circle
+                cx="170"
+                cy="208"
+                r="60"
+                fill="#F7931A"
+                className="animate-bounce-2"
+              />
               <text
                 x="168"
                 y="210"
@@ -311,6 +320,7 @@ export default function Hero() {
                 fontSize="60"
                 fontWeight="bold"
                 rotate={10}
+                className="animate-bounce-2"
               >
                 ₿
               </text>
