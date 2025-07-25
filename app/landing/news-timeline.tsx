@@ -38,12 +38,12 @@ export function NewsTimeline({ newsItems }: { newsItems: NewsCard[] }) {
             content: '""',
             position: "absolute",
             left: "0",
-            top: "50px",
+            top: "150px",
             width: "100%",
             height: "700px", // Match the height of the triangle
             background:
-              "linear-gradient(to bottom right, hsl(var(--primary)) 0%, hsl(var(--primary)) 20%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 70%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)",
-            clipPath: "polygon(0% 100%, 0% 0%, 190% 50%)", // Triangle shape
+              "linear-gradient(to bottom left, hsl(var(--primary)) 0%, hsl(var(--primary)) 20%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 70%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)",
+            clipPath: "polygon(100% 100%, 100% 0%, -90% 50%)", // Triangle shape
             zIndex: "-1",
             opacity: "0.3",
           },
@@ -51,9 +51,14 @@ export function NewsTimeline({ newsItems }: { newsItems: NewsCard[] }) {
       ]}
     >
       <Section>
-        <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-8 pt-24">
-          Highlights
-        </h1>
+        <div className="w-full flex flex-col items-center justify-center text-center">
+          <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-8 pt-24">
+            Highlights
+          </h1>
+          <p className="max-w-[700px] text-foreground/90 md:text-xl">
+            Our brightest moments and fondest memories.
+          </p>
+        </div>
         <div className={styles.timeline}>
           <ol
             ref={timelineRef}

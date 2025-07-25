@@ -1,12 +1,6 @@
 import { Section } from "@/components/ui/section";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
-import {
-  CircleGauge,
-  Gamepad2,
-  ShieldCheck,
-  ArrowLeftRight,
-  Activity,
-} from "lucide-react";
+import { CircleGauge, Activity, FastForward, Network } from "lucide-react";
 
 export function FeatureCard({
   icon: Icon,
@@ -45,7 +39,7 @@ export function FeatureCard({
 export function AdvancedFeatures() {
   const features = [
     {
-      icon: ShieldCheck,
+      icon: FastForward,
       title: "Speed",
       description:
         "24,000% faster than BTC, with less than .01% the fees - opening up a world of new possibilities.",
@@ -59,7 +53,7 @@ export function AdvancedFeatures() {
       className: "col-span-1 lg:col-span-2",
     },
     {
-      icon: ArrowLeftRight,
+      icon: Network,
       title: "Native UTXO Security",
       description:
         "Full UTXO security - stateless executions, etc. - leveraging trustless ZK bridge tech.",
@@ -82,7 +76,7 @@ export function AdvancedFeatures() {
             content: '""',
             position: "absolute",
             left: "0",
-            top: "150px",
+            top: "0px",
             width: "100%",
             height: "600px",
             background:
@@ -101,7 +95,7 @@ export function AdvancedFeatures() {
               <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
                 Advanced Features
               </h1>
-              <p className="mx-auto max-w-[700px] text-secondary-foreground md:text-xl">
+              <p className="mx-auto max-w-[700px] text-foreground/90 md:text-xl">
                 Sundial offers a unique set of features that maximize your
                 Bitcoin yields while maintaining security.
               </p>

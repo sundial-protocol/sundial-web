@@ -25,7 +25,7 @@ function Step({ number, title, description, image }: StepProps) {
         <h3 className="text-xl text-white font-bold pl-8">{title}</h3>
       </CardHeader>
       <CardContent className="bg-transparent flex items-center justify-center p-0">
-        <div className="p-6 text-center min-h-[350px] bg-black/20">
+        <div className="p-6 text-center min-h-[350px] bg-black/20 w-full">
           <p className="text-white">{description}</p>
         </div>
       </CardContent>
@@ -52,30 +52,30 @@ export default function HowItWorks() {
             opacity: "0.3",
           },
         },
-        {
-          styles: {
-            content: '""',
-            position: "absolute",
-            left: "0",
-            top: "150px",
-            width: "100%",
-            height: "600px", // Match the height of the triangle
-            background:
-              "linear-gradient(to bottom right, rgba(255, 183, 11, 0.9) 0%, rgba(255, 183, 11, 0.9) 40%, rgba(0, 0, 0, 0) 80%, rgba(0, 0, 0, 0) 100%)", // Gradient from orange to black
-            clipPath: "polygon(-90% 100%, 100% 0%, 100% 66%)", // Triangle shape
-            zIndex: "-1",
-            opacity: "0.3",
-          },
-        },
+        // {
+        //   styles: {
+        //     content: '""',
+        //     position: "absolute",
+        //     left: "0",
+        //     top: "150px",
+        //     width: "100%",
+        //     height: "600px", // Match the height of the triangle
+        //     background:
+        //       "linear-gradient(to bottom right, rgba(255, 183, 11, 0.9) 0%, rgba(255, 183, 11, 0.9) 40%, rgba(0, 0, 0, 0) 80%, rgba(0, 0, 0, 0) 100%)", // Gradient from orange to black
+        //     clipPath: "polygon(-90% 100%, 100% 0%, 100% 66%)", // Triangle shape
+        //     zIndex: "-1",
+        //     opacity: "0.3",
+        //   },
+        // },
       ]}
     >
-      <Section className="rounded-lg px-8 py-24">
+      <Section className="rounded-md mx-auto w-4/5 px-8 py-12 bg-accent-foreground backdrop-blur-2xl">
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-2">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
               How It Works
             </h2>
-            <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl">
+            <p className="mx-auto max-w-[700px] text-foreground/90 md:text-xl">
               Sundial&apos;s dual staking mechanism is simple and efficient.
             </p>
           </div>

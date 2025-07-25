@@ -8,7 +8,7 @@ export function HeroSection({
   classes?: string;
 }) {
   return (
-    <section className={cn("py-48 snap-start snap-always", classes)}>
+    <section className={cn("py-24 -mt-48 snap-start snap-always", classes)}>
       <div className="container px-4 md:px-6">{children}</div>
     </section>
   );
