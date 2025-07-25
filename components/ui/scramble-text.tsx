@@ -48,6 +48,7 @@ const ScrambleText = forwardRef<ScrambleTextRef, ScrambleTextProps>(
             if (letter === "," && props.preserveCommas) {
               return ",";
             }
+
             return letters[Math.floor(Math.random() * 26)];
           })
           .join("");

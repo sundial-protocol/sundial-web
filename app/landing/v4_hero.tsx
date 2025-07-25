@@ -88,18 +88,14 @@ function ImagePlanet({
     return () => clearInterval(interval);
   }, [speed]);
 
-  // Don't render until mounted on client
   if (!mounted) return null;
 
   // Center of the ellipse
   const cx = 170;
   const cy = 250 + radius / 7;
-  // Ellipse radii
   const rx = radius;
   const ry = radius * Math.cos((75 * Math.PI) / 180);
-  // Convert angle to radians
   const rad = (currentAngle * Math.PI) / 180;
-  // Calculate position on the visually rotated ellipse
   const x = cx + rx * Math.cos(rad);
   const y = cy + ry * Math.sin(rad);
 
@@ -113,6 +109,7 @@ function ImagePlanet({
       y={y - dynamicSize / 2}
       width={dynamicSize}
       height={dynamicSize}
+      style={{ filter: "url(#planet-glow)" }}
     />
   );
 }
@@ -163,7 +160,7 @@ export default function Hero() {
                 <ScrambleText
                   ref={scrambleRef}
                   text="Multi-Trillion Dollar "
-                  className="text-primary"
+                  className="text-[#f7931a] font-bold"
                   preserveCommas
                   charset="1234567890"
                 />
@@ -190,6 +187,21 @@ export default function Hero() {
               xmlns="http://www.w3.org/2000/svg"
               className="overflow-visible -z-50"
             >
+              <defs>
+                <filter
+                  id="planet-glow"
+                  x="-100%"
+                  y="-100%"
+                  width="400%"
+                  height="400%"
+                >
+                  <feGaussianBlur stdDeviation="8" result="coloredBlur" />
+                  <feMerge>
+                    <feMergeNode in="coloredBlur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
               {/* SVG recreation of the beams */}
               <polygon
                 points="-2000,-400 1200,-400 1200,550"
@@ -319,6 +331,7 @@ export default function Hero() {
                 r="60"
                 fill="#F7931A"
                 className="animate-bounce-2"
+                style={{ filter: "url(#planet-glow)" }}
               />
               <text
                 x="168"

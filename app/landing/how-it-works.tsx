@@ -22,11 +22,11 @@ function Step({ number, title, description, image }: StepProps) {
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-black">
           {number}
         </div>
-        <h3 className="text-xl font-bold pl-8">{title}</h3>
+        <h3 className="text-xl text-white font-bold pl-8">{title}</h3>
       </CardHeader>
       <CardContent className="bg-transparent flex items-center justify-center p-0">
         <div className="p-6 text-center min-h-[350px] bg-black/20">
-          <p className="text-foreground">{description}</p>
+          <p className="text-white">{description}</p>
         </div>
       </CardContent>
     </Card>
