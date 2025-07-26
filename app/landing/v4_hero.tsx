@@ -115,7 +115,6 @@ function ImagePlanet({
 }
 
 export default function Hero() {
-  const [marketCap, setMarketCap] = useState<number | null>(null);
   const scrambleRef = useRef<ScrambleTextRef>(null);
 
   useEffect(() => {
@@ -127,7 +126,6 @@ export default function Hero() {
       if (!res.ok) return;
       const data = await res.json();
       if (isMounted) {
-        setMarketCap(data.marketCap ?? null);
         scrambleRef.current?.scramble(
           `$${data.marketCap.toLocaleString(undefined, {
             maximumFractionDigits: 0,

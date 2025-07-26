@@ -268,7 +268,6 @@ export default function RoadmapPage() {
             alt="Roadmap"
             width={800}
             height={800}
-            className="brightness-200"
           />
         </div>
       </div>
