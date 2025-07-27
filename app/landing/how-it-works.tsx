@@ -1,7 +1,10 @@
+"use client";
+
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Section } from "@/components/ui/section";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 
 type StepProps = {
   number: number;
@@ -11,14 +14,43 @@ type StepProps = {
 };
 
 function Step({ number, title, description, image }: StepProps) {
+  const [scrollY, setScrollY] = useState(0);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (cardRef.current) {
+        const rect = cardRef.current.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        const cardCenter = rect.top + rect.height / 2;
+        const distanceFromCenter = Math.abs(windowHeight / 2 - cardCenter);
+        const maxDistance = windowHeight;
+        const scrollFactor = 1 - Math.min(distanceFromCenter / maxDistance, 1);
+        setScrollY(scrollFactor);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll(); // Initial call
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scale = 1 + scrollY * 0.2; // Zoom from 1 to 1.2
+
   return (
     <Card
-      className={` bg-cover bg-center rounded-lg`}
+      ref={cardRef}
+      className="rounded-lg overflow-hidden border-foreground shadow-xl shadow-black/50"
       style={{
         backgroundImage: `url(${image})`,
+        backgroundSize: `${Math.max(scale * 200, 100)}%`,
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        transition: "background-size 0.1s ease-out",
       }}
     >
-      <CardHeader className="flex flex-row items-center justify-left p-4 bg-blur-none rounded-lg">
+      <CardHeader className="flex flex-row items-center justify-left p-4 bg-blur-none bg-black/30">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-black">
           {number}
         </div>
@@ -44,32 +76,17 @@ export default function HowItWorks() {
             left: "0",
             top: "-300px",
             width: "100%",
-            height: "1600px", // Match the height of the triangle
+            height: "1200px",
             background:
               "linear-gradient(to bottom, hsl(var(--primary)) 0%, hsl(var(--primary)) 40%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 80%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)",
-            clipPath: "polygon(190% 100%, 0% 0%, 0% 35%)", // Triangle shape
+            clipPath: "polygon(190% 100%, 0% 0%, 0% 35%)",
             zIndex: "-1",
             opacity: "0.3",
           },
         },
-        // {
-        //   styles: {
-        //     content: '""',
-        //     position: "absolute",
-        //     left: "0",
-        //     top: "150px",
-        //     width: "100%",
-        //     height: "600px", // Match the height of the triangle
-        //     background:
-        //       "linear-gradient(to bottom right, rgba(255, 183, 11, 0.9) 0%, rgba(255, 183, 11, 0.9) 40%, rgba(0, 0, 0, 0) 80%, rgba(0, 0, 0, 0) 100%)", // Gradient from orange to black
-        //     clipPath: "polygon(-90% 100%, 100% 0%, 100% 66%)", // Triangle shape
-        //     zIndex: "-1",
-        //     opacity: "0.3",
-        //   },
-        // },
       ]}
     >
-      <Section className="rounded-md mx-auto w-4/5 px-8 py-12 bg-accent-foreground backdrop-blur-2xl">
+      <Section className="rounded-md w-full px-8 py-24 bg-accent-foreground backdrop-blur-2xl">
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-2">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
@@ -80,18 +97,18 @@ export default function HowItWorks() {
             </p>
           </div>
         </div>
-        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 md:grid-cols-3 mt-12">
+        <div className="mx-auto grid grid-cols-1 gap-8 xl:grid-cols-3 mt-12 md:px-24">
           <Step
             number={1}
             title="Deposit Bitcoin"
             description="Connect your wallet and deposit your Bitcoin to start staking."
-            image="/arch.jpg"
+            image="/atlantis.jpg"
           />
           <Step
             number={2}
             title="Choose Validators"
             description="Select from our network of trusted validators to stake with."
-            image="/fantasy.jpg"
+            image="/doors.jpg"
           />
           <Step
             number={3}
@@ -103,7 +120,7 @@ export default function HowItWorks() {
         <div className="flex justify-center mt-12">
           <Link
             href="/docs"
-            className="inline-flex items-center justify-center rounded-full bg-background text-foreground h-12 px-8 text-base shadow-lg font-medium transition-colors hover:bg-foreground/20 border border-primary/70"
+            className="inline-flex items-center justify-center rounded-full bg-background text-foreground h-12 px-8 text-base font-medium transition-colors hover:bg-foreground/20 border hover:border-foreground"
           >
             Learn More
           </Link>

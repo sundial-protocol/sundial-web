@@ -55,7 +55,7 @@ export function Team() {
         },
       ]}
     >
-      <Section>
+      <Section className="py-36">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="flex justify-center pr-4 lg:pt-24 md:pr-8 pl-2">
             <h1 className="font-bold tracking-tighter text-5xl">Our Team</h1>

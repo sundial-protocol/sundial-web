@@ -1,23 +1,49 @@
+"use client";
+
 import { Section } from "@/components/ui/section";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 import { CircleGauge, Activity, FastForward, Network } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 export function FeatureCard({
   icon: Icon,
   title,
   description,
   className,
+  index,
 }: {
   icon?: React.ComponentType<{ className?: string }>;
   title: string;
   description: string;
   className?: string;
+  index: number;
 }) {
+  const [isVisible, setIsVisible] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => setIsVisible(true), index * 150); // Stagger animations
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [index]);
+
   return (
     <div
-      className={`relative flex flex-col justify-center p-6 bg-secondary/90 rounded-sm shadow-sm transition-shadow overflow-hidden ${
-        className || ""
-      }`}
+      ref={cardRef}
+      className={`relative flex flex-col justify-center p-6 bg-secondary/90 rounded-sm shadow-sm transition-all duration-700 overflow-hidden transform ${
+        isVisible ? "translate-x-0 opacity-100" : "translate-x-8 opacity-0"
+      } ${className || ""}`}
     >
       {/* Background Icon */}
       {Icon && (
@@ -88,7 +114,7 @@ export function AdvancedFeatures() {
         },
       ]}
     >
-      <Section className="flex flex-col items-center justify-center">
+      <Section className="flex flex-col items-center justify-center pt-24">
         <div className="grid grid-cols-1 lg:grid-cols-3 container px-4 md:px-6 z-10">
           <div className="flex flex-row justify-center space-y-4">
             <div className="space-y-2 p-6">
@@ -105,6 +131,7 @@ export function AdvancedFeatures() {
             {features.map((feature, i) => (
               <FeatureCard
                 key={i}
+                index={i}
                 icon={feature.icon}
                 title={feature.title}
                 description={feature.description}
