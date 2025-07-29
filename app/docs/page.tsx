@@ -52,7 +52,7 @@ export default async function DocsPage() {
               height={500}
             />
             <h1 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">
-              the first sophisticated Layer-2 (L2) solution built on Bitcoin.
+              The first sophisticated Layer-2 (L2) solution built on Bitcoin.
             </h1>
             <p className="text-lg md:text-xl text-foreground/80">
               Bitcoin and other UTXO chains (Unspent Transaction Output) have

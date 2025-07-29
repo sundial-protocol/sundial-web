@@ -5,6 +5,7 @@ import Link from "next/link";
 import Partners from "./sponsors";
 import { useEffect, useRef, useState } from "react";
 import ScrambleText, { ScrambleTextRef } from "@/components/ui/scramble-text";
+// import Image from "next/image";
 
 function OrbitTrace({ size, color }: { size: number; color?: string }) {
   // Squash the y-radius mathematically
@@ -148,11 +149,11 @@ export default function Hero() {
       <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
         <div className="flex flex-col justify-center space-y-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+            <h1 className="text-5xl font-bold tracking-tighter sm:text-6xl md:text-7xl">
               MAXIMIZE <span className="text-[#f7931a]">BITCOIN</span> STAKING
               YIELD
             </h1>
-            <div className="pt-4">
+            <div className="pt-4 md:text-xl">
               <span>
                 Unlock Bitcoin's{" "}
                 <ScrambleText
@@ -162,7 +163,15 @@ export default function Hero() {
                   preserveCommas
                   charset="1234567890"
                 />
-                Potential with <span className="text-primary">Sundial</span>
+                Potential with{" "}
+                <span className="text-primary font-bold">Sundial</span>
+                {/* <Image
+                  src="/sundial-text-logo.png" // this doesn't look as good imo, leaving here in case we want to use it later
+                  alt="Sundial"
+                  width={70}
+                  height={25}
+                  className="inline-block align-center"
+                /> */}
               </span>
             </div>
           </div>

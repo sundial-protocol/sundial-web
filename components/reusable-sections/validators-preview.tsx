@@ -7,7 +7,7 @@ export function ValidatorsPreview() {
     <Section>
       <div className="flex flex-col items-center justify-center space-y-4 text-center">
         <div className="space-y-2">
-          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+          <h2 className="text-5xl font-bold tracking-tighter sm:text-6xl md:text-7xl">
             Top Validators
           </h2>
           <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl">

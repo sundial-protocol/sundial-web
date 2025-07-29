@@ -52,7 +52,7 @@ export function NewsTimeline({ newsItems }: { newsItems: NewsCard[] }) {
     >
       <Section className="-mt-24">
         <div className="w-full flex flex-col items-center justify-center text-center">
-          <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-8 pt-24">
+          <h1 className="text-5xl font-bold tracking-tighter sm:text-6xl md:text-7xl text-center mb-8 pt-24">
             Highlights
           </h1>
           <p className="max-w-[700px] text-foreground/90 md:text-xl">

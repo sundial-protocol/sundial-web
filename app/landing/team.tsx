@@ -58,7 +58,9 @@ export function Team() {
       <Section className="py-24">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="flex flex-col px-12 lg:pt-24 items-center text-center space-y-4">
-            <h1 className="font-bold tracking-tighter text-5xl">Our Team</h1>
+            <h1 className="text-5xl font-bold tracking-tighter sm:text-6xl md:text-7xl">
+              Our Team
+            </h1>
             <span className="text-foreground/90 md:text-lg">
               We're working around the dial to bring next-generation DeFi
               functionality to Bitcoin, Litecoin, Cardano, and Dogecoin, among

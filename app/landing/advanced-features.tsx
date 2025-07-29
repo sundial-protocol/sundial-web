@@ -118,7 +118,7 @@ export function AdvancedFeatures() {
         <div className="grid grid-cols-1 lg:grid-cols-3 container px-4 md:px-6 z-10">
           <div className="flex flex-row justify-center space-y-4">
             <div className="space-y-2 p-6">
-              <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+              <h1 className="text-5xl font-bold tracking-tighter sm:text-6xl md:text-7xl">
                 Advanced Features
               </h1>
               <p className="mx-auto max-w-[700px] text-foreground/90 md:text-xl">

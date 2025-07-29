@@ -121,7 +121,7 @@ export default function Hero() {
           </div>
 
           <div className="py-8">
-            <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+            <h1 className="text-5xl font-bold tracking-tighter sm:text-6xl md:text-7xl">
               maximize <span className="text-[#f7931a]">Bitcoin</span> staking
               yield with{" "}
               <span className="text-primary">Optimistic Rollups</span>
