@@ -55,10 +55,15 @@ export function Team() {
         },
       ]}
     >
-      <Section className="py-36">
+      <Section className="py-24">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="flex justify-center pr-4 lg:pt-24 md:pr-8 pl-2">
+          <div className="flex flex-col px-12 lg:pt-24 items-center text-center space-y-4">
             <h1 className="font-bold tracking-tighter text-5xl">Our Team</h1>
+            <span className="text-foreground/90 md:text-lg">
+              We're working around the dial to bring next-generation DeFi
+              functionality to Bitcoin, Litecoin, Cardano, and Dogecoin, among
+              others.
+            </span>
           </div>
           <div className="container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 md:col-span-2 gap-6 p-4 md:p-6">
             <TeamMember

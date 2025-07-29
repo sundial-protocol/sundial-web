@@ -36,7 +36,7 @@ function Step({ number, title, description, image }: StepProps) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scale = 1 + scrollY * 0.2; // Zoom from 1 to 1.2
+  const scale = 1 + scrollY * 0.5; // Zoom from 1 to 1.2
 
   return (
     <Card
@@ -86,7 +86,8 @@ export default function HowItWorks() {
         },
       ]}
     >
-      <Section className="rounded-md w-full px-8 py-24 bg-accent-foreground backdrop-blur-2xl">
+      <Section className="rounded-md w-4/5 px-8 mx-auto py-12 bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl">
+        {" "}
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-2">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
@@ -120,7 +121,7 @@ export default function HowItWorks() {
         <div className="flex justify-center mt-12">
           <Link
             href="/docs"
-            className="inline-flex items-center justify-center rounded-full bg-background text-foreground h-12 px-8 text-base font-medium transition-colors hover:bg-foreground/20 border hover:border-foreground"
+            className="inline-flex items-center justify-center rounded-full bg-foreground text-background h-12 px-8 text-base font-medium transition-colors hover:bg-background/20 border hover:border-foreground hover:text-foreground"
           >
             Learn More
           </Link>
