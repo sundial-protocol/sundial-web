@@ -73,12 +73,7 @@ export default function Partners() {
 
   return (
     <>
-      <div>
-        <h2 className="text-lg md:text-xl w-full font-semibold text-center text-foreground/70">
-          Trusted by Leading Infrastructure Partners
-        </h2>
-      </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 items-center justify-center w-full h-full p-8 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 items-center justify-center w-full h-full p-8 pb-4 gap-4 border-b">
         {partners.map((partner) => (
           <PartnerCard
             name={partner.name}
@@ -87,6 +82,11 @@ export default function Partners() {
             key={partner.name}
           />
         ))}
+      </div>
+      <div className="py-4">
+        <h2 className="text-md md:text-lg w-full text-center text-foreground/70">
+          Trusted by Leading Infrastructure Partners
+        </h2>
       </div>
     </>
   );

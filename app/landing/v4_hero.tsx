@@ -117,7 +117,7 @@ function ImagePlanet({
 
 export default function Hero() {
   return (
-    <HeroSection>
+    <HeroSection classes="pt-36">
       <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
         <div className="flex flex-col justify-center space-y-4">
           <div>

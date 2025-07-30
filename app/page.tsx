@@ -2,7 +2,7 @@ import Hero from "./landing/v4_hero";
 import { AdvancedFeatures } from "./landing/advanced-features";
 import { Team } from "./landing/team";
 import RecentNews from "./landing/recent-news";
-import HowItWorks from "./landing/how-it-works";
+import HowItWorks from "./landing/institutional-bitcoin";
 
 export default function Home() {
   return (

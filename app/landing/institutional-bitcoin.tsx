@@ -91,10 +91,12 @@ export default function HowItWorks() {
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-2">
             <h2 className="text-5xl font-bold tracking-tighter sm:text-6xl md:text-7xl">
-              How It Works
+              Built for Institutional Bitcoin
             </h2>
             <p className="mx-auto max-w-[700px] text-foreground/90 md:text-xl">
-              Sundial&apos;s dual staking mechanism is simple and efficient.
+              Unlock the full potential of Bitcoin holdings with
+              enterprise-grade infrastructure designed for security, compliance,
+              and sustainable yield
             </p>
           </div>
         </div>

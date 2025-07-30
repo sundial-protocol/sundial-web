@@ -1,6 +1,6 @@
 import StakingHero from "./staking-hero";
 import WhatIsStaking from "./what-is-staking";
-import HowItWorks from "../landing/how-it-works";
+import HowItWorks from "../landing/institutional-bitcoin";
 import StakingFAQ from "./staking-faq";
 import StakingCTA from "./staking-cta";
 import { WhyStake } from "./why-stake";
