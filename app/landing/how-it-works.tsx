@@ -5,35 +5,15 @@ import { Section } from "@/components/ui/section";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
-import {
-  Building,
-  Building2,
-  CloudLightning,
-  LockKeyholeIcon,
-  LockKeyholeOpen,
-  LucideAirVent,
-  LucideALargeSmall,
-  LucideAlarmCheck,
-} from "lucide-react";
 
 type StepProps = {
-  icon?: React.ComponentType<{ className?: string }>;
-  image?: string;
+  number: number;
   title: string;
   description: string;
-  bulletPoints?: string[];
-  backgroundImage: string;
+  image: string;
 };
 
-function Step({
-  icon: Icon,
-  image,
-  title,
-  description,
-  bulletPoints,
-  backgroundImage,
-}: StepProps) {
+function Step({ number, title, description, image }: StepProps) {
   const [scrollY, setScrollY] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -61,53 +41,31 @@ function Step({
   return (
     <Card
       ref={cardRef}
-      className="rounded-lg overflow-hidden border-foreground shadow-xl shadow-black/50 relative"
+      className="rounded-lg overflow-hidden border-foreground shadow-xl shadow-black/50"
       style={{
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: `${Math.max(scale * 80, 100)}%`,
+        backgroundImage: `url(${image})`,
+        backgroundSize: `${Math.max(scale * 200, 100)}%`,
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
         transition: "background-size 0.1s ease-out",
       }}
     >
-      {/* darken background image */}
-      <div className="absolute inset-0 bg-black/25 pointer-events-none z-0"></div>
-
-      <CardHeader className="flex flex-row items-center justify-left p-4 bg-blur-none bg-black/30 relative z-10">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/30">
-          {Icon && <Icon className="h-6 w-6 text-white" />}
-          {image && (
-            <Image
-              src={image}
-              alt={title}
-              width={24}
-              height={24}
-              className="object-contain"
-            />
-          )}
+      <CardHeader className="flex flex-row items-center justify-left p-4 bg-blur-none bg-black/30">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-black">
+          {number}
         </div>
         <h3 className="text-xl text-white font-bold pl-8">{title}</h3>
       </CardHeader>
-      <CardContent className="bg-transparent flex items-center justify-center p-0 text-white font-semibold text-md relative z-10">
-        <div className="p-6 text-left min-h-[350px] bg-black/20 w-full">
-          <p className="mb-4">{description}</p>
-          {bulletPoints && bulletPoints.length > 0 && (
-            <ul className="space-y-2">
-              {bulletPoints.map((point, index) => (
-                <li key={index} className="flex items-start">
-                  <span className="mr-2">•</span>
-                  <span className="">{point}</span>
-                </li>
-              ))}
-            </ul>
-          )}
+      <CardContent className="bg-transparent flex items-center justify-center p-0">
+        <div className="p-6 text-center min-h-[350px] bg-black/20 w-full">
+          <p className="text-white">{description}</p>
         </div>
       </CardContent>
     </Card>
   );
 }
 
-export default function InstitutionalBitcoin() {
+export default function HowItWorks() {
   return (
     <SunbeamBackground
       beams={[
@@ -144,46 +102,31 @@ export default function InstitutionalBitcoin() {
         </div>
         <div className="mx-auto grid grid-cols-1 gap-8 xl:grid-cols-3 mt-12 md:px-24">
           <Step
-            icon={LockKeyholeIcon}
-            title="Non-Custodial Yield"
-            description="Generate sustainable returns on Bitcoin holdings without sacrificing custody or security"
-            bulletPoints={[
-              "Your keys, your Bitcoin",
-              "2-5% sustainable APY",
-              "No bridge risk",
-            ]}
-            backgroundImage="/notepad.jpg"
+            number={1}
+            title="Deposit Bitcoin"
+            description="Connect your wallet and deposit your Bitcoin to start staking."
+            image="/atlantis.jpg"
           />
           <Step
-            icon={Building2}
-            title="Enterprise SDK"
-            description="White-label infrastructure with compliance modules built for institutional requirements"
-            bulletPoints={[
-              "Plug-and-play integration",
-              "KYC/AML modules included",
-              "Audit-ready reporting",
-            ]}
-            backgroundImage="/explaining.jpg"
+            number={2}
+            title="Choose Validators"
+            description="Select from our network of trusted validators to stake with."
+            image="/doors.jpg"
           />
           <Step
-            icon={CloudLightning}
-            title="UTXO Ledger Model"
-            description="Leveraging Bitcoin's proven ledger model with deterministic execution"
-            bulletPoints={[
-              "No smart contract exploits",
-              "Stateless validation",
-              "Fraud-proof protection",
-            ]}
-            backgroundImage="/phone.jpg"
+            number={3}
+            title="Earn Rewards"
+            description="Start earning staking rewards immediately with competitive APY."
+            image="/spaceman.jpg"
           />
         </div>
         <div className="flex justify-center mt-12">
-          {/* <Link
+          <Link
             href="/docs"
             className="inline-flex items-center justify-center rounded-full bg-foreground text-background h-12 px-8 text-base font-medium transition-colors hover:bg-background/20 border hover:border-foreground hover:text-foreground"
           >
             Learn More
-          </Link> */}
+          </Link>
         </div>
       </Section>
     </SunbeamBackground>
