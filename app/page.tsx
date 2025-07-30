@@ -1,16 +1,15 @@
 import Hero from "./landing/v4_hero";
-import { AdvancedFeatures } from "./landing/advanced-features";
 import { Team } from "./landing/team";
 import RecentNews from "./landing/recent-news";
 import HowItWorks from "./landing/institutional-bitcoin";
+import { SecurityFirst } from "./landing/security-first";
 
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       <Hero />
       <HowItWorks />
-      <AdvancedFeatures />
-      {/* <HowItWorks /> */}
+      <SecurityFirst />
       <RecentNews />
       <Team />
     </div>

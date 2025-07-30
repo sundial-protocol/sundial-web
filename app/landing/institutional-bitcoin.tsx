@@ -71,7 +71,7 @@ function Step({
       }}
     >
       {/* darken background image */}
-      <div className="absolute inset-0 bg-black/25 pointer-events-none z-0"></div>
+      <div className="absolute inset-0 bg-black/40 pointer-events-none z-0"></div>
 
       <CardHeader className="flex flex-row items-center justify-left p-4 bg-blur-none bg-black/30 relative z-10">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/30">
