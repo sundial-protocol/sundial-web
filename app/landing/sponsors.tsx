@@ -74,7 +74,7 @@ export default function Partners() {
   return (
     <>
       <div>
-        <h2 className="text-2xl font-bold mb-4 w-full text-center text-accent-foreground/70">
+        <h2 className="text-lg md:text-xl w-full font-semibold text-center text-foreground/70">
           Trusted by Leading Infrastructure Partners
         </h2>
       </div>
