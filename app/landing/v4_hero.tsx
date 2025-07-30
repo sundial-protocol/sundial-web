@@ -3,8 +3,8 @@
 import { HeroSection } from "@/components/ui/hero-section";
 import Link from "next/link";
 import Partners from "./sponsors";
-import { useEffect, useRef, useState } from "react";
-import ScrambleText, { ScrambleTextRef } from "@/components/ui/scramble-text";
+import { useEffect, useState } from "react";
+import { LucideArrowRight } from "lucide-react";
 // import Image from "next/image";
 
 function OrbitTrace({ size, color }: { size: number; color?: string }) {
@@ -116,71 +116,34 @@ function ImagePlanet({
 }
 
 export default function Hero() {
-  const scrambleRef = useRef<ScrambleTextRef>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    async function fetchMarketCap() {
-      // Use the server function via an API route
-      const res = await fetch("/api/btc-marketcap");
-      if (!res.ok) return;
-      const data = await res.json();
-      if (isMounted) {
-        scrambleRef.current?.scramble(
-          `$${data.marketCap.toLocaleString(undefined, {
-            maximumFractionDigits: 0,
-          })} `
-        );
-      }
-    }
-
-    fetchMarketCap();
-    const interval = setInterval(fetchMarketCap, 30000);
-
-    return () => {
-      isMounted = false;
-      clearInterval(interval);
-    };
-  }, []);
-
   return (
     <HeroSection>
       <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
         <div className="flex flex-col justify-center space-y-4">
           <div>
             <h1 className="text-5xl font-bold tracking-tighter sm:text-6xl md:text-7xl">
-              MAXIMIZE <span className="text-[#f7931a]">BITCOIN</span> STAKING
-              YIELD
+              Institutional Grade{" "}
+              <span className="text-[#f7931a]">Bitcoin</span> Infrastructure
             </h1>
             <div className="pt-4 md:text-xl">
               <span>
-                Unlock Bitcoin's{" "}
-                <ScrambleText
-                  ref={scrambleRef}
-                  text="Multi-Trillion Dollar "
-                  className="text-[#f7931a] font-bold"
-                  preserveCommas
-                  charset="1234567890"
-                />
-                Potential with{" "}
-                <span className="text-primary font-bold">Sundial</span>
-                {/* <Image
-                  src="/sundial-text-logo.png" // this doesn't look as good imo, leaving here in case we want to use it later
-                  alt="Sundial"
-                  width={70}
-                  height={25}
-                  className="inline-block align-center"
-                /> */}
+                The first UTXO-native Layer 2 enabling secure, compliant Bitcoin
+                yield generation at scale
               </span>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
               href="/docs"
-              className="inline-flex items-center justify-center rounded-full h-12 px-8 text-black font-bold transition-colors bg-primary text-accent hover:bg-primary/70"
+              className="inline-flex items-center justify-center rounded-full h-14 px-12 text-black font-bold transition-colors bg-primary text-accent hover:bg-primary/70"
             >
-              Learn More
+              Schedule Demo <LucideArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+            <Link
+              href="/docs"
+              className="inline-flex items-center justify-center rounded-full h-14 px-12 text-base font-medium transition-colors bg-background/20 hover:bg-foreground/20 border border-foreground"
+            >
+              Documentation
             </Link>
           </div>
         </div>
