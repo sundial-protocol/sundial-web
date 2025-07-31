@@ -53,6 +53,14 @@ export default function Footer() {
                   Litepaper
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/news"
+                  className="text-gray-500 hover:text-gray-900"
+                >
+                  News
+                </Link>
+              </li>
             </ul>
           </div>
           <div className="space-y-4">

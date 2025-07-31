@@ -34,7 +34,7 @@ function TeamMember({
   );
 }
 
-export function Team() {
+export default function Team() {
   return (
     <SunbeamBackground
       beams={[

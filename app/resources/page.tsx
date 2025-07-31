@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Image from "next/image";
 import { getNews } from "@/hooks/get-news";
 import HedgeCTA from "@/components/reusable-sections/hedge-cta";
+import NewsList from "../news/newslist";
 
 export function PageLink({
   href,
@@ -105,8 +106,8 @@ export default async function DocsPage() {
       </SunbeamBackground>
 
       <Section className="p-24">
-        {/* <h2 className="text-2xl font-bold mb-6">Latest News</h2>
-        <NewsList news={latestNews} /> */}
+        <h2 className="text-2xl font-bold mb-6">Latest News</h2>
+        <NewsList news={latestNews} />
 
         <HedgeCTA />
       </Section>
