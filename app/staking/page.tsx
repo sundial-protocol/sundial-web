@@ -6,25 +6,25 @@ import StakingCTA from "./staking-cta";
 import { WhyStake } from "./why-stake";
 import { ValidatorsPreview } from "@/components/reusable-sections/validators-preview";
 import MaintenanceOverlay from "@/components/ui/maintenance-overlay";
+import MaintenanceSunset from "@/components/reusable-sections/maintenance-sunset/maintenance-sunset";
 
 export default function StakingPage() {
   return (
-    <div className="flex flex-col min-h-screen">
-      <StakingHero />
+    <MaintenanceSunset />
+    // <div className="flex flex-col min-h-screen">
+    //   <StakingHero />
 
-      <WhyStake />
+    //   <WhyStake />
 
-      <WhatIsStaking />
+    //   <WhatIsStaking />
 
-      <HowItWorks />
+    //   <HowItWorks />
 
-      <ValidatorsPreview />
+    //   <ValidatorsPreview />
 
-      <StakingFAQ />
+    //   <StakingFAQ />
 
-      <StakingCTA />
-
-      <MaintenanceOverlay />
-    </div>
+    //   <StakingCTA />
+    // </div>
   );
 }
