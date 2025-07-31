@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import styles from "./sunset.module.css";
 import Image from "next/image";
 import ScrambleText, { ScrambleTextRef } from "@/components/ui/scramble-text";
+import MaintenanceOverlay from "@/components/ui/maintenance-overlay";
 
 export default function MaintenanceSunset() {
   const scrambleRef = useRef<ScrambleTextRef>(null);
@@ -212,77 +213,65 @@ export default function MaintenanceSunset() {
   }
 
   return (
-    <>
-      <span onMouseOver={onMouseOverText}>
-        <ScrambleText
-          ref={scrambleRef}
-          text="ON THE HORIZON"
-          className="text-primary/50 text-3xl md:text-5xl font-bold font-mono drop-shadow-lg pt-40 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50"
-          preserveSpaces
-        />
-      </span>
-      <div
-        className={styles.bodydiv + "flex flex-col min-h-screen"}
-        onMouseMove={handleMouseMove}
-        onScroll={handleMouseMove}
-      >
-        <div id="starsContainer" className={styles.starsContainer}>
-          <div id={styles.stars}></div>
-        </div>
-
-        <div id="sun" className={styles.sun}></div>
-        <Image
-          id="bitcoinLogo"
-          src="/bitcoin-btc-logo.svg"
-          alt="Bitcoin Logo"
-          className={styles.bitcoinLogo}
-          width={100}
-          height={100}
-        />
-
-        <div id="sunDay" className={styles.sunDay}></div>
-
-        <div id="sunSet" className={styles.sunSet}></div>
-
-        <div id="sky" className={styles.sky}></div>
-
-        <div className="star left-[250px] top-[30px]"></div>
-        <div className="star left-[300px] top-[25px]"></div>
-        <div className="star right-[40px] top-[40px]"></div>
-        <div className="star right-[80px] top-[45px]"></div>
-        <div className="star right-[120px] top-[20px]"></div>
-
-        <div id="moon" className={styles.moon}></div>
-
-        <div id="dialContainer" className={styles.dialContainer}>
-          <div id="dial" className={styles.dial}></div>
-        </div>
-
-        <div id="shadow" className={styles.shadow}></div>
-
-        <div id="water" className={styles.water}>
-          <div
-            id="waterReflectionContainer"
-            className={styles.waterReflectionContainer}
-          >
-            <div
-              id="waterReflectionMiddle"
-              className={styles.waterReflectionMiddle}
-            ></div>
-          </div>
-        </div>
-        <div id="waterDistance" className={styles.waterDistance}></div>
-        <div
-          id="darknessOverlaySky"
-          className={styles.darknessOverlaySky}
-        ></div>
-        <div id="darknessOverlay" className={styles.darknessOverlay}></div>
-        <div
-          id="oceanRippleContainer"
-          className={styles.oceanRippleContainer}
-        ></div>
-        <div id="oceanRipple" className={styles.oceanRipple}></div>
+    <div
+      className={styles.bodydiv + "flex flex-col min-h-screen"}
+      onMouseMove={handleMouseMove}
+      onScroll={handleMouseMove}
+    >
+      <div id="starsContainer" className={styles.starsContainer}>
+        <div id={styles.stars}></div>
       </div>
-    </>
+
+      <div id="sun" className={styles.sun}></div>
+      <Image
+        id="bitcoinLogo"
+        src="/bitcoin-btc-logo.svg"
+        alt="Bitcoin Logo"
+        className={styles.bitcoinLogo}
+        width={100}
+        height={100}
+      />
+
+      <div id="sunDay" className={styles.sunDay}></div>
+
+      <div id="sunSet" className={styles.sunSet}></div>
+
+      <div id="sky" className={styles.sky}></div>
+
+      <div className="star left-[250px] top-[30px]"></div>
+      <div className="star left-[300px] top-[25px]"></div>
+      <div className="star right-[40px] top-[40px]"></div>
+      <div className="star right-[80px] top-[45px]"></div>
+      <div className="star right-[120px] top-[20px]"></div>
+
+      <div id="moon" className={styles.moon}></div>
+
+      <div id="dialContainer" className={styles.dialContainer}>
+        <div id="dial" className={styles.dial}></div>
+      </div>
+
+      <div id="shadow" className={styles.shadow}></div>
+
+      <div id="water" className={styles.water}>
+        <div
+          id="waterReflectionContainer"
+          className={styles.waterReflectionContainer}
+        >
+          <div
+            id="waterReflectionMiddle"
+            className={styles.waterReflectionMiddle}
+          ></div>
+        </div>
+      </div>
+      <div id="waterDistance" className={styles.waterDistance}></div>
+      <div id="darknessOverlaySky" className={styles.darknessOverlaySky}></div>
+      <div id="darknessOverlay" className={styles.darknessOverlay}></div>
+      <div
+        id="oceanRippleContainer"
+        className={styles.oceanRippleContainer}
+      ></div>
+      <div id="oceanRipple" className={styles.oceanRipple}></div>
+      <MaintenanceOverlay />
+    </div>
   );
 }

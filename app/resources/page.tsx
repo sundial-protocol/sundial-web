@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Book } from "lucide-react";
+import { ArrowRight, Book, FileText, Sunrise } from "lucide-react";
 import { Section } from "@/components/ui/section";
 import HelpCTA from "@/components/reusable-sections/help-cta";
 import { HeroSection } from "@/components/ui/hero-section";
@@ -14,15 +14,17 @@ export function PageLink({
   href,
   title,
   description,
+  icon: Icon = Book,
 }: {
   href: string;
   title: string;
   description: string;
+  icon?: React.ComponentType<{ className?: string }>;
 }) {
   return (
     <Card>
       <CardHeader>
-        <Book className="h-6 w-6 text-primary" />
+        <Icon className="h-6 w-6 text-primary" />
         <h2 className="text-xl font-bold">{title}</h2>
       </CardHeader>
       <CardContent>
@@ -89,7 +91,7 @@ export default async function DocsPage() {
         ]}
       >
         <Section>
-          <div className="grid gap-6 md:grid-cols-2 lg:gap-12 px-auto mx-auto w-2/3">
+          <div className="grid gap-6 md:grid-cols-3 lg:gap-12 px-auto mx-auto w-4/5">
             <PageLink
               href="https://sundial-protocol-docs.readthedocs.io/"
               title="Technical Documentation"
@@ -97,9 +99,17 @@ export default async function DocsPage() {
             />
 
             <PageLink
+              icon={FileText}
               href="/resources/litepaper"
               title="Litepaper"
               description="Learn how it all works!"
+            />
+
+            <PageLink
+              icon={Sunrise}
+              href="/resources/roadmap"
+              title="Roadmap"
+              description="View our development roadmap and upcoming features."
             />
           </div>
         </Section>
