@@ -69,13 +69,7 @@ export function SecurityFirst() {
       title: "Deterministic Execution",
       description:
         "No reentrancy attacks or state manipulation vulnerabilities",
-      className: "col-span-2 lg:col-span-4",
-    },
-    {
-      icon: FastForward,
-      title: "Speed",
-      description: "24,000% faster than BTC, with less than .01% the fees",
-      className: "col-span-1 lg:col-span-2",
+      className: "col-span-2 lg:col-span-6",
     },
     {
       icon: Shield,
@@ -88,7 +82,7 @@ export function SecurityFirst() {
       icon: SearchCheck,
       title: "Third Party Audits",
       description: "Comprehensive security reviews by industry-leading firms",
-      className: "col-span-2 lg:col-span-3",
+      className: "col-span-1 lg:col-span-3",
     },
   ];
 

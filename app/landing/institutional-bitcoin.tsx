@@ -5,12 +5,7 @@ import { Section } from "@/components/ui/section";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import {
-  Building,
-  Building2,
-  CloudLightning,
-  LockKeyholeIcon,
-} from "lucide-react";
+import { Building2, CloudLightning, LockKeyholeIcon } from "lucide-react";
 
 type StepProps = {
   icon?: React.ComponentType<{ className?: string }>;

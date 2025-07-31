@@ -5,7 +5,6 @@ import StakingFAQ from "./staking-faq";
 import StakingCTA from "./staking-cta";
 import { WhyStake } from "./why-stake";
 import { ValidatorsPreview } from "@/components/reusable-sections/validators-preview";
-import MaintenanceOverlay from "@/components/ui/maintenance-overlay";
 import MaintenanceSunset from "@/components/reusable-sections/maintenance-sunset/maintenance-sunset";
 
 export default function StakingPage() {

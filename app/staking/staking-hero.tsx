@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function StakingHero() {
   return (
-    <HeroSection>
+    <HeroSection classes="mt-0">
       <div className="flex flex-col items-center justify-center space-y-4 text-center">
         <div className="space-y-2">
           <h1 className="text-5xl font-bold tracking-tighter sm:text-6xl md:text-7xl">
