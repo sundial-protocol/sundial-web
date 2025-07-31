@@ -63,32 +63,32 @@ export default function PopularTopics() {
         </div>
         <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-2 lg:gap-12">
           <GuideLink
-            href="/docs/guides/getting-started"
+            href="/resources/guides/getting-started"
             title="Getting Started with Sundial Staking"
             description="Learn how to stake your Bitcoin with Sundial in a few simple steps."
           />
           <GuideLink
-            href="/docs/guides/liquid-staking"
+            href="/resources/guides/liquid-staking"
             title="Understanding Liquid Staking"
             description="Everything you need to know about Sundial's liquid staking solution."
           />
           <GuideLink
-            href="/docs/guides/validators"
+            href="/resources/guides/validators"
             title="Choosing a Validator"
             description="How to select the right validator for your staking needs."
           />
           <GuideLink
-            href="/docs/guides/rewards"
+            href="/resources/guides/rewards"
             title="Staking Rewards Explained"
             description="Learn how staking rewards are calculated and distributed."
           />
           <GuideLink
-            href="/docs/guides/security"
+            href="/resources/guides/security"
             title="Security Best Practices"
             description="Tips for keeping your staked assets secure."
           />
           <GuideLink
-            href="/docs/guides/unstaking"
+            href="/resources/guides/unstaking"
             title="Unstaking Process"
             description="How to unstake your Bitcoin and withdraw your assets."
           />

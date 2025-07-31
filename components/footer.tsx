@@ -39,7 +39,7 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
-                  href="/docs"
+                  href="https://sundial-protocol-docs.readthedocs.io/"
                   className="text-gray-500 hover:text-gray-900"
                 >
                   Documentation
@@ -47,18 +47,10 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/docs/faq"
+                  href="/resources/litepaper"
                   className="text-gray-500 hover:text-gray-900"
                 >
-                  FAQ
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/docs/guides"
-                  className="text-gray-500 hover:text-gray-900"
-                >
-                  Guides
+                  Litepaper
                 </Link>
               </li>
             </ul>

@@ -3,17 +3,32 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Section } from "@/components/ui/section";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import {
+  Building,
+  Building2,
+  CloudLightning,
+  LockKeyholeIcon,
+} from "lucide-react";
 
 type StepProps = {
-  number: number;
+  icon?: React.ComponentType<{ className?: string }>;
+  image?: string;
   title: string;
   description: string;
-  image: string;
+  bulletPoints?: string[];
+  backgroundImage: string;
 };
 
-function Step({ number, title, description, image }: StepProps) {
+function Step({
+  icon: Icon,
+  image,
+  title,
+  description,
+  bulletPoints,
+  backgroundImage,
+}: StepProps) {
   const [scrollY, setScrollY] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -36,36 +51,61 @@ function Step({ number, title, description, image }: StepProps) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scale = 1 + scrollY * 0.5; // Zoom from 1 to 1.2
+  const scale = 1 + scrollY * 0.5;
 
   return (
     <Card
       ref={cardRef}
-      className="rounded-lg overflow-hidden border-foreground shadow-xl shadow-black/50"
-      style={{
-        backgroundImage: `url(${image})`,
-        backgroundSize: `${Math.max(scale * 200, 100)}%`,
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        transition: "background-size 0.1s ease-out",
-      }}
+      className="rounded-lg overflow-hidden border-foreground shadow-xl shadow-black/50 relative"
     >
-      <CardHeader className="flex flex-row items-center justify-left p-4 bg-blur-none bg-black/30">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-black">
-          {number}
+      <Image
+        src={backgroundImage}
+        alt=""
+        className="absolute inset-0 pointer-events-none z-0 object-cover"
+        width={600}
+        height={1000}
+        style={{
+          transform: `scale(${scale})`,
+          transition: "transform 0.1s ease-out",
+          filter: "brightness(0.6)", // 40% darker
+        }}
+      />
+
+      <CardHeader className="flex flex-row items-center justify-left p-4 bg-blur-none bg-black/30 relative z-10">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/30">
+          {Icon && <Icon className="h-6 w-6 text-white" />}
+          {image && (
+            <Image
+              src={image}
+              alt={title}
+              width={24}
+              height={24}
+              className="object-contain"
+            />
+          )}
         </div>
         <h3 className="text-xl text-white font-bold pl-8">{title}</h3>
       </CardHeader>
-      <CardContent className="bg-transparent flex items-center justify-center p-0">
-        <div className="p-6 text-center min-h-[350px] bg-black/20 w-full">
-          <p className="text-white">{description}</p>
+      <CardContent className="bg-transparent flex items-center justify-center p-0 text-white font-semibold text-md relative z-10">
+        <div className="p-6 text-left min-h-[350px] bg-black/20 w-full">
+          <p className="mb-4">{description}</p>
+          {bulletPoints && bulletPoints.length > 0 && (
+            <ul className="space-y-2">
+              {bulletPoints.map((point, index) => (
+                <li key={index} className="flex items-start">
+                  <span className="mr-2">•</span>
+                  <span className="">{point}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </CardContent>
     </Card>
   );
 }
 
-export default function HowItWorks() {
+export default function InstitutionalBitcoin() {
   return (
     <SunbeamBackground
       beams={[
@@ -102,31 +142,46 @@ export default function HowItWorks() {
         </div>
         <div className="mx-auto grid grid-cols-1 gap-8 xl:grid-cols-3 mt-12 md:px-24">
           <Step
-            number={1}
-            title="Deposit Bitcoin"
-            description="Connect your wallet and deposit your Bitcoin to start staking."
-            image="/atlantis.jpg"
+            icon={LockKeyholeIcon}
+            title="Non-Custodial Yield"
+            description="Generate sustainable returns on Bitcoin holdings without sacrificing custody or security"
+            bulletPoints={[
+              "Your keys, your Bitcoin",
+              "2-5% sustainable APY",
+              "No bridge risk",
+            ]}
+            backgroundImage="/notepad.jpg"
           />
           <Step
-            number={2}
-            title="Choose Validators"
-            description="Select from our network of trusted validators to stake with."
-            image="/doors.jpg"
+            icon={Building2}
+            title="Enterprise SDK"
+            description="White-label infrastructure with compliance modules built for institutional requirements"
+            bulletPoints={[
+              "Plug-and-play integration",
+              "KYC/AML modules included",
+              "Audit-ready reporting",
+            ]}
+            backgroundImage="/explaining.jpg"
           />
           <Step
-            number={3}
-            title="Earn Rewards"
-            description="Start earning staking rewards immediately with competitive APY."
-            image="/spaceman.jpg"
+            icon={CloudLightning}
+            title="UTXO Ledger Model"
+            description="Leveraging Bitcoin's proven ledger model with deterministic execution"
+            bulletPoints={[
+              "No smart contract exploits",
+              "Stateless validation",
+              "Fraud-proof protection",
+            ]}
+            backgroundImage="/phone.jpg"
           />
         </div>
         <div className="flex justify-center mt-12">
-          <Link
+          {/* <Link
             href="/resources"
             className="inline-flex items-center justify-center rounded-full bg-foreground text-background h-12 px-8 text-base font-medium transition-colors hover:bg-background/20 border hover:border-foreground hover:text-foreground"
           >
             Learn More
-          </Link>
+          </Link> */}
         </div>
       </Section>
     </SunbeamBackground>
