@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardHeader } from "@/components/ui/card";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -32,7 +32,7 @@ function PartnerCard({
   );
 }
 
-export default function Partners() {
+export default function Partners({ classes }: { classes?: string }) {
   const partners = [
     {
       name: "Check Point",
@@ -72,7 +72,7 @@ export default function Partners() {
   ];
 
   return (
-    <>
+    <div className={classes}>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 items-center justify-center w-full h-full p-8 pb-4 gap-4 border-b">
         {partners.map((partner) => (
           <PartnerCard
@@ -88,6 +88,6 @@ export default function Partners() {
           Trusted by Leading Infrastructure Partners
         </h2>
       </div>
-    </>
+    </div>
   );
 }

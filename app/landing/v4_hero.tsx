@@ -2,7 +2,7 @@
 
 import { HeroSection } from "@/components/ui/hero-section";
 import Link from "next/link";
-import Partners from "./sponsors";
+import Partners from "../../components/reusable-sections/partners";
 import { useEffect, useState } from "react";
 import { LucideArrowRight } from "lucide-react";
 // import Image from "next/image";

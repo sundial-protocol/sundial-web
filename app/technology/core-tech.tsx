@@ -3,14 +3,18 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Section } from "@/components/ui/section";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
+
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import {
   Building,
-  Building2,
   CloudLightning,
   LockKeyholeIcon,
+  LucideALargeSmall,
+  LucideAlarmCheck,
+  Shield,
 } from "lucide-react";
+import Link from "next/link";
 
 type StepProps = {
   icon?: React.ComponentType<{ className?: string }>;
@@ -87,7 +91,7 @@ function Step({
         <h3 className="text-xl text-white font-bold pl-8">{title}</h3>
       </CardHeader>
       <CardContent className="bg-transparent flex items-center justify-center p-0 text-white font-semibold text-md relative z-10">
-        <div className="p-6 text-left min-h-[350px] bg-black/20 w-full">
+        <div className="p-6 text-left min-h-[250px] bg-black/20 w-full">
           <p className="mb-4">{description}</p>
           {bulletPoints && bulletPoints.length > 0 && (
             <ul className="space-y-2">
@@ -105,7 +109,7 @@ function Step({
   );
 }
 
-export default function InstitutionalBitcoin() {
+export default function CoreTech() {
   return (
     <SunbeamBackground
       beams={[
@@ -131,57 +135,60 @@ export default function InstitutionalBitcoin() {
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-2">
             <h2 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
-              Built for Institutional Bitcoin.
+              Core Technology Features
             </h2>
             <p className="mx-auto max-w-[700px] text-foreground/90 md:text-xl">
-              Unlock the full potential of Bitcoin holdings with
-              enterprise-grade infrastructure designed for security, compliance,
-              and sustainable yield
+              Purpose-built for institutional Bitcoin infrastructure
             </p>
           </div>
         </div>
         <div className="mx-auto grid grid-cols-1 gap-8 xl:grid-cols-3 mt-12 md:px-24">
           <Step
             icon={LockKeyholeIcon}
-            title="Non-Custodial Yield"
-            description="Generate sustainable returns on Bitcoin holdings without sacrificing custody or security"
-            bulletPoints={[
-              "Your keys, your Bitcoin",
-              "2-5% sustainable APY",
-              "No bridge risk",
-            ]}
-            backgroundImage="/notepad.jpg"
+            title="UTXO Architecture"
+            description="Inherits Bitcoin's battle-tested security model with deterministic execution and no shared state vulnerabilities."
+            backgroundImage="/nodes.jpg"
           />
           <Step
-            icon={Building2}
-            title="Enterprise SDK"
-            description="White-label infrastructure with compliance modules built for institutional requirements"
-            bulletPoints={[
-              "Plug-and-play integration",
-              "KYC/AML modules included",
-              "Audit-ready reporting",
-            ]}
-            backgroundImage="/explaining.jpg"
+            icon={Shield}
+            title="Fraud Proofs"
+            description="Optimistic rollup design with efficient on-chain verification ensures invalid transactions never finalize."
+            backgroundImage="/lwayer.jpg"
           />
           <Step
             icon={CloudLightning}
-            title="UTXO Ledger Model"
-            description="Leveraging Bitcoin's proven ledger model with deterministic execution"
-            bulletPoints={[
-              "No smart contract exploits",
-              "Stateless validation",
-              "Fraud-proof protection",
-            ]}
+            title="High Throughput"
+            description="Process thousands of transactions per second while maintaining sub-second confirmation times."
             backgroundImage="/phone.jpg"
           />
         </div>
+        <div className="mx-auto grid grid-cols-1 gap-8 xl:grid-cols-3 mt-12 md:px-24">
+          <Step
+            icon={Building}
+            title="ZK Bridges"
+            description="Zero-knowledge proofs enable trustless asset transfers without introducing custodial risk."
+            backgroundImage="/bridge.jpg"
+          />
+          <Step
+            icon={LucideALargeSmall}
+            title="Babel Fees"
+            description="Pay transaction fees in BTC, ADA, or any supported asset - no need to hold multiple tokens."
+            backgroundImage="/explaining.jpg"
+          />
+          <Step
+            icon={LucideAlarmCheck}
+            title="Full Auditability"
+            description="Complete transaction history and state transitions verifiable on-chain for regulatory compliance."
+            backgroundImage="/notepad.jpg"
+          />
+        </div>
         <div className="flex justify-center mt-12">
-          {/* <Link
+          <Link
             href="/docs"
             className="inline-flex items-center justify-center rounded-full bg-foreground text-background h-12 px-8 text-base font-medium transition-colors hover:bg-background/20 border hover:border-foreground hover:text-foreground"
           >
             Learn More
-          </Link> */}
+          </Link>
         </div>
       </Section>
     </SunbeamBackground>

@@ -5,30 +5,16 @@ import { Section } from "@/components/ui/section";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import {
-  Building,
-  Building2,
-  CloudLightning,
-  LockKeyholeIcon,
-} from "lucide-react";
+import { CheckIcon, X } from "lucide-react";
 
 type StepProps = {
-  icon?: React.ComponentType<{ className?: string }>;
-  image?: string;
+  icon: React.ComponentType<{ className?: string }>;
   title: string;
-  description: string;
   bulletPoints?: string[];
-  backgroundImage: string;
+  color: string;
 };
 
-function Step({
-  icon: Icon,
-  image,
-  title,
-  description,
-  bulletPoints,
-  backgroundImage,
-}: StepProps) {
+function Step({ icon: Icon, title, bulletPoints, color }: StepProps) {
   const [scrollY, setScrollY] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -56,44 +42,32 @@ function Step({
   return (
     <Card
       ref={cardRef}
-      className="rounded-lg overflow-hidden border-foreground shadow-xl shadow-black/50 relative"
+      className="rounded-lg overflow-hidden border-foreground shadow-xl relative"
+      style={{
+        borderColor: color === "green" ? "#10b981" : "#ef4444",
+        boxShadow: `0 25px 50px -12px ${
+          color === "green"
+            ? "rgba(16, 185, 129, 0.5)"
+            : "rgba(239, 68, 68, 0.5)"
+        }`,
+      }}
     >
-      <Image
-        src={backgroundImage}
-        alt=""
-        className="absolute inset-0 pointer-events-none z-0 object-cover"
-        width={600}
-        height={1000}
-        style={{
-          transform: `scale(${scale})`,
-          transition: "transform 0.1s ease-out",
-          filter: "brightness(0.6)", // 40% darker
-        }}
-      />
-
       <CardHeader className="flex flex-row items-center justify-left p-4 bg-blur-none bg-black/30 relative z-10">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/30">
-          {Icon && <Icon className="h-6 w-6 text-white" />}
-          {image && (
-            <Image
-              src={image}
-              alt={title}
-              width={24}
-              height={24}
-              className="object-contain"
-            />
-          )}
+          <Icon className="h-6 w-6 text-white" />
         </div>
-        <h3 className="text-xl text-white font-bold pl-8">{title}</h3>
+        <h3 className="text-xl text-foreground font-bold pl-8">{title}</h3>
       </CardHeader>
-      <CardContent className="bg-transparent flex items-center justify-center p-0 text-white font-semibold text-md relative z-10">
+      <CardContent className="bg-transparent flex items-center justify-center p-0 text-foreground font-semibold text-md relative z-10">
         <div className="p-6 text-left min-h-[350px] bg-black/20 w-full">
-          <p className="mb-4">{description}</p>
           {bulletPoints && bulletPoints.length > 0 && (
             <ul className="space-y-2">
               {bulletPoints.map((point, index) => (
                 <li key={index} className="flex items-start">
-                  <span className="mr-2">•</span>
+                  <span className="mr-2">
+                    {" "}
+                    <Icon className="h-6 w-6 text-white" />
+                  </span>
                   <span className="">{point}</span>
                 </li>
               ))}
@@ -105,7 +79,7 @@ function Step({
   );
 }
 
-export default function InstitutionalBitcoin() {
+export default function SecurityComparison() {
   return (
     <SunbeamBackground
       beams={[
@@ -126,53 +100,45 @@ export default function InstitutionalBitcoin() {
         },
       ]}
     >
-      <Section className="rounded-md w-4/5 px-8 mx-auto py-12 bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl">
+      <Section className="rounded-md w-4/5 px-8 mx-auto py-12">
         {" "}
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-2">
             <h2 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
-              Built for Institutional Bitcoin.
+              Security Comparison
             </h2>
             <p className="mx-auto max-w-[700px] text-foreground/90 md:text-xl">
-              Unlock the full potential of Bitcoin holdings with
-              enterprise-grade infrastructure designed for security, compliance,
-              and sustainable yield
+              Why UTXO architecture provides superior security for institutional
+              assets
             </p>
           </div>
         </div>
-        <div className="mx-auto grid grid-cols-1 gap-8 xl:grid-cols-3 mt-12 md:px-24">
+        <div className="mx-auto grid grid-cols-1 gap-8 xl:grid-cols-2 mt-12 md:px-24">
           <Step
-            icon={LockKeyholeIcon}
-            title="Non-Custodial Yield"
-            description="Generate sustainable returns on Bitcoin holdings without sacrificing custody or security"
+            icon={CheckIcon}
+            title="UTXO Model"
             bulletPoints={[
-              "Your keys, your Bitcoin",
-              "2-5% sustainable APY",
-              "No bridge risk",
+              "Stateless execution - no shared memory",
+              "Deterministic outcomes guaranteed",
+              "No reentrancy attacks possible",
+              "Parallel transaction processing",
+              "True self-custody maintained",
+              "Audit trail permanently recorded",
             ]}
-            backgroundImage="/notepad.jpg"
+            color="green"
           />
           <Step
-            icon={Building2}
-            title="Enterprise SDK"
-            description="White-label infrastructure with compliance modules built for institutional requirements"
+            icon={X}
+            title="Account Model"
             bulletPoints={[
-              "Plug-and-play integration",
-              "KYC/AML modules included",
-              "Audit-ready reporting",
+              "Shared global state vulnerabilities",
+              "Non-deterministic execution paths",
+              "Reentrancy attack vectors",
+              "Sequential processing bottlenecks",
+              "Contract custody requirements",
+              "Complex state verification",
             ]}
-            backgroundImage="/explaining.jpg"
-          />
-          <Step
-            icon={CloudLightning}
-            title="UTXO Ledger Model"
-            description="Leveraging Bitcoin's proven ledger model with deterministic execution"
-            bulletPoints={[
-              "No smart contract exploits",
-              "Stateless validation",
-              "Fraud-proof protection",
-            ]}
-            backgroundImage="/phone.jpg"
+            color="red"
           />
         </div>
         <div className="flex justify-center mt-12">
