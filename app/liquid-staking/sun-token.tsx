@@ -45,7 +45,7 @@ export function SunToken() {
           </p>
           <div className="pt-4">
             <Link
-              href="/docs/$SUN"
+              href="/resources/$SUN"
               className="inline-flex items-center text-primary hover:underline"
             >
               Learn more about $SUN

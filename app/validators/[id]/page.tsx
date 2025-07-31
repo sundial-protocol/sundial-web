@@ -247,7 +247,7 @@ export default async function ValidatorDetailPage({
                       If you have any questions about staking with this
                       validator, check our
                       <Link
-                        href="/docs/faq"
+                        href="/resources/faq"
                         className="text-blue-800 font-medium hover:underline"
                       >
                         {" "}
@@ -255,7 +255,7 @@ export default async function ValidatorDetailPage({
                       </Link>
                       or
                       <Link
-                        href="/docs/guides"
+                        href="/resources/guides"
                         className="text-blue-800 font-medium hover:underline"
                       >
                         {" "}

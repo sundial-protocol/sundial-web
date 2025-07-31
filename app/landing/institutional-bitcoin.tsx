@@ -177,7 +177,7 @@ export default function InstitutionalBitcoin() {
         </div>
         <div className="flex justify-center mt-12">
           {/* <Link
-            href="/docs"
+            href="/resources"
             className="inline-flex items-center justify-center rounded-full bg-foreground text-background h-12 px-8 text-base font-medium transition-colors hover:bg-background/20 border hover:border-foreground hover:text-foreground"
           >
             Learn More

@@ -11,6 +11,9 @@ import {
   HomeIcon,
   Newspaper,
   FileCode2,
+  Building,
+  FolderArchive,
+  Folder,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -93,19 +96,19 @@ export default function Navbar() {
           )}
         >
           <NavLink
-            href="/staking"
+            href="/solutions"
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
             <BadgeCheck className={navIconCn} />
-            {drawerOpen && <span className="text-sm">Staking</span>}
+            {drawerOpen && <span className="text-sm">Solutions</span>}
           </NavLink>
 
           <NavLink
-            href="/docs"
+            href="/technology"
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
             <FileCode2 className={navIconCn} />
-            {drawerOpen && <span className="text-sm">Docs</span>}
+            {drawerOpen && <span className="text-sm">Technology</span>}
           </NavLink>
           <NavLink
             href="/"
@@ -115,18 +118,18 @@ export default function Navbar() {
             {drawerOpen && <span className="text-sm">Home</span>}
           </NavLink>
           <NavLink
-            href="/news"
+            href="/company"
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
-            <Newspaper className={navIconCn} />
-            {drawerOpen && <span className="text-sm">News</span>}
+            <Building className={navIconCn} />
+            {drawerOpen && <span className="text-sm">Company</span>}
           </NavLink>
           <NavLink
-            href="/roadmap"
+            href="/resources"
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
-            <Sunrise className={navIconCn} />
-            {drawerOpen && <span className="text-sm">Roadmap</span>}
+            <Folder className={navIconCn} />
+            {drawerOpen && <span className="text-sm">Resources</span>}
           </NavLink>
         </nav>
 

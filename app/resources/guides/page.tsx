@@ -36,7 +36,7 @@ export default function GuidesPage() {
       <HeroSection classes="bg-gradient-to-b from-background to-primary/20">
         <div className="flex flex-col space-y-4">
           <Link
-            href="/docs"
+            href="/resources"
             className="inline-flex items-center text-sm font-medium text-foreground/80 hover:text-foreground/50"
           >
             <ArrowLeft className="mr-1 h-4 w-4" />
@@ -78,12 +78,12 @@ export default function GuidesPage() {
               <h2 className="text-2xl font-bold mb-6">Getting Started</h2>
               <div className="grid gap-6 md:grid-cols-2 lg:gap-8">
                 <GuideLink
-                  href="/docs/guides/getting-started"
+                  href="/resources/guides/getting-started"
                   title="Getting Started with Sundial Staking"
                   description="Learn how to stake your Bitcoin with Sundial in a few simple steps."
                 />
                 <GuideLink
-                  href="/docs/guides/wallet-setup"
+                  href="/resources/guides/wallet-setup"
                   title="Setting Up Your Wallet"
                   description="How to set up and connect your Bitcoin wallet to Sundial."
                 />
@@ -99,17 +99,17 @@ export default function GuidesPage() {
                   description="A detailed explanation of how staking works on Sundial."
                 />
                 <GuideLink
-                  href="/docs/guides/validators"
+                  href="/resources/guides/validators"
                   title="Choosing a Validator"
                   description="How to select the right validator for your staking needs."
                 />
                 <GuideLink
-                  href="/docs/guides/rewards"
+                  href="/resources/guides/rewards"
                   title="Staking Rewards Explained"
                   description="Learn how staking rewards are calculated and distributed."
                 />
                 <GuideLink
-                  href="/docs/guides/unstaking"
+                  href="/resources/guides/unstaking"
                   title="Unstaking Your Bitcoin"
                   description="How to unstake your Bitcoin and withdraw your assets."
                 />
@@ -120,12 +120,12 @@ export default function GuidesPage() {
               <h2 className="text-2xl font-bold mb-6">Security</h2>
               <div className="grid gap-6 md:grid-cols-2 lg:gap-8">
                 <GuideLink
-                  href="/docs/guides/security"
+                  href="/resources/guides/security"
                   title="Security Best Practices"
                   description="Tips for keeping your staked assets secure."
                 />
                 <GuideLink
-                  href="/docs/guides/wallet-security"
+                  href="/resources/guides/wallet-security"
                   title="Wallet Security"
                   description="How to secure your Bitcoin wallet when staking."
                 />

@@ -88,19 +88,15 @@ export default async function DocsPage() {
         ]}
       >
         <Section>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-12 px-4">
+          <div className="grid gap-6 md:grid-cols-2 lg:gap-12 px-auto mx-auto w-2/3">
             <PageLink
               href="https://sundial-protocol-docs.readthedocs.io/"
               title="Technical Documentation"
               description="Full L2 protocol documentation for developers."
             />
+
             <PageLink
-              href="/docs/faq"
-              title="FAQ"
-              description="Frequently asked questions about Sundial."
-            />
-            <PageLink
-              href="/docs/litepaper"
+              href="/resources/litepaper"
               title="Litepaper"
               description="Learn how it all works!"
             />
