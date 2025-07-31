@@ -62,16 +62,20 @@ function Step({
     <Card
       ref={cardRef}
       className="rounded-lg overflow-hidden border-foreground shadow-xl shadow-black/50 relative"
-      style={{
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: `${Math.max(scale * 80, 100)}%`,
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        transition: "background-size 0.1s ease-out",
-      }}
     >
-      {/* darken background image */}
-      <div className="absolute inset-0 bg-black/40 pointer-events-none z-0"></div>
+      {/* darken background image with zoom effect */}
+      <Image
+        src={backgroundImage}
+        alt=""
+        className="absolute inset-0 pointer-events-none z-0 object-cover"
+        width={600}
+        height={1000}
+        style={{
+          transform: `scale(${scale})`,
+          transition: "transform 0.1s ease-out",
+          filter: "brightness(0.6)", // 40% darker
+        }}
+      />
 
       <CardHeader className="flex flex-row items-center justify-left p-4 bg-blur-none bg-black/30 relative z-10">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/30">

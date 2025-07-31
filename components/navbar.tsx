@@ -52,12 +52,12 @@ export default function Navbar() {
       className={cn(
         `sticky top-0 z-50 pt-8 w-full transition-all`,
         drawerOpen
-          ? "bg-primary-foreground/70 h-36"
+          ? "bg-primary-foreground/70 h-24"
           : "bg-transparent pointer-events-none",
         pathname == "/roadmap" && "pointer-events-none"
       )}
     >
-      <div className="container flex h-16 items-center justify-center">
+      <div className="container flex h-8 items-center justify-center">
         {drawerOpen && (
           <div className="hidden xl:flex items-center gap-2 left-20 absolute pointer-events-auto">
             <Link href="/" className="flex items-center gap-2">
@@ -136,7 +136,7 @@ export default function Navbar() {
           }}
           className={cn(
             `h-12 w-12 hover:h-14 hover:w-14 transition-all duration-300 absolute pointer-events-auto cursor-pointer`,
-            drawerOpen && "mt-40"
+            drawerOpen && "mt-24"
           )}
         >
           <Image
@@ -149,7 +149,7 @@ export default function Navbar() {
         </div>
       </div>
       {drawerOpen && (
-        <div className="container flex items-center w-min mx-4 pb-2 absolute right-20 top-0 justify-center pt-4 lg:pt-12 pointer-events-auto">
+        <div className="container flex items-center w-min mx-4 pb-2 absolute right-20 top-0 justify-center pt-4 lg:pt-8 pointer-events-auto">
           <input
             type="checkbox"
             id="theme-toggle"
