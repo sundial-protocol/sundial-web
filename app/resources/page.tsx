@@ -6,8 +6,8 @@ import { HeroSection } from "@/components/ui/hero-section";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Image from "next/image";
-import NewsList from "@/app/news/newslist";
 import { getNews } from "@/hooks/get-news";
+import HedgeCTA from "@/components/reusable-sections/hedge-cta";
 
 export function PageLink({
   href,
@@ -104,11 +104,12 @@ export default async function DocsPage() {
         </Section>
       </SunbeamBackground>
 
-      <Section className="p-48">
-        <h2 className="text-2xl font-bold mb-6">Latest News</h2>
-        <NewsList news={latestNews} />
+      <Section className="p-24">
+        {/* <h2 className="text-2xl font-bold mb-6">Latest News</h2>
+        <NewsList news={latestNews} /> */}
+
+        <HedgeCTA />
       </Section>
-      <HelpCTA />
     </div>
   );
 }
