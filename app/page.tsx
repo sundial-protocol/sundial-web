@@ -1,8 +1,7 @@
 import Hero from "./landing/v4_hero";
-import { Team } from "./landing/team";
-import RecentNews from "./landing/recent-news";
 import HowItWorks from "./landing/institutional-bitcoin";
 import { SecurityFirst } from "./landing/security-first";
+import HedgeCTA from "@/components/reusable-sections/hedge-cta";
 
 export default function Home() {
   return (
@@ -10,8 +9,7 @@ export default function Home() {
       <Hero />
       <HowItWorks />
       <SecurityFirst />
-      <RecentNews />
-      <Team />
+      <HedgeCTA />
     </div>
   );
 }
