@@ -1,6 +1,7 @@
 import { Section } from "@/components/ui/section";
 import { getNews, NewsCard } from "@/hooks/get-news";
 import Image from "next/image";
+import ReactMarkdown from "react-markdown";
 
 export default async function NewsPage({
   params,
@@ -10,6 +11,7 @@ export default async function NewsPage({
   const { id } = await params;
   const news = await getNews();
   const article = news.find((item: NewsCard) => item.id === id);
+
   return (
     <Section>
       {article ? (
@@ -25,7 +27,9 @@ export default async function NewsPage({
               width={1000}
               height={1000}
             />
-            <p className="text-gray-700">{article.content}</p>
+            <div className="prose prose-lg max-w-none">
+              <ReactMarkdown>{article.content}</ReactMarkdown>
+            </div>
           </div>
         </div>
       ) : (

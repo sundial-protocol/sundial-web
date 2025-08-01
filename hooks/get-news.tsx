@@ -21,7 +21,35 @@ export async function getNews(): Promise<NewsArticle[]> {
         "Sundial Expands Momentum with Key Encounters and Roadmap Release",
       id: "62525",
       image: "/news/62525Momentum.jpg",
-      content: "",
+      content: `
+# Partnership Details
+
+We are thrilled to announce our **strategic partnership** with several leading DeFi protocols in the Bitcoin ecosystem.
+
+## What This Means
+
+- Enhanced liquidity options
+- Improved yield opportunities  
+- Expanded ecosystem integration
+
+### Key Benefits
+
+1. **Higher Yields**: Up to 15% APY on Bitcoin staking
+2. **Security**: Full UTXO security maintained
+3. **Flexibility**: Multiple staking options available
+
+> "This partnership represents a significant milestone in our mission to unlock Bitcoin's potential." - CEO
+
+## Next Steps
+
+We'll be rolling out these features over the next **30 days**. Stay tuned for updates!
+
+\`\`\`javascript
+// Example integration
+const stakingRewards = await sundial.stake(btcAmount);
+console.log('Rewards:', stakingRewards);
+\`\`\`
+    `,
     },
     {
       date: "6/2/25",
