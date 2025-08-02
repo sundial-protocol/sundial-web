@@ -1,5 +1,8 @@
 "use server";
 
+import { readFile } from "fs/promises";
+import path from "path";
+
 export type NewsCard = {
   date: string;
   title: string;
@@ -12,8 +15,19 @@ export type NewsArticle = NewsCard & {
   content: string;
 };
 
+async function getContentForArticle(id: string): Promise<string> {
+  try {
+    const contentPath = path.join(process.cwd(), "content", "news", `${id}.md`);
+    const content = await readFile(contentPath, "utf-8");
+    return content;
+  } catch (error) {
+    console.log(`No content file found for article ${id}`);
+    return "";
+  }
+}
+
 export async function getNews(): Promise<NewsArticle[]> {
-  return [
+  const newsItems: NewsCard[] = [
     {
       date: "6/25/25",
       title: "Sundial Expands Momentum with Key Encounters and Roadmap Release",
@@ -21,35 +35,6 @@ export async function getNews(): Promise<NewsArticle[]> {
         "Sundial Expands Momentum with Key Encounters and Roadmap Release",
       id: "62525",
       image: "/news/62525Momentum.jpg",
-      content: `
-# Partnership Details
-
-We are thrilled to announce our **strategic partnership** with several leading DeFi protocols in the Bitcoin ecosystem.
-
-## What This Means
-
-- Enhanced liquidity options
-- Improved yield opportunities  
-- Expanded ecosystem integration
-
-### Key Benefits
-
-1. **Higher Yields**: Up to 15% APY on Bitcoin staking
-2. **Security**: Full UTXO security maintained
-3. **Flexibility**: Multiple staking options available
-
-> "This partnership represents a significant milestone in our mission to unlock Bitcoin's potential." - CEO
-
-## Next Steps
-
-We'll be rolling out these features over the next **30 days**. Stay tuned for updates!
-
-\`\`\`javascript
-// Example integration
-const stakingRewards = await sundial.stake(btcAmount);
-console.log('Rewards:', stakingRewards);
-\`\`\`
-    `,
     },
     {
       date: "6/2/25",
@@ -57,7 +42,6 @@ console.log('Rewards:', stakingRewards);
       description: "The Sundial Team Attended BTC Vegas",
       id: "6225",
       image: "/news/6225Saylor.jpg",
-      content: "",
     },
     {
       date: "5/20/25",
@@ -65,7 +49,6 @@ console.log('Rewards:', stakingRewards);
       description: "Sundial announces partnership with DeltaDeFi",
       id: "52025",
       image: "/news/52025delta.png",
-      content: "",
     },
     {
       date: "5/19/25",
@@ -73,7 +56,6 @@ console.log('Rewards:', stakingRewards);
       description: "Sundial announces partnership with Bodega Market",
       id: "51925",
       image: "/news/51925Bodega.jpg",
-      content: "",
     },
     {
       date: "5/12/25",
@@ -81,7 +63,6 @@ console.log('Rewards:', stakingRewards);
       description: "Sundial announces partnership with Vespr Wallet",
       id: "51225",
       image: "/news/51225vespr.png",
-      content: "",
     },
     {
       date: "5/8/25",
@@ -91,7 +72,6 @@ console.log('Rewards:', stakingRewards);
         "Cardano Joins BTCFi Frontier: Bitlayer & Sundial Forge BitVM Bridge via Strategic Partnerships",
       id: "50825",
       image: "/news/5825BTCFI.png",
-      content: "",
     },
     {
       date: "5/5/25",
@@ -101,7 +81,6 @@ console.log('Rewards:', stakingRewards);
         "Sundial Enables First Cross-Chain BTC Transfer Between Bitcoin and Cardano",
       id: "5525",
       image: "/news/5525crosschain.png",
-      content: "",
     },
     {
       date: "4/22/25",
@@ -109,7 +88,6 @@ console.log('Rewards:', stakingRewards);
       description: "Sundial CEO Sheldon Hunt presents in Hong Kong",
       id: "42225",
       image: "/news/42225hongkong.jpeg",
-      content: "",
     },
     {
       date: "3/19/25",
@@ -117,7 +95,16 @@ console.log('Rewards:', stakingRewards);
       description: "Sundial Protocol PTE. LTD. Incorporated",
       id: "31925",
       image: "/news/31925-incorporated.png",
-      content: "",
     },
   ];
+
+  // Load content for each article
+  const newsWithContent = await Promise.all(
+    newsItems.map(async (item) => ({
+      ...item,
+      content: await getContentForArticle(item.id),
+    }))
+  );
+
+  return newsWithContent;
 }
