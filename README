@@ -1,0 +1,100 @@
+# Sundial Web
+
+A Next.js website for the Sundial Protocol, featuring dynamic content, interactive components, and a comprehensive news system.
+
+## Building the Site Locally
+
+### Prerequisites
+
+Before you begin, ensure you have the following installed on your system:
+
+- **Node.js** (version 18.0 or higher)
+- **pnpm** package manager
+- **Git** for version control
+
+### Installation Steps
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/ikigai-github/sundial-web
+   cd sundial-web
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   pnpm install
+   ```
+
+3. **Set up environment variables**
+   Create a `.env.local` file in the root directory:
+
+   ```bash
+   cp .env.example .env.local
+   ```
+
+   Add your environment variables:
+
+   ```
+   CMC_API_KEY=your_coinmarketcap_api_key_here
+   ```
+
+4. **Run the development server**
+
+   ```bash
+   pnpm run dev
+   ```
+
+5. **View the site**
+   Open [http://localhost:3000](http://localhost:3000) in your browser to see the site.
+
+### Build Commands
+
+- **Development**: `npm run dev` - Starts the development server with hot reloading
+- **Build**: `npm run build` - Creates an optimized production build
+- **Start**: `npm run start` - Starts the production server (run after build)
+- **Lint**: `npm run lint` - Runs ESLint to check for code issues
+
+## Adding New Articles
+
+The news system automatically reads markdown files from the `content/news/` directory.
+
+### 1. Create Markdown Content File
+
+Create a new markdown file in `content/news/` with the following naming convention: `MMDDYY.md` (e.g., `62525.md` for June 25, 2025).
+
+**Example: `content/news/your-article-slug.md`:**
+
+```markdown
+---
+title: "Your Article Title"
+date: "2025-01-15"
+image: "/news/your-article-image.jpg"
+---
+
+# Your Article Title
+
+Your article content goes here. You can use standard Markdown syntax:
+
+## Subheadings
+
+- Bullet points
+- More bullet points
+
+**Bold text** and _italic text_.
+
+[Links to other pages](/docs)
+
+![Images](/news/your-article-image.jpg)
+```
+
+### 2. Add Images
+
+Place images in the `public/news/` directory:
+
+```bash
+public/news/your-article-image.jpg
+```
+
+**No need to edit any code files - articles are automatically loaded from the markdown files!**
