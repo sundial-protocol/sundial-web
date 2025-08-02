@@ -20,8 +20,6 @@ export async function getNews(): Promise<NewsArticle[]> {
     const contentDir = path.join(process.cwd(), "content", "news");
     const files = await readdir(contentDir);
     const markdownFiles = files.filter((file) => file.endsWith(".md"));
-    console.log("Files found:", markdownFiles.length);
-
     const newsItems = await Promise.all(
       markdownFiles.map(async (file) => {
         const filePath = path.join(contentDir, file);
