@@ -5,27 +5,21 @@ import { getNews, NewsCard } from "@/hooks/get-news";
 import React from "react";
 import { NewsTimeline } from "./news-timeline";
 
-type NewsWidgetProps = {
-  date: string;
-  title: string;
-  description: string;
-  link: string;
-  image: string;
-};
+export function NewsWidget({ item }: { item: NewsCard }) {
+  const link = "/news/" + item.id;
 
-export function NewsWidget({ date, title, link, image }: NewsWidgetProps) {
   return (
     <div
       className={styles.newsItem}
       style={{
-        backgroundImage: `url(${image})`,
+        backgroundImage: `url(${item.image})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
       <span className="bg-black/80 p-4 rounded-lg flex flex-col space-y-2 text-white">
-        <h2 className="text-2xl font-bold py-2 text-primary">{date}</h2>
-        {title}
+        <h2 className="text-2xl font-bold py-2 text-primary">{item.date}</h2>
+        {item.title}
         <Link href={link} className="text-gray-500">
           Read more
         </Link>

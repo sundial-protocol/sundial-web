@@ -1,0 +1,31 @@
+---
+title: "Sundial Expands Momentum with Key Encounters and Roadmap Release"
+date: "2025-06-25"
+image: "/news/62525Momentum.jpg"
+---
+
+### _Bridging, Scaling and Liquifying the Future of Finance_
+
+Sundial has officially released its technical roadmap, outlining key milestones from Q2 2025 through Q4 2026. This blueprint marks a critical step forward in bringing real-world DeFi applications to Bitcoin holders. [View our roadmap here.](/resources/roadmap)
+
+### The Road to Trustless BTC DeFi is Open
+
+Bitcoin’s liquidity has remained largely idle, held in cold storage, siloed from the thriving world of DeFi. Sundial is changing that. Backed by Midgard’s hybrid Layer-2 design and core partnerships with BitcoinOS, Bitlayer, DeltaDeFi and more. Sundial is creating a secure, zero-knowledge bridge for Bitcoin DeFi capabilities.
+
+![The Sundial team attended BTC Vegas](/news/62525SundialTeamLV.jpg)
+
+#### The Sundial team attended BTC Vegas
+
+The Sundial team attended BTC Vegas, joining a dynamic gathering of Bitcoin builders and infrastructure pioneers. The event was a valuable opportunity to share our vision for Bitcoin-native DeFi, discuss our upcoming mainnet plans, and showcase how Sundial is enabling trustless BTC interoperability with other UTxOs. Thank you to everyone we connected with — we’re excited to keep the momentum going.
+
+[Check out this quick chat with Sundial's CEO at BTC Vegas](https://x.com/lilybrodi/status/1927507647755927897)
+
+![Sundial attended GBBC DC 2025](/news/62525gbbcdc.jpg)
+
+#### Sundial attended GBBC DC 2025
+
+Sundial attended GBBC’s Blockchain Central in DC last week, engaging in critical conversations around digital asset regulation and institutional adoption. As the global regulatory landscape evolves, Sundial remains focused on building compliant and secure infrastructure.
+
+[Sundial Protocol Telegram Channel](https://t.me/sundialprotocol)
+
+Join our Telegram channel for updates.

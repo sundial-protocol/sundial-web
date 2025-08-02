@@ -67,13 +67,7 @@ export function NewsTimeline({ newsItems }: { newsItems: NewsCard[] }) {
           >
             {newsItems.map((item, index) => (
               <li key={index}>
-                <NewsWidget
-                  date={item.date}
-                  title={item.title}
-                  description={item.description}
-                  link={"/news/" + item.id}
-                  image={item.image}
-                />
+                <NewsWidget item={item} />
               </li>
             ))}
             <li></li>

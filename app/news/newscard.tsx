@@ -4,7 +4,7 @@ interface NewsCardProps {
   date: string;
   link: string;
   image: string;
-  content?: string;
+  content: string;
 }
 
 const NewsCard: React.FC<NewsCardProps> = ({
