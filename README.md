@@ -62,7 +62,7 @@ The news system automatically reads markdown files from the `content/news/` dire
 
 ### 1. Create Markdown Content File
 
-Create a new markdown file in `content/news/` with the following naming convention: `MMDDYY.md` (e.g., `62525.md` for June 25, 2025).
+Create a new markdown file in `content/news/` with a short slug describing the article. This determines the url you will see the article at.
 
 **Example: `content/news/your-article-slug.md`:**
 
