@@ -15,11 +15,13 @@ export function PageLink({
   title,
   description,
   icon: Icon = Book,
+  newTab = false,
 }: {
   href: string;
   title: string;
   description: string;
   icon?: React.ComponentType<{ className?: string }>;
+  newTab?: boolean;
 }) {
   return (
     <Card>
@@ -29,7 +31,11 @@ export function PageLink({
       </CardHeader>
       <CardContent>
         <p className="text-gray-500">{description}</p>
-        <Link className="flex items-center text-primary" href={href}>
+        <Link
+          className="flex items-center text-primary"
+          href={href}
+          target={newTab ? "_blank" : "_self"}
+        >
           <span>View {title}</span>
           <ArrowRight className="ml-1 h-4 w-4" />
         </Link>
@@ -96,6 +102,7 @@ export default async function DocsPage() {
               href="https://sundial-protocol-docs.readthedocs.io/"
               title="Technical Documentation"
               description="Full L2 protocol documentation for developers."
+              newTab
             />
 
             <PageLink

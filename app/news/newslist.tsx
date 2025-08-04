@@ -12,10 +12,11 @@ const NewsList: React.FC<NewsListProps> = ({ news }) => {
         <NewsCard
           key={item.id}
           title={item.title}
-          description={item.description}
           date={item.date}
           image={item.image}
           link={`/news/${item.id}`}
+          description={item.title}
+          content={item.content}
         />
       ))}
     </div>

@@ -30,7 +30,8 @@ export default function Footer() {
               </div>
             </Link>
             <p className="text-sm text-gray-500">
-              Unlock Bitcoin&apos;s $1.5 Trillion Potential with Sundial.
+              Unlock Bitcoin&apos;s Multi-Trillion Dollar Potential with
+              Sundial.
             </p>
           </div>
           <div className="space-y-4" />

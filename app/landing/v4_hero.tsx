@@ -133,12 +133,13 @@ export default function Hero() {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-4">
-            <Link
-              href="mailto:lewis@sundialprotocol.com"
+            <a
+              href="https://calendly.com/lewis-sundialprotocol/new-meeting"
               className="inline-flex items-center justify-center rounded-full h-14 px-12 text-black font-bold transition-colors bg-primary text-accent hover:bg-primary/70"
+              target="_blank"
             >
               Schedule Demo <LucideArrowRight className="ml-2 h-4 w-4" />
-            </Link>
+            </a>
             <Link
               href="/resources"
               className="inline-flex items-center justify-center rounded-full h-14 px-12 text-base font-medium transition-colors bg-background/20 hover:bg-foreground/20 border border-foreground"

@@ -16,7 +16,7 @@ export default function HedgeCTA() {
         </div>
         <div className="flex flex-col sm:flex-row gap-4">
           <a
-            href="mailto:info@sundialprotocol.com"
+            href="https://calendly.com/lewis-sundialprotocol/new-meeting"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center rounded-full border border-gray-300 bg-foreground text-background h-12 p-8 text-base font-medium transition-colors hover:bg-gray-300"
