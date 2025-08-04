@@ -3,6 +3,8 @@ import { getNews } from "@/hooks/get-news";
 import Image from "next/image";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default async function NewsPage({
   params,
@@ -12,6 +14,12 @@ export default async function NewsPage({
   const { id } = await params;
   const news = await getNews();
   const article = news.find((item) => item.id === id);
+  const currentIndex = news.findIndex((item) => item.id === id);
+
+  // Get previous and next articles
+  const previousArticle = currentIndex > 0 ? news[currentIndex - 1] : null;
+  const nextArticle =
+    currentIndex < news.length - 1 ? news[currentIndex + 1] : null;
 
   return (
     <Section>
@@ -57,6 +65,43 @@ export default async function NewsPage({
                 </p>
               )}
             </div>
+          </div>
+
+          {/* Navigation buttons */}
+          <div className="flex justify-between items-center mt-12 pt-8 border-t border-border">
+            {previousArticle ? (
+              <Link
+                href={`/news/${previousArticle.id}`}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors group"
+              >
+                <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                <div className="text-left">
+                  <p className="text-xs text-muted-foreground">Previous</p>
+                  <p className="text-sm font-medium truncate max-w-48">
+                    {previousArticle.title}
+                  </p>
+                </div>
+              </Link>
+            ) : (
+              <div /> // Empty div to maintain flex layout
+            )}
+
+            {nextArticle ? (
+              <Link
+                href={`/news/${nextArticle.id}`}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors group"
+              >
+                <div className="text-right">
+                  <p className="text-xs text-muted-foreground">Next</p>
+                  <p className="text-sm font-medium truncate max-w-48">
+                    {nextArticle.title}
+                  </p>
+                </div>
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            ) : (
+              <div /> // Empty div to maintain flex layout
+            )}
           </div>
         </div>
       ) : (
