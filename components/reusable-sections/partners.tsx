@@ -14,7 +14,7 @@ function PartnerCard({
   link: string;
 }) {
   return (
-    <Link href={link}>
+    <a href={link} target="_blank" rel="noopener noreferrer">
       <Card className="h-16 flex flex-col justify-center shadow-sm hover:shadow-primary/60 transition-shadow">
         <CardHeader className="p-4 w-full h-full flex items-center justify-center btn-effect-shine bg-primary-foreground/20">
           <Image
@@ -28,7 +28,7 @@ function PartnerCard({
           />
         </CardHeader>
       </Card>
-    </Link>
+    </a>
   );
 }
 

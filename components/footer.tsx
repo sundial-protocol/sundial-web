@@ -33,6 +33,15 @@ export default function Footer() {
               Unlock Bitcoin&apos;s Multi-Trillion Dollar Potential with
               Sundial.
             </p>
+            <a
+              href="https://maps.app.goo.gl/1krXDddHRz4xJZFd7"
+              target="_blank"
+              className="text-sm text-gray-500"
+            >
+              <p className="pt-4">1 NORTH BRIDGE ROAD #24-02</p>
+              <p>HIGH STREET CENTRE</p>
+              <p>SINGAPORE, 179094</p>
+            </a>
           </div>
           <div className="space-y-4" />
           <div className="space-y-4">
@@ -42,6 +51,7 @@ export default function Footer() {
                 <Link
                   href="https://sundial-protocol-docs.readthedocs.io/"
                   className="text-gray-500 hover:text-gray-900"
+                  target="_blank"
                 >
                   Documentation
                 </Link>
@@ -62,21 +72,6 @@ export default function Footer() {
                   News
                 </Link>
               </li>
-            </ul>
-          </div>
-          <div className="space-y-4">
-            <h4 className="font-bold">Community</h4>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <a
-                  href="https://x.com/SundialProtocol"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-500 hover:text-gray-900"
-                >
-                  X
-                </a>
-              </li>
               <li>
                 <a
                   href="https://github.com/sundial-protocol"
@@ -87,6 +82,31 @@ export default function Footer() {
                   GitHub
                 </a>
               </li>
+            </ul>
+          </div>
+          <div className="space-y-4">
+            <h4 className="font-bold">Community</h4>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <a
+                  href="https://share-na2.hsforms.com/2u5VZYZfzSfmIHQKtEJcgQg40ejm1"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-500 hover:text-gray-900"
+                >
+                  Get Updates
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://calendly.com/lewis-sundialprotocol/new-meeting"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-500 hover:text-gray-900"
+                >
+                  Talk To Us
+                </a>
+              </li>
               <li>
                 <a
                   href="https://linkedin.com/company/sundial-protocol/"
@@ -95,6 +115,16 @@ export default function Footer() {
                   className="text-gray-500 hover:text-gray-900"
                 >
                   LinkedIn
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://x.com/SundialProtocol"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-500 hover:text-gray-900"
+                >
+                  X
                 </a>
               </li>
             </ul>
