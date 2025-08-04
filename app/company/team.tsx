@@ -108,11 +108,10 @@ export default function Team() {
             />
 
             <TeamMember
-              name="Rob Gaskell"
+              name="Appold Team"
               role="Operations & Project Management"
-              image="/team/rob.jpg"
+              image="/team/appold-logo.svg"
               link="https://x.com/rgaskell"
-              description="Founder of Appold"
             />
           </div>
         </div>
