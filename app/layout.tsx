@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Sundial (Dev)",
+  title: "Sundial",
   description: "Unlocking Bitcoin Defi",
 };
 

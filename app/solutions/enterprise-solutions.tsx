@@ -84,14 +84,14 @@ export function EnterpriseSolutions() {
       title: "Treasury Management",
       description:
         "Deploy corporate Bitcoin reserves into secure, yield-generating strategies with enterprise-grade reporting and compliance",
-      className: "col-span-1 lg:col-span-2",
+      className: "col-span-2 lg:col-span-2",
     },
     {
       icon: Wrench,
       title: "Enterprise SDK",
       description:
         "White-label infrastructure with plug-and-play modules for custody platforms, exchanges, and financial institutions.",
-      className: "col-span-1 lg:col-span-3",
+      className: "col-span-2 lg:col-span-3",
     },
     {
       icon: ChartBar,

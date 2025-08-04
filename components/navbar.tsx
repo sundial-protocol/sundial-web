@@ -152,7 +152,7 @@ export default function Navbar() {
         </div>
       </div>
       {drawerOpen && (
-        <div className="container flex items-center w-min mx-4 pb-2 absolute right-20 top-0 justify-center pt-4 lg:pt-8 pointer-events-auto">
+        <div className="container hidden lg:flex items-center w-min mx-4 pb-2 absolute right-20 top-0 justify-center pt-4 lg:pt-8 pointer-events-auto">
           <input
             type="checkbox"
             id="theme-toggle"
