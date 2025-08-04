@@ -124,7 +124,7 @@ export default function CoreTech() {
             icon={Shield}
             title="Fraud Proofs"
             description="Optimistic rollup design with efficient on-chain verification ensures invalid transactions never finalize."
-            backgroundImage="/laptop.jpg"
+            backgroundImage="/explaining.jpg"
           />
           <Step
             icon={CloudLightning}
@@ -150,7 +150,7 @@ export default function CoreTech() {
             icon={LucideAlarmCheck}
             title="Full Auditability"
             description="Complete transaction history and state transitions verifiable on-chain for regulatory compliance."
-            backgroundImage="/workers.jpg"
+            backgroundImage="/laptop.jpg"
           />
         </div>
         <div className="flex justify-center mt-12">
