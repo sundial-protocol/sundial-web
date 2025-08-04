@@ -56,7 +56,7 @@ function Step({
       <Image
         src={backgroundImage}
         alt=""
-        className="absolute inset-0 pointer-events-none z-0 object-cover"
+        className="absolute inset-0 pointer-events-none z-0 object-cover h-full w-full"
         width={600}
         height={1000}
         style={{
@@ -82,7 +82,7 @@ function Step({
         <h3 className="text-xl text-white font-bold pl-8">{title}</h3>
       </CardHeader>
       <CardContent className="bg-transparent flex items-center justify-center p-0 text-white font-semibold text-md relative z-10">
-        <div className="p-6 text-left min-h-[350px] bg-black/20 w-full">
+        <div className="p-6 text-left min-h-[350px] bg-black/20 w-full h-full">
           <p className="mb-4">{description}</p>
           {bulletPoints && bulletPoints.length > 0 && (
             <ul className="space-y-2">
@@ -145,7 +145,7 @@ export default function InstitutionalBitcoin() {
               "2-5% sustainable APY",
               "No bridge risk",
             ]}
-            backgroundImage="/notepad.jpg"
+            backgroundImage="/building.jpg"
           />
           <Step
             icon={Building2}
@@ -156,7 +156,7 @@ export default function InstitutionalBitcoin() {
               "KYC/AML modules included",
               "Audit-ready reporting",
             ]}
-            backgroundImage="/explaining.jpg"
+            backgroundImage="/workers.jpg"
           />
           <Step
             icon={CloudLightning}
@@ -167,7 +167,7 @@ export default function InstitutionalBitcoin() {
               "Stateless validation",
               "Fraud-proof protection",
             ]}
-            backgroundImage="/phone.jpg"
+            backgroundImage="/nodes.jpg"
           />
         </div>
         <div className="flex justify-center mt-12">

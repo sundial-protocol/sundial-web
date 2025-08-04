@@ -5,12 +5,7 @@ import { Section } from "@/components/ui/section";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import {
-  Building2,
-  CloudLightning,
-  LockKeyholeIcon,
-  PiggyBank,
-} from "lucide-react";
+import { Building2, LockKeyholeIcon, PiggyBank } from "lucide-react";
 
 type StepProps = {
   icon?: React.ComponentType<{ className?: string }>;
@@ -56,12 +51,12 @@ function Step({
   return (
     <Card
       ref={cardRef}
-      className="rounded-lg overflow-hidden border-foreground shadow-xl shadow-black/50 relative"
+      className="rounded-lg overflow-hidden border-foreground shadow-xl relative bg-black/30 "
     >
       <Image
         src={backgroundImage}
         alt=""
-        className="absolute inset-0 pointer-events-none z-0 object-cover"
+        className="absolute inset-0 pointer-events-none z-0 object-cover h-full w-full"
         width={600}
         height={1000}
         style={{
@@ -71,7 +66,7 @@ function Step({
         }}
       />
 
-      <CardHeader className="flex flex-row items-center justify-left p-4 bg-blur-none bg-black/30 relative z-10">
+      <CardHeader className="flex flex-row items-center justify-left p-4 bg-blur-none relative z-10">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/30">
           {Icon && <Icon className="h-6 w-6 text-white" />}
           {image && (
@@ -87,7 +82,7 @@ function Step({
         <h3 className="text-xl text-white font-bold pl-8">{title}</h3>
       </CardHeader>
       <CardContent className="bg-transparent flex items-center justify-center p-0 text-white font-semibold text-md relative z-10">
-        <div className="p-6 text-left min-h-[350px] bg-black/20 w-full">
+        <div className="p-6 text-left min-h-[350px] bg-black/20 w-full h-full">
           <p className="mb-4">{description}</p>
           {bulletPoints && bulletPoints.length > 0 && (
             <ul className="space-y-2">
@@ -150,7 +145,7 @@ export default function UseCases() {
               "Multisig Security",
               "Real-time Reporting",
             ]}
-            backgroundImage="/phone.jpg"
+            backgroundImage="/building.jpg"
           />
           <Step
             icon={Building2}
@@ -162,7 +157,7 @@ export default function UseCases() {
               "REST & WSS APIs",
               "24/7 Support",
             ]}
-            backgroundImage="/explaining.jpg"
+            backgroundImage="/workers.jpg"
           />
         </div>
         <div className="flex justify-center mt-12">
