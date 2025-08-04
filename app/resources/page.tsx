@@ -116,8 +116,17 @@ export default async function DocsPage() {
       </SunbeamBackground>
 
       <Section className="p-24">
-        <h2 className="text-2xl font-bold mb-6">Latest News</h2>
+        <h2 className="text-2xl font-bold py-4">Latest News</h2>
         <NewsList news={latestNews} />
+        <div className="flex justify-end w-full mt-6">
+          <Link
+            href="/news"
+            className="flex items-center text-primary hover:text-primary/80 transition-colors"
+          >
+            <span>Read More</span>
+            <ArrowRight className="ml-1 h-4 w-4" />
+          </Link>
+        </div>
 
         <HedgeCTA />
       </Section>

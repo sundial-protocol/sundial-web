@@ -33,35 +33,8 @@ function Step({
   bulletPoints,
   backgroundImage,
 }: StepProps) {
-  const [scrollY, setScrollY] = useState(0);
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (cardRef.current) {
-        const rect = cardRef.current.getBoundingClientRect();
-        const windowHeight = window.innerHeight;
-        const cardCenter = rect.top + rect.height / 2;
-        const distanceFromCenter = Math.abs(windowHeight / 2 - cardCenter);
-        const maxDistance = windowHeight;
-        const scrollFactor = 1 - Math.min(distanceFromCenter / maxDistance, 1);
-        setScrollY(scrollFactor);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    handleScroll(); // Initial call
-
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const scale = 1 + scrollY * 0.5;
-
   return (
-    <Card
-      ref={cardRef}
-      className="rounded-lg overflow-hidden border-foreground shadow-xl shadow-black/50 relative"
-    >
+    <Card className="rounded-lg overflow-hidden border-foreground shadow-xl shadow-black/50 relative">
       <Image
         src={backgroundImage}
         alt=""
@@ -69,8 +42,6 @@ function Step({
         width={600}
         height={1000}
         style={{
-          transform: `scale(${scale})`,
-          transition: "transform 0.1s ease-out",
           filter: "brightness(0.6)", // 40% darker
         }}
       />

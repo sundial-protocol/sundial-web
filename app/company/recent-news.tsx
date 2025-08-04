@@ -34,7 +34,7 @@ export default async function RecentNews() {
   return (
     <Section>
       {/* Pass newsItems to a Client Component if needed */}
-      <NewsTimeline newsItems={newsItems} />
+      <NewsTimeline newsItems={newsItems.reverse()} />
     </Section>
   );
 }

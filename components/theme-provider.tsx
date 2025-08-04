@@ -19,7 +19,7 @@ export default function CustomThemeProvider({
   }
 
   return (
-    <ThemeProvider attribute="class" enableSystem={true} defaultTheme="dark">
+    <ThemeProvider attribute="class" defaultTheme="light">
       {children}
     </ThemeProvider>
   ); // Wrap children with ThemeProvider after mount
