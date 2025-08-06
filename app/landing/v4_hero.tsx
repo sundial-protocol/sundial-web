@@ -117,7 +117,7 @@ function ImagePlanet({
 
 export default function Hero() {
   return (
-    <HeroSection classes="pt-36">
+    <HeroSection classes="pt-48">
       <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
         <div className="flex flex-col justify-center space-y-4">
           <div>
@@ -175,7 +175,7 @@ export default function Hero() {
               </defs>
               {/* SVG recreation of the beams */}
               <polygon
-                points="-2000,-400 1200,-400 1200,550"
+                points="-4000,-1200 1800,-1200 1800,800"
                 fill="url(#beam1-gradient)"
                 opacity="0.3"
               />
