@@ -175,7 +175,7 @@ export default function Hero() {
               </defs>
               {/* SVG recreation of the beams */}
               <polygon
-                points="-2000,-800 1200,-800 1200,700"
+                points="-2800,-800 1800,-800 1800,800"
                 fill="url(#beam1-gradient)"
                 opacity="0.3"
               />
