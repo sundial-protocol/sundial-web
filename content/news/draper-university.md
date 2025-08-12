@@ -1,12 +1,11 @@
 ---
 title: "Sundial Completes the Draper University Program"
 date: "2025-07-07"
-image: "public/news/sundial-vespr-1.jpeg"
+image: "/news/sundial-vespr-1.jpeg"
 ---
 
+Sundial has officially completed the Cardano x Draper University Founder Residency Program. Over five intense weeks in Silicon Valley, our team accelerated development, forged powerful partnerships, and gained rapid feedback from mentors and builders across the Cardano ecosystem.
 
-Sundial has officially completed the Cardano x Draper University Founder Residency Program. Over five intense weeks in Silicon Valley, our team accelerated development, forged powerful partnerships, and gained rapid feedback from mentors and builders across the Cardano ecosystem. 
- 
 Draper University partnered with the Cardano Foundation and Project Catalyst to launch the Cardano x Draper University Founder Residency Program, an intensive five-week founder residency held in Silicon Valley.
 The program, which began on April 14, 2025, is designed to accelerate the development of startups building on the Cardano blockchain.
 It targets early-stage startups focused on key areas such as decentralized finance (DeFi), decentralized science (DeSci), entertainment, and user-friendly, mass-market blockchain applications.
