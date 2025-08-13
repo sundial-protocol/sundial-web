@@ -17,7 +17,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ title, date, link, image }) => {
           <img
             src={image}
             alt={title}
-            className="object-contain w-full h-full transition-transform duration-300 hover:scale-125"
+            className="object-contain w-full h-full transition-transform duration-300 scale-125 hover:scale-150"
           />
         </div>
         <div className="p-4 flex flex-col flex-1 justify-between">

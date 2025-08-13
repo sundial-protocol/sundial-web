@@ -200,7 +200,7 @@ export default function RoadmapPage() {
 
   return (
     <div
-      className={styles.bodydiv + "flex flex-col min-h-screen"}
+      className={styles.bodydiv + "flex flex-col min-h-screen mb-48"}
       onMouseMove={handleMouseMove}
       onScroll={handleMouseMove}
     >
@@ -266,8 +266,8 @@ export default function RoadmapPage() {
           <Image
             src="/Sundial+Roadmap+v2.png"
             alt="Roadmap"
-            width={800}
-            height={800}
+            width={1200}
+            height={1200}
           />
         </div>
       </div>
