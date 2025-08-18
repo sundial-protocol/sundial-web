@@ -22,7 +22,9 @@ const NewsCard: React.FC<NewsCardProps> = ({ title, date, link, image }) => {
         </div>
         <div className="p-4 flex flex-col flex-1 justify-between">
           <h3 className="text-lg font-bold text-primary">{title}</h3>
-          <div className="text-sm text-foreground text-right">{date}</div>
+          <div className="text-sm text-foreground text-right">
+            {new Date(date).toLocaleDateString()}
+          </div>
         </div>
       </div>
     </Link>
