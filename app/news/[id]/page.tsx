@@ -26,7 +26,9 @@ export default async function NewsPage({
       {article ? (
         <div className="max-w-2xl mx-auto py-6">
           <h1 className="text-6xl font-bold m-4">{article.title}</h1>
-          <p className="text-sm text-gray-500 m-4">{article.date}</p>
+          <p className="text-sm text-gray-500 m-4">
+            {new Date(article.date).toLocaleDateString()}
+          </p>
           <div>
             <div className="prose prose-lg max-w-none">
               <Image
