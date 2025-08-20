@@ -35,9 +35,6 @@ SOC-2 Compliant – Institutional security & process standards
 24/7 Monitoring – Continuous runtime protection with real-time alerts
 
 
-Multisig Security – Strong key management and fraud-proof mechanisms
-
-
 Real-Time Reporting – Transparent dashboards for compliance and performance
 
 
@@ -57,25 +54,6 @@ REST & WSS APIs – Plug-and-play integration into existing infrastructure
 
 
 24/7 Support – Dedicated technical and operational assistance
-
-
-## BTC Market Making Service
-
-Sundial will collaborate with DEXs and liquidity providers to deliver a secure, on-chain framework for Bitcoin market-making. This expands liquidity opportunities while maintaining trustless execution.
-
-#### Specifications:
-
-Integration – Onboarding major Cardano-based DEXs and cross-chain venues
-
-
-Infrastructure – On-chain contracts designed for easy partner integration
-
-
-Monitoring – Real-time dashboards for liquidity depth, volume, and spreads
-
-
-
-Sundial continues to push forward with a vision of unlocking a seamless integration for Bitcoin at scale. These specifications are the foundation for a more open, resilient, and institution-ready Bitcoin DeFi ecosystem.
 
 
 ### Stay Connected
