@@ -17,7 +17,7 @@ Before you begin, ensure you have the following installed on your system:
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/ikigai-github/sundial-web
+   git clone https://github.com/sundial-protocol/sundial-web
    cd sundial-web
    ```
 

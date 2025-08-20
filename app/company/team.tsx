@@ -111,8 +111,15 @@ export default function Team() {
               name="Appold Team"
               role="Operations & Project Management"
               image="/team/appold-logo.svg"
-              link="https://x.com/rgaskell"
+              link="https://www.linkedin.com/company/appold/"
             />
+
+            {/*<TeamMember
+              name="Lewis Harding"
+              role="Investor Relations & Operations"
+              image="/team/lewis.jpg"
+              link="https://x.com/Lewis_Harding13"
+            />*/}
           </div>
         </div>
       </Section>
