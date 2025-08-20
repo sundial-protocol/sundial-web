@@ -89,6 +89,16 @@ Your article content goes here. You can use standard Markdown syntax:
 ![Images](/news/your-article-image.jpg)
 ```
 
+The header images are expected to be 1920x1080 pixels. If your header image is not a similar aspect ratio, you can prefix the image with a `!` to maintain the aspect ratio and display the image more flexibly.
+
+```markdown
+---
+title: "Your Article Title"
+date: "2025-01-15"
+image: "/news/!your-article-image.jpg"
+---
+```
+
 ### 2. Add Images
 
 Place images in the `public/news/` directory:
