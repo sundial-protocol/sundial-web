@@ -1,10 +1,10 @@
 ---
 title: "Sundial Community Update August 2025"
 date: "2025-08-20"
-image: "/news/sundial-update-july.png"
+image: "/news/sundial-update.png"
 ---
 
-Sundial is excited to share more detail on the technical specifications powering our Bitcoin Layer 2 and its growing ecosystem. As we continue to develop institutional-grade infrastructure, we remain committed to unlocking new opportunities for Bitcoin holders worldwide.
+Sundial is excited to share more details on our **aimed technical specifications that will power our Bitcoin Layer 2 and its growing ecosystem.** As we continue to develop institutional-grade infrastructure, we remain committed to unlocking new opportunities for Bitcoin holders worldwide.
 
 ## Generate Sustainable Returns on Bitcoin Holdings
 
@@ -16,7 +16,7 @@ Sundial enables Bitcoin holders, including corporates and institutions, to gener
 100% Non-Custodial – Assets remain in users’ control
 
 
-2–5% Sustainable APY – Yield from protocol activity, not synthetic schemes
+Targetting up to 2–5% rewards for staking – Yield from protocol activity
 
 
 0% Bridge Risk – Trustless rollup architecture with no wrapped assets or custodial intermediaries
@@ -29,13 +29,13 @@ Designed with corporate treasuries, family offices, and regulated funds in mind,
 
 #### Specifications:
 
-SOC-2 Compliant – Institutional security & process standards
+Global security and operational standards
 
 
 24/7 Monitoring – Continuous runtime protection with real-time alerts
 
 
-Real-Time Reporting – Transparent dashboards for compliance and performance
+Real-time reporting with transparent dashboards for compliance and performance
 
 
 ## Seamless Enterprise Integration
