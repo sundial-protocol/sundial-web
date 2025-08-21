@@ -1,7 +1,7 @@
 ---
 title: "Sundial Community Update July 2025"
 date: "2025-07-30"
-image: "/news/sundial-update-july.png"
+image: "/news/sundial-update.png"
 ---
 
 ## SUNDIAL PARTNERS WITH APPOLD
@@ -29,4 +29,3 @@ Watch the full episode here: [Web3 Insights Podcast.](https://www.youtube.com/wa
 ## STAY CONNECTED
 
 Follow us on [X](https://x.com/sundialprotocol), join our [Telegram](https://t.me/sundialprotocol), and keep an eye out for more updates.
- 
