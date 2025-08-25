@@ -9,21 +9,21 @@ import MaintenanceSunset from "@/components/reusable-sections/maintenance-sunset
 
 export default function StakingPage() {
   return (
-    <MaintenanceSunset />
-    // <div className="flex flex-col min-h-screen">
-    //   <StakingHero />
+    //<MaintenanceSunset />
+    <div className="flex flex-col min-h-screen">
+      <StakingHero />
 
-    //   <WhyStake />
+      <WhyStake />
 
-    //   <WhatIsStaking />
+      <WhatIsStaking />
 
-    //   <HowItWorks />
+      <HowItWorks />
 
-    //   <ValidatorsPreview />
+      <ValidatorsPreview />
 
-    //   <StakingFAQ />
+      <StakingFAQ />
 
-    //   <StakingCTA />
-    // </div>
+      <StakingCTA />
+    </div>
   );
 }
