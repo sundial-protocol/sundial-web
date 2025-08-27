@@ -118,19 +118,19 @@ export default function CoreTech() {
             icon={LockKeyholeIcon}
             title="UTXO Architecture"
             description="Inherits Bitcoin's battle-tested security model with deterministic execution and no shared state vulnerabilities."
-            backgroundImage="/nodes.jpg"
+            backgroundImage="/stock-images/nodes.jpg"
           />
           <Step
             icon={Shield}
             title="Fraud Proofs"
             description="Optimistic rollup design with efficient on-chain verification ensures invalid transactions never finalize."
-            backgroundImage="/explaining.jpg"
+            backgroundImage="/stock-images/explaining.jpg"
           />
           <Step
             icon={CloudLightning}
             title="High Throughput"
             description="Process thousands of transactions per second while maintaining sub-second confirmation times."
-            backgroundImage="/timelapse.jpg"
+            backgroundImage="/stock-images/timelapse.jpg"
           />
         </div>
         <div className="mx-auto grid grid-cols-1 gap-8 xl:grid-cols-3 mt-12 md:px-24">
@@ -138,19 +138,19 @@ export default function CoreTech() {
             icon={Building}
             title="ZK Bridges"
             description="Zero-knowledge proofs enable trustless asset transfers without introducing custodial risk."
-            backgroundImage="/bridge.jpg"
+            backgroundImage="/stock-images/bridge.jpg"
           />
           <Step
             icon={LucideALargeSmall}
             title="Babel Fees"
             description="Pay transaction fees in BTC, ADA, or any supported asset - no need to hold multiple tokens."
-            backgroundImage="/meeting.jpg"
+            backgroundImage="/stock-images/meeting.jpg"
           />
           <Step
             icon={LucideAlarmCheck}
             title="Full Auditability"
             description="Complete transaction history and state transitions verifiable on-chain for regulatory compliance."
-            backgroundImage="/laptop.jpg"
+            backgroundImage="/stock-images/laptop.jpg"
           />
         </div>
         <div className="flex justify-center mt-12">

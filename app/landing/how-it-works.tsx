@@ -105,19 +105,19 @@ export default function HowItWorks() {
             number={1}
             title="Deposit Bitcoin"
             description="Connect your wallet and deposit your Bitcoin to start staking."
-            image="/atlantis.jpg"
+            image="/stock-images/atlantis.jpg"
           />
           <Step
             number={2}
             title="Choose Validators"
             description="Select from our network of trusted validators to stake with."
-            image="/doors.jpg"
+            image="/stock-images/doors.jpg"
           />
           <Step
             number={3}
             title="Earn Rewards"
             description="Start earning staking rewards immediately with competitive APY."
-            image="/spaceman.jpg"
+            image="/stock-images/spaceman.jpg"
           />
         </div>
         <div className="flex justify-center mt-12">
