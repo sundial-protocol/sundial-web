@@ -48,6 +48,6 @@ Bitlayer is pioneering the first BitVM implementation. By merging unparalleled s
 
 Bitlayer is committed to an open and collaborative Bitcoin DeFi ecosystem, working with partners to advance BTC Bridge, Bitcoin Layer 2 and BitVM stack, driving the future of secure, scalable, and programmable Bitcoin finance.
 
-
 🔗 Learn more about Bitlayer: [bitlayer.org](https://www.bitlayer.org/)
-🔗 Explore Sundial: [www.sundialprotocol.com](www.sundialprotocol.com) 
+
+🔗 Explore Sundial: [www.sundialprotocol.com](www.sundialprotocol.com)
