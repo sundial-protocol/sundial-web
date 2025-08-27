@@ -9,3 +9,7 @@ Sundial Protocol is excited to announce its partnership with Bodega Market, a le
 This collaboration will give users faster access to smart contracts and unlock new cross-chain prediction markets, thereby bringing Bitcoin liquidity into the Cardano ecosystem.
 
 This partnership is another meaningful step to enhance Cardano's reach and enhance decentralized prediction market functionality.
+
+
+🔗 Learn more about Bodega Market: [vespr.xyz](https://vespr.xyz/)
+🔗 Explore Sundial: [www.sundialprotocol.com](www.sundialprotocol.com)

@@ -37,3 +37,7 @@ Users will be able to earn yield on Bitcoin, borrow ADA or USDM using BTC as col
 Sundial and Flow will begin platform integration and pilot BTC lending pools. With support from USDM and the Midgard stack, this collaboration is set to advance Bitcoin’s role in Cardano’s DeFi ecosystem.
 
 All plans remain subject to technical validation, security review, market conditions, and regulatory requirements.
+
+
+🔗 Learn more about Flow: [beta.flowcardano.org](https://beta.flowcardano.org/)
+🔗 Explore Sundial: [www.sundialprotocol.com](www.sundialprotocol.com)
