@@ -135,7 +135,7 @@ export default function Hero() {
           <div className="flex flex-col sm:flex-row gap-4">
             <a
               href="https://calendly.com/lewis-sundialprotocol/new-meeting"
-              className="inline-flex items-center justify-center rounded-full h-14 px-12 text-black font-bold transition-colors bg-primary text-accent hover:bg-primary/70"
+              className="inline-flex items-center justify-center rounded-full h-14 px-12 text-black font-bold transition-colors bg-primary hover:bg-primary/70"
               target="_blank"
             >
               Schedule Demo <LucideArrowRight className="ml-2 h-4 w-4" />
