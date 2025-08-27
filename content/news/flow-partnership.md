@@ -1,7 +1,7 @@
 ---
 title: "Sundial and Flow Partner to Bring Bitcoin Lending to Cardano"
 date: "2025-08-02"
-image: "/news/51925Bodega.jpg"
+image: "news/Sundial-Flow.jpg"
 ---
 
 
