@@ -1,7 +1,7 @@
 ---
 title: "We've Launched our YouTube Channel"
 date: "2025-08-20"
-image: "news/sundial-youtube.jpg"
+image: "/news/sundial-youtube.jpg"
 ---
 
 ### Sundial Launches Official YouTube Channel
@@ -12,4 +12,4 @@ Through this channel, we’ll share insights on Bitcoin Layer-2 scaling, DeFi de
 
 Subscribe today to stay connected and be the first to watch our latest updates and community events.
 
-👉 (Visit the Sundial YouTube Channel)[https://www.youtube.com/@SundialProtocol]
+👉 [Visit the Sundial YouTube Channel](https://www.youtube.com/@SundialProtocol)
