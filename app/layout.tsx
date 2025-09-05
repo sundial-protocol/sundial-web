@@ -10,23 +10,41 @@ import { cn } from "@/lib/utils";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Sundial",
-  description: "Unlocking Bitcoin Defi",
+  title: "Sundial: Institutional Grade Bitcoin Infrastructure",
+  description:
+    "The first UTXO-native Layer 2 enabling secure, compliant Bitcoin yield generation at scale.",
   openGraph: {
-    title: "Sundial",
-    description: "Unlocking Bitcoin Defi",
+    title: "Sundial: Institutional Grade Bitcoin Infrastructure",
+    description:
+      "The first UTXO-native Layer 2 enabling secure, compliant Bitcoin yield generation at scale.",
     url: `https://${process.env.NEXT_PUBLIC_SITE_URL}/`,
     siteName: "Sundial",
     images: [
       {
         url: "/logo_rd.png",
-        width: 1200,
-        height: 630,
+        width: 600,
+        height: 600,
         alt: "Sundial Protocol",
       },
     ],
     locale: "en_US",
     type: "website",
+  },
+  metadataBase: new URL(`https://${process.env.NEXT_PUBLIC_SITE_URL}`),
+  twitter: {
+    card: "summary_large_image",
+    site: "@sundial",
+    title: "Sundial: Institutional Grade Bitcoin Infrastructure",
+    description:
+      "The first UTXO-native Layer 2 enabling secure, compliant Bitcoin yield generation at scale.",
+    images: [
+      {
+        url: "/logo_rd.png",
+        width: 600,
+        height: 600,
+        alt: "Sundial Protocol",
+      },
+    ],
   },
 };
 
