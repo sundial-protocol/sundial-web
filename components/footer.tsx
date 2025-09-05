@@ -159,6 +159,16 @@ export default function Footer() {
                 alt="GitHub"
                 src="/icons/github.svg"
               />
+              {/* <SocialIcon
+                href="https://discord.gg/sundialprotocol" is this the right link?
+                alt="Discord"
+                src="/icons/discord.svg"
+              /> */}
+              <SocialIcon
+                href="https://youtube.com/@sundialprotocol"
+                alt="YouTube"
+                src="/icons/youtube.svg"
+              />
             </div>
           </div>
         </div>

@@ -35,6 +35,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@sundial",
     title: "Sundial: Institutional Grade Bitcoin Infrastructure",
+    creator: "@sundialprotocol",
     description:
       "The first UTXO-native Layer 2 enabling secure, compliant Bitcoin yield generation at scale.",
     images: [
