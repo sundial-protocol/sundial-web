@@ -23,7 +23,7 @@ export async function generateMetadata({
       url: `https://${process.env.NEXT_PUBLIC_SITE_URL}/news/${id}`,
       images: [
         {
-          url: article?.image || "/og-image.png",
+          url: article?.image || "/sundial-text-logo.png",
           width: 1200,
           height: 630,
           alt: article?.title,
