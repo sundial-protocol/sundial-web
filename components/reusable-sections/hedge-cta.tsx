@@ -19,7 +19,7 @@ export default function HedgeCTA() {
             href="https://calendly.com/lewis-sundialprotocol/new-meeting"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center rounded-full border border-gray-300 bg-foreground text-background h-12 p-8 text-base font-medium transition-colors hover:bg-gray-300"
+            className="inline-flex items-center justify-center rounded-full border border-gray-300 bg-foreground text-background h-12 p-8 text-base font-medium transition-colors hover:bg-foreground/70"
           >
             Schedule a Consultation <LucideArrowRight className="ml-2" />
           </a>

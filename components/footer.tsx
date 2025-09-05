@@ -137,7 +137,10 @@ export default function Footer() {
               </li>
             </ul>
 
-            {/* Social Media Icons Row */}
+            {/* Social Media Icons Row 
+              These were pulled from the svgs on iconfinder.com & placed in the /icons/ folder. 
+              Colors are inverted by default - expect black logos from the site.
+            */}
             <div className="flex items-center gap-4 pt-8">
               <SocialIcon
                 href="https://linkedin.com/company/sundial-protocol/"

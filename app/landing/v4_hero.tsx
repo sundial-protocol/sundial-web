@@ -121,9 +121,9 @@ export default function Hero() {
       <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
         <div className="flex flex-col justify-center space-y-4">
           <div>
-            <h1 className="text-5xl font-bold tracking-tighter sm:text-6xl md:text-7xl">
-              Institutional Grade{" "}
-              <span className="text-[#f7931a]">Bitcoin</span> Infrastructure
+            <h1 className="text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl">
+              INSTITUTIONAL GRADE{" "}
+              <span className="text-[#f7931a]">BITCOIN</span> INFRASTRUCTURE
             </h1>
             <div className="pt-4 md:text-xl">
               <span>
