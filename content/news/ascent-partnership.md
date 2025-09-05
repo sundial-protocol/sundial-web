@@ -13,4 +13,4 @@ For Sundial, this partnership is connecting institutional-grade infrastructure w
 Together, Sundial and Ascent Rivals are bringing DeFi technology into the hands of players and communities worldwide.
 
 🔗 Learn more about Ascent Rivals: [www.ascentrivals.com](https://www.ascentrivals.com/)
-🔗 Explore Sundial: [www.sundialprotocol.com](www.sundialprotocol.com)
+🔗 Explore Sundial: [www.sundialprotocol.com](https://www.sundialprotocol.com)

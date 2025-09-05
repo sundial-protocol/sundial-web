@@ -50,4 +50,4 @@ Bitlayer is committed to an open and collaborative Bitcoin DeFi ecosystem, worki
 
 🔗 Learn more about Bitlayer: [bitlayer.org](https://www.bitlayer.org/)
 
-🔗 Explore Sundial: [www.sundialprotocol.com](www.sundialprotocol.com)
+🔗 Explore Sundial: [www.sundialprotocol.com](https://www.sundialprotocol.com)
