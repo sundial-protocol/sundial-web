@@ -90,7 +90,8 @@ export default function Footer() {
               target="_blank"
               className="text-sm text-gray-500"
             >
-              <p className="pt-4">1 NORTH BRIDGE ROAD #24-02</p>
+              <p className="pt-4">SUNDIAL PROTOCOL PTE. LTD.</p>
+              <p>1 NORTH BRIDGE ROAD #24-02</p>
               <p>HIGH STREET CENTRE</p>
               <p>SINGAPORE, 179094</p>
             </a>
@@ -157,6 +158,16 @@ export default function Footer() {
                 href="https://github.com/sundial-protocol"
                 alt="GitHub"
                 src="/icons/github.svg"
+              />
+              {/* <SocialIcon
+                href="https://discord.gg/sundialprotocol" is this the right link?
+                alt="Discord"
+                src="/icons/discord.svg"
+              /> */}
+              <SocialIcon
+                href="https://youtube.com/@sundialprotocol"
+                alt="YouTube"
+                src="/icons/youtube.svg"
               />
             </div>
           </div>

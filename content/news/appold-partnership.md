@@ -17,4 +17,5 @@ Recently named “Blockchain Advisory Firm of the Year”, Appold will provide s
 As digital asset ecosystems evolve, strategic partnerships between blockchain technology companies and blockchain advisory firms are essential in bridging the gap between DeFi innovation and traditional financial markets.
 
 🔗 Learn more about Appold: [www.appold.com](https://www.appold.com/)
-🔗 Explore Sundial: [www.sundialprotocol.com](www.sundialprotocol.com) 
+
+🔗 Explore Sundial: [www.sundialprotocol.com](www.sundialprotocol.com)

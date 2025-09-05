@@ -1,9 +1,8 @@
 ---
 title: "Sundial and Flow Partner to Bring Bitcoin Lending to Cardano"
 date: "2025-08-02"
-image: "news/Sundial-Flow.jpg"
+image: "/news/Sundial-Flow.jpg"
 ---
-
 
 Sundial is joining forces with Flow to deliver secure and scalable Bitcoin lending on Cardano. By combining Sundial’s Layer 2 infrastructure with Flow’s lending protocol, the partnership creates new opportunities for both institutional and retail users.
 
@@ -27,7 +26,6 @@ Together, Sundial and Flow will integrate to enable isolated BTC/ADA and BTC/USD
 
 **Scalable Liquidity:** Competitive borrowing rates supported by USDM collaboration.
 
-
 ### What This Unlocks
 
 Users will be able to earn yield on Bitcoin, borrow ADA or USDM using BTC as collateral, and access tailored financial products. The partnership also opens the door to seamless interactions between Bitcoin and Cardano-native assets.
@@ -38,6 +36,6 @@ Sundial and Flow will begin platform integration and pilot BTC lending pools. Wi
 
 All plans remain subject to technical validation, security review, market conditions, and regulatory requirements.
 
-
 🔗 Learn more about Flow: [beta.flowcardano.org](https://beta.flowcardano.org/)
-🔗 Explore Sundial: [www.sundialprotocol.com](www.sundialprotocol.com)
+
+🔗 Explore Sundial: [www.sundialprotocol.com](https://www.sundialprotocol.com)
