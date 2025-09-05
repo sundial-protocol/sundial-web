@@ -39,9 +39,9 @@ export const metadata: Metadata = {
       "The first UTXO-native Layer 2 enabling secure, compliant Bitcoin yield generation at scale.",
     images: [
       {
-        url: "/logo_rd.png",
-        width: 600,
-        height: 600,
+        url: "/SocialDefaultLogo.png",
+        width: 1200,
+        height: 630,
         alt: "Sundial Protocol",
       },
     ],
