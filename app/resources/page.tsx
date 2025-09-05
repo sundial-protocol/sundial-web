@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Book, FileText, Sunrise } from "lucide-react";
 import { Section } from "@/components/ui/section";
-import HelpCTA from "@/components/reusable-sections/help-cta";
 import { HeroSection } from "@/components/ui/hero-section";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -52,7 +51,7 @@ export default async function DocsPage() {
     <div className="flex flex-col min-h-screen">
       <HeroSection classes="bg-gradient-to-b from-primary/20 to-background pb-16">
         {/* Large Hero Section for Sundial Intro */}
-        <section className="w-full py-16 px-4 md:px-0 flex flex-col items-center">
+        <section className="w-full pb-16 pt-36 px-4 md:px-0 flex flex-col items-center">
           <div className="max-w-3xl text-center items-center flex flex-col">
             <Image
               src="/sundial-text-logo.png"
