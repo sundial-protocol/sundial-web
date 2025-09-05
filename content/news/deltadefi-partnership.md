@@ -12,6 +12,6 @@ As part of this collaboration:
 - DeltaDeFi will integrate with Sundial to enable native Bitcoin trading.
 - The Sundial and DeltaDeFi teams will collaborate on co-marketing and shared growth across the Cardano and Bitcoin ecosystems.
 
-🔗 Learn more about Delta DeFi: [www.deltadefi.io](www.deltadefi.io)
+🔗 Learn more about Delta DeFi: [www.deltadefi.io](https://www.deltadefi.io)
 
-🔗 Explore Sundial: [www.sundialprotocol.com](www.sundialprotocol.com)
+🔗 Explore Sundial: [www.sundialprotocol.com](https://www.sundialprotocol.com)

@@ -15,4 +15,4 @@ This partnership will facilitate new methods for Bitcoin holders to earn yield b
 Together, Sundial and CSWAP are building a bridge between the predictability of RWAs and the innovation of decentralized finance.
 
 🔗 Learn more about CSWAP: [wwww.cswap.info](https://www.cswap.info/)
-🔗 Explore Sundial: [www.sundialprotocol.com](www.sundialprotocol.com)
+🔗 Explore Sundial: [www.sundialprotocol.com](https://www.sundialprotocol.com)
