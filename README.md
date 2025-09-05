@@ -56,6 +56,13 @@ Before you begin, ensure you have the following installed on your system:
 - **Start**: `npm run start` - Starts the production server (run after build)
 - **Lint**: `npm run lint` - Runs ESLint to check for code issues
 
+## Updating builds for external (non-Ikigai) contributors
+
+Because this project builds from the Ikigai Vercel organization, external contributors will not be recognized. The process for integrating their changes is simple:
+
+- External contributors should open a PR to the main branch of this repository.
+- An Ikigai team member will review and merge the PR.
+
 ## Adding New Articles
 
 The news system automatically reads markdown files from the `content/news/` directory.
