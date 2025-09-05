@@ -9,8 +9,6 @@ import { cn } from "@/lib/utils";
 
 const inter = Inter({ subsets: ["latin"] });
 
-// Example for app/page.tsx or any page file
-
 export const metadata: Metadata = {
   title: "Sundial",
   description: "Unlocking Bitcoin Defi",
@@ -21,7 +19,7 @@ export const metadata: Metadata = {
     siteName: "Sundial",
     images: [
       {
-        url: "/sundial-text-logo.png",
+        url: "/logo_rd.png",
         width: 1200,
         height: 630,
         alt: "Sundial Protocol",
