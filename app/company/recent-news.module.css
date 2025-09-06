@@ -27,7 +27,7 @@
 .timeline {
   position: relative;
   white-space: nowrap;
-  width: 100vw; /* Full viewport width */
+  width: 100%; /* Full width */
   grid-template-columns: 320px auto;
   grid-gap: 20px;
   /* Remove max-width and margin */

@@ -121,7 +121,7 @@ export default function Hero() {
       <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
         <div className="flex flex-col justify-center space-y-4">
           <div>
-            <h1 className="text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl">
+            <h1 className="text-[2.75rem]/[1.1] font-bold tracking-tight sm:text-6xl md:text-7xl">
               INSTITUTIONAL GRADE{" "}
               <span className="text-[#f7931a]">BITCOIN</span> INFRASTRUCTURE
             </h1>
@@ -135,14 +135,14 @@ export default function Hero() {
           <div className="flex flex-col sm:flex-row gap-4">
             <a
               href="https://calendly.com/lewis-sundialprotocol/new-meeting"
-              className="inline-flex items-center justify-center rounded-full h-14 px-12 text-black font-bold transition-colors bg-primary hover:bg-primary/70"
+              className="inline-flex items-center justify-center rounded-full h-14 md:px-12 text-black font-bold transition-colors bg-primary hover:bg-primary/70"
               target="_blank"
             >
               Schedule Demo <LucideArrowRight className="ml-2 h-4 w-4" />
             </a>
             <Link
               href="/resources"
-              className="inline-flex items-center justify-center rounded-full h-14 px-12 text-base font-medium transition-colors bg-background/20 hover:bg-foreground/20 border border-foreground"
+              className="inline-flex items-center justify-center rounded-full h-14 md:px-12 text-base font-medium transition-colors bg-background/20 hover:bg-foreground/20 border border-foreground"
             >
               Documentation
             </Link>
