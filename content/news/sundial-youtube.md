@@ -1,7 +1,7 @@
 ---
 title: "We've Launched our YouTube Channel"
 date: "2025-08-20"
-image: "/news/sundial-youtube.jpg"
+image: "sundial-youtube.jpg"
 ---
 
 ### Sundial Launches Official YouTube Channel

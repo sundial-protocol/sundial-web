@@ -1,7 +1,7 @@
 ---
 title: "Sundial Expands Momentum with Key Encounters and Roadmap Release"
 date: "2025-06-25"
-image: "/news/62525Momentum.jpg"
+image: "62525Momentum.jpg"
 ---
 
 ### _Bridging, Scaling and Liquifying the Future of Finance_

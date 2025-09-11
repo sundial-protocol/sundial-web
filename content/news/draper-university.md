@@ -1,7 +1,7 @@
 ---
 title: "Sundial Completes the Draper University Program"
 date: "2025-07-07"
-image: "/news/sundial-vespr-1.jpeg"
+image: "sundial-vespr-1.jpeg"
 ---
 
 Sundial has officially completed the Cardano x Draper University Founder Residency Program. Over five intense weeks in Silicon Valley, our team accelerated development, forged powerful partnerships, and gained rapid feedback from mentors and builders across the Cardano ecosystem.

@@ -1,7 +1,7 @@
 ---
 title: "Sundial Community Update July 2025"
 date: "2025-07-30"
-image: "/news/sundial-update.png"
+image: "sundial-update.png"
 ---
 
 ## SUNDIAL PARTNERS WITH APPOLD

@@ -1,7 +1,7 @@
 ---
 title: "Sundial Enables First Cross-Chain BTC Transfer Between Bitcoin and Cardano"
 date: "2025-05-05"
-image: "/news/5525crosschain.png"
+image: "5525crosschain.png"
 ---
 
 We're proud to share that Sundial Protocol has played a critical role in a major milestone for blockchain interoperability: the first bridgeless cross-chain transfer of Bitcoin between the Bitcoin and Cardano networks.

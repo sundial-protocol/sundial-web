@@ -1,7 +1,7 @@
 ---
 title: "Sundial and Ascent Rivals drive DeFi into ESports"
 date: "2025-08-20"
-image: "news/sundial-ascent.jpg"
+image: "sundial-ascent.jpg"
 ---
 
 Sundial Protocol is proud to announce its partnership with Ascent Rivals, the Cardano-based, adrenaline-fuelled racing game pushing the boundaries of blockchain-powered esports.
@@ -13,4 +13,4 @@ For Sundial, this partnership is connecting institutional-grade infrastructure w
 Together, Sundial and Ascent Rivals are bringing DeFi technology into the hands of players and communities worldwide.
 
 🔗 Learn more about Ascent Rivals: [www.ascentrivals.com](https://www.ascentrivals.com/)
-🔗 Explore Sundial: [www.sundialprotocol.com](www.sundialprotocol.com) 
+🔗 Explore Sundial: [www.sundialprotocol.com](www.sundialprotocol.com)

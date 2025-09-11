@@ -1,7 +1,7 @@
 ---
 title: "Sundial Partners with Appold"
 date: "2025-07-07"
-image: "/news/sundial-appold.jpg"
+image: "sundial-appold.jpg"
 ---
 
 Sundial is pleased to announced a partnership with Appold, who also have obtained a Founding stake in the protocol, a move set to bring compliant Bitcoin yield infrastructure to the forefront.
@@ -17,4 +17,4 @@ Recently named “Blockchain Advisory Firm of the Year”, Appold will provide s
 As digital asset ecosystems evolve, strategic partnerships between blockchain technology companies and blockchain advisory firms are essential in bridging the gap between DeFi innovation and traditional financial markets.
 
 🔗 Learn more about Appold: [www.appold.com](https://www.appold.com/)
-🔗 Explore Sundial: [www.sundialprotocol.com](www.sundialprotocol.com) 
+🔗 Explore Sundial: [www.sundialprotocol.com](www.sundialprotocol.com)
