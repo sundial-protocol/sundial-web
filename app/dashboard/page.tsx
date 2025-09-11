@@ -8,7 +8,14 @@ import { PortfolioOverview } from "./portfolio-overview";
 import { TransactionHistory } from "./tx-history";
 import { YieldCatalog } from "./yield-catalog";
 import { PrebuiltStrategies } from "./prebuilt-strategies";
-import { Wallet, TrendingUp, History, Target } from "lucide-react";
+import DepositBtcTab from "./deposit";
+import {
+  Wallet,
+  TrendingUp,
+  History,
+  Target,
+  ArrowDownCircle,
+} from "lucide-react";
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState("portfolio");
@@ -34,7 +41,7 @@ export default function DashboardPage() {
       ]}
     >
       <div className="min-h-screen">
-        <Section className="py-24">
+        <Section className="pb-24">
           <div className="container mx-auto px-4">
             {/* Dashboard Header */}
             <div className="mb-8">
@@ -76,6 +83,13 @@ export default function DashboardPage() {
                   <Target className="w-4 h-4" />
                   <span className="hidden sm:inline">Strategies</span>
                 </TabsTrigger>
+                <TabsTrigger
+                  value="depositbtc"
+                  className="flex items-center gap-2"
+                >
+                  <ArrowDownCircle className="w-4 h-4" />
+                  <span className="hidden sm:inline">Deposit BTC</span>
+                </TabsTrigger>
               </TabsList>
 
               {/* Tab Content */}
@@ -93,6 +107,10 @@ export default function DashboardPage() {
 
               <TabsContent value="strategies">
                 <PrebuiltStrategies />
+              </TabsContent>
+
+              <TabsContent value="depositbtc">
+                <DepositBtcTab />
               </TabsContent>
             </Tabs>
           </div>
