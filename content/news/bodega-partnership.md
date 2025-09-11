@@ -10,5 +10,6 @@ This collaboration will give users faster access to smart contracts and unlock n
 
 This partnership is another meaningful step to enhance Cardano's reach and enhance decentralized prediction market functionality.
 
-🔗 Learn more about Bodega Market: [vespr.xyz](https://vespr.xyz/)
-🔗 Explore Sundial: [www.sundialprotocol.com](www.sundialprotocol.com)
+🔗 Learn more about Bodega Market: [bodegamarket.xyz](https://bodegamarket.xyz/)
+
+🔗 Explore Sundial: [www.sundialprotocol.com](https://www.sundialprotocol.com)

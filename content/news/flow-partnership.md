@@ -37,4 +37,5 @@ Sundial and Flow will begin platform integration and pilot BTC lending pools. Wi
 All plans remain subject to technical validation, security review, market conditions, and regulatory requirements.
 
 🔗 Learn more about Flow: [beta.flowcardano.org](https://beta.flowcardano.org/)
-🔗 Explore Sundial: [www.sundialprotocol.com](www.sundialprotocol.com)
+
+🔗 Explore Sundial: [www.sundialprotocol.com](https://www.sundialprotocol.com)

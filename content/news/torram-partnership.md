@@ -15,4 +15,5 @@ Through this partnership, Sundial will leverage Torram’s Bitcoin-native middle
 Together, Sundial and Torram can create a secure and programmable Layer 2 without compromising Bitcoin’s core principles.
 
 🔗 Learn more about Torram: [torram.xyz](https://torram.xyz/)
-🔗 Explore Sundial: [www.sundialprotocol.com](www.sundialprotocol.com)
+
+🔗 Explore Sundial: [www.sundialprotocol.com](https://www.sundialprotocol.com)

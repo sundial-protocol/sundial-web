@@ -145,7 +145,7 @@ export default function InstitutionalBitcoin() {
               "2-5% sustainable APY",
               "No bridge risk",
             ]}
-            backgroundImage="/building.jpg"
+            backgroundImage="/stock-images/building.jpg"
           />
           <Step
             icon={Building2}
@@ -156,7 +156,7 @@ export default function InstitutionalBitcoin() {
               "KYC/AML modules included",
               "Audit-ready reporting",
             ]}
-            backgroundImage="/workers.jpg"
+            backgroundImage="/stock-images/workers.jpg"
           />
           <Step
             icon={CloudLightning}
@@ -167,7 +167,7 @@ export default function InstitutionalBitcoin() {
               "Stateless validation",
               "Fraud-proof protection",
             ]}
-            backgroundImage="/nodes.jpg"
+            backgroundImage="/stock-images/nodes.jpg"
           />
         </div>
         <div className="flex justify-center mt-12">

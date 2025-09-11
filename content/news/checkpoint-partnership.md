@@ -20,5 +20,6 @@ By integrating Check Point’s technology, we are laying the groundwork for rapi
 
 At Sundial, our mission has always been to build an and innovative ecosystem for Bitcoin-powered decentralised finance.
 
-🔗 Learn more about Check Point: www.checkpoint.com
-🔗 Explore Sundial: sundialprotocol.com
+🔗 Learn more about Check Point: [www.checkpoint.com](https://www.checkpoint.com)
+
+🔗 Explore Sundial: [sundialprotocol.com](https://sundialprotocol.com)
