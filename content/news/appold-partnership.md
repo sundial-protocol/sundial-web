@@ -1,7 +1,7 @@
 ---
 title: "Sundial Partners with Appold"
 date: "2025-07-07"
-image: "/news/sundial-appold.jpg"
+image: "sundial-appold.jpg"
 ---
 
 Sundial is pleased to announced a partnership with Appold, who also have obtained a Founding stake in the protocol, a move set to bring compliant Bitcoin yield infrastructure to the forefront.

@@ -1,7 +1,7 @@
 ---
 title: "Sundial announces partnership with DeltaDeFi"
 date: "2025-05-20"
-image: "/news/52025delta.png"
+image: "52025delta.png"
 ---
 
 We are pleased to announce that Sundial Protocol has partnered with DeltaDeFi, a high-frequency trading gateway for Cardano.

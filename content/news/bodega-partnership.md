@@ -1,7 +1,7 @@
 ---
 title: "Sundial announces partnership with Bodega Market"
 date: "2025-05-19"
-image: "/news/51925Bodega.jpg"
+image: "51925Bodega.jpg"
 ---
 
 Sundial Protocol is excited to announce its partnership with Bodega Market, a leading prediction market built on Cardano, to enable direct interaction between Bitcoin and Cardano via our revolutionary Layer-2 bridge.

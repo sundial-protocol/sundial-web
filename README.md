@@ -77,7 +77,7 @@ Create a new markdown file in `content/news/` with a short slug describing the a
 ---
 title: "Your Article Title"
 date: "2025-01-15"
-image: "/news/your-article-image.jpg"
+image: "your-article-image.jpg"
 ---
 
 # Your Article Title
@@ -102,7 +102,7 @@ The header images are expected to be 1920x1080 pixels. If your header image is n
 ---
 title: "Your Article Title"
 date: "2025-01-15"
-image: "/news/!your-article-image.jpg"
+image: "!your-article-image.jpg"
 ---
 ```
 

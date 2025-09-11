@@ -34,7 +34,7 @@ export async function getNews(): Promise<NewsArticle[]> {
             id,
             title: frontmatter.title || "Untitled",
             date: frontmatter.date || "Unknown",
-            image: frontmatter.image || "/news/default.jpg",
+            image: "/news/" + frontmatter.image || "/news/default.jpg",
             content,
           };
         })

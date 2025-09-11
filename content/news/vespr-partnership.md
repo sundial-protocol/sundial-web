@@ -1,7 +1,7 @@
 ---
 title: "Sundial announces partnership with Vespr Wallet"
 date: "2025-05-12"
-image: "/news/51225vespr.png"
+image: "51225vespr.png"
 ---
 
 Sundial Protocol has officially announced a strategic partnership with VESPR Wallet, marking a significant step toward user accessibility and cross-chain functionality between the Bitcoin and Cardano ecosystems.

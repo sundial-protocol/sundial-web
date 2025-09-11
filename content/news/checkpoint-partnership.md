@@ -1,7 +1,7 @@
 ---
 title: "Sundial Partners with Checkpoint to Strengthen Bitcoin DeFi Security and Scalability"
 date: "2025-08-15"
-image: "/news/Sundial-Checkpoint.jpg"
+image: "Sundial-Checkpoint.jpg"
 ---
 
 We’re excited to announce our new partnership with Check Point — a leading provider of blockchain verification and compliance solutions.

@@ -1,7 +1,7 @@
 ---
 title: "Cardano Joins BTCFi Frontier: Bitlayer & Sundial Forge BitVM Bridge via Strategic Partnerships"
 date: "2025-05-08"
-image: "/news/5825BTCFI.png"
+image: "5825BTCFI.png"
 ---
 
 Positioned as the 10th-largest blockchain by market capitalization, Cardano has long been a hotbed for decentralized innovation. Now, it's poised to dive headfirst into Bitcoin innovations and the surging BTCFi wave.
