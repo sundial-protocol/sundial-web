@@ -66,11 +66,11 @@ export default function DashboardPage() {
                   <span className="hidden sm:inline">Portfolio</span>
                 </TabsTrigger>
                 <TabsTrigger
-                  value="transactions"
+                  value="depositbtc"
                   className="flex items-center gap-2"
                 >
-                  <History className="w-4 h-4" />
-                  <span className="hidden sm:inline">History</span>
+                  <ArrowDownCircle className="w-4 h-4" />
+                  <span className="hidden sm:inline">Deposit</span>
                 </TabsTrigger>
                 <TabsTrigger value="yield" className="flex items-center gap-2">
                   <TrendingUp className="w-4 h-4" />
@@ -84,11 +84,11 @@ export default function DashboardPage() {
                   <span className="hidden sm:inline">Strategies</span>
                 </TabsTrigger>
                 <TabsTrigger
-                  value="depositbtc"
+                  value="transactions"
                   className="flex items-center gap-2"
                 >
-                  <ArrowDownCircle className="w-4 h-4" />
-                  <span className="hidden sm:inline">Deposit BTC</span>
+                  <History className="w-4 h-4" />
+                  <span className="hidden sm:inline">History</span>
                 </TabsTrigger>
               </TabsList>
 
