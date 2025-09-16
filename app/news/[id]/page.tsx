@@ -3,6 +3,7 @@ import { getNews } from "@/hooks/get-news";
 import Image from "next/image";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -69,6 +70,7 @@ export default async function NewsPage({
               {article.content ? (
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeRaw]}
                   components={{
                     img: (props) => {
                       const { src = "", alt = "" } = props as {
