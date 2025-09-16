@@ -67,6 +67,8 @@ Because this project builds from the Ikigai Vercel organization, external contri
 
 The news system automatically reads markdown files from the `content/news/` directory.
 
+These markdown files support syntax from [unified](https://unifiedjs.com/), specifically the [commonmark](https://commonmark.org/help/) markdown syntax and [rehype-raw](https://github.com/rehypejs/rehype-raw) for HTML rendering, which supports all standard HTML tags.
+
 ### 1. Create Markdown Content File
 
 Create a new markdown file in `content/news/` with a short slug describing the article. This determines the url you will see the article at.
