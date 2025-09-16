@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -19,63 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Bitcoin,
-  Coins,
-  ExternalLink,
-  Copy,
-  CheckCircle,
-  ChevronDown,
-} from "lucide-react";
-
-type Chain = "btc" | "ada";
-
-interface ChainConfig {
-  id: Chain;
-  name: string;
-  symbol: string;
-  icon: React.ReactNode;
-  addressPrefix: string;
-  minDeposit: number;
-  decimals: number;
-  explorerUrl: string;
-  features: string[];
-}
-
-const chainConfigs: Record<Chain, ChainConfig> = {
-  btc: {
-    id: "btc",
-    name: "Bitcoin",
-    symbol: "BTC",
-    icon: <Bitcoin className="w-4 h-4" />,
-    addressPrefix: "bc1q",
-    minDeposit: 0.001,
-    decimals: 8,
-    explorerUrl: "https://blockstream.info/tx/",
-    features: [
-      "Native Bitcoin staking",
-      "8.5% APY average",
-      "Liquid staking available",
-      "No lock-up period",
-    ],
-  },
-  ada: {
-    id: "ada",
-    name: "Cardano",
-    symbol: "ADA",
-    icon: <Coins className="w-4 h-4" />,
-    addressPrefix: "addr1",
-    minDeposit: 10,
-    decimals: 6,
-    explorerUrl: "https://cardanoscan.io/transaction/",
-    features: [
-      "Stake pool delegation",
-      "4-6% APY rewards",
-      "5-day epoch duration",
-      "Liquid staking tokens",
-    ],
-  },
-};
+import { ExternalLink, Copy, CheckCircle } from "lucide-react";
+import { chainConfigs, Chain } from "./types";
+import { depositAddress } from "@/hooks/get-scripts";
 
 export default function DepositTab() {
   const [selectedChain, setSelectedChain] = useState<Chain>("btc");
@@ -96,10 +41,6 @@ export default function DepositTab() {
   const [txHash, setTxHash] = useState("");
 
   const config = chainConfigs[selectedChain];
-  const depositAddress =
-    selectedChain === "btc"
-      ? "bc1qyourportfolioaddresshere"
-      : "addr1qyourportfolioaddresshere";
 
   const copyToClipboard = async (text: string) => {
     await navigator.clipboard.writeText(text);
@@ -130,7 +71,7 @@ export default function DepositTab() {
 
     try {
       const res = await fetch(
-        `https://blockstream.info/api/address/${userAddress}/utxo`
+        `${config.explorerBaseUrl}address/${userAddress}/utxo`
       );
       if (!res.ok) throw new Error("Failed to fetch UTXOs");
       const utxos = await res.json();
@@ -160,7 +101,7 @@ export default function DepositTab() {
       }
 
       psbt.addOutput({
-        address: depositAddress,
+        address: depositAddress(selectedChain),
         value: sendAmount,
       });
 
@@ -207,11 +148,14 @@ export default function DepositTab() {
       const form = e.target as HTMLFormElement;
       const signedHex = (form.signedHex as HTMLInputElement).value.trim();
 
-      const res = await fetch("https://blockstream.info/api/tx", {
-        method: "POST",
-        body: signedHex,
-        headers: { "Content-Type": "text/plain" },
-      });
+      const res = await fetch(
+        `${config.explorerBaseUrl}${config.explorerTxSlug}`,
+        {
+          method: "POST",
+          body: signedHex,
+          headers: { "Content-Type": "text/plain" },
+        }
+      );
 
       if (!res.ok) throw new Error("Broadcast failed");
       const txid = await res.text();
@@ -267,16 +211,18 @@ export default function DepositTab() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.values(chainConfigs).map((chain) => (
-                      <SelectItem key={chain.id} value={chain.id}>
-                        <div className="flex items-center gap-2">
-                          {chain.icon}
-                          <span>
-                            {chain.name} ({chain.symbol})
-                          </span>
-                        </div>
-                      </SelectItem>
-                    ))}
+                    {Object.values(chainConfigs)
+                      .filter((chain) => chain.enabled)
+                      .map((chain) => (
+                        <SelectItem key={chain.id} value={chain.id}>
+                          <div className="flex items-center gap-2">
+                            {chain.icon}
+                            <span>
+                              {chain.name} ({chain.symbol})
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -331,31 +277,6 @@ export default function DepositTab() {
                 </p>
               </div>
 
-              {/* Deposit Address */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Deposit Address</label>
-                <div className="flex gap-2">
-                  <Input
-                    type="text"
-                    value={depositAddress}
-                    readOnly
-                    className="bg-muted font-mono text-xs"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => copyToClipboard(depositAddress)}
-                  >
-                    {copied ? (
-                      <CheckCircle className="w-4 h-4" />
-                    ) : (
-                      <Copy className="w-4 h-4" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-
               {/* Actions */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Button type="submit" disabled={loading || !isFormValid()}>
@@ -383,65 +304,66 @@ export default function DepositTab() {
             </form>
           )}
 
-          {step === "psbt" && selectedChain === "btc" && (
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  Step 1: Sign the PSBT
-                </label>
-                <div className="relative">
-                  <textarea
-                    className="w-full p-3 border rounded-md text-xs font-mono bg-muted"
-                    rows={4}
-                    value={psbtBase64}
-                    readOnly
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="absolute top-2 right-2"
-                    onClick={() => copyToClipboard(psbtBase64)}
-                  >
-                    {copied ? (
-                      <CheckCircle className="w-3 h-3" />
-                    ) : (
-                      <Copy className="w-3 h-3" />
-                    )}
-                  </Button>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Copy the above PSBT and sign it in your Bitcoin wallet (e.g.
-                  Sparrow, Electrum).
-                </p>
-              </div>
-
-              <form onSubmit={handleBroadcast} className="space-y-4">
+          {step === "psbt" &&
+            (selectedChain === "btc" || selectedChain === "btc_testnet") && (
+              <div className="space-y-6">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    Step 2: Paste Signed Transaction Hex
+                    Step 1: Sign the PSBT
                   </label>
-                  <textarea
-                    name="signedHex"
-                    className="w-full p-3 border rounded-md text-xs font-mono"
-                    rows={3}
-                    placeholder="Paste your signed transaction hex here..."
-                    required
-                  />
+                  <div className="relative">
+                    <textarea
+                      className="w-full p-3 border rounded-md text-xs font-mono bg-muted"
+                      rows={4}
+                      value={psbtBase64}
+                      readOnly
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="absolute top-2 right-2"
+                      onClick={() => copyToClipboard(psbtBase64)}
+                    >
+                      {copied ? (
+                        <CheckCircle className="w-3 h-3" />
+                      ) : (
+                        <Copy className="w-3 h-3" />
+                      )}
+                    </Button>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Copy the above PSBT and sign it in your Bitcoin wallet (e.g.
+                    Sparrow, Electrum).
+                  </p>
                 </div>
 
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Broadcasting..." : "Broadcast Transaction"}
-                </Button>
-              </form>
+                <form onSubmit={handleBroadcast} className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      Step 2: Paste Signed Transaction Hex
+                    </label>
+                    <textarea
+                      name="signedHex"
+                      className="w-full p-3 border rounded-md text-xs font-mono"
+                      rows={3}
+                      placeholder="Paste your signed transaction hex here..."
+                      required
+                    />
+                  </div>
 
-              {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                  <p className="text-red-600 text-sm">{error}</p>
-                </div>
-              )}
-            </div>
-          )}
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? "Broadcasting..." : "Broadcast Transaction"}
+                  </Button>
+                </form>
+
+                {error && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                    <p className="text-red-600 text-sm">{error}</p>
+                  </div>
+                )}
+              </div>
+            )}
 
           {step === "done" && (
             <div className="space-y-4">
@@ -453,7 +375,9 @@ export default function DepositTab() {
                 <div className="flex items-center gap-2">
                   <span className="text-sm">Transaction Hash:</span>
                   <a
-                    href={`${config.explorerUrl}${getCurrentTxHash()}`}
+                    href={`${config.explorerBaseUrl}${
+                      config.explorerTxSlug
+                    }${getCurrentTxHash()}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-800 underline text-sm font-mono flex items-center gap-1"

@@ -8,7 +8,7 @@ import { PortfolioOverview } from "./portfolio-overview";
 import { TransactionHistory } from "./tx-history";
 import { YieldCatalog } from "./yield-catalog";
 import { PrebuiltStrategies } from "./prebuilt-strategies";
-import DepositBtcTab from "./deposit";
+import DepositBtcTab from "./deposit/deposit";
 import {
   Wallet,
   TrendingUp,
