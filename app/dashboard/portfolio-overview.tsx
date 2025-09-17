@@ -15,8 +15,12 @@ import {
   DollarSign,
   Shield,
   Bitcoin,
+  Coins,
+  Check,
+  Copy,
 } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
 // Mock data - in real app, this would come from API
 const portfolioData = {
@@ -66,8 +70,102 @@ const portfolioData = {
 export function PortfolioOverview() {
   const isPositive = portfolioData.dailyChange > 0;
 
+  // Wallet connection state
+  const [btcWallet, setBtcWallet] = useState<string | null>(null);
+  const [adaWallet, setAdaWallet] = useState<string | null>(null);
+  const [copied, setCopied] = useState<string | null>(null);
+
+  // Mock connect handlers
+  function connectBtcWallet() {
+    // In a real app, integrate with a wallet API or PSBT flow
+    const demoAddress = "tb1qexamplebtcwalletaddress1234567890";
+    setBtcWallet(demoAddress);
+  }
+  function connectAdaWallet() {
+    // In a real app, integrate with Cardano dApp connector (Nami/Eternl/Lace)
+    const demoAddress = "addr_test1qexampleadawalletaddress1234567890";
+    setAdaWallet(demoAddress);
+  }
+  function handleCopy(addr: string) {
+    navigator.clipboard.writeText(addr);
+    setCopied(addr);
+    setTimeout(() => setCopied(null), 1200);
+  }
+
   return (
     <div className="space-y-6">
+      {/* Wallet Connection Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Wallet Connections</CardTitle>
+          <CardDescription>
+            View and connect wallets from different ecosystems
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col gap-4 md:flex-row md:gap-8">
+            {/* Bitcoin */}
+            <div className="flex-1 border rounded p-4 flex flex-col gap-2">
+              <div className="flex items-center gap-2 mb-2">
+                <Bitcoin className="w-5 h-5 text-yellow-500" />
+                <span className="font-semibold">Bitcoin</span>
+              </div>
+              {btcWallet ? (
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs truncate">
+                    {btcWallet}
+                  </span>
+                  <button
+                    onClick={() => handleCopy(btcWallet)}
+                    className="p-1"
+                    title="Copy address"
+                  >
+                    {copied === btcWallet ? (
+                      <Check className="w-4 h-4 text-green-600" />
+                    ) : (
+                      <Copy className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+              ) : (
+                <Button variant="outline" onClick={connectBtcWallet}>
+                  Connect Bitcoin Wallet
+                </Button>
+              )}
+            </div>
+            {/* Cardano */}
+            <div className="flex-1 border rounded p-4 flex flex-col gap-2">
+              <div className="flex items-center gap-2 mb-2">
+                <Coins className="w-5 h-5 text-blue-500" />
+                <span className="font-semibold">Cardano</span>
+              </div>
+              {adaWallet ? (
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs truncate">
+                    {adaWallet}
+                  </span>
+                  <button
+                    onClick={() => handleCopy(adaWallet)}
+                    className="p-1"
+                    title="Copy address"
+                  >
+                    {copied === adaWallet ? (
+                      <Check className="w-4 h-4 text-green-600" />
+                    ) : (
+                      <Copy className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+              ) : (
+                <Button variant="outline" onClick={connectAdaWallet}>
+                  Connect Cardano Wallet
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Portfolio Summary Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>

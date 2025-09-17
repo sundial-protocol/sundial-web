@@ -8,13 +8,15 @@ import { PortfolioOverview } from "./portfolio-overview";
 import { TransactionHistory } from "./tx-history";
 import { YieldCatalog } from "./yield-catalog";
 import { PrebuiltStrategies } from "./prebuilt-strategies";
-import DepositBtcTab from "./deposit/deposit";
+import DepositTab from "./deposit/deposit";
+import WithdrawTab from "./deposit/withdraw";
 import {
   Wallet,
   TrendingUp,
   History,
   Target,
   ArrowDownCircle,
+  ArrowUpCircle,
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -66,29 +68,42 @@ export default function DashboardPage() {
                   <span className="hidden sm:inline">Portfolio</span>
                 </TabsTrigger>
                 <TabsTrigger
-                  value="depositbtc"
+                  value="deposit"
+                  className="flex items-center gap-2"
+                >
+                  <ArrowUpCircle className="w-4 h-4" />
+                  <span className="hidden sm:inline">Deposit</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="withdraw"
                   className="flex items-center gap-2"
                 >
                   <ArrowDownCircle className="w-4 h-4" />
-                  <span className="hidden sm:inline">Deposit</span>
+                  <span className="hidden sm:inline">Withdraw</span>
                 </TabsTrigger>
-                <TabsTrigger value="yield" className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4" />
-                  <span className="hidden sm:inline">Yield</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="strategies"
-                  className="flex items-center gap-2"
-                >
-                  <Target className="w-4 h-4" />
-                  <span className="hidden sm:inline">Strategies</span>
-                </TabsTrigger>
+
                 <TabsTrigger
                   value="transactions"
                   className="flex items-center gap-2"
                 >
                   <History className="w-4 h-4" />
                   <span className="hidden sm:inline">History</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="yield"
+                  className="flex items-center gap-2"
+                  disabled
+                >
+                  <TrendingUp className="w-4 h-4" />
+                  <span className="hidden sm:inline">Yield</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="strategies"
+                  className="flex items-center gap-2"
+                  disabled
+                >
+                  <Target className="w-4 h-4" />
+                  <span className="hidden sm:inline">Strategies</span>
                 </TabsTrigger>
               </TabsList>
 
@@ -101,16 +116,20 @@ export default function DashboardPage() {
                 <TransactionHistory />
               </TabsContent>
 
-              <TabsContent value="yield">
+              {/* <TabsContent value="yield">
                 <YieldCatalog />
               </TabsContent>
 
               <TabsContent value="strategies">
                 <PrebuiltStrategies />
+              </TabsContent> */}
+
+              <TabsContent value="deposit">
+                <DepositTab />
               </TabsContent>
 
-              <TabsContent value="depositbtc">
-                <DepositBtcTab />
+              <TabsContent value="withdraw">
+                <WithdrawTab />
               </TabsContent>
             </Tabs>
           </div>
