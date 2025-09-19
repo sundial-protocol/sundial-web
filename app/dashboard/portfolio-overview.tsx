@@ -10,6 +10,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   TrendingUp,
   TrendingDown,
   DollarSign,
@@ -18,9 +25,17 @@ import {
   Coins,
   Check,
   Copy,
+  Wallet,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useWallet } from "@/lib/wallet";
+import {
+  getWalletDisplayName,
+  getWalletIcon,
+  knownWalletExtensions,
+} from "@/lib/wallet/support";
+import { notifyError } from "@/lib/wallet/errors";
 
 // Mock data - in real app, this would come from API
 const portfolioData = {
@@ -70,27 +85,63 @@ const portfolioData = {
 export function PortfolioOverview() {
   const isPositive = portfolioData.dailyChange > 0;
 
-  // Wallet connection state
+  // Bitcoin wallet connection state (placeholder)
   const [btcWallet, setBtcWallet] = useState<string | null>(null);
-  const [adaWallet, setAdaWallet] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
 
-  // Mock connect handlers
+  // Cardano wallet state from context
+  const {
+    isConnected,
+    isConnecting,
+    selectedWallet,
+    changeAddress,
+    stakeAddress,
+    accountBalance,
+    network,
+    installedExtensions,
+    connect,
+    disconnect,
+  } = useWallet();
+
+  // Available wallet selection state
+  const [selectedWalletToConnect, setSelectedWalletToConnect] =
+    useState<string>("");
+
+  // Mock connect handler for Bitcoin
   function connectBtcWallet() {
     // In a real app, integrate with a wallet API or PSBT flow
     const demoAddress = "tb1qexamplebtcwalletaddress1234567890";
     setBtcWallet(demoAddress);
   }
-  function connectAdaWallet() {
-    // In a real app, integrate with Cardano dApp connector (Nami/Eternl/Lace)
-    const demoAddress = "addr_test1qexampleadawalletaddress1234567890";
-    setAdaWallet(demoAddress);
-  }
+
+  // Cardano wallet connection handler
+  const handleCardanoConnect = async () => {
+    if (!selectedWalletToConnect) return;
+
+    try {
+      await connect(selectedWalletToConnect);
+    } catch (error) {
+      notifyError(error);
+    }
+  };
+
+  // Cardano wallet disconnect handler
+  const handleCardanoDisconnect = () => {
+    disconnect();
+    setSelectedWalletToConnect("");
+  };
+
   function handleCopy(addr: string) {
     navigator.clipboard.writeText(addr);
     setCopied(addr);
     setTimeout(() => setCopied(null), 1200);
   }
+
+  const formatAddress = (address: string, length = 20) => {
+    if (!address) return "";
+    if (address.length <= length) return address;
+    return `${address.slice(0, length)}...${address.slice(-6)}`;
+  };
 
   return (
     <div className="space-y-6">
@@ -105,61 +156,212 @@ export function PortfolioOverview() {
         <CardContent>
           <div className="flex flex-col gap-4 md:flex-row md:gap-8">
             {/* Bitcoin */}
-            <div className="flex-1 border rounded p-4 flex flex-col gap-2">
+            <div className="flex-1 border rounded p-4 flex flex-col gap-3">
               <div className="flex items-center gap-2 mb-2">
                 <Bitcoin className="w-5 h-5 text-yellow-500" />
                 <span className="font-semibold">Bitcoin</span>
               </div>
               {btcWallet ? (
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs truncate">
-                    {btcWallet}
-                  </span>
-                  <button
-                    onClick={() => handleCopy(btcWallet)}
-                    className="p-1"
-                    title="Copy address"
+                <>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-xs truncate">
+                      {formatAddress(btcWallet)}
+                    </span>
+                    <button
+                      onClick={() => handleCopy(btcWallet)}
+                      className="p-1 hover:bg-gray-100 rounded"
+                      title="Copy address"
+                    >
+                      {copied === btcWallet ? (
+                        <Check className="w-4 h-4 text-green-600" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setBtcWallet(null)}
                   >
-                    {copied === btcWallet ? (
-                      <Check className="w-4 h-4 text-green-600" />
-                    ) : (
-                      <Copy className="w-4 h-4" />
-                    )}
-                  </button>
-                </div>
+                    Disconnect
+                  </Button>
+                </>
               ) : (
                 <Button variant="outline" onClick={connectBtcWallet}>
                   Connect Bitcoin Wallet
                 </Button>
               )}
             </div>
+
             {/* Cardano */}
-            <div className="flex-1 border rounded p-4 flex flex-col gap-2">
+            <div className="flex-1 border rounded p-4 flex flex-col gap-3">
               <div className="flex items-center gap-2 mb-2">
                 <Coins className="w-5 h-5 text-blue-500" />
                 <span className="font-semibold">Cardano</span>
-              </div>
-              {adaWallet ? (
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs truncate">
-                    {adaWallet}
+                {network && (
+                  <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded">
+                    {network}
                   </span>
-                  <button
-                    onClick={() => handleCopy(adaWallet)}
-                    className="p-1"
-                    title="Copy address"
-                  >
-                    {copied === adaWallet ? (
-                      <Check className="w-4 h-4 text-green-600" />
-                    ) : (
-                      <Copy className="w-4 h-4" />
+                )}
+              </div>
+
+              {isConnected ? (
+                <>
+                  {/* Connected Wallet Info */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      {getWalletIcon(selectedWallet) && (
+                        <img
+                          src={getWalletIcon(selectedWallet) as string}
+                          alt={selectedWallet}
+                          className="w-4 h-4"
+                        />
+                      )}
+                      <span className="text-sm font-medium">
+                        {getWalletDisplayName(selectedWallet)}
+                      </span>
+                    </div>
+
+                    {/* Change Address */}
+                    {changeAddress && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">
+                          Address:
+                        </span>
+                        <span className="font-mono text-xs truncate">
+                          {formatAddress(changeAddress)}
+                        </span>
+                        <button
+                          onClick={() => handleCopy(changeAddress)}
+                          className="p-1 hover:bg-gray-100 rounded"
+                          title="Copy address"
+                        >
+                          {copied === changeAddress ? (
+                            <Check className="w-4 h-4 text-green-600" />
+                          ) : (
+                            <Copy className="w-4 h-4" />
+                          )}
+                        </button>
+                      </div>
                     )}
-                  </button>
-                </div>
+
+                    {/* Stake Address */}
+                    {stakeAddress && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">
+                          Stake:
+                        </span>
+                        <span className="font-mono text-xs truncate">
+                          {formatAddress(stakeAddress)}
+                        </span>
+                        <button
+                          onClick={() => handleCopy(stakeAddress)}
+                          className="p-1 hover:bg-gray-100 rounded"
+                          title="Copy stake address"
+                        >
+                          {copied === stakeAddress ? (
+                            <Check className="w-4 h-4 text-green-600" />
+                          ) : (
+                            <Copy className="w-4 h-4" />
+                          )}
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Balance */}
+                    <div className="text-sm">
+                      <span className="text-muted-foreground">Balance: </span>
+                      <span className="font-medium">
+                        {accountBalance.toFixed(2)} ADA
+                      </span>
+                    </div>
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCardanoDisconnect}
+                  >
+                    Disconnect
+                  </Button>
+                </>
               ) : (
-                <Button variant="outline" onClick={connectAdaWallet}>
-                  Connect Cardano Wallet
-                </Button>
+                <>
+                  {/* Wallet Selection */}
+                  {installedExtensions.length > 0 ? (
+                    <div className="space-y-3">
+                      <Select
+                        value={selectedWalletToConnect}
+                        onValueChange={setSelectedWalletToConnect}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a wallet" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {installedExtensions.map((wallet) => (
+                            <SelectItem key={wallet} value={wallet}>
+                              <div className="flex items-center gap-2">
+                                {(() => {
+                                  const walletIcon = getWalletIcon(wallet);
+                                  if (walletIcon) {
+                                    return (
+                                      <img
+                                        src={walletIcon}
+                                        alt={wallet}
+                                        className="w-4 h-4"
+                                        onError={(e) => {
+                                          e.currentTarget.style.display =
+                                            "none";
+                                        }}
+                                      />
+                                    );
+                                  }
+                                  return <Wallet className="w-4 h-4" />; // Fallback icon
+                                })()}
+                                <span>{getWalletDisplayName(wallet)}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      <Button
+                        onClick={handleCardanoConnect}
+                        disabled={!selectedWalletToConnect || isConnecting}
+                        className="w-full"
+                      >
+                        {isConnecting ? "Connecting..." : "Connect Wallet"}
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <p className="text-sm text-muted-foreground">
+                        No Cardano wallets detected. Please install a supported
+                        wallet:
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {Object.entries(knownWalletExtensions)
+                          .slice(0, 3)
+                          .map(([key, wallet]) => (
+                            <Button
+                              key={key}
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                window.open(
+                                  `https://chrome.google.com/webstore/detail/${wallet.id}`,
+                                  "_blank"
+                                )
+                              }
+                            >
+                              {wallet.display}
+                            </Button>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>

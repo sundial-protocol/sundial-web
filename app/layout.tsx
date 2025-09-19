@@ -6,6 +6,7 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import CustomThemeProvider from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
+import { WalletProvider } from "@/components/wallet-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,11 +24,13 @@ export default function RootLayout({
     <html lang="en">
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <body className={cn(inter.className, "overflow-visible")}>
-        <CustomThemeProvider>
-          <Navbar />
-          <main className="pt-12">{children}</main>
-          <Footer />
-        </CustomThemeProvider>
+        <WalletProvider>
+          <CustomThemeProvider>
+            <Navbar />
+            <main className="pt-12">{children}</main>
+            <Footer />
+          </CustomThemeProvider>
+        </WalletProvider>
       </body>
     </html>
   );

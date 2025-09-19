@@ -1,53 +1,41 @@
-import eternlIcon from '@/public/eternl.png';
-import flintIcon from '@/public/flint.svg';
-import geroIcon from '@/public/gero.png';
-import laceIcon from '@/public/lace.svg';
-import namiIcon from '@/public/nami.svg';
-import nufiIcon from '@/public/nufi.svg';
-import typhonIcon from '@/public/typhon.svg';
-import yoroiIcon from '@/public/yoroi.png';
+import eternlIcon from "@/public/wallets/eternl.png";
+import geroIcon from "@/public/wallets/gero.png";
+import laceIcon from "@/public/wallets/lace.svg";
+import nufiIcon from "@/public/wallets/nufi.svg";
+import typhonIcon from "@/public/wallets/typhon.svg";
+import yoroiIcon from "@/public/wallets/yoroi.png";
 
-export const chromeStoreUrl = 'https://chrome.google.com/webstore/detail/';
+export const chromeStoreUrl = "https://chrome.google.com/webstore/detail/";
 
 export const knownWalletExtensions = {
-  nami: {
-    id: 'lpfcbjknijpeeillifnkikgncikgfhdo',
-    display: 'Nami',
-    icon: namiIcon,
-  },
-  flint: {
-    id: 'hnhobjmcibchnmglfbldbfabcgaknlkj',
-    display: 'Flint',
-    icon: flintIcon,
-  },
   typhoncip30: {
-    id: 'kfdniefadaanbjodldohaedphafoffoh',
-    display: 'Typhon',
+    id: "kfdniefadaanbjodldohaedphafoffoh",
+    display: "Typhon",
     icon: typhonIcon,
   },
   yoroi: {
-    id: 'ffnbelfdoeiohenkjibnmadjiehjhajb',
-    display: 'Yoroi',
+    id: "ffnbelfdoeiohenkjibnmadjiehjhajb",
+    display: "Yoroi",
     icon: yoroiIcon,
   },
   eternl: {
-    id: 'kmhcihpebfmpgmihbkipmjlmmioameka',
-    display: 'Eternl',
+    id: "kmhcihpebfmpgmihbkipmjlmmioameka",
+    display: "Eternl",
     icon: eternlIcon,
   },
   gerowallet: {
-    id: 'bgpipimickeadkjlklgciifhnalhdjhe',
-    display: 'GeroWallet',
+    id: "bgpipimickeadkjlklgciifhnalhdjhe",
+    display: "GeroWallet",
     icon: geroIcon,
   },
   nufi: {
-    id: 'gpnihlnnodeiiaakbikldcihojploeca',
-    display: 'NuFi',
+    id: "gpnihlnnodeiiaakbikldcihojploeca",
+    display: "NuFi",
     icon: nufiIcon,
   },
   lace: {
-    id: 'gafhhkghbfjjkeiendhlofajokpaflmk',
-    display: 'Lace',
+    id: "gafhhkghbfjjkeiendhlofajokpaflmk",
+    display: "Lace",
     icon: laceIcon,
   },
 };
@@ -55,13 +43,13 @@ export const knownWalletExtensions = {
 export type KnownWalletName = keyof typeof knownWalletExtensions;
 
 export function getWalletIcon(wallet: string) {
-  if (wallet === '') {
+  if (wallet === "") {
     return;
   }
   if (
-    typeof window === 'undefined' ||
-    typeof window.cardano === 'undefined' ||
-    typeof window.cardano[wallet] === 'undefined'
+    typeof window === "undefined" ||
+    typeof window.cardano === "undefined" ||
+    typeof window.cardano[wallet] === "undefined"
   ) {
     return knownWalletExtensions[wallet as KnownWalletName]?.icon;
   }
@@ -70,7 +58,7 @@ export function getWalletIcon(wallet: string) {
 }
 
 export function getWalletDisplayName(wallet: string) {
-  if (wallet === '') {
+  if (wallet === "") {
     return;
   }
   const knownName = knownWalletExtensions[wallet as KnownWalletName]?.display;
@@ -78,11 +66,11 @@ export function getWalletDisplayName(wallet: string) {
   if (knownName) {
     return knownName;
   } else if (
-    typeof window === 'undefined' ||
-    typeof window.cardano === 'undefined' ||
-    typeof window.cardano[wallet] === 'undefined'
+    typeof window === "undefined" ||
+    typeof window.cardano === "undefined" ||
+    typeof window.cardano[wallet] === "undefined"
   ) {
-    return 'Wallet';
+    return "Wallet";
   }
 
   return window.cardano[wallet].name;
