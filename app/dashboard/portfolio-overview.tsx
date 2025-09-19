@@ -36,6 +36,7 @@ import {
   knownWalletExtensions,
 } from "@/lib/wallet/support";
 import { notifyError } from "@/lib/wallet/errors";
+import { WalletButton } from "@/components/ui/wallet-button";
 
 // Mock data - in real app, this would come from API
 const portfolioData = {
@@ -88,48 +89,6 @@ export function PortfolioOverview() {
   // Bitcoin wallet connection state (placeholder)
   const [btcWallet, setBtcWallet] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
-
-  // Cardano wallet state from context
-  const {
-    isConnected,
-    isConnecting,
-    selectedWallet,
-    changeAddress,
-    stakeAddress,
-    accountBalance,
-    network,
-    installedExtensions,
-    connect,
-    disconnect,
-  } = useWallet();
-
-  // Available wallet selection state
-  const [selectedWalletToConnect, setSelectedWalletToConnect] =
-    useState<string>("");
-
-  // Mock connect handler for Bitcoin
-  function connectBtcWallet() {
-    // In a real app, integrate with a wallet API or PSBT flow
-    const demoAddress = "tb1qexamplebtcwalletaddress1234567890";
-    setBtcWallet(demoAddress);
-  }
-
-  // Cardano wallet connection handler
-  const handleCardanoConnect = async () => {
-    if (!selectedWalletToConnect) return;
-
-    try {
-      await connect(selectedWalletToConnect);
-    } catch (error) {
-      notifyError(error);
-    }
-  };
-
-  // Cardano wallet disconnect handler
-  const handleCardanoDisconnect = () => {
-    disconnect();
-    setSelectedWalletToConnect("");
-  };
 
   function handleCopy(addr: string) {
     navigator.clipboard.writeText(addr);
@@ -188,7 +147,7 @@ export function PortfolioOverview() {
                   </Button>
                 </>
               ) : (
-                <Button variant="outline" onClick={connectBtcWallet}>
+                <Button variant="outline" onClick={() => setBtcWallet(null)}>
                   Connect Bitcoin Wallet
                 </Button>
               )}
@@ -199,170 +158,9 @@ export function PortfolioOverview() {
               <div className="flex items-center gap-2 mb-2">
                 <Coins className="w-5 h-5 text-blue-500" />
                 <span className="font-semibold">Cardano</span>
-                {network && (
-                  <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded">
-                    {network}
-                  </span>
-                )}
               </div>
 
-              {isConnected ? (
-                <>
-                  {/* Connected Wallet Info */}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      {getWalletIcon(selectedWallet) && (
-                        <img
-                          src={getWalletIcon(selectedWallet) as string}
-                          alt={selectedWallet}
-                          className="w-4 h-4"
-                        />
-                      )}
-                      <span className="text-sm font-medium">
-                        {getWalletDisplayName(selectedWallet)}
-                      </span>
-                    </div>
-
-                    {/* Change Address */}
-                    {changeAddress && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground">
-                          Address:
-                        </span>
-                        <span className="font-mono text-xs truncate">
-                          {formatAddress(changeAddress)}
-                        </span>
-                        <button
-                          onClick={() => handleCopy(changeAddress)}
-                          className="p-1 hover:bg-gray-100 rounded"
-                          title="Copy address"
-                        >
-                          {copied === changeAddress ? (
-                            <Check className="w-4 h-4 text-green-600" />
-                          ) : (
-                            <Copy className="w-4 h-4" />
-                          )}
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Stake Address */}
-                    {stakeAddress && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground">
-                          Stake:
-                        </span>
-                        <span className="font-mono text-xs truncate">
-                          {formatAddress(stakeAddress)}
-                        </span>
-                        <button
-                          onClick={() => handleCopy(stakeAddress)}
-                          className="p-1 hover:bg-gray-100 rounded"
-                          title="Copy stake address"
-                        >
-                          {copied === stakeAddress ? (
-                            <Check className="w-4 h-4 text-green-600" />
-                          ) : (
-                            <Copy className="w-4 h-4" />
-                          )}
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Balance */}
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">Balance: </span>
-                      <span className="font-medium">
-                        {accountBalance.toFixed(2)} ADA
-                      </span>
-                    </div>
-                  </div>
-
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleCardanoDisconnect}
-                  >
-                    Disconnect
-                  </Button>
-                </>
-              ) : (
-                <>
-                  {/* Wallet Selection */}
-                  {installedExtensions.length > 0 ? (
-                    <div className="space-y-3">
-                      <Select
-                        value={selectedWalletToConnect}
-                        onValueChange={setSelectedWalletToConnect}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a wallet" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {installedExtensions.map((wallet) => (
-                            <SelectItem key={wallet} value={wallet}>
-                              <div className="flex items-center gap-2">
-                                {(() => {
-                                  const walletIcon = getWalletIcon(wallet);
-                                  if (walletIcon) {
-                                    return (
-                                      <img
-                                        src={walletIcon}
-                                        alt={wallet}
-                                        className="w-4 h-4"
-                                        onError={(e) => {
-                                          e.currentTarget.style.display =
-                                            "none";
-                                        }}
-                                      />
-                                    );
-                                  }
-                                  return <Wallet className="w-4 h-4" />; // Fallback icon
-                                })()}
-                                <span>{getWalletDisplayName(wallet)}</span>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-
-                      <Button
-                        onClick={handleCardanoConnect}
-                        disabled={!selectedWalletToConnect || isConnecting}
-                        className="w-full"
-                      >
-                        {isConnecting ? "Connecting..." : "Connect Wallet"}
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <p className="text-sm text-muted-foreground">
-                        No Cardano wallets detected. Please install a supported
-                        wallet:
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {Object.entries(knownWalletExtensions)
-                          .slice(0, 3)
-                          .map(([key, wallet]) => (
-                            <Button
-                              key={key}
-                              variant="outline"
-                              size="sm"
-                              onClick={() =>
-                                window.open(
-                                  `https://chrome.google.com/webstore/detail/${wallet.id}`,
-                                  "_blank"
-                                )
-                              }
-                            >
-                              {wallet.display}
-                            </Button>
-                          ))}
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
+              <WalletButton />
             </div>
           </div>
         </CardContent>
