@@ -21,13 +21,7 @@ Before you begin, ensure you have the following installed on your system:
    cd sundial-web
    ```
 
-2. **Install dependencies**
-
-   ```bash
-   pnpm install
-   ```
-
-3. **Set up environment variables**
+2. **Set up environment variables**
    Create a `.env.local` file in the root directory:
 
    ```bash
@@ -38,6 +32,26 @@ Before you begin, ensure you have the following installed on your system:
 
    ```
    CMC_API_KEY=your_coinmarketcap_api_key_here
+   ```
+
+   Set an auth token for GitHub Packages in your terminal:
+
+   **Linux/MacOS:**
+
+   ```bash
+   export NODE_AUTH_TOKEN=your_github_token_here
+   ```
+
+   **Windows:**
+
+   ```bash
+   $env:NODE_AUTH_TOKEN="your_github_token_here"
+   ```
+
+3. **Install dependencies**
+
+   ```bash
+   pnpm install
    ```
 
 4. **Run the development server**
