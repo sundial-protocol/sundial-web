@@ -27,8 +27,12 @@ import {
 } from "lucide-react";
 import { chainConfigs, Chain } from "./types";
 import { depositAddress } from "@/hooks/get-scripts";
+import { useWallet } from "@/lib/wallet/context";
+import { depositFundTx } from "@sundial-protocol/ada-locker";
+import { lovelaceToAssets } from "@/lib/cardano";
 
 type TransactionType = "deposit" | "withdraw";
+const LockDurationSeconds = 30 * 24 * 60 * 60; // 30 days
 
 interface StakingFormProps {
   type: TransactionType;
@@ -60,6 +64,9 @@ export default function StakingForm({
 
   // ADA-specific states
   const [txHash, setTxHash] = useState("");
+
+  // Cardano wallet context
+  const { isConnected, lucid, api, changeAddress, stakeAddress } = useWallet();
 
   const config = chainConfigs[selectedChain];
   const isDeposit = type === "deposit";
@@ -163,13 +170,48 @@ export default function StakingForm({
     setLoading(true);
 
     try {
-      // Placeholder for Cardano transaction logic
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      const hash = `sample_cardano_${type}_hash_` + Date.now();
-      setTxHash(hash);
-      setStep("done");
-      onSuccess?.(hash, selectedChain, amount);
+      // Check if wallet is connected
+      if (!isConnected || !lucid || !api) {
+        throw new Error("Please connect your Cardano wallet first");
+      }
+
+      // Validate amount
+      const amountInLovelace = Math.floor(Number(amount) * 1_000_000); // Convert ADA to Lovelace
+      if (amountInLovelace < 1_000_000) {
+        throw new Error("Minimum deposit is 1 ADA");
+      }
+
+      if (isDeposit) {
+        // Call depositFundTx from ada-locker package
+        console.log("Calling depositFundTx with:", {
+          amount: amountInLovelace,
+          userAddress: changeAddress,
+          stakeAddress,
+        });
+
+        const result = await depositFundTx(
+          lovelaceToAssets(amountInLovelace),
+          Math.floor(Date.now() / 1000) + LockDurationSeconds
+          // Add any other required parameters based on ada-locker package API
+        );
+
+        const signedTx = await api.signTx(result, true);
+        const txHash = await api.submitTx(signedTx);
+
+        if (txHash) {
+          setTxHash(txHash);
+          setStep("done");
+          onSuccess?.(txHash, selectedChain, amount);
+        } else {
+          throw new Error("Transaction was submitted but no hash was returned");
+        }
+      } else {
+        // For withdrawals, you might need a different function from ada-locker
+        // This is a placeholder - replace with actual withdrawal function
+        throw new Error("Withdrawal functionality not yet implemented");
+      }
     } catch (err: any) {
+      console.error("ADA transaction error:", err);
       setError(err.message || `Error processing ADA ${type}`);
     }
     setLoading(false);
