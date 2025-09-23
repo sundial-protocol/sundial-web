@@ -7,7 +7,6 @@ import {
   useMemo,
   useState,
 } from "react";
-import type { Lucid, Network, WalletApi } from "lucid-cardano";
 import { toast } from "sonner";
 import { useLocalStorage } from "usehooks-ts";
 
@@ -19,9 +18,10 @@ import {
   WalletContextSetters,
   WalletContextType,
 } from "@/lib/wallet";
+import { LucidEvolution, Network, WalletApi } from "@evolution-sdk/lucid";
 
 export function WalletProvider({ children }: PropsWithChildren) {
-  const [lucid, setLucid] = useState<Lucid | null>(null);
+  const [lucid, setLucid] = useState<LucidEvolution | null>(null);
   const [api, setApi] = useState<WalletApi | null>(null);
   const [isInitializing, setInitializing] = useState(false);
   const [isInitialized, setInitialized] = useState(false);

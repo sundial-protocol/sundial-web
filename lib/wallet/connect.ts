@@ -145,7 +145,10 @@ export async function getWalletApiVersion(walletName: string): Promise<string> {
   }
 
   try {
-    const apiVersion = await window.cardano[walletName].apiVersion;
+    const apiVersion =
+      window.cardano && window.cardano[walletName]
+        ? window.cardano[walletName].apiVersion
+        : "unknown";
     return apiVersion || "unknown";
   } catch (error) {
     return "unknown";

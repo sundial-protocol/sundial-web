@@ -9,7 +9,7 @@ import {
   getWalletDisplayName,
   getWalletIcon,
   useWallet,
-  WalletApiError,
+  WalletError,
 } from "@/lib/wallet";
 import { Button } from "@/components/ui/button";
 
@@ -38,7 +38,7 @@ export function WalletButton() {
         // TODO: Wrap this in a timeout after 10 seconds pop a toast telling them to try and open the extension they are connecting from the browser extension list.  After 20 seconds give up and cancel the connect.
         await connect(extension);
       } catch (e) {
-        if (e instanceof WalletApiError) {
+        if (e instanceof WalletError) {
           if (e.code === "Refused") {
             toast.info("Wallet connection canceled per your request");
           } else {
@@ -60,11 +60,7 @@ export function WalletButton() {
             <Loader2 className="size-6 animate-spin" />
           ) : isConnected ? (
             <>
-              <img
-                src={getWalletIcon(selectedWallet)}
-                className="h-6"
-                alt={`${selectedWallet} Icon`}
-              />
+              {getWalletIcon(selectedWallet)}
               {getWalletDisplayName(selectedWallet)}
             </>
           ) : (
@@ -80,12 +76,10 @@ export function WalletButton() {
             onClick={() => handleClick(extension)}
           >
             <div className="flex w-full items-center gap-4 font-bold">
-              <img
-                src={getWalletIcon(extension)}
-                alt="Wallet Icon"
-                className="h-5"
-              />
-              {getWalletDisplayName(extension)}
+              <>
+                {getWalletIcon(extension)}
+                {getWalletDisplayName(extension)}
+              </>
             </div>
           </DropdownMenuItem>
         ))}

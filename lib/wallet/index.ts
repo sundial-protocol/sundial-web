@@ -1,4 +1,9 @@
-export { useWallet, type WalletContext } from "./context";
+export {
+  useWallet,
+  WalletContext,
+  type WalletContextType,
+  type WalletContextSetters,
+} from "./context";
 export { connect, disconnect, initWallet, loadLucid } from "./connect";
 export {
   WalletError,
