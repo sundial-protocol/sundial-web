@@ -191,12 +191,13 @@ export default function StakingForm({
 
         const result = await depositFundTx(
           lovelaceToAssets(amountInLovelace),
-          Math.floor(Date.now() / 1000) + LockDurationSeconds
-          // Add any other required parameters based on ada-locker package API
+          Math.floor(Date.now() / 1000) + LockDurationSeconds,
+          lucid,
+          selectedChain === "ada_testnet" ? "Preprod" : "Mainnet"
         );
 
-        const signedTx = await api.signTx(result, true);
-        const txHash = await api.submitTx(signedTx);
+        const signedTx = await result.sign.withWallet().complete();
+        const txHash = await signedTx.submit();
 
         if (txHash) {
           setTxHash(txHash);

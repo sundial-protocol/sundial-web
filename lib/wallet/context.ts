@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { createContext, Dispatch, SetStateAction, useContext } from 'react';
-import type { Lucid, Network, WalletApi } from 'lucid-cardano';
+import { createContext, Dispatch, SetStateAction, useContext } from "react";
+import type { LucidEvolution, Network, WalletApi } from "@evolution-sdk/lucid";
 
 export type WalletContextType = {
-  lucid: Lucid | null;
+  lucid: LucidEvolution | null;
   api: WalletApi | null;
   isInitializing: boolean;
   isInitialized: boolean;
@@ -14,8 +14,8 @@ export type WalletContextType = {
   network: Network;
   selectedWallet: string;
   lastSelectedWallet: string;
-  changeAddress: string | null;
-  stakeAddress: string | null;
+  changeAddress: string;
+  stakeAddress: string;
   installedExtensions: string[];
   accountBalance: number;
   connect: (wallet: string) => Promise<void>;
@@ -23,7 +23,7 @@ export type WalletContextType = {
 };
 
 export type WalletContextSetters = {
-  setLucid: Dispatch<SetStateAction<Lucid | null>>;
+  setLucid: Dispatch<SetStateAction<LucidEvolution | null>>;
   setApi: Dispatch<SetStateAction<WalletApi | null>>;
   setInitializing: Dispatch<SetStateAction<boolean>>;
   setInitialized: Dispatch<SetStateAction<boolean>>;
@@ -49,11 +49,11 @@ export const WalletContext = createContext<WalletContextType>({
   isEnabled: false,
   isConnecting: false,
   isConnected: false,
-  network: 'Mainnet',
-  selectedWallet: '',
-  lastSelectedWallet: '',
-  changeAddress: '',
-  stakeAddress: '',
+  network: "Mainnet",
+  selectedWallet: "",
+  lastSelectedWallet: "",
+  changeAddress: "",
+  stakeAddress: "",
   installedExtensions: [],
   accountBalance: 0,
   connect: noop,
@@ -63,7 +63,10 @@ export const WalletContext = createContext<WalletContextType>({
 export function useWallet() {
   const context = useContext(WalletContext);
 
-  if (context === undefined) throw new Error('Context can only be used withing the CaradanoProvider component');
+  if (context === undefined)
+    throw new Error(
+      "Context can only be used withing the CaradanoProvider component"
+    );
 
   return context;
 }
