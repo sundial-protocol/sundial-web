@@ -39,14 +39,18 @@ Before you begin, ensure you have the following installed on your system:
    **Linux/MacOS:**
 
    ```bash
+   # Add to your shell profile file (~/.bashrc, ~/.zshrc, or ~/.profile):
    export NODE_AUTH_TOKEN=your_github_token_here
    ```
 
    **Windows:**
 
    ```bash
-   $env:NODE_AUTH_TOKEN="your_github_token_here"
+   # Run as Administrator
+   [Environment]::SetEnvironmentVariable("NODE_AUTH_TOKEN", "your_github_token_here", "User")
    ```
+
+   Remember to restart your terminal or IDE to apply the changes.
 
 3. **Install dependencies**
 
