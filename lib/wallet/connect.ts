@@ -2,6 +2,7 @@ import type { LucidEvolution, Network, WalletApi } from "@evolution-sdk/lucid";
 import type { WalletContextSetters } from "./context";
 import { getInstalledWallets } from "./support";
 import { notifyError } from "./errors";
+import { connect as connectInternal } from "@/lib/wallet";
 
 // Dynamic import function for @evolution-sdk/lucid
 export const loadLucid = async () => {
@@ -9,66 +10,153 @@ export const loadLucid = async () => {
     return null; // Don't load on server
   }
 
+  // Check BigInt support
+  if (typeof BigInt === "undefined") {
+    console.error("BigInt not supported");
+    return null;
+  }
+
   try {
+    console.log("Importing Lucid modules...");
+
+    // Try Evolution SDK first
     const { Lucid, Blockfrost } = await import("@evolution-sdk/lucid");
+
+    if (!Lucid || !Blockfrost) {
+      throw new Error("Failed to import required modules");
+    }
+
+    console.log("Successfully imported Lucid Evolution");
     return { Lucid, Blockfrost };
+  } catch (evolutionError) {
+    console.warn("Evolution SDK failed", evolutionError);
+  }
+};
+
+// Add safe BigInt conversion helper
+export const safeBigInt = (value: any): bigint | null => {
+  try {
+    if (value === null || value === undefined) {
+      return null;
+    }
+    if (typeof value === "bigint") {
+      return value;
+    }
+    if (typeof value === "string" || typeof value === "number") {
+      return BigInt(value);
+    }
+    return null;
   } catch (error) {
-    console.error("Failed to load Lucid:", error);
+    console.error("Failed to convert to BigInt:", error);
     return null;
   }
 };
 
-export async function initWallet(
+export const initWallet = async (
   lastSelectedWallet: string,
   setters: WalletContextSetters
-) {
-  setters.setInitializing(true);
-
+) => {
   try {
-    // Only initialize on client side
+    console.log("Starting wallet initialization...");
+
+    // Check if we're on the client
     if (typeof window === "undefined") {
-      setters.setInitializing(false);
+      console.log("Server-side detected, skipping wallet init");
       return;
     }
 
-    // Load Lucid dynamically
-    const lucidModule = await loadLucid();
-    if (!lucidModule) {
-      throw new Error("Failed to load Lucid library");
+    // Check BigInt support
+    if (typeof BigInt === "undefined") {
+      console.error("BigInt not supported");
+      setters.setInitialized(true); // Mark as initialized to prevent retry
+      return;
     }
+
+    setters.setInitializing(true);
+
+    console.log("Loading Lucid library...");
+    const lucidModule = await loadLucid().then((res) => {
+      if (!res) {
+        console.error("Failed to load Lucid module");
+        throw new Error("Lucid library could not be loaded");
+      } else return res;
+    });
 
     const { Lucid, Blockfrost } = lucidModule;
 
-    // Initialize Lucid with Blockfrost
-    const lucid = await Lucid(
-      new Blockfrost(
+    console.log("Creating Lucid instance...");
+
+    // Create Lucid instance with error handling
+    let lucidInstance;
+    try {
+      const provider = new Blockfrost(
         process.env.NEXT_PUBLIC_BLOCKFROST_URL ||
           "https://cardano-mainnet.blockfrost.io/api/v0",
-        process.env.NEXT_PUBLIC_BLOCKFROST_API_KEY || "mainnetdefault"
-      ),
-      "Mainnet"
-    );
+        process.env.NEXT_PUBLIC_BLOCKFROST_PROJECT_ID || ""
+      );
 
-    setters.setLucid(lucid);
-    setters.setNetwork("Mainnet");
+      lucidInstance = await Lucid(provider, "Mainnet");
+    } catch (providerError) {
+      console.error("Failed to create Lucid instance:", providerError);
+      throw new Error("Failed to create blockchain provider");
+    }
 
-    // Get installed wallets
-    const installedWallets = getInstalledWallets();
+    setters.setLucid(lucidInstance);
+    console.log("Lucid instance created successfully");
+
+    // Check for installed wallets
+    console.log("Checking installed wallet extensions...");
+    const installedWallets = [];
+
+    if (typeof window.cardano !== "undefined") {
+      // Common Cardano wallets
+      const walletNames = ["nami", "eternl", "flint", "yoroi", "typhoncip30"];
+
+      for (const walletName of walletNames) {
+        try {
+          if (window.cardano[walletName]) {
+            installedWallets.push(walletName);
+            console.log(`Found wallet: ${walletName}`);
+          }
+        } catch (walletCheckError) {
+          console.warn(
+            `Error checking wallet ${walletName}:`,
+            walletCheckError
+          );
+        }
+      }
+    }
+
     setters.setInstalledExtensions(installedWallets);
+    console.log("Installed wallets:", installedWallets);
 
-    // Auto-connect to last selected wallet if available
+    // Try to reconnect to last selected wallet
     if (lastSelectedWallet && installedWallets.includes(lastSelectedWallet)) {
-      await connect(lucid, lastSelectedWallet, setters);
+      console.log(`Attempting to reconnect to ${lastSelectedWallet}...`);
+      try {
+        await connectInternal(lucidInstance, lastSelectedWallet, setters);
+      } catch (reconnectError) {
+        console.warn("Failed to reconnect to last wallet:", reconnectError);
+        // Don't throw here, just log the warning
+      }
     }
 
     setters.setInitialized(true);
+    console.log("Wallet initialization completed successfully");
   } catch (error) {
     console.error("Failed to initialize wallet:", error);
-    notifyError(error);
+
+    // Set some fallback state to prevent infinite retry
+    setters.setInitialized(true);
+    setters.setLucid(null);
+    setters.setInstalledExtensions([]);
+
+    // You might want to show a toast error here
+    // toast.error("Failed to initialize wallet system");
   } finally {
     setters.setInitializing(false);
   }
-}
+};
 
 export async function connect(
   lucid: LucidEvolution,

@@ -40,6 +40,8 @@ export function WalletProvider({ children }: PropsWithChildren) {
     []
   );
   const [accountBalance, setAccountBalance] = useState<number>(0);
+  const [isClient, setIsClient] = useState(false);
+  const [walletReady, setWalletReady] = useState(false);
 
   const setters: WalletContextSetters = useMemo(
     () => ({
@@ -133,9 +135,55 @@ export function WalletProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     if (!isInitialized && !isInitializing) {
-      initWallet(lastSelectedWallet, setters);
+      console.log("Starting wallet initialization from provider...");
+      initWallet(lastSelectedWallet, setters).catch((error) => {
+        console.error("Wallet initialization failed in provider:", error);
+        // Prevent infinite retry loop
+        setInitialized(true);
+        setInitializing(false);
+      });
     }
   }, [isInitialized, isInitializing, lastSelectedWallet, setters]);
+
+  useEffect(() => {
+    // Ensure we're on client-side
+    if (typeof window === "undefined") return;
+
+    // Add BigInt polyfill check
+    if (typeof BigInt === "undefined") {
+      console.error("BigInt not supported in this environment");
+      return;
+    }
+
+    setIsClient(true);
+
+    // Load wallet libraries safely
+    const loadWallet = async () => {
+      try {
+        // Only load after client is ready
+        await import("@evolution-sdk/lucid");
+        setWalletReady(true);
+      } catch (error) {
+        console.error("Failed to load wallet libraries:", error);
+        setWalletReady(true); // Still render to prevent hanging
+      }
+    };
+
+    // Add a small delay to ensure DOM is ready
+    const timer = setTimeout(loadWallet, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!isClient || !walletReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p>Loading wallet services...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <WalletContext.Provider value={context}>{children}</WalletContext.Provider>
