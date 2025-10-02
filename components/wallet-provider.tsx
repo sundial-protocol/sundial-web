@@ -31,7 +31,7 @@ export function WalletProvider({ children }: PropsWithChildren) {
   const [network, setNetwork] = useState<Network>("Mainnet");
   const [selectedWallet, setSelectedWallet] = useState("");
   const [lastSelectedWallet, setLastSelectedWallet] = useLocalStorage(
-    "mintun:selected:wallet",
+    "sundial:selected:wallet",
     ""
   );
   const [changeAddress, setChangeAddress] = useState("");

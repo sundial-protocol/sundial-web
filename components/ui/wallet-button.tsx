@@ -12,6 +12,7 @@ import {
   WalletError,
 } from "@/lib/wallet";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 import {
   DropdownMenu,
@@ -60,7 +61,12 @@ export function WalletButton() {
             <Loader2 className="size-6 animate-spin" />
           ) : isConnected ? (
             <>
-              {getWalletIcon(selectedWallet)}
+              <Image
+                src={getWalletIcon(selectedWallet) ?? "null"}
+                alt={selectedWallet + "logo"}
+                width={100}
+                height={100}
+              />
               {getWalletDisplayName(selectedWallet)}
             </>
           ) : (
@@ -77,7 +83,12 @@ export function WalletButton() {
           >
             <div className="flex w-full items-center gap-4 font-bold">
               <>
-                {getWalletIcon(extension)}
+                <Image
+                  src={getWalletIcon(selectedWallet) ?? "null"}
+                  alt={selectedWallet + "logo"}
+                  width={100}
+                  height={100}
+                />
                 {getWalletDisplayName(extension)}
               </>
             </div>

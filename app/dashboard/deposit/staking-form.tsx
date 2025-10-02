@@ -191,7 +191,7 @@ export default function StakingForm({
 
         const result = await depositFundTx(
           lovelaceToAssets(amountInLovelace),
-          Math.floor(Date.now() / 1000) + LockDurationSeconds,
+          Date.now() + LockDurationSeconds,
           lucid,
           selectedChain === "ada_testnet" ? "Preprod" : "Mainnet"
         );
