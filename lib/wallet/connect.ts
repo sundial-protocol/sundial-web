@@ -109,8 +109,15 @@ export const initWallet = async (
     const installedWallets = [];
 
     if (typeof window.cardano !== "undefined") {
-      // Common Cardano wallets
-      const walletNames = ["nami", "eternl", "flint", "yoroi", "typhoncip30"];
+      const walletNames = [
+        "nami",
+        "eternl",
+        "flint",
+        "yoroi",
+        "typhoncip30",
+        "lace",
+        "vespr",
+      ];
 
       for (const walletName of walletNames) {
         try {
@@ -151,7 +158,7 @@ export const initWallet = async (
     setters.setLucid(null);
     setters.setInstalledExtensions([]);
 
-    // You might want to show a toast error here
+    // Might want to show a toast error here
     // toast.error("Failed to initialize wallet system");
   } finally {
     setters.setInitializing(false);
