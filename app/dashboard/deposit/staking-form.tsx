@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import * as bitcoin from "bitcoinjs-lib";
+import { useWallet } from "@/lib/wallet"; // Use your custom wallet hook
 import {
   Card,
   CardContent,
@@ -163,14 +164,28 @@ export default function StakingForm({
     setLoading(true);
 
     try {
-      // Placeholder for Cardano transaction logic
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      const hash = `sample_cardano_${type}_hash_` + Date.now();
-      setTxHash(hash);
+      if (!isConnected || !wallet) {
+        throw new Error("Please connect your Cardano wallet first");
+      }
+
+      // Convert amount from ADA to Lovelace
+      const amountInLovelace = Math.floor(parseFloat(amount) * 1_000_000);
+
+      // Create a simple transaction (you'll need to integrate with @sundial-protocol/ada-locker)
+      const recipientAddress = await wallet.getChangeAddress(); // For demo purposes
+
+      const tx = await wallet.submitTx(
+        // You'll need to build the actual transaction here
+        // This is a placeholder
+        `placeholder_transaction_${amountInLovelace}`
+      );
+
+      setTxHash(tx);
       setStep("done");
-      onSuccess?.(hash, selectedChain, amount);
+      onSuccess?.(tx, selectedChain, amount);
     } catch (err: any) {
       setError(err.message || `Error processing ADA ${type}`);
+      console.error("ADA transaction error:", err);
     }
     setLoading(false);
   };
@@ -246,6 +261,17 @@ export default function StakingForm({
       isDeposit ? "Deposit" : "Withdrawal"
     } Processed Successfully!`;
   };
+
+  // Use your custom wallet hook instead of MeshSDK's
+  const {
+    wallet,
+    isConnected,
+    selectedWallet: walletName,
+    isConnecting: connecting,
+    connect,
+    disconnect,
+    accountBalance,
+  } = useWallet();
 
   return (
     <Card>
@@ -512,6 +538,49 @@ export default function StakingForm({
                 <a href="/dashboard?tab=portfolio">View Portfolio</a>
               </Button>
             </div>
+          </div>
+        )}
+
+        {/* Updated Cardano Wallet Connection section */}
+        {selectedChain === "ada" && (
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Cardano Wallet</label>
+            {!isConnected ? (
+              <div className="p-4 border border-gray-200 rounded-md">
+                <p className="text-sm text-muted-foreground mb-3">
+                  Connect your Cardano wallet to proceed with ADA transactions
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => connect("nami")} // You can make this dynamic
+                  disabled={connecting}
+                >
+                  {connecting ? "Connecting..." : "Connect Wallet"}
+                </Button>
+              </div>
+            ) : (
+              <div className="p-4 bg-green-50 border border-green-200 rounded-md">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-green-800">
+                      Connected: {walletName || "Unknown"}
+                    </p>
+                    <p className="text-xs text-green-600">
+                      Balance: {accountBalance.toFixed(2)} ADA
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={disconnect}
+                  >
+                    Disconnect
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </CardContent>

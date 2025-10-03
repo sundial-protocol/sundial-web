@@ -10,6 +10,11 @@ import {
   getWalletIcon,
   useWallet,
   WalletApiError,
+  WalletConnectError,
+  ExtensionNotInjectedError,
+  WalletNotInstalledError,
+  EnablementFailedError,
+  getErrorMessage,
 } from "@/lib/wallet";
 import { Button } from "@/components/ui/button";
 
@@ -30,76 +35,118 @@ export function WalletButton() {
     isConnecting,
     selectedWallet,
     installedExtensions,
+    accountBalance,
   } = useWallet();
 
   const handleClick = useCallback(
     async (extension: string) => {
       try {
-        // TODO: Wrap this in a timeout after 10 seconds pop a toast telling them to try and open the extension they are connecting from the browser extension list.  After 20 seconds give up and cancel the connect.
         await connect(extension);
-      } catch (e) {
-        if (e instanceof WalletApiError) {
-          if (e.code === "Refused") {
+        toast.success(`Connected to ${getWalletDisplayName(extension)}`);
+      } catch (error) {
+        // Use existing error handling scheme
+        if (error instanceof WalletApiError) {
+          if (error.code === "Refused") {
             toast.info("Wallet connection canceled per your request");
           } else {
-            toast.error(e.message);
+            toast.error(getErrorMessage(error));
           }
-        } else if (e instanceof Error) {
-          toast.error(e.message);
+        } else if (
+          error instanceof WalletConnectError ||
+          error instanceof ExtensionNotInjectedError ||
+          error instanceof WalletNotInstalledError ||
+          error instanceof EnablementFailedError
+        ) {
+          toast.error(getErrorMessage(error));
+        } else {
+          toast.error(getErrorMessage(error));
         }
       }
     },
     [connect]
   );
 
+  const handleDisconnect = useCallback(() => {
+    disconnect();
+    toast.success("Wallet disconnected");
+  }, [disconnect]);
+
+  if (isInitializing) {
+    return (
+      <Button variant="ghost" disabled>
+        <Loader2 className="size-4 animate-spin mr-2" />
+        Initializing...
+      </Button>
+    );
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" disabled={isConnecting || isInitializing}>
-          {isConnecting || isInitializing ? (
-            <Loader2 className="size-6 animate-spin" />
-          ) : isConnected ? (
+        <Button variant="ghost" disabled={isConnecting}>
+          {isConnecting ? (
             <>
+              <Loader2 className="size-4 animate-spin mr-2" />
+              Connecting...
+            </>
+          ) : isConnected ? (
+            <div className="flex items-center gap-2">
               <img
                 src={getWalletIcon(selectedWallet)}
-                className="h-6"
+                className="h-5 w-5"
                 alt={`${selectedWallet} Icon`}
               />
-              {getWalletDisplayName(selectedWallet)}
-            </>
+              <div className="flex flex-col items-start">
+                <span className="text-sm font-medium">
+                  {getWalletDisplayName(selectedWallet)}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {accountBalance.toFixed(2)} ADA
+                </span>
+              </div>
+            </div>
           ) : (
             "Connect Cardano Wallet"
           )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        {installedExtensions.map((extension, key) => (
-          <DropdownMenuItem
-            key={key}
-            disabled={extension === selectedWallet}
-            onClick={() => handleClick(extension)}
-          >
-            <div className="flex w-full items-center gap-4 font-bold">
-              <img
-                src={getWalletIcon(extension)}
-                alt="Wallet Icon"
-                className="h-5"
-              />
-              {getWalletDisplayName(extension)}
-            </div>
+        {installedExtensions.length > 0 ? (
+          installedExtensions.map((extension, key) => (
+            <DropdownMenuItem
+              key={key}
+              disabled={extension === selectedWallet}
+              onClick={() => handleClick(extension)}
+            >
+              <div className="flex w-full items-center gap-3">
+                <img
+                  src={getWalletIcon(extension)}
+                  alt="Wallet Icon"
+                  className="h-5 w-5"
+                />
+                <span className="font-medium">
+                  {getWalletDisplayName(extension)}
+                </span>
+              </div>
+            </DropdownMenuItem>
+          ))
+        ) : (
+          <DropdownMenuItem disabled>
+            <span className="text-muted-foreground">No wallets installed</span>
           </DropdownMenuItem>
-        ))}
-        {isConnected ? (
+        )}
+
+        {isConnected && (
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="font-heading flex items-center justify-center font-bold"
-              onClick={disconnect}
+              className="font-medium text-red-600 focus:text-red-600"
+              onClick={handleDisconnect}
             >
               Disconnect
             </DropdownMenuItem>
           </>
-        ) : undefined}
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

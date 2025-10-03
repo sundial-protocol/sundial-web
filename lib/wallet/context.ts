@@ -1,11 +1,26 @@
-'use client';
+import { createContext, useContext } from "react";
+import { BrowserWallet } from "@meshsdk/core";
 
-import { createContext, Dispatch, SetStateAction, useContext } from 'react';
-import type { Lucid, Network, WalletApi } from 'lucid-cardano';
+export type Network = "mainnet" | "testnet" | "preview" | "preprod";
 
-export type WalletContextType = {
-  lucid: Lucid | null;
-  api: WalletApi | null;
+export interface WalletContextSetters {
+  setWallet: (wallet: BrowserWallet | null) => void;
+  setInitializing: (initializing: boolean) => void;
+  setInitialized: (initialized: boolean) => void;
+  setEnabled: (enabled: boolean) => void;
+  setConnecting: (connecting: boolean) => void;
+  setConnected: (connected: boolean) => void;
+  setNetwork: (network: Network) => void;
+  setSelectedWallet: (wallet: string) => void;
+  setLastSelectedWallet: (wallet: string) => void;
+  setChangeAddress: (address: string) => void;
+  setStakeAddress: (address: string) => void;
+  setInstalledExtensions: (extensions: string[]) => void;
+  setAccountBalance: (balance: number) => void;
+}
+
+export interface WalletContextType {
+  wallet: BrowserWallet | null;
   isInitializing: boolean;
   isInitialized: boolean;
   isEnabled: boolean;
@@ -14,56 +29,20 @@ export type WalletContextType = {
   network: Network;
   selectedWallet: string;
   lastSelectedWallet: string;
-  changeAddress: string | null;
-  stakeAddress: string | null;
+  changeAddress: string;
+  stakeAddress: string;
   installedExtensions: string[];
   accountBalance: number;
   connect: (wallet: string) => Promise<void>;
   disconnect: () => void;
-};
+}
 
-export type WalletContextSetters = {
-  setLucid: Dispatch<SetStateAction<Lucid | null>>;
-  setApi: Dispatch<SetStateAction<WalletApi | null>>;
-  setInitializing: Dispatch<SetStateAction<boolean>>;
-  setInitialized: Dispatch<SetStateAction<boolean>>;
-  setEnabled: Dispatch<SetStateAction<boolean>>;
-  setConnecting: Dispatch<SetStateAction<boolean>>;
-  setConnected: Dispatch<SetStateAction<boolean>>;
-  setNetwork: Dispatch<SetStateAction<Network>>;
-  setSelectedWallet: Dispatch<SetStateAction<string>>;
-  setLastSelectedWallet: Dispatch<SetStateAction<string>>;
-  setChangeAddress: Dispatch<SetStateAction<string>>;
-  setStakeAddress: Dispatch<SetStateAction<string>>;
-  setInstalledExtensions: Dispatch<SetStateAction<string[]>>;
-  setAccountBalance: Dispatch<SetStateAction<number>>;
-};
-
-const noop = async (..._: any) => {};
-
-export const WalletContext = createContext<WalletContextType>({
-  lucid: null,
-  api: null,
-  isInitializing: false,
-  isInitialized: false,
-  isEnabled: false,
-  isConnecting: false,
-  isConnected: false,
-  network: 'Mainnet',
-  selectedWallet: '',
-  lastSelectedWallet: '',
-  changeAddress: '',
-  stakeAddress: '',
-  installedExtensions: [],
-  accountBalance: 0,
-  connect: noop,
-  disconnect: noop,
-});
+export const WalletContext = createContext<WalletContextType | null>(null);
 
 export function useWallet() {
   const context = useContext(WalletContext);
-
-  if (context === undefined) throw new Error('Context can only be used withing the CaradanoProvider component');
-
+  if (!context) {
+    throw new Error("useWallet must be used within a WalletProvider");
+  }
   return context;
 }

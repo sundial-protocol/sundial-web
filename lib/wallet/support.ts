@@ -1,77 +1,61 @@
-import eternlIcon from "@/public/wallets/eternl.png";
-import geroIcon from "@/public/wallets/gero.png";
-import laceIcon from "@/public/wallets/lace.svg";
-import nufiIcon from "@/public/wallets/nufi.svg";
-import typhonIcon from "@/public/wallets/typhon.svg";
-import yoroiIcon from "@/public/wallets/yoroi.png";
-
-export const chromeStoreUrl = "https://chrome.google.com/webstore/detail/";
+import { BrowserWallet } from "@meshsdk/core";
 
 export const knownWalletExtensions = {
-  typhoncip30: {
-    id: "kfdniefadaanbjodldohaedphafoffoh",
-    display: "Typhon",
-    icon: typhonIcon,
-  },
-  yoroi: {
-    id: "ffnbelfdoeiohenkjibnmadjiehjhajb",
-    display: "Yoroi",
-    icon: yoroiIcon,
-  },
-  eternl: {
-    id: "kmhcihpebfmpgmihbkipmjlmmioameka",
-    display: "Eternl",
-    icon: eternlIcon,
-  },
-  gerowallet: {
-    id: "bgpipimickeadkjlklgciifhnalhdjhe",
-    display: "GeroWallet",
-    icon: geroIcon,
-  },
-  nufi: {
-    id: "gpnihlnnodeiiaakbikldcihojploeca",
-    display: "NuFi",
-    icon: nufiIcon,
-  },
-  lace: {
-    id: "gafhhkghbfjjkeiendhlofajokpaflmk",
-    display: "Lace",
-    icon: laceIcon,
-  },
-};
+  nami: "Nami",
+  eternl: "Eternl",
+  flint: "Flint",
+  yoroi: "Yoroi",
+  gerowallet: "GeroWallet",
+  typhoncip30: "Typhon",
+  nufi: "NuFi",
+  cardwallet: "CardWallet",
+  lace: "Lace",
+} as const;
 
 export type KnownWalletName = keyof typeof knownWalletExtensions;
 
-export function getWalletIcon(wallet: string) {
-  if (wallet === "") {
-    return;
-  }
-  if (
-    typeof window === "undefined" ||
-    typeof window.cardano === "undefined" ||
-    typeof window.cardano[wallet] === "undefined"
-  ) {
-    return knownWalletExtensions[wallet as KnownWalletName]?.icon;
+export type WalletExtension = keyof typeof knownWalletExtensions;
+
+export async function getInstalledWallets(): Promise<string[]> {
+  if (typeof window === "undefined") {
+    return [];
   }
 
-  return window.cardano[wallet].icon;
+  const installed: string[] = [];
+
+  try {
+    // Use MeshSDK's method to get available wallets
+    const availableWallets = BrowserWallet.getInstalledWallets();
+
+    for (const { name: walletName } of availableWallets) {
+      if (walletName in knownWalletExtensions) {
+        installed.push(walletName);
+      }
+    }
+  } catch (error) {
+    console.warn("Failed to get installed wallets:", error);
+  }
+
+  return installed;
 }
 
-export function getWalletDisplayName(wallet: string) {
-  if (wallet === "") {
-    return;
-  }
-  const knownName = knownWalletExtensions[wallet as KnownWalletName]?.display;
+export function getWalletDisplayName(walletName: string): string {
+  return knownWalletExtensions[walletName as WalletExtension] || walletName;
+}
 
-  if (knownName) {
-    return knownName;
-  } else if (
-    typeof window === "undefined" ||
-    typeof window.cardano === "undefined" ||
-    typeof window.cardano[wallet] === "undefined"
-  ) {
-    return "Wallet";
-  }
+export function getWalletIcon(walletName: string): string {
+  const iconMap: Record<string, string> = {
+    nami: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCAxMkwxMy4wOSAxNS43NEwxMiAyMkwxMC45MSAxNS43NEw0IDEyTDEwLjkxIDguMjZMMTIgMloiIGZpbGw9IiMxOTc2RDIiLz4KPC9zdmc+",
+    eternl:
+      "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiNGRjU3MjIiLz4KPC9zdmc+",
+    flint:
+      "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiM2MzY2RjEiLz4KPC9zdmc+",
+    yoroi:
+      "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiMzQjgyRjYiLz4KPC9zdmc+",
+    gerowallet:
+      "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiMxMEIxMDEiLz4KPC9zdmc+",
+    lace: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiNGNTk4NDIiLz4KPC9zdmc+",
+  };
 
-  return window.cardano[wallet].name;
+  return iconMap[walletName] || iconMap.nami;
 }

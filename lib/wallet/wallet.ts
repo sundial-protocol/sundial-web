@@ -41,7 +41,7 @@ export function getInstalledWalletExtensions(supportedWallets?: string[]) {
 
 export function getWalletApi(wallet: string) {
   const displayName =
-    knownWalletExtensions[wallet as KnownWalletName]?.display ?? wallet;
+    knownWalletExtensions[wallet as KnownWalletName] ?? wallet;
   if (typeof window === "undefined") {
     throw new ServerWalletNotSupported();
   } else if (typeof window.cardano === "undefined") {

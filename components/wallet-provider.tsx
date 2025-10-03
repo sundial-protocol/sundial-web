@@ -7,9 +7,8 @@ import {
   useMemo,
   useState,
 } from "react";
-import type { Lucid, Network, WalletApi } from "lucid-cardano";
+import { BrowserWallet } from "@meshsdk/core";
 import { toast } from "sonner";
-import { useLocalStorage } from "usehooks-ts";
 
 import {
   connect as connectInternal,
@@ -18,33 +17,30 @@ import {
   WalletContext,
   WalletContextSetters,
   WalletContextType,
+  type Network,
 } from "@/lib/wallet";
 
 export function WalletProvider({ children }: PropsWithChildren) {
-  const [lucid, setLucid] = useState<Lucid | null>(null);
-  const [api, setApi] = useState<WalletApi | null>(null);
+  const [wallet, setWallet] = useState<BrowserWallet | null>(null);
   const [isInitializing, setInitializing] = useState(false);
   const [isInitialized, setInitialized] = useState(false);
   const [isEnabled, setEnabled] = useState(false);
   const [isConnecting, setConnecting] = useState(false);
   const [isConnected, setConnected] = useState(false);
-  const [network, setNetwork] = useState<Network>("Mainnet");
+  const [network, setNetwork] = useState<Network>("mainnet");
   const [selectedWallet, setSelectedWallet] = useState("");
-  const [lastSelectedWallet, setLastSelectedWallet] = useLocalStorage(
-    "mintun:selected:wallet",
-    ""
-  );
+  const [lastSelectedWallet, setLastSelectedWallet] = useState("");
   const [changeAddress, setChangeAddress] = useState("");
   const [stakeAddress, setStakeAddress] = useState("");
   const [installedExtensions, setInstalledExtensions] = useState<Array<string>>(
     []
   );
   const [accountBalance, setAccountBalance] = useState<number>(0);
+  const [mounted, setMounted] = useState(false);
 
   const setters: WalletContextSetters = useMemo(
     () => ({
-      setLucid,
-      setApi,
+      setWallet,
       setInitializing,
       setInitialized,
       setEnabled,
@@ -58,44 +54,27 @@ export function WalletProvider({ children }: PropsWithChildren) {
       setInstalledExtensions,
       setAccountBalance,
     }),
-    [
-      setLucid,
-      setApi,
-      setInitializing,
-      setInitialized,
-      setEnabled,
-      setConnecting,
-      setConnected,
-      setNetwork,
-      setSelectedWallet,
-      setLastSelectedWallet,
-      setChangeAddress,
-      setStakeAddress,
-      setInstalledExtensions,
-      setAccountBalance,
-    ]
+    []
   );
 
   const connect = useCallback(
-    async (wallet: string) => {
-      if (lucid) {
-        await connectInternal(lucid, wallet, setters);
-      } else {
+    async (walletName: string) => {
+      try {
+        await connectInternal(walletName, setters);
+      } catch (error) {
+        console.error("Connection failed:", error);
         await disconnectInternal(setters);
-        toast.error(
-          "State was invalid while connecting. The state has been reset. Please try again."
-        );
+        toast.error("Failed to connect wallet. Please try again.");
       }
     },
-    [lucid, setters]
+    [setters]
   );
 
   const disconnect = useCallback(() => disconnectInternal(setters), [setters]);
 
   const context: WalletContextType = useMemo(
     () => ({
-      lucid,
-      api,
+      wallet,
       isInitializing,
       isInitialized,
       isEnabled,
@@ -112,8 +91,7 @@ export function WalletProvider({ children }: PropsWithChildren) {
       disconnect,
     }),
     [
-      lucid,
-      api,
+      wallet,
       isInitializing,
       isInitialized,
       isEnabled,
@@ -131,11 +109,49 @@ export function WalletProvider({ children }: PropsWithChildren) {
     ]
   );
 
+  // Handle localStorage in useEffect to avoid hydration issues
   useEffect(() => {
-    if (!isInitialized && !isInitializing) {
-      initWallet(lastSelectedWallet, setters);
+    setMounted(true);
+
+    // Load last selected wallet from localStorage
+    const savedWallet = localStorage.getItem("sundial:selected:wallet") || "";
+    setLastSelectedWallet(savedWallet);
+  }, []);
+
+  // Save lastSelectedWallet to localStorage when it changes
+  useEffect(() => {
+    if (mounted && lastSelectedWallet) {
+      localStorage.setItem("sundial:selected:wallet", lastSelectedWallet);
     }
-  }, [isInitialized, isInitializing, lastSelectedWallet, setters]);
+  }, [lastSelectedWallet, mounted]);
+
+  useEffect(() => {
+    if (!mounted) return;
+
+    const initializeWallet = async () => {
+      try {
+        console.log("Starting wallet initialization...");
+
+        // Initialize wallet system
+        await initWallet(lastSelectedWallet, setters);
+
+        console.log("Wallet initialization completed");
+      } catch (error) {
+        console.error("Failed to initialize wallet system:", error);
+        toast.error("Failed to initialize wallet system");
+      }
+    };
+
+    // Add a delay to ensure the page is fully loaded
+    const timeoutId = setTimeout(initializeWallet, 1000);
+
+    return () => clearTimeout(timeoutId);
+  }, [mounted, lastSelectedWallet, setters]);
+
+  // Don't render until mounted to avoid hydration issues
+  if (!mounted) {
+    return <>{children}</>;
+  }
 
   return (
     <WalletContext.Provider value={context}>{children}</WalletContext.Provider>

@@ -1,128 +1,202 @@
-import { type Lucid } from 'lucid-cardano';
-import { toast } from 'sonner';
+import { BrowserWallet } from "@meshsdk/core";
+import type { WalletContextSetters } from "./context";
+import { getInstalledWallets } from "./support";
+import {
+  notifyError,
+  WalletConnectError,
+  ExtensionNotInjectedError,
+  WalletNotInstalledError,
+  EnablementFailedError,
+  ServerWalletNotSupported,
+} from "./errors";
 
-import { WalletContextSetters } from './context';
-import { apiError } from './errors';
-import { waitforWalletExtension } from './util';
-import { getBalanceAda, getChangeAddress, getInstalledWalletExtensions, getStakeAddress, getWalletApi } from './wallet';
+export const loadMesh = async () => {
+  if (typeof window === "undefined") {
+    throw new ServerWalletNotSupported();
+  }
 
-async function createLucid() {
-  // TODO: Figure out if this is the best way to do this
-  const { Lucid } = await import('lucid-cardano');
-  return await Lucid.new(undefined, undefined);
-}
-
-export async function initWallet(lastSelectedWallet: string, setters: WalletContextSetters) {
-  setters.setInitializing(true);
   try {
-    // Wait for the wallet extension to be injected on the page if the user has previously selected a wallet.
-    if (lastSelectedWallet) {
-      setters.setSelectedWallet(lastSelectedWallet);
-      setters.setConnecting(true);
-      try {
-        await waitforWalletExtension(lastSelectedWallet);
-      } catch (error) {
-        // Never got injected maybe it was uninstalled. Clear it so we don't bother trying next time
-        setters.setConnecting(false);
-        setters.setSelectedWallet('');
-        setters.setLastSelectedWallet('');
-        lastSelectedWallet = '';
+    console.log("Loading MeshSDK...");
+    const meshModule = await import("@meshsdk/core");
+    console.log("MeshSDK loaded successfully");
+    return meshModule;
+  } catch (error) {
+    console.error("Failed to load MeshSDK:", error);
+    throw new Error("Failed to load MeshSDK");
+  }
+};
+
+export async function connect(
+  walletName: string,
+  setters: WalletContextSetters
+): Promise<void> {
+  const {
+    setConnecting,
+    setConnected,
+    setSelectedWallet,
+    setLastSelectedWallet,
+    setChangeAddress,
+    setStakeAddress,
+    setAccountBalance,
+    setWallet,
+    setEnabled,
+  } = setters;
+
+  try {
+    setConnecting(true);
+
+    // Check if we're in browser environment
+    if (typeof window === "undefined") {
+      throw new ServerWalletNotSupported();
+    }
+
+    // Check if wallet is installed
+    const installedWallets = await getInstalledWallets();
+    if (!installedWallets.includes(walletName)) {
+      throw new WalletNotInstalledError(walletName);
+    }
+
+    // Load MeshSDK dynamically
+    const meshModule = await loadMesh();
+    if (!meshModule) {
+      throw new Error("Failed to load MeshSDK");
+    }
+
+    const { BrowserWallet } = meshModule;
+
+    // Check if wallet extension is available
+    if (!window.cardano || !window.cardano[walletName]) {
+      throw new ExtensionNotInjectedError(walletName);
+    }
+
+    // Connect to the wallet
+    let wallet: BrowserWallet;
+    try {
+      wallet = await BrowserWallet.enable(walletName);
+    } catch (error) {
+      throw new EnablementFailedError(walletName);
+    }
+
+    if (!wallet) {
+      throw new WalletConnectError(
+        walletName,
+        "Wallet connection returned null"
+      );
+    }
+
+    // Get wallet addresses
+    const changeAddress = await wallet.getChangeAddress();
+    const rewardAddresses = await wallet.getRewardAddresses();
+    const stakeAddress = rewardAddresses.length > 0 ? rewardAddresses[0] : "";
+
+    // Get wallet balance
+    const utxos = await wallet.getUtxos();
+    let totalLovelace = 0;
+
+    for (const utxo of utxos) {
+      const lovelaceAmount = utxo.output.amount.find(
+        (asset) => asset.unit === "lovelace"
+      );
+      if (lovelaceAmount) {
+        totalLovelace += parseInt(lovelaceAmount.quantity);
       }
     }
 
-    const lucid = await createLucid();
+    const adaBalance = totalLovelace / 1_000_000; // Convert lovelace to ADA
 
-    if (lastSelectedWallet) {
-      await connect(lucid, lastSelectedWallet, setters, true);
+    // Update context
+    setWallet(wallet);
+    setChangeAddress(changeAddress);
+    setStakeAddress(stakeAddress);
+    setAccountBalance(adaBalance);
+    setSelectedWallet(walletName);
+    setLastSelectedWallet(walletName);
+    setEnabled(true);
+    setConnected(true);
+
+    console.log(`Successfully connected to ${walletName}`);
+  } catch (error: any) {
+    console.error(`Failed to connect to ${walletName}:`, error);
+
+    // Use existing error handling
+    if (
+      error instanceof WalletConnectError ||
+      error instanceof ExtensionNotInjectedError ||
+      error instanceof WalletNotInstalledError ||
+      error instanceof EnablementFailedError ||
+      error instanceof ServerWalletNotSupported
+    ) {
+      notifyError(error);
+    } else {
+      notifyError(
+        new WalletConnectError(walletName, error.message || "Unknown error")
+      );
     }
 
-    // Should be all extensions have injected by now but could've waited longer
-    const extensions = getInstalledWalletExtensions();
-    setters.setInstalledExtensions(extensions);
-    setters.setLucid(lucid);
-    setters.setInitialized(true);
+    throw error;
   } finally {
-    setters.setInitializing(false);
+    setConnecting(false);
   }
 }
 
-export async function disconnect(setters: WalletContextSetters) {
-  // Only real way to fully clear state from lucid
-  const lucid = await createLucid();
+export async function disconnect(setters: WalletContextSetters): Promise<void> {
+  const {
+    setWallet,
+    setConnected,
+    setEnabled,
+    setSelectedWallet,
+    setChangeAddress,
+    setStakeAddress,
+    setAccountBalance,
+  } = setters;
 
-  setters.setLucid(lucid);
-  setters.setApi(null);
-  setters.setEnabled(false);
-  setters.setConnecting(false);
-  setters.setConnected(false);
-  setters.setSelectedWallet('');
-  setters.setLastSelectedWallet('');
-  setters.setChangeAddress('');
-  setters.setStakeAddress('');
-  setters.setAccountBalance(0);
+  setWallet(null);
+  setConnected(false);
+  setEnabled(false);
+  setSelectedWallet("");
+  setChangeAddress("");
+  setStakeAddress("");
+  setAccountBalance(0);
+
+  console.log("Wallet disconnected");
 }
 
-export async function connect(lucid: Lucid, wallet: string, setters: WalletContextSetters, suppressErrors = false) {
-  setters.setConnecting(true);
-  setters.setSelectedWallet(wallet);
+export async function initWallet(
+  lastSelectedWallet: string,
+  setters: WalletContextSetters
+): Promise<void> {
+  const { setInitializing, setInitialized, setInstalledExtensions } = setters;
 
-  // TODO: Some wallets (ie nami) support adding listeners (ie: api.expiremental.on('accountchange', ...))
-  // for network and account changes. Add support for that.
   try {
-    const api = await getWalletApi(wallet);
-    const networkId = await api.getNetworkId();
-    await updateProvider(lucid, networkId, setters);
+    setInitializing(true);
 
-    lucid.selectWallet(api);
+    // Check if we're in browser environment
+    if (typeof window === "undefined") {
+      throw new ServerWalletNotSupported();
+    }
 
-    api.getChangeAddress();
+    // Get installed wallet extensions
+    const installedWallets = await getInstalledWallets();
+    setInstalledExtensions(installedWallets);
 
-    setters.setApi(api);
-    setters.setNetwork(networkId === 1 ? 'Mainnet' : 'Preprod');
-    setters.setEnabled(true);
-    setters.setConnected(true);
-    setters.setLastSelectedWallet(wallet);
-    setters.setChangeAddress(await getChangeAddress(api));
-    setters.setStakeAddress(await getStakeAddress(api));
-    setters.setAccountBalance(await getBalanceAda(api));
-    setters.setConnecting(false);
+    // Auto-connect to last selected wallet if available
+    if (lastSelectedWallet && installedWallets.includes(lastSelectedWallet)) {
+      try {
+        await connect(lastSelectedWallet, setters);
+      } catch (error) {
+        console.warn("Failed to auto-connect to last wallet:", error);
+        // Don't throw - just continue with initialization
+      }
+    }
+
+    setInitialized(true);
   } catch (error) {
-    setters.setEnabled(false);
-    setters.setConnecting(false);
-    setters.setConnected(false);
-    setters.setSelectedWallet('');
-    setters.setLastSelectedWallet('');
-    setters.setChangeAddress('');
-    setters.setStakeAddress('');
-    setters.setAccountBalance(0);
-    if (!suppressErrors) {
-      toast.info('You may need to open the wallet extension from your browser before connecting.');
-      throw apiError('ApiError', error);
+    console.error("Failed to initialize wallet:", error);
+    if (!(error instanceof ServerWalletNotSupported)) {
+      notifyError(error);
     }
-  }
-}
-
-// Might make these completely different subdomains for ensuring not using the wrong wallet but
-// for now just will make clear which network the selected wallet is on in UI
-export async function updateProvider(lucid: Lucid, networkId: number, setters: WalletContextSetters) {
-  const { Blockfrost } = await import('lucid-cardano');
-  if (networkId === 1) {
-    if (lucid.network !== 'Mainnet' || !lucid.txBuilderConfig) {
-      const blockfrost = new Blockfrost(
-        'https://cardano-mainnet.blockfrost.io/api/v0',
-        process.env.NEXT_PUBLIC_BLOCKFROST_KEY_MAINNET
-      );
-      await lucid.switchProvider(blockfrost, 'Mainnet');
-      setters.setNetwork('Mainnet');
-    }
-  } else {
-    if (lucid.network !== 'Preprod' || !lucid.txBuilderConfig) {
-      const blockfrost = new Blockfrost(
-        'https://cardano-preprod.blockfrost.io/api/v0',
-        process.env.NEXT_PUBLIC_BLOCKFROST_KEY_PREPROD
-      );
-      await lucid.switchProvider(blockfrost, 'Preprod');
-      setters.setNetwork('Preprod');
-    }
+    setInitialized(true); // Still mark as initialized even if there's an error
+  } finally {
+    setInitializing(false);
   }
 }
