@@ -1,30 +1,20 @@
 import { BrowserWallet } from "@meshsdk/core";
-import type { WalletContextSetters } from "./context";
+import { type WalletContextSetters, loadMesh } from "./context";
+import {
+  getWalletApi,
+  getBalanceAda,
+  getChangeAddress,
+  getStakeAddress,
+  getNetwork,
+} from "./wallet";
 import { getInstalledWallets } from "./support";
 import {
   notifyError,
   WalletConnectError,
-  ExtensionNotInjectedError,
   WalletNotInstalledError,
-  EnablementFailedError,
   ServerWalletNotSupported,
 } from "./errors";
-
-export const loadMesh = async () => {
-  if (typeof window === "undefined") {
-    throw new ServerWalletNotSupported();
-  }
-
-  try {
-    console.log("Loading MeshSDK...");
-    const meshModule = await import("@meshsdk/core");
-    console.log("MeshSDK loaded successfully");
-    return meshModule;
-  } catch (error) {
-    console.error("Failed to load MeshSDK:", error);
-    throw new Error("Failed to load MeshSDK");
-  }
-};
+import { NetworkType } from "./util";
 
 export async function connect(
   walletName: string,
@@ -39,7 +29,9 @@ export async function connect(
     setStakeAddress,
     setAccountBalance,
     setWallet,
+    setApi,
     setEnabled,
+    setNetwork,
   } = setters;
 
   try {
@@ -56,59 +48,40 @@ export async function connect(
       throw new WalletNotInstalledError(walletName);
     }
 
-    // Load MeshSDK dynamically
-    const meshModule = await loadMesh();
-    if (!meshModule) {
-      throw new Error("Failed to load MeshSDK");
+    // Use existing wallet API functions
+    const api = await getWalletApi(walletName);
+    if (!api) {
+      throw new WalletConnectError(walletName, "Failed to get wallet API");
     }
 
-    const { BrowserWallet } = meshModule;
+    // Get wallet information using existing functions
+    const changeAddr = await getChangeAddress(api);
+    const stakeAddr = await getStakeAddress(api);
+    const balance = await getBalanceAda(api);
+    const networkType = await getNetwork(api);
 
-    // Check if wallet extension is available
-    if (!window.cardano || !window.cardano[walletName]) {
-      throw new ExtensionNotInjectedError(walletName);
-    }
+    // Convert network type to our format
+    const network = networkType === NetworkType.MAINNET ? "mainnet" : "testnet";
 
-    // Connect to the wallet
-    let wallet: BrowserWallet;
+    // Try to create MeshSDK BrowserWallet as well for compatibility
+    let wallet: BrowserWallet | null = null;
     try {
-      wallet = await BrowserWallet.enable(walletName);
-    } catch (error) {
-      throw new EnablementFailedError(walletName);
-    }
-
-    if (!wallet) {
-      throw new WalletConnectError(
-        walletName,
-        "Wallet connection returned null"
-      );
-    }
-
-    // Get wallet addresses
-    const changeAddress = await wallet.getChangeAddress();
-    const rewardAddresses = await wallet.getRewardAddresses();
-    const stakeAddress = rewardAddresses.length > 0 ? rewardAddresses[0] : "";
-
-    // Get wallet balance
-    const utxos = await wallet.getUtxos();
-    let totalLovelace = 0;
-
-    for (const utxo of utxos) {
-      const lovelaceAmount = utxo.output.amount.find(
-        (asset) => asset.unit === "lovelace"
-      );
-      if (lovelaceAmount) {
-        totalLovelace += parseInt(lovelaceAmount.quantity);
+      const meshModule = await loadMesh();
+      if (meshModule) {
+        const { BrowserWallet } = meshModule;
+        wallet = await BrowserWallet.enable(walletName);
       }
+    } catch (error) {
+      console.warn("Failed to create MeshSDK wallet, using API only:", error);
     }
-
-    const adaBalance = totalLovelace / 1_000_000; // Convert lovelace to ADA
 
     // Update context
+    setApi(api);
     setWallet(wallet);
-    setChangeAddress(changeAddress);
-    setStakeAddress(stakeAddress);
-    setAccountBalance(adaBalance);
+    setChangeAddress(changeAddr);
+    setStakeAddress(stakeAddr);
+    setAccountBalance(balance);
+    setNetwork(network);
     setSelectedWallet(walletName);
     setLastSelectedWallet(walletName);
     setEnabled(true);
@@ -119,20 +92,7 @@ export async function connect(
     console.error(`Failed to connect to ${walletName}:`, error);
 
     // Use existing error handling
-    if (
-      error instanceof WalletConnectError ||
-      error instanceof ExtensionNotInjectedError ||
-      error instanceof WalletNotInstalledError ||
-      error instanceof EnablementFailedError ||
-      error instanceof ServerWalletNotSupported
-    ) {
-      notifyError(error);
-    } else {
-      notifyError(
-        new WalletConnectError(walletName, error.message || "Unknown error")
-      );
-    }
-
+    notifyError(error);
     throw error;
   } finally {
     setConnecting(false);
@@ -142,6 +102,7 @@ export async function connect(
 export async function disconnect(setters: WalletContextSetters): Promise<void> {
   const {
     setWallet,
+    setApi,
     setConnected,
     setEnabled,
     setSelectedWallet,
@@ -151,6 +112,7 @@ export async function disconnect(setters: WalletContextSetters): Promise<void> {
   } = setters;
 
   setWallet(null);
+  setApi(null);
   setConnected(false);
   setEnabled(false);
   setSelectedWallet("");

@@ -8,6 +8,7 @@ import {
   useState,
 } from "react";
 import { BrowserWallet } from "@meshsdk/core";
+import { WalletApi } from "@/global";
 import { toast } from "sonner";
 
 import {
@@ -18,11 +19,21 @@ import {
   WalletContextSetters,
   WalletContextType,
   type Network,
+  getErrorMessage,
+  WalletConnectError,
+  ExtensionNotInjectedError,
+  WalletNotInstalledError,
+  EnablementFailedError,
+  WalletApiError,
 } from "@/lib/wallet";
 
 export function WalletProvider({ children }: PropsWithChildren) {
+  console.log("🚀 WalletProvider: Component rendering started");
+
+  // State
   const [wallet, setWallet] = useState<BrowserWallet | null>(null);
-  const [isInitializing, setInitializing] = useState(false);
+  const [api, setApi] = useState<WalletApi | null>(null);
+  const [isInitializing, setInitializing] = useState(true); // Start as true
   const [isInitialized, setInitialized] = useState(false);
   const [isEnabled, setEnabled] = useState(false);
   const [isConnecting, setConnecting] = useState(false);
@@ -36,11 +47,11 @@ export function WalletProvider({ children }: PropsWithChildren) {
     []
   );
   const [accountBalance, setAccountBalance] = useState<number>(0);
-  const [mounted, setMounted] = useState(false);
 
   const setters: WalletContextSetters = useMemo(
     () => ({
       setWallet,
+      setApi,
       setInitializing,
       setInitialized,
       setEnabled,
@@ -60,99 +71,148 @@ export function WalletProvider({ children }: PropsWithChildren) {
   const connect = useCallback(
     async (walletName: string) => {
       try {
+        console.log("🔌 WalletProvider: Connecting to", walletName);
         await connectInternal(walletName, setters);
+        console.log("✅ WalletProvider: Successfully connected to", walletName);
+        toast.success(`Connected to ${walletName}`);
       } catch (error) {
-        console.error("Connection failed:", error);
+        console.error("❌ WalletProvider: Connection failed:", error);
         await disconnectInternal(setters);
-        toast.error("Failed to connect wallet. Please try again.");
+
+        // Use existing error handling
+        if (
+          error instanceof WalletApiError ||
+          error instanceof WalletConnectError ||
+          error instanceof ExtensionNotInjectedError ||
+          error instanceof WalletNotInstalledError ||
+          error instanceof EnablementFailedError
+        ) {
+          // Error already handled in connect function via notifyError
+          // Don't show duplicate toast
+        } else {
+          toast.error("Failed to connect wallet. Please try again.");
+        }
+
+        // Re-throw the error so calling code can handle it
+        throw error;
       }
     },
     [setters]
   );
 
-  const disconnect = useCallback(() => disconnectInternal(setters), [setters]);
-
-  const context: WalletContextType = useMemo(
-    () => ({
-      wallet,
-      isInitializing,
-      isInitialized,
-      isEnabled,
-      isConnecting,
-      isConnected,
-      network,
-      selectedWallet,
-      lastSelectedWallet,
-      changeAddress,
-      stakeAddress,
-      installedExtensions,
-      accountBalance,
-      connect,
-      disconnect,
-    }),
-    [
-      wallet,
-      isInitializing,
-      isInitialized,
-      isEnabled,
-      isConnecting,
-      isConnected,
-      network,
-      selectedWallet,
-      lastSelectedWallet,
-      changeAddress,
-      stakeAddress,
-      installedExtensions,
-      accountBalance,
-      connect,
-      disconnect,
-    ]
-  );
-
-  // Handle localStorage in useEffect to avoid hydration issues
-  useEffect(() => {
-    setMounted(true);
-
-    // Load last selected wallet from localStorage
-    const savedWallet = localStorage.getItem("sundial:selected:wallet") || "";
-    setLastSelectedWallet(savedWallet);
-  }, []);
-
-  // Save lastSelectedWallet to localStorage when it changes
-  useEffect(() => {
-    if (mounted && lastSelectedWallet) {
-      localStorage.setItem("sundial:selected:wallet", lastSelectedWallet);
+  const disconnect = useCallback(async () => {
+    try {
+      console.log("🔌 WalletProvider: Disconnecting wallet");
+      await disconnectInternal(setters);
+      console.log("✅ WalletProvider: Successfully disconnected");
+      toast.success("Wallet disconnected");
+    } catch (error) {
+      console.error("❌ WalletProvider: Disconnect failed:", error);
+      toast.error("Failed to disconnect wallet");
     }
-  }, [lastSelectedWallet, mounted]);
+  }, [setters]);
 
+  const context: WalletContextType = useMemo(() => {
+    const ctx = {
+      wallet,
+      api,
+      isInitializing,
+      isInitialized,
+      isEnabled,
+      isConnecting,
+      isConnected,
+      network,
+      selectedWallet,
+      lastSelectedWallet,
+      changeAddress,
+      stakeAddress,
+      installedExtensions,
+      accountBalance,
+      connect,
+      disconnect,
+    };
+    console.log("🔧 WalletProvider: Context updated:", {
+      isInitializing,
+      isInitialized,
+      isConnected,
+      selectedWallet,
+      installedExtensions: installedExtensions.length,
+    });
+    return ctx;
+  }, [
+    wallet,
+    api,
+    isInitializing,
+    isInitialized,
+    isEnabled,
+    isConnecting,
+    isConnected,
+    network,
+    selectedWallet,
+    lastSelectedWallet,
+    changeAddress,
+    stakeAddress,
+    installedExtensions,
+    accountBalance,
+    connect,
+    disconnect,
+  ]);
+
+  // Initialize immediately on mount
   useEffect(() => {
-    if (!mounted) return;
+    let mounted = true;
 
-    const initializeWallet = async () => {
+    const initialize = async () => {
       try {
-        console.log("Starting wallet initialization...");
+        console.log("🏁 WalletProvider: Starting initialization");
+
+        // Load last selected wallet from localStorage
+        let savedWallet = "";
+        if (typeof window !== "undefined") {
+          savedWallet = localStorage.getItem("sundial:selected:wallet") || "";
+          console.log("📦 WalletProvider: Loaded saved wallet:", savedWallet);
+          if (mounted) {
+            setLastSelectedWallet(savedWallet);
+          }
+        }
 
         // Initialize wallet system
-        await initWallet(lastSelectedWallet, setters);
+        await initWallet(savedWallet, setters);
 
-        console.log("Wallet initialization completed");
+        console.log("✅ WalletProvider: Initialization completed");
       } catch (error) {
-        console.error("Failed to initialize wallet system:", error);
-        toast.error("Failed to initialize wallet system");
+        console.error(
+          "❌ WalletProvider: Failed to initialize wallet system:",
+          error
+        );
+        // Don't show toast for ServerWalletNotSupported as it's expected on server
+        if (
+          !(error instanceof Error && error.name === "ServerWalletNotSupported")
+        ) {
+          toast.error("Failed to initialize wallet system");
+        }
       }
     };
 
-    // Add a delay to ensure the page is fully loaded
-    const timeoutId = setTimeout(initializeWallet, 1000);
+    initialize();
 
-    return () => clearTimeout(timeoutId);
-  }, [mounted, lastSelectedWallet, setters]);
+    return () => {
+      mounted = false;
+    };
+  }, [setters]);
 
-  // Don't render until mounted to avoid hydration issues
-  if (!mounted) {
-    return <>{children}</>;
-  }
+  // Save lastSelectedWallet to localStorage when it changes
+  useEffect(() => {
+    if (lastSelectedWallet && typeof window !== "undefined") {
+      console.log(
+        "💾 WalletProvider: Saving wallet to localStorage:",
+        lastSelectedWallet
+      );
+      localStorage.setItem("sundial:selected:wallet", lastSelectedWallet);
+    }
+  }, [lastSelectedWallet]);
 
+  console.log("📦 WalletProvider: Providing context to children");
   return (
     <WalletContext.Provider value={context}>{children}</WalletContext.Provider>
   );

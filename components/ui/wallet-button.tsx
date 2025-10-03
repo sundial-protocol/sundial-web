@@ -11,9 +11,6 @@ import {
   useWallet,
   WalletApiError,
   WalletConnectError,
-  ExtensionNotInjectedError,
-  WalletNotInstalledError,
-  EnablementFailedError,
   getErrorMessage,
 } from "@/lib/wallet";
 import { Button } from "@/components/ui/button";
@@ -51,12 +48,7 @@ export function WalletButton() {
           } else {
             toast.error(getErrorMessage(error));
           }
-        } else if (
-          error instanceof WalletConnectError ||
-          error instanceof ExtensionNotInjectedError ||
-          error instanceof WalletNotInstalledError ||
-          error instanceof EnablementFailedError
-        ) {
+        } else if (error instanceof WalletConnectError) {
           toast.error(getErrorMessage(error));
         } else {
           toast.error(getErrorMessage(error));
