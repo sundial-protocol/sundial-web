@@ -1,15 +1,21 @@
+import eternlIcon from "@/public/wallets/eternl.png";
+import geroIcon from "@/public/wallets/gero.png";
+import laceIcon from "@/public/wallets/lace.svg";
+import nufiIcon from "@/public/wallets/nufi.svg";
+import typhonIcon from "@/public/wallets/typhon.svg";
+import yoroiIcon from "@/public/wallets/yoroi.png";
+import Wallet from "@/public/wallets/wallet.svg";
+import { StaticImageData } from "next/image";
 import { BrowserWallet } from "@meshsdk/core";
 
 export const knownWalletExtensions = {
-  nami: "Nami",
   eternl: "Eternl",
-  flint: "Flint",
   yoroi: "Yoroi",
   gerowallet: "GeroWallet",
   typhoncip30: "Typhon",
   nufi: "NuFi",
-  cardwallet: "CardWallet",
   lace: "Lace",
+  vespr: "Vespr",
 } as const;
 
 export type KnownWalletName = keyof typeof knownWalletExtensions;
@@ -43,19 +49,16 @@ export function getWalletDisplayName(walletName: string): string {
   return knownWalletExtensions[walletName as WalletExtension] || walletName;
 }
 
-export function getWalletIcon(walletName: string): string {
-  const iconMap: Record<string, string> = {
-    nami: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCAxMkwxMy4wOSAxNS43NEwxMiAyMkwxMC45MSAxNS43NEw0IDEyTDEwLjkxIDguMjZMMTIgMloiIGZpbGw9IiMxOTc2RDIiLz4KPC9zdmc+",
-    eternl:
-      "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiNGRjU3MjIiLz4KPC9zdmc+",
-    flint:
-      "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiM2MzY2RjEiLz4KPC9zdmc+",
-    yoroi:
-      "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiMzQjgyRjYiLz4KPC9zdmc+",
-    gerowallet:
-      "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiMxMEIxMDEiLz4KPC9zdmc+",
-    lace: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiNGNTk4NDIiLz4KPC9zdmc+",
+export function getWalletIcon(walletName: string): StaticImageData {
+  const iconMap: Record<string, StaticImageData> = {
+    eternl: eternlIcon,
+    yoroi: yoroiIcon,
+    gerowallet: geroIcon,
+    lace: laceIcon,
+    typhoncip30: typhonIcon,
+    nufi: nufiIcon,
+    vespr: nufiIcon, // Vespr uses the NuFi icon for now
   };
 
-  return iconMap[walletName] || iconMap.nami;
+  return iconMap[walletName] || Wallet;
 }

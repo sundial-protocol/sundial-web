@@ -22,6 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./dropdown-menu";
+import Image from "next/image";
 
 export function WalletButton() {
   const {
@@ -75,7 +76,11 @@ export function WalletButton() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" disabled={isConnecting}>
+        <Button
+          variant="outline"
+          disabled={isConnecting}
+          className="py-5 bg-secondary hover:bg-accent-foreground hover:text-secondary-foreground"
+        >
           {isConnecting ? (
             <>
               <Loader2 className="size-4 animate-spin mr-2" />
@@ -83,10 +88,11 @@ export function WalletButton() {
             </>
           ) : isConnected ? (
             <div className="flex items-center gap-2">
-              <img
+              <Image
                 src={getWalletIcon(selectedWallet)}
-                className="h-5 w-5"
                 alt={`${selectedWallet} Icon`}
+                height={30}
+                width={30}
               />
               <div className="flex flex-col items-start">
                 <span className="text-sm font-medium">
@@ -102,7 +108,7 @@ export function WalletButton() {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
+      <DropdownMenuContent className="bg-secondary">
         {installedExtensions.length > 0 ? (
           installedExtensions.map((extension, key) => (
             <DropdownMenuItem
@@ -111,10 +117,11 @@ export function WalletButton() {
               onClick={() => handleClick(extension)}
             >
               <div className="flex w-full items-center gap-3">
-                <img
+                <Image
                   src={getWalletIcon(extension)}
                   alt="Wallet Icon"
-                  className="h-5 w-5"
+                  height={30}
+                  width={30}
                 />
                 <span className="font-medium">
                   {getWalletDisplayName(extension)}

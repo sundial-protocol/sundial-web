@@ -10,13 +10,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   TrendingUp,
   TrendingDown,
   DollarSign,
@@ -28,14 +21,7 @@ import {
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import { useWallet } from "@/lib/wallet";
-import {
-  getWalletDisplayName,
-  getWalletIcon,
-  knownWalletExtensions,
-} from "@/lib/wallet/support";
-import { notifyError } from "@/lib/wallet/errors";
+import { useState } from "react";
 import { WalletButton } from "@/components/ui/wallet-button";
 
 // Mock data - in real app, this would come from API
@@ -147,7 +133,11 @@ export function PortfolioOverview() {
                   </Button>
                 </>
               ) : (
-                <Button variant="outline" onClick={() => setBtcWallet(null)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setBtcWallet(null)}
+                  className="py-5 bg-secondary hover:bg-accent-foreground hover:text-secondary-foreground"
+                >
                   Connect Bitcoin Wallet
                 </Button>
               )}
