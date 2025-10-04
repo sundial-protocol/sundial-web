@@ -4,6 +4,7 @@ import laceIcon from "@/public/wallets/lace.svg";
 import nufiIcon from "@/public/wallets/nufi.svg";
 import typhonIcon from "@/public/wallets/typhon.svg";
 import yoroiIcon from "@/public/wallets/yoroi.png";
+import vesprIcon from "@/public/wallets/vespr.webp";
 import Wallet from "@/public/wallets/wallet.svg";
 import { StaticImageData } from "next/image";
 import { BrowserWallet } from "@meshsdk/core";
@@ -27,22 +28,48 @@ export async function getInstalledWallets(): Promise<string[]> {
     return [];
   }
 
-  const installed: string[] = [];
-
   try {
-    // Use MeshSDK's method to get available wallets
-    const availableWallets = BrowserWallet.getInstalledWallets();
+    const installed: string[] = [];
 
-    for (const { name: walletName } of availableWallets) {
-      if (walletName in knownWalletExtensions) {
-        installed.push(walletName);
+    if (window.cardano) {
+      console.log(
+        "🔍 Wallet detection - window.cardano keys:",
+        Object.keys(window.cardano)
+      );
+
+      // Use the same detection method as the debug component
+      for (const [key, displayName] of Object.entries(knownWalletExtensions)) {
+        const exists = window.cardano && window.cardano[key];
+        if (exists) {
+          console.log(`Found wallet: ${displayName} (${key})`);
+          installed.push(key);
+        }
       }
+
+      // Log any unknown wallets for future reference
+      const unknownWallets = window.cardano
+        ? Object.keys(window.cardano).filter(
+            (key) =>
+              !Object.keys(knownWalletExtensions).includes(key) &&
+              typeof window.cardano?.[key] === "object" &&
+              window.cardano?.[key] !== null &&
+              key !== "cardano" // Exclude the cardano object itself
+          )
+        : [];
+
+      if (unknownWallets.length > 0) {
+        console.log("Unknown wallets detected:", unknownWallets);
+      }
+    } else {
+      console.log("window.cardano not found");
     }
+
+    console.log("🔍 Final detected wallets:", installed);
+    return installed;
   } catch (error) {
     console.warn("Failed to get installed wallets:", error);
+    return [];
   }
-
-  return installed;
 }
 
 export function getWalletDisplayName(walletName: string): string {
@@ -57,7 +84,7 @@ export function getWalletIcon(walletName: string): StaticImageData {
     lace: laceIcon,
     typhoncip30: typhonIcon,
     nufi: nufiIcon,
-    vespr: nufiIcon, // Vespr uses the NuFi icon for now
+    vespr: vesprIcon,
   };
 
   return iconMap[walletName] || Wallet;

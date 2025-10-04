@@ -116,7 +116,7 @@ export function WalletButton() {
               disabled={extension === selectedWallet}
               onClick={() => handleClick(extension)}
             >
-              <div className="flex w-full items-center gap-3">
+              <div className="flex w-full items-center gap-3 px-8 pr-24">
                 <Image
                   src={getWalletIcon(extension)}
                   alt="Wallet Icon"
@@ -139,7 +139,7 @@ export function WalletButton() {
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="font-medium text-red-600 focus:text-red-600"
+              className="font-medium text-red-600 focus:text-red-600 px-8"
               onClick={handleDisconnect}
             >
               Disconnect
