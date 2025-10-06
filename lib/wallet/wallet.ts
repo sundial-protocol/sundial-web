@@ -22,6 +22,7 @@ export function getInstalledWalletExtensions(supportedWallets?: string[]) {
     .filter(
       (walletExtension) =>
         walletExtension !== "typhon" &&
+        cardano[walletExtension] &&
         typeof cardano[walletExtension].enable === "function"
     )
     .map((walletExtension) => walletExtension.toLowerCase());
@@ -74,7 +75,7 @@ export async function getNetwork(api: WalletApi) {
 
     if (hexAddresses && hexAddresses.length > 0) {
       try {
-        const bech32Address = decodeHexAddress(hexAddresses[0]);
+        const bech32Address = decodeHexAddress(hexAddresses[0]!);
 
         let networkType = NetworkType.MAINNET;
         if (bech32Address.startsWith("stake_test")) {
@@ -111,7 +112,7 @@ export async function getStakeAddress(api: WalletApi) {
 
     if (hexAddresses && hexAddresses.length > 0) {
       try {
-        return decodeHexAddress(hexAddresses[0]);
+        return decodeHexAddress(hexAddresses[0]!);
       } catch (error) {}
     }
   }
@@ -166,8 +167,8 @@ export async function signMessage(
     onError(new WrongNetworkTypeError(network, networkType));
   } else {
     const hexAddresses = await api.getRewardAddresses();
-    if (hexAddresses.length > 0) {
-      const hexAddress = hexAddresses[0];
+    if (hexAddresses && hexAddresses.length > 0) {
+      const hexAddress = hexAddresses[0]!;
       let hexMessage = "";
       for (var i = 0, l = message.length; i < l; i++) {
         hexMessage += message.charCodeAt(i).toString(16);

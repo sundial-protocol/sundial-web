@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { chainConfigs, Chain } from "./types";
 import { depositAddress } from "@/hooks/get-scripts";
+import { Asset, depositFundTx } from "@sundial-protocol/ada-locker";
 
 type TransactionType = "deposit" | "withdraw";
 
@@ -168,17 +169,14 @@ export default function StakingForm({
         throw new Error("Please connect your Cardano wallet first");
       }
 
-      // Convert amount from ADA to Lovelace
       const amountInLovelace = Math.floor(parseFloat(amount) * 1_000_000);
+      const assets: Asset[] = [
+        { unit: "lovelace", quantity: amountInLovelace.toString() },
+      ];
 
-      // Create a simple transaction (you'll need to integrate with @sundial-protocol/ada-locker)
-      const recipientAddress = await wallet.getChangeAddress(); // For demo purposes
+      const lockExpiration = Math.floor(Date.now() / 1000) + 60 * 60 * 12; // 12 hours from now
 
-      const tx = await wallet.submitTx(
-        // You'll need to build the actual transaction here
-        // This is a placeholder
-        `placeholder_transaction_${amountInLovelace}`
-      );
+      const tx = await depositFundTx(assets, lockExpiration, wallet, wallet);
 
       setTxHash(tx);
       setStep("done");

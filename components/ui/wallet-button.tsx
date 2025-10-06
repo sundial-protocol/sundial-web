@@ -1,18 +1,11 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element */
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
+import Image from "next/image";
 
-import {
-  getWalletDisplayName,
-  getWalletIcon,
-  useWallet,
-  WalletApiError,
-  WalletConnectError,
-  getErrorMessage,
-} from "@/lib/wallet";
+import { getWalletDisplayName, getWalletIcon, useWallet } from "@/lib/wallet";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -22,9 +15,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./dropdown-menu";
-import Image from "next/image";
 
 export function WalletButton() {
+  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
+
   const {
     connect,
     disconnect,
@@ -40,20 +34,11 @@ export function WalletButton() {
     async (extension: string) => {
       try {
         await connect(extension);
-        toast.success(`Connected to ${getWalletDisplayName(extension)}`);
+        // Don't show success toast here since WalletProvider already shows it
       } catch (error) {
-        // Use existing error handling scheme
-        if (error instanceof WalletApiError) {
-          if (error.code === "Refused") {
-            toast.info("Wallet connection canceled per your request");
-          } else {
-            toast.error(getErrorMessage(error));
-          }
-        } else if (error instanceof WalletConnectError) {
-          toast.error(getErrorMessage(error));
-        } else {
-          toast.error(getErrorMessage(error));
-        }
+        // Don't show error toasts here since the errors are already handled
+        // in the connect function via notifyError
+        console.error("Wallet connection failed:", error);
       }
     },
     [connect]
@@ -61,8 +46,47 @@ export function WalletButton() {
 
   const handleDisconnect = useCallback(() => {
     disconnect();
-    toast.success("Wallet disconnected");
+    // Don't show disconnect toast here since WalletProvider already shows it
   }, [disconnect]);
+
+  const handleImageError = (walletName: string) => {
+    setImageErrors((prev) => ({ ...prev, [walletName]: true }));
+  };
+
+  const WalletImage = ({
+    walletName,
+    className,
+  }: {
+    walletName: string;
+    className?: string;
+  }) => {
+    const iconSrc = getWalletIcon(walletName);
+
+    if (imageErrors[walletName]) {
+      // Fallback to a simple div with first letter
+      return (
+        <div
+          className={`${
+            className ?? ""
+          } bg-gray-300 rounded flex items-center justify-center text-xs font-bold`}
+        >
+          {getWalletDisplayName(walletName)[0]}
+        </div>
+      );
+    }
+
+    // Use regular img for all wallet icons (including data URLs)
+    return (
+      <Image
+        src={iconSrc}
+        alt={`${walletName} Icon`}
+        className={className}
+        onError={() => handleImageError(walletName)}
+        width={32}
+        height={32}
+      />
+    );
+  };
 
   if (isInitializing) {
     return (
@@ -88,12 +112,7 @@ export function WalletButton() {
             </>
           ) : isConnected ? (
             <div className="flex items-center gap-2">
-              <Image
-                src={getWalletIcon(selectedWallet)}
-                alt={`${selectedWallet} Icon`}
-                height={30}
-                width={30}
-              />
+              <WalletImage walletName={selectedWallet} className="rounded" />
               <div className="flex flex-col items-start">
                 <span className="text-sm font-medium">
                   {getWalletDisplayName(selectedWallet)}
@@ -117,12 +136,7 @@ export function WalletButton() {
               onClick={() => handleClick(extension)}
             >
               <div className="flex w-full items-center gap-3 px-8 pr-24">
-                <Image
-                  src={getWalletIcon(extension)}
-                  alt="Wallet Icon"
-                  height={30}
-                  width={30}
-                />
+                <WalletImage walletName={extension} className="rounded" />
                 <span className="font-medium">
                   {getWalletDisplayName(extension)}
                 </span>

@@ -40,7 +40,7 @@
     "@radix-ui/react-toggle": "^1.1.1",
     "@radix-ui/react-toggle-group": "^1.1.1",
     "@radix-ui/react-tooltip": "^1.1.6",
-    "@sundial-protocol/ada-locker": "1.0.7",
+    "@sundial-protocol/ada-locker": "1.0.8",
     "@tailwindcss/typography": "^0.5.16",
     "autoprefixer": "^10.4.20",
     "bech32": "^2.0.0",
@@ -82,7 +82,8 @@
     "eslint-config-next": "15.3.1",
     "postcss": "^8",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5"
+    "typescript": "^5",
+    "webpack": "^5.102.0"
   },
   "overrides": {
     "utf-8-validate": "^5.0.2"
