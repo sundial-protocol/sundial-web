@@ -175,8 +175,13 @@ export default function StakingForm({
       ];
 
       const lockExpiration = Math.floor(Date.now() / 1000) + 60 * 60 * 12; // 12 hours from now
+      const address = (await wallet.getUsedAddress()).toBech32();
+      const utxos = await wallet.getUtxos();
 
-      const tx = await depositFundTx(assets, lockExpiration, wallet, wallet);
+      const tx = await depositFundTx(assets, lockExpiration, {
+        address,
+        utxos,
+      });
 
       setTxHash(tx);
       setStep("done");
