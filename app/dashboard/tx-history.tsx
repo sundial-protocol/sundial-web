@@ -27,59 +27,7 @@ import {
   Coins,
   DollarSign,
 } from "lucide-react";
-
-// Mock transaction data
-const transactions = [
-  {
-    id: "tx-001",
-    type: "stake",
-    amount: 0.5,
-    value: 20000,
-    status: "completed",
-    date: "2024-01-15T10:30:00Z",
-    validator: "Validator 1",
-    txHash: "1234...5678",
-  },
-  {
-    id: "tx-002",
-    type: "reward",
-    amount: 0.0025,
-    value: 100,
-    status: "completed",
-    date: "2024-01-14T15:45:00Z",
-    validator: "Validator 1",
-    txHash: "2345...6789",
-  },
-  {
-    id: "tx-003",
-    type: "unstake",
-    amount: 0.2,
-    value: 8000,
-    status: "pending",
-    date: "2024-01-13T09:15:00Z",
-    validator: "Validator 2",
-    txHash: "3456...7890",
-  },
-  {
-    id: "tx-004",
-    type: "deposit",
-    amount: 1.0,
-    value: 40000,
-    status: "completed",
-    date: "2024-01-12T14:20:00Z",
-    txHash: "4567...8901",
-  },
-  {
-    id: "tx-005",
-    type: "lend",
-    amount: 0.3,
-    value: 12000,
-    status: "completed",
-    date: "2024-01-11T11:10:00Z",
-    platform: "Lending Platform A",
-    txHash: "5678...9012",
-  },
-];
+import { useTransactionHistory } from "@/hooks/dashboard/tx-history";
 
 const getTransactionIcon = (type: string) => {
   switch (type) {
@@ -127,6 +75,7 @@ export function TransactionHistory() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
+  const { transactions } = useTransactionHistory();
 
   const filteredTransactions = transactions.filter((tx) => {
     const matchesSearch =
@@ -208,7 +157,7 @@ export function TransactionHistory() {
                       {getStatusBadge(transaction.status)}
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      {new Date(transaction.date).toLocaleString()}
+                      {new Date(transaction.timestamp).toLocaleString()}
                     </div>
                     <div className="text-xs text-muted-foreground">
                       {transaction.txHash}
@@ -218,18 +167,8 @@ export function TransactionHistory() {
                 <div className="text-right">
                   <div className="font-medium">{transaction.amount} BTC</div>
                   <div className="text-sm text-muted-foreground">
-                    ${transaction.value.toLocaleString()}
+                    ${transaction.usdValue.toLocaleString()}
                   </div>
-                  {transaction.validator && (
-                    <div className="text-xs text-muted-foreground">
-                      {transaction.validator}
-                    </div>
-                  )}
-                  {transaction.platform && (
-                    <div className="text-xs text-muted-foreground">
-                      {transaction.platform}
-                    </div>
-                  )}
                 </div>
               </div>
             ))}

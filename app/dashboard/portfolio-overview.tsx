@@ -52,6 +52,12 @@ import {
   Legend as ChartLegend,
   Filler,
 } from "chart.js";
+import {
+  useDashboardData,
+  formatCurrency,
+  formatPercentage,
+  mockEarningsData
+} from "@/hooks/dashboard/dashboard";
 
 ChartJS.register(
   CategoryScale,
@@ -64,171 +70,9 @@ ChartJS.register(
   Filler
 );
 
-// Mock earnings data with historical and projected data
-const earningsData = [
-  // Historical data - keep btcEarnings and adaEarnings
-  {
-    month: "Oct 2024",
-    btcEarnings: 180,
-    adaEarnings: 45,
-    total: 225,
-    btcProjected: null,
-    adaProjected: null,
-    totalProjected: null,
-  },
-  {
-    month: "Nov 2024",
-    btcEarnings: 195,
-    adaEarnings: 52,
-    total: 247,
-    btcProjected: null,
-    adaProjected: null,
-    totalProjected: null,
-  },
-  {
-    month: "Dec 2024",
-    btcEarnings: 210,
-    adaEarnings: 58,
-    total: 268,
-    btcProjected: null,
-    adaProjected: null,
-    totalProjected: null,
-  },
-  {
-    month: "Jan 2025",
-    btcEarnings: 225,
-    adaEarnings: 65,
-    total: 290,
-    btcProjected: null,
-    adaProjected: null,
-    totalProjected: null,
-  },
-  {
-    month: "Feb 2025",
-    btcEarnings: 240,
-    adaEarnings: 72,
-    total: 312,
-    btcProjected: null,
-    adaProjected: null,
-    totalProjected: null,
-  },
-  // Current month - bridge between historical and projected
-  {
-    month: "Mar 2025",
-    btcEarnings: 255,
-    adaEarnings: 78,
-    total: 333,
-    btcProjected: 255,
-    adaProjected: 78,
-    totalProjected: 333,
-  },
-  // Projected data - use projected fields
-  {
-    month: "Apr 2025",
-    btcEarnings: null,
-    adaEarnings: null,
-    total: null,
-    btcProjected: 270,
-    adaProjected: 85,
-    totalProjected: 355,
-  },
-  {
-    month: "May 2025",
-    btcEarnings: null,
-    adaEarnings: null,
-    total: null,
-    btcProjected: 285,
-    adaProjected: 92,
-    totalProjected: 377,
-  },
-  {
-    month: "Jun 2025",
-    btcEarnings: null,
-    adaEarnings: null,
-    total: null,
-    btcProjected: 300,
-    adaProjected: 98,
-    totalProjected: 398,
-  },
-  {
-    month: "Jul 2025",
-    btcEarnings: null,
-    adaEarnings: null,
-    total: null,
-    btcProjected: 315,
-    adaProjected: 105,
-    totalProjected: 420,
-  },
-  {
-    month: "Aug 2025",
-    btcEarnings: null,
-    adaEarnings: null,
-    total: null,
-    btcProjected: 330,
-    adaProjected: 112,
-    totalProjected: 442,
-  },
-  {
-    month: "Sep 2025",
-    btcEarnings: null,
-    adaEarnings: null,
-    total: null,
-    btcProjected: 345,
-    adaProjected: 118,
-    totalProjected: 463,
-  },
-];
-
-// Mock data - in real app, this would come from API
-const portfolioData = {
-  totalValue: 125000,
-  totalBTC: 2.45,
-  totalStaked: 1.8,
-  totalLocked: 0.65,
-  dailyChange: 2850,
-  dailyChangePercent: 2.3,
-  monthlyRewards: 325,
-  positions: [
-    {
-      type: "Staked",
-      amount: 1.8,
-      value: 72000,
-      apy: 8.5,
-      risk: "Low",
-      lockPeriod: "7 days",
-    },
-    {
-      type: "Liquid Staking",
-      amount: 0.65,
-      value: 26000,
-      apy: 7.2,
-      risk: "Low",
-      lockPeriod: "None",
-    },
-    {
-      type: "Lending",
-      amount: 0.5,
-      value: 20000,
-      apy: 12.3,
-      risk: "Medium",
-      lockPeriod: "30 days",
-    },
-    {
-      type: "Available",
-      amount: 0.5,
-      value: 20000,
-      apy: 0,
-      risk: "No",
-      lockPeriod: "None",
-    },
-  ],
-};
-
 export function PortfolioOverview() {
-  const isPositive = portfolioData.dailyChange > 0;
+  const { portfolioData, earningsData, isLoading, error } = useDashboardData();
   const [timeRange, setTimeRange] = useState("12m");
-
-  // Bitcoin wallet connection state (placeholder)
   const [btcWallet, setBtcWallet] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
 
@@ -276,6 +120,14 @@ export function PortfolioOverview() {
     }
     return null;
   };
+
+  // Calculate derived values from portfolioData
+  const isPositive = portfolioData.dailyChange > 0;
+
+  if (isLoading)
+    return <div className="p-4 text-center">Loading dashboard...</div>;
+  if (error)
+    return <div className="p-4 text-center text-red-600">Error: {error}</div>;
 
   return (
     <div className="space-y-6">
@@ -352,7 +204,7 @@ export function PortfolioOverview() {
                       connectNulls={false}
                     />
 
-                    {/* Projected stacked areas (dashed) */}
+                    {/* Projected stacked areas */}
                     <Area
                       type="monotone"
                       dataKey="btcProjected"
@@ -362,7 +214,7 @@ export function PortfolioOverview() {
                       fillOpacity={0.4}
                       strokeWidth={2}
                       strokeDasharray="5 5"
-                      name="Bitcoin Earnings"
+                      name="Bitcoin Projected"
                       connectNulls={false}
                     />
                     <Area
@@ -420,7 +272,7 @@ export function PortfolioOverview() {
               <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t">
                 <div className="text-center">
                   <div className="text-lg font-bold text-orange-600">
-                    ${earningsData[earningsData.length - 1].btcProjected}
+                    ${earningsData[earningsData.length - 1]?.btcProjected || 0}
                   </div>
                   <div className="text-xs text-muted-foreground">
                     Projected BTC
@@ -428,7 +280,7 @@ export function PortfolioOverview() {
                 </div>
                 <div className="text-center">
                   <div className="text-lg font-bold text-blue-600">
-                    ${earningsData[earningsData.length - 1].adaProjected}
+                    ${earningsData[earningsData.length - 1]?.adaProjected || 0}
                   </div>
                   <div className="text-xs text-muted-foreground">
                     Projected ADA
@@ -436,7 +288,8 @@ export function PortfolioOverview() {
                 </div>
                 <div className="text-center">
                   <div className="text-lg font-bold text-gray-800">
-                    ${earningsData[earningsData.length - 1].totalProjected}
+                    $
+                    {earningsData[earningsData.length - 1]?.totalProjected || 0}
                   </div>
                   <div className="text-xs text-muted-foreground">
                     Total Monthly
@@ -446,6 +299,7 @@ export function PortfolioOverview() {
             </CardContent>
           </Card>
         </div>
+
         {/* Wallet Connection Section */}
         <Card className="col-span-2 md:col-span-1">
           <CardHeader>
@@ -501,14 +355,13 @@ export function PortfolioOverview() {
                   <Coins className="w-5 h-5 text-blue-500" />
                   <span className="font-semibold">Other</span>
                 </div>
-
                 <WalletButton />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Portfolio Summary Cards */}
+        {/* Portfolio Summary Cards - Using portfolioData from hook */}
         <div className="col-span-2 grid gap-4 grid-cols-2">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -517,7 +370,7 @@ export function PortfolioOverview() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                ${portfolioData.totalValue.toLocaleString()}
+                {formatCurrency(portfolioData.totalValue)}
               </div>
               <div
                 className={`flex items-center text-xs ${
@@ -529,10 +382,8 @@ export function PortfolioOverview() {
                 ) : (
                   <TrendingDown className="h-3 w-3 mr-1" />
                 )}
-                {isPositive ? "+" : ""}$
-                {portfolioData.dailyChange.toLocaleString()} (
-                {isPositive ? "+" : ""}
-                {portfolioData.dailyChangePercent}%)
+                {formatPercentage(portfolioData.dailyChangePercent)} (
+                {formatCurrency(portfolioData.dailyChange)})
               </div>
             </CardContent>
           </Card>
@@ -563,7 +414,7 @@ export function PortfolioOverview() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                ${portfolioData.monthlyRewards}
+                {formatCurrency(portfolioData.monthlyRewards)}
               </div>
               <p className="text-xs text-muted-foreground">
                 From staking & lending
@@ -611,7 +462,7 @@ export function PortfolioOverview() {
                         {position.amount} BTC ({percentage.toFixed(1)}%)
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        ${position.value.toLocaleString()}
+                        {formatCurrency(position.value)}
                       </div>
                     </div>
                   </div>
@@ -626,6 +477,7 @@ export function PortfolioOverview() {
           </CardContent>
         </Card>
       </div>
+
       {/* Quick Actions */}
       <Card>
         <CardHeader>

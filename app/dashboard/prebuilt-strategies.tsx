@@ -28,195 +28,21 @@ import {
   Star,
 } from "lucide-react";
 import Link from "next/link";
-
-// Mock prebuilt strategies data
-const strategies = [
-  {
-    id: 1,
-    name: "Conservative Growth",
-    description:
-      "Low-risk strategy focused on stable returns with minimal volatility",
-    risk: "Low",
-    expectedAPY: 6.5,
-    minAmount: 0.1,
-    timeHorizon: "6 months",
-    popularity: 95,
-    allocation: [
-      { type: "Bitcoin Staking", percentage: 60, apy: 8.5 },
-      { type: "Liquid Staking", percentage: 30, apy: 7.2 },
-      { type: "Stable Lending", percentage: 10, apy: 4.0 },
-    ],
-    features: [
-      "Automated rebalancing",
-      "Low volatility",
-      "Stable returns",
-      "Easy exit strategy",
-    ],
-    totalUsers: 1250,
-    totalLocked: 850000,
-    performance: {
-      "1M": 0.52,
-      "3M": 1.63,
-      "6M": 3.12,
-      "1Y": 6.45,
-    },
-  },
-  {
-    id: 2,
-    name: "Balanced Yield",
-    description: "Moderate risk strategy balancing growth and stability",
-    risk: "Medium",
-    expectedAPY: 10.2,
-    minAmount: 0.05,
-    timeHorizon: "3 months",
-    popularity: 88,
-    allocation: [
-      { type: "Bitcoin Staking", percentage: 40, apy: 8.5 },
-      { type: "BTC Lending", percentage: 35, apy: 12.3 },
-      { type: "Liquid Staking", percentage: 25, apy: 7.2 },
-    ],
-    features: [
-      "Moderate risk exposure",
-      "Higher yields",
-      "Diversified allocation",
-      "Monthly rebalancing",
-    ],
-    totalUsers: 982,
-    totalLocked: 650000,
-    performance: {
-      "1M": 0.85,
-      "3M": 2.45,
-      "6M": 5.12,
-      "1Y": 10.18,
-    },
-  },
-  {
-    id: 3,
-    name: "High Yield Hunter",
-    description:
-      "Aggressive strategy targeting maximum returns with higher risk",
-    risk: "High",
-    expectedAPY: 18.7,
-    minAmount: 0.25,
-    timeHorizon: "1 month",
-    popularity: 72,
-    allocation: [
-      { type: "BTC-USDC LP", percentage: 40, apy: 15.7 },
-      { type: "DeFi Lending", percentage: 35, apy: 22.5 },
-      { type: "Yield Farming", percentage: 25, apy: 18.2 },
-    ],
-    features: [
-      "Maximum yield potential",
-      "Active management",
-      "High liquidity",
-      "Daily optimization",
-    ],
-    totalUsers: 456,
-    totalLocked: 320000,
-    performance: {
-      "1M": 1.55,
-      "3M": 4.72,
-      "6M": 9.85,
-      "1Y": 18.23,
-    },
-  },
-  {
-    id: 4,
-    name: "Bitcoin Maximalist",
-    description: "Pure Bitcoin strategy with no exposure to other assets",
-    risk: "Low",
-    expectedAPY: 8.8,
-    minAmount: 0.01,
-    timeHorizon: "1 year",
-    popularity: 91,
-    allocation: [
-      { type: "Bitcoin Staking", percentage: 70, apy: 8.5 },
-      { type: "Lightning Liquidity", percentage: 20, apy: 9.8 },
-      { type: "Mining Pool", percentage: 10, apy: 7.2 },
-    ],
-    features: [
-      "100% Bitcoin exposure",
-      "No altcoin risk",
-      "Long-term focus",
-      "Network security support",
-    ],
-    totalUsers: 1580,
-    totalLocked: 1200000,
-    performance: {
-      "1M": 0.73,
-      "3M": 2.21,
-      "6M": 4.42,
-      "1Y": 8.75,
-    },
-  },
-  {
-    id: 5,
-    name: "DeFi Explorer",
-    description: "Experimental strategy exploring cutting-edge DeFi protocols",
-    risk: "High",
-    expectedAPY: 24.5,
-    minAmount: 0.5,
-    timeHorizon: "2 weeks",
-    popularity: 58,
-    allocation: [
-      { type: "New Protocol A", percentage: 35, apy: 28.5 },
-      { type: "Experimental LP", percentage: 30, apy: 22.3 },
-      { type: "Beta Staking", percentage: 35, apy: 21.8 },
-    ],
-    features: [
-      "Early access to protocols",
-      "Highest potential returns",
-      "Regular strategy updates",
-      "Expert management",
-    ],
-    totalUsers: 187,
-    totalLocked: 95000,
-    performance: {
-      "1M": 2.05,
-      "3M": 6.12,
-      "6M": 12.45,
-      "1Y": 23.87,
-    },
-  },
-];
-
-const getRiskColor = (risk: string) => {
-  switch (risk) {
-    case "Low":
-      return "bg-green-100 text-green-800";
-    case "Medium":
-      return "bg-yellow-100 text-yellow-800";
-    case "High":
-      return "bg-red-100 text-red-800";
-    default:
-      return "bg-gray-100 text-gray-800";
-  }
-};
-
-const getRiskIcon = (risk: string) => {
-  switch (risk) {
-    case "Low":
-      return <Shield className="h-4 w-4 text-green-600" />;
-    case "Medium":
-      return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
-    case "High":
-      return <Zap className="h-4 w-4 text-red-600" />;
-    default:
-      return <Shield className="h-4 w-4" />;
-  }
-};
+import { usePrebuiltStrategies } from "@/hooks/dashboard/prebuilt-strategies";
 
 export function PrebuiltStrategies() {
+  const { strategies, filterStrategies, isLoading } = usePrebuiltStrategies();
+
   const [filterRisk, setFilterRisk] = useState("all");
   const [sortBy, setSortBy] = useState("popularity");
   const [selectedStrategy, setSelectedStrategy] = useState<number | null>(null);
-  const [minAPY, setMinAPY] = useState([0]); // Add this line
+  const [minAPY, setMinAPY] = useState([0]);
 
   const filteredStrategies = strategies
     .filter((strategy) => {
       const matchesRisk = filterRisk === "all" || strategy.risk === filterRisk;
-      const matchesAPY = strategy.expectedAPY >= minAPY[0]; // Add this line
-      return matchesRisk && matchesAPY; // Update this line
+      const matchesAPY = strategy.expectedAPY >= minAPY[0];
+      return matchesRisk && matchesAPY;
     })
     .sort((a, b) => {
       switch (sortBy) {
@@ -236,6 +62,32 @@ export function PrebuiltStrategies() {
           return 0;
       }
     });
+
+  const getRiskColor = (risk: string) => {
+    switch (risk) {
+      case "Low":
+        return "bg-green-100 text-green-800";
+      case "Medium":
+        return "bg-yellow-100 text-yellow-800";
+      case "High":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getRiskIcon = (risk: string) => {
+    switch (risk) {
+      case "Low":
+        return <Shield className="h-4 w-4 text-green-600" />;
+      case "Medium":
+        return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
+      case "High":
+        return <Zap className="h-4 w-4 text-red-600" />;
+      default:
+        return <Shield className="h-4 w-4" />;
+    }
+  };
 
   return (
     <div className="space-y-6">

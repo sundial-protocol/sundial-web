@@ -45,14 +45,6 @@ export default function DashboardPage() {
       <div className="min-h-screen">
         <Section className="pb-24">
           <div className="container mx-auto px-4">
-            {/* Dashboard Header */}
-            <div className="mb-8">
-              <h1 className="text-6xl font-bold mb-2">Financial Dashboard</h1>
-              <p className="text-muted-foreground">
-                Manage your Bitcoin portfolio and explore yield opportunities
-              </p>
-            </div>
-
             {/* Dashboard Tabs */}
             <Tabs
               value={activeTab}
