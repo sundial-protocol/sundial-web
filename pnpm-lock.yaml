@@ -11,6 +11,9 @@ importers:
       '@hookform/resolvers':
         specifier: ^3.9.1
         version: 3.10.0(react-hook-form@7.54.2(react@19.0.0))
+      '@mempool/mempool.js':
+        specifier: ^3.0.0
+        version: 3.0.0(bufferutil@4.0.9)(utf-8-validate@6.0.5)
       '@radix-ui/react-accordion':
         specifier: ^1.2.2
         version: 1.2.3(@types/react-dom@19.0.4(@types/react@19.0.12))(@types/react@19.0.12)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -754,6 +757,9 @@ packages:
 
   '@leichtgewicht/ip-codec@2.0.5':
     resolution: {integrity: sha512-Vo+PSpZG2/fmgmiNzYK9qWRh8h/CHrwD0mo1h1DzL4yzHNSfWYujGTYsWGreD000gcgmZ7K4Ys6Tx9TxtsKdDw==}
+
+  '@mempool/mempool.js@3.0.0':
+    resolution: {integrity: sha512-ZfNDcPA0HLpE8u+6/Tl/53F0WTL1CebwIrOIUeajvlXiXlDkhj/pTxnXQhMoxKOJK3qQnUjt6CQuX/TGBaFw7A==}
 
   '@meshsdk/common@1.8.14':
     resolution: {integrity: sha512-rKkgaxX5c0XOZ0Wxwp1WkQ8B79QuwGAy9t7KSofDz3NoIsW4SVY2nKWJ0N0tQdwv+hSw4xvM5AXIsyzkLHO3Ow==}
@@ -1930,6 +1936,9 @@ packages:
 
   axios@1.12.2:
     resolution: {integrity: sha512-vMJzPewAlRyOgxV2dU0Cuz2O8zzzx9VYtbJOaBgXFeLc4IV/Eg50n4LowmehOOR61S8ZMpc2K5Sa7g6A4jfkUw==}
+
+  axios@1.7.4:
+    resolution: {integrity: sha512-DukmaFRnY6AzAALSH4J2M3k6PkaC+MfaAGdEERRWcC9q3/TWQwLpHR8ZRLKTdQ3aBDL64EdluRDjJqKw+BPZEw==}
 
   axobject-query@4.1.0:
     resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
@@ -5697,6 +5706,15 @@ snapshots:
 
   '@leichtgewicht/ip-codec@2.0.5': {}
 
+  '@mempool/mempool.js@3.0.0(bufferutil@4.0.9)(utf-8-validate@6.0.5)':
+    dependencies:
+      axios: 1.7.4
+      ws: 8.18.3(bufferutil@4.0.9)(utf-8-validate@6.0.5)
+    transitivePeerDependencies:
+      - bufferutil
+      - debug
+      - utf-8-validate
+
   '@meshsdk/common@1.8.14':
     dependencies:
       bech32: 2.0.0
@@ -7116,6 +7134,14 @@ snapshots:
       - debug
 
   axios@1.12.2:
+    dependencies:
+      follow-redirects: 1.15.11
+      form-data: 4.0.4
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+
+  axios@1.7.4:
     dependencies:
       follow-redirects: 1.15.11
       form-data: 4.0.4

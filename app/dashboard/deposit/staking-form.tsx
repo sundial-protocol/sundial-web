@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import * as bitcoin from "bitcoinjs-lib";
+import mempoolJS from "@mempool/mempool.js";
 import {
   Card,
   CardContent,
@@ -28,6 +29,7 @@ import {
 import { chainConfigs, SupportedChain } from "../../../lib/multichain";
 import { depositAddress } from "@/hooks/get-scripts";
 import { useDashboardData } from "@/hooks/dashboard/dashboard";
+import { TransactionWatcher } from "@/components/btc/tx-watcher";
 
 type TransactionType = "deposit" | "withdraw";
 
@@ -73,6 +75,15 @@ export default function StakingForm({
   const config = chainConfigs[selectedChain];
   const isDeposit = type === "deposit";
 
+  // Initialize mempool.js client based on selected chain
+  const getMempoolClient = () => {
+    const isTestnet = selectedChain === "btc_testnet";
+    return mempoolJS({
+      hostname: isTestnet ? "mempool.space" : "mempool.space",
+      network: isTestnet ? "testnet" : "main",
+    });
+  };
+
   const copyToClipboard = async (text: string) => {
     await navigator.clipboard.writeText(text);
     setCopied(true);
@@ -105,7 +116,7 @@ export default function StakingForm({
     string | null
   >(null);
 
-  // Bitcoin transaction logic
+  // Bitcoin transaction logic using mempool.js
   const handleBtcTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -113,7 +124,7 @@ export default function StakingForm({
 
     // Add pending transaction to dashboard
     const transactionId = addPendingTransaction(
-      selectedChain as "btc" | "ada",
+      selectedChain as SupportedChain,
       Number(amount),
       type
     );
@@ -122,57 +133,105 @@ export default function StakingForm({
     try {
       const sourceAddress = isDeposit
         ? userAddress
-        : depositAddress(selectedChain);
+        : depositAddress(selectedChain); // Use the valid address function
+
       const targetAddress = isDeposit
-        ? depositAddress(selectedChain)
+        ? depositAddress(selectedChain) // Use the valid address function
         : withdrawAddress;
 
-      const res = await fetch(
-        `${config.explorerBaseUrl}address/${sourceAddress}/utxo`
-      );
-      if (!res.ok) throw new Error("Failed to fetch UTXOs");
-      const utxos = await res.json();
+      console.log("Transaction details:", {
+        sourceAddress,
+        targetAddress,
+        isDeposit,
+        selectedChain,
+      });
 
-      const network = bitcoin.networks.bitcoin;
+      // Initialize mempool.js client
+      const mempool = getMempoolClient();
+
+      console.log("Fetching UTXOs for address:", sourceAddress);
+
+      // Get UTXOs using mempool.js
+      const utxos = await mempool.bitcoin.addresses.getAddressTxsUtxo({
+        address: sourceAddress,
+      });
+
+      console.log("Found UTXOs:", utxos);
+
+      if (!utxos || utxos.length === 0) {
+        throw new Error("No UTXOs found for this address");
+      }
+
+      // Determine network
+      const network =
+        selectedChain === "btc_testnet"
+          ? bitcoin.networks.testnet
+          : bitcoin.networks.bitcoin;
+
       const psbt = new bitcoin.Psbt({ network });
 
       let totalInput = 0;
       const sendAmount = Math.floor(Number(amount) * 1e8);
-      const fee = 500;
+      const fee = 1000; // 1000 sats fee
 
+      // Add inputs from UTXOs
       for (const utxo of utxos) {
         if (totalInput >= sendAmount + fee) break;
+
+        // Get transaction details to build proper input
+        const txDetails = await mempool.bitcoin.transactions.getTx({
+          txid: utxo.txid,
+        });
+
+        const outputScript = txDetails.vout[utxo.vout].scriptpubkey;
+
         psbt.addInput({
           hash: utxo.txid,
           index: utxo.vout,
           witnessUtxo: {
-            script: Buffer.from(utxo.scriptpubkey, "hex"),
+            script: Buffer.from(outputScript, "hex"),
             value: utxo.value,
           },
         });
+
         totalInput += utxo.value;
+        console.log(`Added input: ${utxo.value} sats (total: ${totalInput})`);
       }
 
       if (totalInput < sendAmount + fee) {
-        throw new Error("Insufficient balance");
+        throw new Error(
+          `Insufficient balance. Need: ${
+            sendAmount + fee
+          } sats, Have: ${totalInput} sats`
+        );
       }
 
+      // Add main output
       psbt.addOutput({
         address: targetAddress,
         value: sendAmount,
       });
 
+      console.log(`Added output: ${sendAmount} sats to ${targetAddress}`);
+
+      // Add change output if needed
       const change = totalInput - sendAmount - fee;
-      if (change > 0) {
+      if (change > 546) {
+        // Dust threshold
         psbt.addOutput({
           address: sourceAddress,
           value: change,
         });
+        console.log(`Added change output: ${change} sats to ${sourceAddress}`);
       }
 
-      setPsbtBase64(psbt.toBase64());
+      const psbtBase64 = psbt.toBase64();
+      console.log("PSBT created successfully");
+
+      setPsbtBase64(psbtBase64);
       setStep("psbt");
     } catch (err: any) {
+      console.error("Bitcoin transaction error:", err);
       setError(err.message || `Error creating Bitcoin ${type} transaction`);
 
       // Update transaction as failed
@@ -191,7 +250,7 @@ export default function StakingForm({
 
     // Add pending transaction to dashboard
     const transactionId = addPendingTransaction(
-      selectedChain as "btc" | "ada",
+      selectedChain as SupportedChain,
       Number(amount),
       type
     );
@@ -205,7 +264,7 @@ export default function StakingForm({
 
       // Update dashboard with successful transaction
       updateStakedAmount(
-        selectedChain as "btc" | "ada",
+        selectedChain as SupportedChain,
         Number(amount),
         type,
         hash
@@ -225,7 +284,7 @@ export default function StakingForm({
     setLoading(false);
   };
 
-  // Broadcast Bitcoin transaction
+  // Broadcast Bitcoin transaction using mempool.js
   const handleBroadcast = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -235,35 +294,40 @@ export default function StakingForm({
       const form = e.target as HTMLFormElement;
       const signedHex = (form.signedHex as HTMLInputElement).value.trim();
 
-      const res = await fetch(
-        `${config.explorerBaseUrl}${config.explorerTxSlug}`,
-        {
-          method: "POST",
-          body: signedHex,
-          headers: { "Content-Type": "text/plain" },
-        }
-      );
+      // Initialize mempool.js client for broadcasting
+      const mempool = getMempoolClient();
 
-      if (!res.ok) throw new Error("Broadcast failed");
-      const txid = await res.text();
-      setBroadcastResult(txid);
+      console.log("Broadcasting transaction");
+
+      // Broadcast transaction using mempool.js
+      const txid = await mempool.bitcoin.transactions.postTx({
+        txhex: signedHex,
+      });
+
+      // Ensure txid is a string
+      const txidStr = typeof txid === "string" ? txid : String(txid);
+
+      console.log("Transaction broadcast successfully:", txidStr);
+
+      setBroadcastResult(txidStr);
 
       // Update dashboard with successful transaction
       updateStakedAmount(
-        selectedChain as "btc" | "ada",
+        selectedChain as SupportedChain,
         Number(amount),
         type,
-        txid
+        txidStr
       );
 
       // Update transaction status
       if (pendingTransactionId) {
-        updateTransactionStatus(pendingTransactionId, "completed", txid);
+        updateTransactionStatus(pendingTransactionId, "completed", txidStr);
       }
 
       setStep("done");
-      onSuccess?.(txid, selectedChain, amount);
+      onSuccess?.(txidStr, selectedChain, amount);
     } catch (err: any) {
+      console.error("Broadcast error:", err);
       setError(err.message || "Broadcast error");
 
       // Update transaction as failed
@@ -306,7 +370,7 @@ export default function StakingForm({
   };
 
   const getButtonText = () => {
-    if (loading) return "Processing...";
+    if (loading) return "Processing";
     return `${isDeposit ? "Deposit" : "Withdraw"} ${config.symbol}`;
   };
 
@@ -333,7 +397,7 @@ export default function StakingForm({
         {step === "form" && (
           <form
             onSubmit={
-              selectedChain === "btc"
+              selectedChain === "btc" || selectedChain === "btc_testnet"
                 ? handleBtcTransaction
                 : handleAdaTransaction
             }
@@ -519,28 +583,50 @@ export default function StakingForm({
                 </div>
                 <p className="text-sm text-muted-foreground">
                   Copy the above PSBT and sign it in your Bitcoin wallet (e.g.
-                  Sparrow, Electrum).
+                  Sparrow, Electrum), then broadcast the signed transaction.
                 </p>
               </div>
 
-              <form onSubmit={handleBroadcast} className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    Step 2: Paste Signed Transaction Hex
-                  </label>
-                  <textarea
-                    name="signedHex"
-                    className="w-full p-3 border rounded-md text-xs font-mono"
-                    rows={3}
-                    placeholder="Paste your signed transaction hex here..."
-                    required
-                  />
-                </div>
+              <TransactionWatcher
+                targetAddress={
+                  isDeposit ? depositAddress(selectedChain) : withdrawAddress
+                }
+                expectedAmount={Math.floor(Number(amount) * 1e8)}
+                chain={selectedChain}
+                onTransactionFound={(txid) => {
+                  console.log("Transaction found:", txid);
+                  setBroadcastResult(txid);
 
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Broadcasting..." : "Broadcast Transaction"}
-                </Button>
-              </form>
+                  // Update dashboard with successful transaction
+                  updateStakedAmount(
+                    selectedChain as SupportedChain,
+                    Number(amount),
+                    type,
+                    txid
+                  );
+
+                  // Update transaction status
+                  if (pendingTransactionId) {
+                    updateTransactionStatus(
+                      pendingTransactionId,
+                      "completed",
+                      txid
+                    );
+                  }
+
+                  setStep("done");
+                  onSuccess?.(txid, selectedChain, amount);
+                }}
+                onError={(error) => {
+                  console.error("Transaction watching error:", error);
+                  setError(error);
+
+                  // Update transaction as failed
+                  if (pendingTransactionId) {
+                    updateTransactionStatus(pendingTransactionId, "failed");
+                  }
+                }}
+              />
 
               {error && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-md">
