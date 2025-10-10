@@ -28,8 +28,8 @@ import {
 } from "lucide-react";
 import { chainConfigs, SupportedChain } from "../../../lib/multichain";
 import { depositAddress } from "@/hooks/get-scripts";
-import { useDashboardData } from "@/hooks/dashboard/dashboard";
 import { TransactionWatcher } from "@/components/btc/tx-watcher";
+import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 
 type TransactionType = "deposit" | "withdraw";
 
@@ -38,6 +38,7 @@ interface StakingFormProps {
   onSuccess?: (txHash: string, chain: SupportedChain, amount: string) => void;
   onAmountChange?: (amount: string, chain: SupportedChain) => void;
   defaultChain?: SupportedChain;
+  dashboardData?: ReturnType<typeof useDashboardContext>;
 }
 
 export default function StakingForm({
@@ -46,12 +47,8 @@ export default function StakingForm({
   onAmountChange,
   defaultChain = "btc",
 }: StakingFormProps) {
-  const {
-    portfolioData,
-    updateStakedAmount,
-    addPendingTransaction,
-    updateTransactionStatus,
-  } = useDashboardData();
+  const { updateStakedAmount, addPendingTransaction, updateTransactionStatus } =
+    useDashboardContext();
 
   const [selectedChain, setSelectedChain] =
     useState<SupportedChain>(defaultChain);

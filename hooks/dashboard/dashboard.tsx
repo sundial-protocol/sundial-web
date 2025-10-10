@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { LoggedTx } from "./tx-history";
 import { SupportedChain } from "@/lib/multichain";
 
@@ -166,6 +166,7 @@ export function useDashboardData() {
             ...newPositions[existingIndex],
             amount: newPositions[existingIndex].amount + amount,
             value: (newPositions[existingIndex].amount + amount) * btcPrice,
+            apy: newYield * 100,
           };
         } else {
           newPositions.push({
@@ -187,6 +188,7 @@ export function useDashboardData() {
                 ...pos,
                 amount: newAmount,
                 value: newAmount * btcPrice,
+                apy: newYield * 100,
               };
             }
             return pos;
@@ -194,7 +196,7 @@ export function useDashboardData() {
           .filter((pos) => pos.amount > 0); // Remove positions with 0 amount
       }
 
-      return {
+      const updatedPortfolioData = {
         ...prev,
         totalStaked: newTotalStaked,
         totalBTC: newTotalBTC,
@@ -210,6 +212,20 @@ export function useDashboardData() {
             ? ((amountChange * btcPrice) / newTotalValue) * 100
             : 0,
       };
+
+      // Update earnings data with the new staked amount
+      setEarningsData(generateEarningsData(newTotalStaked));
+
+      console.log("Portfolio updated:", {
+        previousStaked: prev.totalStaked,
+        newStaked: newTotalStaked,
+        amountChange,
+        type,
+        newTotalValue,
+        newMonthlyRewards,
+      });
+
+      return updatedPortfolioData;
     });
 
     // Add transaction to history
@@ -225,10 +241,8 @@ export function useDashboardData() {
       };
 
       setTransactions((prev) => [transaction, ...prev]);
+      console.log("Transaction added to history:", transaction);
     }
-
-    // Regenerate earnings data with new projections
-    setEarningsData(generateEarningsData());
   };
 
   // Function to add pending transaction (called when transaction is initiated)

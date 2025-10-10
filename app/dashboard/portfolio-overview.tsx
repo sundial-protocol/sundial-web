@@ -25,7 +25,6 @@ import {
   Coins,
   Check,
   Copy,
-  Wallet,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -38,7 +37,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from "recharts";
 import {
@@ -52,12 +50,8 @@ import {
   Legend as ChartLegend,
   Filler,
 } from "chart.js";
-import {
-  useDashboardData,
-  formatCurrency,
-  formatPercentage,
-  mockEarningsData
-} from "@/hooks/dashboard/dashboard";
+import { formatCurrency, formatPercentage } from "@/hooks/dashboard/dashboard";
+import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 
 ChartJS.register(
   CategoryScale,
@@ -71,7 +65,8 @@ ChartJS.register(
 );
 
 export function PortfolioOverview() {
-  const { portfolioData, earningsData, isLoading, error } = useDashboardData();
+  const { portfolioData, earningsData, isLoading, error } =
+    useDashboardContext();
   const [timeRange, setTimeRange] = useState("12m");
   const [btcWallet, setBtcWallet] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);

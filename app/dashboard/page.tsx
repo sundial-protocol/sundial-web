@@ -1,27 +1,86 @@
 "use client";
 
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
+import { DashboardProvider } from "@/lib/contexts/dashboard-context";
 import { useState } from "react";
-import { Section } from "@/components/ui/section";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PortfolioOverview } from "./portfolio-overview";
 import { TransactionHistory } from "./tx-history";
 import { YieldCatalog } from "./yield-catalog";
 import { PrebuiltStrategies } from "./prebuilt-strategies";
-import DepositTab from "./deposit/deposit";
+import Deposit from "./deposit/deposit";
 import WithdrawTab from "./deposit/withdraw";
-import {
-  Wallet,
-  TrendingUp,
-  History,
-  Target,
-  ArrowDownCircle,
-  ArrowUpCircle,
-} from "lucide-react";
+import { Section } from "@/components/ui/section";
 
-export default function DashboardPage() {
+function DashboardContent() {
   const [activeTab, setActiveTab] = useState("portfolio");
 
+  const tabs = [
+    { id: "portfolio", label: "Portfolio" },
+    { id: "deposit", label: "Deposit" },
+    { id: "withdraw", label: "Withdraw" },
+    { id: "yield", label: "Yield", disabled: true },
+    { id: "strategies", label: "Strategies", disabled: true },
+    { id: "history", label: "History" },
+  ];
+
+  const renderActiveTab = () => {
+    switch (activeTab) {
+      case "portfolio":
+        return <PortfolioOverview />;
+      case "deposit":
+        return <Deposit />;
+      case "withdraw":
+        return <WithdrawTab />;
+      case "yield":
+        return <YieldCatalog />;
+      case "strategies":
+        return <PrebuiltStrategies />;
+      case "history":
+        return <TransactionHistory />;
+      default:
+        return <PortfolioOverview />;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-8">
+        {/* Tab Navigation */}
+        <div className="mb-8">
+          <div className="flex space-x-1 bg-muted p-1 rounded-lg">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => !tab.disabled && setActiveTab(tab.id)}
+                disabled={tab.disabled}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors ${
+                  tab.disabled
+                    ? "text-muted-foreground/50 cursor-not-allowed opacity-50"
+                    : activeTab === tab.id
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                }`}
+                title={tab.disabled ? "Coming Soon" : undefined}
+              >
+                <span className="font-medium">{tab.label}</span>
+                {tab.disabled && (
+                  <span className="text-xs bg-muted-foreground/20 px-1.5 py-0.5 rounded-full">
+                    Soon
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        {renderActiveTab()}
+      </div>
+    </div>
+  );
+}
+
+export default function DashboardPage() {
   return (
     <SunbeamBackground
       beams={[
@@ -42,91 +101,15 @@ export default function DashboardPage() {
         },
       ]}
     >
-      <div className="min-h-screen">
-        <Section className="pb-24">
-          <div className="container mx-auto px-4">
-            {/* Dashboard Tabs */}
-            <Tabs
-              value={activeTab}
-              onValueChange={setActiveTab}
-              className="w-full"
-            >
-              <TabsList className="grid w-full grid-cols-5 lg:grid-cols-10 mb-8">
-                <TabsTrigger
-                  value="portfolio"
-                  className="flex items-center gap-2"
-                >
-                  <Wallet className="w-4 h-4" />
-                  <span className="hidden sm:inline">Portfolio</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="deposit"
-                  className="flex items-center gap-2"
-                >
-                  <ArrowUpCircle className="w-4 h-4" />
-                  <span className="hidden sm:inline">Deposit</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="withdraw"
-                  className="flex items-center gap-2"
-                >
-                  <ArrowDownCircle className="w-4 h-4" />
-                  <span className="hidden sm:inline">Withdraw</span>
-                </TabsTrigger>
-
-                <TabsTrigger
-                  value="transactions"
-                  className="flex items-center gap-2"
-                >
-                  <History className="w-4 h-4" />
-                  <span className="hidden sm:inline">History</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="yield"
-                  className="flex items-center gap-2"
-                  disabled
-                >
-                  <TrendingUp className="w-4 h-4" />
-                  <span className="hidden sm:inline">Yield</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="strategies"
-                  className="flex items-center gap-2"
-                  disabled
-                >
-                  <Target className="w-4 h-4" />
-                  <span className="hidden sm:inline">Strategies</span>
-                </TabsTrigger>
-              </TabsList>
-
-              {/* Tab Content */}
-              <TabsContent value="portfolio">
-                <PortfolioOverview />
-              </TabsContent>
-
-              <TabsContent value="transactions">
-                <TransactionHistory />
-              </TabsContent>
-
-              {/* <TabsContent value="yield">
-                <YieldCatalog />
-              </TabsContent>
-
-              <TabsContent value="strategies">
-                <PrebuiltStrategies />
-              </TabsContent> */}
-
-              <TabsContent value="deposit">
-                <DepositTab />
-              </TabsContent>
-
-              <TabsContent value="withdraw">
-                <WithdrawTab />
-              </TabsContent>
-            </Tabs>
-          </div>
-        </Section>
-      </div>
+      <DashboardProvider>
+        <div className="min-h-screen">
+          <Section className="pb-24">
+            <div className="container mx-auto px-4">
+              <DashboardContent />
+            </div>
+          </Section>
+        </div>
+      </DashboardProvider>
     </SunbeamBackground>
   );
 }

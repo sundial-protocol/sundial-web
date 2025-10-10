@@ -4,12 +4,13 @@ import { useState } from "react";
 import StakingForm from "./staking-form";
 import StakingSummaryCard from "./staking-summary";
 import { SupportedChain, chainConfigs } from "@/lib/multichain";
-import { useDashboardData } from "@/hooks/dashboard/dashboard";
+import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 export default function WithdrawTab() {
-  const { portfolioData, updateStakedAmount, isLoading } = useDashboardData();
+  const { portfolioData, updateStakedAmount, isLoading } =
+    useDashboardContext();
   const [selectedChain, setSelectedChain] = useState<SupportedChain>("btc");
   const [amount, setAmount] = useState("");
 
