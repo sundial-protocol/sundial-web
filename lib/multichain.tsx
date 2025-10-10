@@ -1,10 +1,10 @@
 import { Bitcoin, Coins } from "lucide-react";
 import { isDev } from "@/lib/utils";
 
-export type Chain = "btc" | "ada" | "btc_testnet" | "ada_testnet";
+export type SupportedChain = "btc" | "ada" | "btc_testnet" | "ada_testnet";
 
 export interface ChainConfig {
-  id: Chain;
+  id: SupportedChain;
   name: string;
   symbol: string;
   icon: React.ReactNode;
@@ -17,7 +17,7 @@ export interface ChainConfig {
   enabled?: boolean;
 }
 
-export const chainConfigs: Record<Chain, ChainConfig> = {
+export const chainConfigs: Record<SupportedChain, ChainConfig> = {
   btc: {
     id: "btc",
     name: "Bitcoin",

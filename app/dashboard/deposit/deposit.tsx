@@ -3,46 +3,51 @@
 import { useState } from "react";
 import StakingForm from "./staking-form";
 import StakingSummaryCard from "./staking-summary";
-import { Chain, chainConfigs } from "./types";
+import { SupportedChain, chainConfigs } from "../../../lib/multichain";
+import { useDashboardData } from "@/hooks/dashboard/dashboard";
 
 export default function DepositTab() {
-  const [selectedChain, setSelectedChain] = useState<Chain>("btc");
+  const { portfolioData, updateStakedAmount, isLoading } = useDashboardData();
+  const [selectedChain, setSelectedChain] = useState<SupportedChain>("btc");
   const [amount, setAmount] = useState("");
 
-  // Mocked user staking info for demonstration
-  const [alreadyStaked, setAlreadyStaked] = useState(0.25);
-  const [currentYield, setCurrentYield] = useState(0.085);
-
+  const alreadyStaked = portfolioData.totalStaked;
+  const currentYield = portfolioData.currentYield;
   const config = chainConfigs[selectedChain];
 
-  const handleAmountChange = (newAmount: string, chain: Chain) => {
+  const handleAmountChange = (newAmount: string, chain: SupportedChain) => {
     setAmount(newAmount);
     setSelectedChain(chain);
   };
 
-  const handleSuccess = (txHash: string, chain: Chain, amount: string) => {
-    // Handle successful deposit
+  const handleSuccess = (
+    txHash: string,
+    chain: SupportedChain,
+    amount: string
+  ) => {
     console.log("Deposit successful:", { txHash, chain, amount });
-    // You could update the staked amount here
-    setAlreadyStaked((prev) => prev + Number(amount));
+
+    // Update the staked amount in the dashboard
+    updateStakedAmount(chain as "btc" | "ada", Number(amount), "deposit");
+
+    // Reset form
+    setAmount("");
   };
 
-  // Calculate new values
+  // Calculate new values for deposits
   const amountNum = Number(amount) || 0;
   const newTotal = alreadyStaked + amountNum;
-  const newYield = newTotal >= 1 ? currentYield + 0.005 : currentYield;
+  const newYield =
+    newTotal >= 1 ? Math.min(currentYield + 0.001, 0.12) : currentYield; // Cap at 12%
 
   return (
     <div className="mx-auto p-6">
       <div className="mb-8">
-        <h2 className="text-3xl font-bold mb-2">Deposit Assets</h2>
-        <p className="text-muted-foreground">
-          Choose a blockchain and deposit assets to start earning yield
-        </p>
+        <h2 className="text-3xl font-bold mb-2">Stake Assets</h2>
+        <p className="text-muted-foreground">Stake your assets to earn yield</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Left: Deposit Form */}
         <StakingForm
           type="deposit"
           onSuccess={handleSuccess}
@@ -50,7 +55,6 @@ export default function DepositTab() {
           defaultChain="btc"
         />
 
-        {/* Right: Staking/Yield Summary */}
         <div className="flex flex-col gap-6">
           <StakingSummaryCard
             alreadyStaked={alreadyStaked}

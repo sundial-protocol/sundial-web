@@ -1,11 +1,12 @@
+import { SupportedChain } from "@/lib/multichain";
 import { useState } from "react";
 
-export interface TransactionHistory {
+export interface LoggedTx {
   id: string;
   type: "deposit" | "withdraw" | "claim";
-  asset: "BTC" | "ADA";
+  asset: SupportedChain;
   amount: number;
-  usdValue: number;
+  usdValue?: number;
   status: "completed" | "pending" | "failed";
   timestamp: Date;
   txHash: string;
@@ -13,7 +14,7 @@ export interface TransactionHistory {
 }
 
 export function useTransactionHistory() {
-  const [transactions, setTransactions] = useState<TransactionHistory[]>(
+  const [transactions, setTransactions] = useState<LoggedTx[]>(
     mockTransactionHistory
   );
   const [isLoading, setIsLoading] = useState(false);
@@ -40,11 +41,11 @@ export function useTransactionHistory() {
   };
 }
 
-export const mockTransactionHistory: TransactionHistory[] = [
+export const mockTransactionHistory: LoggedTx[] = [
   {
     id: "tx-1",
     type: "deposit",
-    asset: "BTC",
+    asset: "btc",
     amount: 0.5,
     usdValue: 25000,
     status: "completed",
@@ -55,7 +56,7 @@ export const mockTransactionHistory: TransactionHistory[] = [
   {
     id: "tx-2",
     type: "claim",
-    asset: "ADA",
+    asset: "ada",
     amount: 125.5,
     usdValue: 150,
     status: "completed",
@@ -66,7 +67,7 @@ export const mockTransactionHistory: TransactionHistory[] = [
   {
     id: "tx-3",
     type: "deposit",
-    asset: "ADA",
+    asset: "ada",
     amount: 5000,
     usdValue: 6000,
     status: "pending",
@@ -77,7 +78,7 @@ export const mockTransactionHistory: TransactionHistory[] = [
   {
     id: "tx-4",
     type: "withdraw",
-    asset: "BTC",
+    asset: "btc",
     amount: 0.1,
     usdValue: 5000,
     status: "completed",

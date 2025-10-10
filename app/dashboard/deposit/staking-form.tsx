@@ -25,16 +25,17 @@ import {
   ArrowDownLeft,
   ArrowUpRight,
 } from "lucide-react";
-import { chainConfigs, Chain } from "./types";
+import { chainConfigs, SupportedChain } from "../../../lib/multichain";
 import { depositAddress } from "@/hooks/get-scripts";
+import { useDashboardData } from "@/hooks/dashboard/dashboard";
 
 type TransactionType = "deposit" | "withdraw";
 
 interface StakingFormProps {
   type: TransactionType;
-  onSuccess?: (txHash: string, chain: Chain, amount: string) => void;
-  onAmountChange?: (amount: string, chain: Chain) => void;
-  defaultChain?: Chain;
+  onSuccess?: (txHash: string, chain: SupportedChain, amount: string) => void;
+  onAmountChange?: (amount: string, chain: SupportedChain) => void;
+  defaultChain?: SupportedChain;
 }
 
 export default function StakingForm({
@@ -43,7 +44,15 @@ export default function StakingForm({
   onAmountChange,
   defaultChain = "btc",
 }: StakingFormProps) {
-  const [selectedChain, setSelectedChain] = useState<Chain>(defaultChain);
+  const {
+    portfolioData,
+    updateStakedAmount,
+    addPendingTransaction,
+    updateTransactionStatus,
+  } = useDashboardData();
+
+  const [selectedChain, setSelectedChain] =
+    useState<SupportedChain>(defaultChain);
   const [userAddress, setUserAddress] = useState("");
   const [withdrawAddress, setWithdrawAddress] = useState("");
   const [amount, setAmount] = useState("");
@@ -81,7 +90,7 @@ export default function StakingForm({
     setStep("form");
   };
 
-  const handleChainChange = (chain: Chain) => {
+  const handleChainChange = (chain: SupportedChain) => {
     setSelectedChain(chain);
     resetForm();
   };
@@ -91,11 +100,24 @@ export default function StakingForm({
     onAmountChange?.(value, selectedChain);
   };
 
+  // Track pending transaction
+  const [pendingTransactionId, setPendingTransactionId] = useState<
+    string | null
+  >(null);
+
   // Bitcoin transaction logic
   const handleBtcTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
+
+    // Add pending transaction to dashboard
+    const transactionId = addPendingTransaction(
+      selectedChain as "btc" | "ada",
+      Number(amount),
+      type
+    );
+    setPendingTransactionId(transactionId);
 
     try {
       const sourceAddress = isDeposit
@@ -152,6 +174,11 @@ export default function StakingForm({
       setStep("psbt");
     } catch (err: any) {
       setError(err.message || `Error creating Bitcoin ${type} transaction`);
+
+      // Update transaction as failed
+      if (transactionId) {
+        updateTransactionStatus(transactionId, "failed");
+      }
     }
     setLoading(false);
   };
@@ -162,15 +189,38 @@ export default function StakingForm({
     setError(null);
     setLoading(true);
 
+    // Add pending transaction to dashboard
+    const transactionId = addPendingTransaction(
+      selectedChain as "btc" | "ada",
+      Number(amount),
+      type
+    );
+    setPendingTransactionId(transactionId);
+
     try {
       // Placeholder for Cardano transaction logic
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      const hash = `sample_cardano_${type}_hash_` + Date.now();
+      const hash = `cardano_${type}_${Date.now()}`;
       setTxHash(hash);
+
+      // Update dashboard with successful transaction
+      updateStakedAmount(
+        selectedChain as "btc" | "ada",
+        Number(amount),
+        type,
+        hash
+      );
+
+      // Update transaction status
+      updateTransactionStatus(transactionId, "completed", hash);
+
       setStep("done");
       onSuccess?.(hash, selectedChain, amount);
     } catch (err: any) {
       setError(err.message || `Error processing ADA ${type}`);
+
+      // Update transaction as failed
+      updateTransactionStatus(transactionId, "failed");
     }
     setLoading(false);
   };
@@ -197,10 +247,29 @@ export default function StakingForm({
       if (!res.ok) throw new Error("Broadcast failed");
       const txid = await res.text();
       setBroadcastResult(txid);
+
+      // Update dashboard with successful transaction
+      updateStakedAmount(
+        selectedChain as "btc" | "ada",
+        Number(amount),
+        type,
+        txid
+      );
+
+      // Update transaction status
+      if (pendingTransactionId) {
+        updateTransactionStatus(pendingTransactionId, "completed", txid);
+      }
+
       setStep("done");
       onSuccess?.(txid, selectedChain, amount);
     } catch (err: any) {
       setError(err.message || "Broadcast error");
+
+      // Update transaction as failed
+      if (pendingTransactionId) {
+        updateTransactionStatus(pendingTransactionId, "failed");
+      }
     }
     setLoading(false);
   };
