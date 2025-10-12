@@ -1,8 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import { LoggedTx } from "./tx-history";
+import { useState, useEffect } from "react";
 import { SupportedChain } from "@/lib/multichain";
+
+export interface LoggedTx {
+  id: string;
+  type: "deposit" | "withdraw" | "stake" | "unstake" | "reward";
+  asset: string; // "btc", "ada", etc.
+  amount: number;
+  txHash?: string; // Optional for pending transactions
+  timestamp: Date;
+  status: "pending" | "completed" | "failed";
+  usdValue?: number;
+}
 
 export type RiskEval = "Zero" | "Low" | "Medium" | "High";
 
@@ -123,7 +133,28 @@ export function useDashboardData() {
   const [earningsData, setEarningsData] = useState<EarningsData[]>(() =>
     generateEarningsData(mockPortfolioData.totalStaked)
   );
-  const [transactions, setTransactions] = useState<LoggedTx[]>([]);
+  const [transactions, setTransactions] = useState<LoggedTx[]>([
+    {
+      id: "tx-mock-1",
+      type: "deposit",
+      asset: "btc",
+      amount: 0.1,
+      usdValue: 5200,
+      status: "completed",
+      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
+      txHash: "bc1mock...transaction1",
+    },
+    {
+      id: "tx-mock-2",
+      type: "withdraw",
+      asset: "btc",
+      amount: 0.05,
+      usdValue: 2600,
+      status: "completed",
+      timestamp: new Date(Date.now() - 48 * 60 * 60 * 1000), // 2 days ago
+      txHash: "bc1mock...transaction2",
+    },
+  ]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -251,18 +282,25 @@ export function useDashboardData() {
     amount: number,
     type: "deposit" | "withdraw"
   ) => {
-    const transaction: LoggedTx = {
-      id: `pending-${Date.now()}`,
+    const transactionId = `tx-${Date.now()}-${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
+
+    const newTx: LoggedTx = {
+      id: transactionId,
       type,
       asset: chain,
       amount,
-      txHash: "pending",
       timestamp: new Date(),
       status: "pending",
+      usdValue: amount * (chain === "btc" ? 52000 : 0.35), // Calculate USD value
+      // txHash is undefined for pending transactions
     };
 
-    setTransactions((prev) => [transaction, ...prev]);
-    return transaction.id;
+    setTransactions((prev) => [newTx, ...prev]);
+
+    console.log("Added pending transaction:", newTx);
+    return transactionId;
   };
 
   // Function to update transaction status
@@ -272,32 +310,86 @@ export function useDashboardData() {
     txHash?: string
   ) => {
     setTransactions((prev) =>
-      prev.map((tx) =>
-        tx.id === transactionId
-          ? { ...tx, status, ...(txHash && { txHash }) }
-          : tx
-      )
+      prev.map((tx) => {
+        if (tx.id === transactionId) {
+          const updatedTx = {
+            ...tx,
+            status,
+            txHash: status === "completed" ? txHash : tx.txHash,
+          };
+
+          console.log("Updated transaction status:", {
+            transactionId,
+            status,
+            txHash,
+            previousStatus: tx.status,
+          });
+
+          return updatedTx;
+        }
+        return tx;
+      })
     );
   };
 
-  const refetch = () => {
-    setIsLoading(true);
-    // Simulate API refetch
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+  // Function to remove a transaction (for cleanup)
+  const removeTransaction = (transactionId: string) => {
+    setTransactions((prev) => {
+      const filtered = prev.filter((tx) => tx.id !== transactionId);
+      console.log("Removed transaction:", transactionId);
+      return filtered;
+    });
   };
+
+  // Clean up old failed transactions (optional)
+  useEffect(() => {
+    const cleanup = setInterval(() => {
+      const now = new Date();
+      setTransactions((prev) => {
+        const filtered = prev.filter((tx) => {
+          const isOld = now.getTime() - tx.timestamp.getTime() > 10 * 60 * 1000; // 10 minutes
+          const shouldRemove = isOld && tx.status === "failed";
+
+          if (shouldRemove) {
+            console.log("Cleaning up old failed transaction:", tx.id);
+          }
+
+          return !shouldRemove;
+        });
+
+        return filtered;
+      });
+    }, 60000); // Check every minute
+
+    return () => clearInterval(cleanup);
+  }, []);
+
+  // Computed values for easy access
+  const pendingTransactions = transactions.filter(
+    (tx) => tx.status === "pending"
+  );
+  const completedTransactions = transactions.filter(
+    (tx) => tx.status === "completed"
+  );
+  const failedTransactions = transactions.filter(
+    (tx) => tx.status === "failed"
+  );
 
   return {
     portfolioData,
     earningsData,
-    transactions,
-    isLoading,
-    error,
     updateStakedAmount,
+    error,
+    isLoading,
+
+    // Transaction-related returns
+    transactions,
+    pendingTransactions, // Computed from transactions
+    completedTransactions, // Computed from transactions
+    failedTransactions, // Computed from transactions
     addPendingTransaction,
     updateTransactionStatus,
-    refetch,
+    removeTransaction,
   };
 }
 
