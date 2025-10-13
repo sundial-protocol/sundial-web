@@ -3,7 +3,7 @@
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 import { DashboardProvider } from "@/lib/contexts/dashboard-context";
 import { useState } from "react";
-import { PortfolioOverview } from "./portfolio-overview";
+import { PortfolioOverview } from "./overview/portfolio-overview";
 import { TransactionHistory } from "./tx-history";
 import { YieldCatalog } from "./yield-catalog";
 import { PrebuiltStrategies } from "./prebuilt-strategies";

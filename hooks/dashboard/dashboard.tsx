@@ -18,16 +18,20 @@ export type RiskEval = "Zero" | "Low" | "Medium" | "High";
 
 // Types
 export interface PortfolioData {
+  //USD Value
   totalValue: number;
   dailyChange: number;
   dailyChangePercent: number;
   btcValue: number;
   adaValue: number;
+
+  // Actual Amounts
   btcChange: number;
   adaChange: number;
   btcChangePercent: number;
   adaChangePercent: number;
   // Add staking-specific fields
+  totalADA: number;
   totalBTC: number;
   totalStaked: number;
   currentYield: number;
@@ -384,9 +388,9 @@ export function useDashboardData() {
 
     // Transaction-related returns
     transactions,
-    pendingTransactions, // Computed from transactions
-    completedTransactions, // Computed from transactions
-    failedTransactions, // Computed from transactions
+    pendingTransactions,
+    completedTransactions,
+    failedTransactions,
     addPendingTransaction,
     updateTransactionStatus,
     removeTransaction,
@@ -424,7 +428,7 @@ export function getAssetPrice(asset: "BTC" | "ADA"): number {
   return prices[asset];
 }
 
-// Mock Data
+// Start everything at 0
 export const mockPortfolioData: PortfolioData = {
   totalValue: 0,
   dailyChange: 0,
@@ -435,12 +439,12 @@ export const mockPortfolioData: PortfolioData = {
   adaChange: 0,
   btcChangePercent: 0,
   adaChangePercent: 0,
-  // Staking data - all starting at 0
   totalBTC: 0,
+  totalADA: 0,
   totalStaked: 0,
   currentYield: 0,
   monthlyRewards: 0,
-  positions: [], // Empty positions array
+  positions: [],
 };
 
 export const mockEarningsData: EarningsData[] = [

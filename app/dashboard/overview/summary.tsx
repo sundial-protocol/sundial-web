@@ -1,9 +1,16 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardDescription,
+} from "@/components/ui/card";
 import {
   formatCurrency,
   formatPercentage,
   PortfolioData,
 } from "@/hooks/dashboard/dashboard";
+import { formatAmount } from "@/hooks/dashboard/prices";
 import {
   Bitcoin,
   DollarSign,
@@ -12,81 +19,57 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-export default function PortfolioSummary(props: { data: PortfolioData }) {
-  const isPositive = props.data.dailyChange > 0;
-  const isNegative = props.data.dailyChange < 0;
+export default function PortfolioSummary({ data }: { data: any }) {
+  const isPositive = data.dailyChange > 0;
+  const isNegative = data.dailyChange < 0;
 
   return (
-    <div className="col-span-2 grid gap-4 grid-cols-2">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Value</CardTitle>
-          <DollarSign className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {formatCurrency(props.data.totalValue)}
+    <Card className="col-span-2">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <DollarSign className="w-5 h-5" />
+          Portfolio Summary
+        </CardTitle>
+        <CardDescription>
+          Your total portfolio value and performance
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="text-center">
+          <div className="text-3xl font-bold">
+            ${formatAmount(data.totalValue, 0)}
           </div>
-          <div
-            className={`flex items-center text-xs ${
-              isPositive
-                ? "text-green-600"
-                : isNegative
-                ? "text-red-600"
-                : "text-gray-600"
-            }`}
-          >
-            {isPositive ? (
-              <TrendingUp className="h-3 w-3 mr-1" />
-            ) : (
-              <TrendingDown className="h-3 w-3 mr-1" />
-            )}
-            {formatPercentage(props.data.dailyChangePercent)} (
-            {formatCurrency(props.data.dailyChange)})
+          <div className="text-sm text-muted-foreground">
+            Total Portfolio Value
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Bitcoin</CardTitle>
-          <Bitcoin className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{props.data.totalBTC} BTC</div>
-          <p className="text-xs text-muted-foreground">
-            {props.data.totalStaked} BTC staked
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Monthly Rewards</CardTitle>
-          <TrendingUp className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {formatCurrency(props.data.monthlyRewards)}
+        <div className="grid grid-cols-2 gap-4 text-center">
+          <div>
+            <div className="text-lg font-semibold text-orange-600">
+              ${formatAmount(data.btcValue, 0)}
+            </div>
+            <div className="text-xs text-muted-foreground">Bitcoin Value</div>
           </div>
-          <p className="text-xs text-muted-foreground">
-            From staking & lending
-          </p>
-        </CardContent>
-      </Card>
+          <div>
+            <div className="text-lg font-semibold text-blue-600">
+              ${formatAmount(data.adaValue || 0, 0)}
+            </div>
+            <div className="text-xs text-muted-foreground">Cardano Value</div>
+          </div>
+        </div>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Risk Score</CardTitle>
-          <Shield className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-green-600">Low</div>
-          <p className="text-xs text-muted-foreground">
-            Conservative allocation
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+        <div className="pt-4 border-t">
+          <div className="text-center">
+            <div className="text-xl font-bold text-green-600">
+              ${formatAmount(data.monthlyRewards, 0)}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              Monthly Rewards (USD)
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
