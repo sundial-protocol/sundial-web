@@ -52,6 +52,7 @@ import {
 } from "chart.js";
 import { formatCurrency, formatPercentage } from "@/hooks/dashboard/dashboard";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
+import PortfolioSummary from "./overview/summary";
 
 ChartJS.register(
   CategoryScale,
@@ -115,9 +116,6 @@ export function PortfolioOverview() {
     }
     return null;
   };
-
-  // Calculate derived values from portfolioData
-  const isPositive = portfolioData.dailyChange > 0;
 
   if (isLoading)
     return <div className="p-4 text-center">Loading dashboard...</div>;
@@ -356,80 +354,7 @@ export function PortfolioOverview() {
           </CardContent>
         </Card>
 
-        {/* Portfolio Summary Cards - Using portfolioData from hook */}
-        <div className="col-span-2 grid gap-4 grid-cols-2">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Value</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {formatCurrency(portfolioData.totalValue)}
-              </div>
-              <div
-                className={`flex items-center text-xs ${
-                  isPositive ? "text-green-600" : "text-red-600"
-                }`}
-              >
-                {isPositive ? (
-                  <TrendingUp className="h-3 w-3 mr-1" />
-                ) : (
-                  <TrendingDown className="h-3 w-3 mr-1" />
-                )}
-                {formatPercentage(portfolioData.dailyChangePercent)} (
-                {formatCurrency(portfolioData.dailyChange)})
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total Bitcoin
-              </CardTitle>
-              <Bitcoin className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {portfolioData.totalBTC} BTC
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {portfolioData.totalStaked} BTC staked
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Monthly Rewards
-              </CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {formatCurrency(portfolioData.monthlyRewards)}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                From staking & lending
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Risk Score</CardTitle>
-              <Shield className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">Low</div>
-              <p className="text-xs text-muted-foreground">
-                Conservative allocation
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+        <PortfolioSummary data={portfolioData}></PortfolioSummary>
 
         {/* Asset Allocation */}
         <Card className="col-span-3">
