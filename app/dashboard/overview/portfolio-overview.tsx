@@ -6,9 +6,10 @@ import QuickActions from "./quick-actions";
 import AssetAllocation from "./asset-allocation";
 import WalletsCard from "./wallets-card";
 import EarningsGraph from "./earnings-graph";
+import { DEFAULT_PRICES } from "@/hooks/dashboard/prices";
 
 export function PortfolioOverview() {
-  const { portfolioData, calculations, earningsData, isLoading, error } =
+  const { portfolioData, calculations, isLoading, error } =
     useDashboardContext();
   const [btcWallet, setBtcWallet] = useState<string | null>(null);
 
@@ -20,7 +21,11 @@ export function PortfolioOverview() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-5 gap-4">
-        <EarningsGraph earningsData={earningsData} />
+        <EarningsGraph
+          adaValue={calculations.adaValue}
+          btcValue={calculations.btcValue}
+          prices={DEFAULT_PRICES}
+        />
 
         {/* Wallet Connection Section */}
         <WalletsCard btcWallet={btcWallet} setBtcWallet={setBtcWallet} />

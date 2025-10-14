@@ -33,9 +33,12 @@ import {
   Legend as ChartLegend,
   Filler,
 } from "chart.js";
-import { formatAmount } from "@/hooks/dashboard/prices";
+import { formatAmount, PricesMap } from "@/hooks/dashboard/prices";
 import { useState } from "react";
-import { EarningsData } from "@/hooks/dashboard/dashboard";
+import {
+  EarningsData,
+  generateEarningsData,
+} from "@/hooks/dashboard/dashboard";
 
 ChartJS.register(
   CategoryScale,
@@ -82,7 +85,17 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-export default function EarningsGraph(props: { earningsData: EarningsData[] }) {
+export default function EarningsGraph(props: {
+  adaValue: number;
+  btcValue: number;
+  prices: PricesMap;
+}) {
+  const earningsData: EarningsData[] = generateEarningsData(
+    props.adaValue,
+    props.btcValue,
+    props.prices
+  );
+
   const [timeRange, setTimeRange] = useState("12m");
   return (
     <div className="col-span-3 md:col-span-4">
@@ -113,7 +126,7 @@ export default function EarningsGraph(props: { earningsData: EarningsData[] }) {
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
-                data={props.earningsData}
+                data={earningsData}
                 margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
@@ -222,41 +235,26 @@ export default function EarningsGraph(props: { earningsData: EarningsData[] }) {
           <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t">
             <div className="text-center">
               <div className="text-lg font-bold text-orange-600">
-                $
-                {formatAmount(
-                  props.earningsData[props.earningsData.length - 1]
-                    ?.btcProjected || 0,
-                  0
-                )}
+                ${formatAmount(earningsData[7]?.btcProjected || 0, 0)}
               </div>
               <div className="text-xs text-muted-foreground">
-                Projected BTC Monthly
+                Projected BTC (This Month)
               </div>
             </div>
             <div className="text-center">
               <div className="text-lg font-bold text-blue-600">
-                $
-                {formatAmount(
-                  props.earningsData[props.earningsData.length - 1]
-                    ?.adaProjected || 0,
-                  0
-                )}
+                ${formatAmount(earningsData[7]?.adaProjected || 0, 0)}
               </div>
               <div className="text-xs text-muted-foreground">
-                Projected ADA Monthly
+                Projected ADA (This Month)
               </div>
             </div>
             <div className="text-center">
               <div className="text-lg font-bold text-gray-800">
-                $
-                {formatAmount(
-                  props.earningsData[props.earningsData.length - 1]
-                    ?.totalProjected || 0,
-                  0
-                )}
+                ${formatAmount(earningsData[7]?.totalProjected || 0, 0)}
               </div>
               <div className="text-xs text-muted-foreground">
-                Total Monthly USD
+                Total USD (This Month)
               </div>
             </div>
           </div>

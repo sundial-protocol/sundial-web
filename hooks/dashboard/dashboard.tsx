@@ -77,8 +77,8 @@ export interface EarningsData {
 }
 
 export function generateEarningsData(
-  ada: number,
-  btc: number,
+  adaValue: number,
+  btcValue: number,
   priceMap: PricesMap
 ): EarningsData[] {
   const today = new Date();
@@ -86,6 +86,7 @@ export function generateEarningsData(
   const currentYear = today.getFullYear();
 
   const data: EarningsData[] = [];
+  let ada = convertWithPrices(adaValue, "USD", "ADA", priceMap);
 
   // Generate 12 months of data (6 historical, 6 projected from today)
   for (let i = -6; i <= 6; i++) {
@@ -121,26 +122,18 @@ export function generateEarningsData(
         type: "current",
       });
     } else {
-      const btcProjected = btc; // staking rewards not currently paid in BTC
-      const btcValue = convertWithPrices(btc, "BTC", "USD", priceMap);
-      const adaValue = convertWithPrices(ada, "ADA", "USD", priceMap);
-      const adaProjected =
+      ada =
         ada +
-        convertWithPrices(
-          getYield(adaValue + btcValue),
-          "USD",
-          "ADA",
-          priceMap
-        );
+        convertWithPrices(getYield(ada + btcValue), "USD", "ADA", priceMap);
 
       data.push({
         month: monthName,
         btcEarnings: null,
         adaEarnings: null,
         total: null,
-        btcProjected,
-        adaProjected,
-        totalProjected: btcProjected + adaProjected,
+        btcProjected: btcValue,
+        adaProjected: ada,
+        totalProjected: btcValue + ada,
         type: "projected",
       });
     }
