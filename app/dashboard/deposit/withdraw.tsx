@@ -44,7 +44,7 @@ export default function WithdrawTab() {
 
   // Calculate new values for deposits
   const amountNum = Number(amount) || 0;
-  const newTotal = alreadyStaked + amountNum;
+  const newTotal = Math.max(alreadyStaked - amountNum, 0);
   const newYield = getYield(newTotal) ?? 0;
 
   if (isLoading) {
@@ -82,6 +82,7 @@ export default function WithdrawTab() {
             alreadyStaked={alreadyStaked}
             amount={amountNum}
             symbol={config.symbol}
+            newTotal={newTotal}
             currentYield={currentYield}
             newYield={newYield}
             type="withdraw"

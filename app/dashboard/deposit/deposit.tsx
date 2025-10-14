@@ -69,6 +69,7 @@ export default function DepositTab() {
             alreadyStaked={alreadyStaked}
             amount={amountNum}
             symbol={config.symbol}
+            newTotal={newTotal}
             currentYield={currentYield}
             newYield={newYield}
             type="deposit"

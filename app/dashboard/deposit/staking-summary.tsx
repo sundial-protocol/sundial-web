@@ -8,7 +8,7 @@ import {
 
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import usePrices, { CurrencyCode } from "@/hooks/dashboard/prices";
+import { CurrencyCode } from "@/hooks/dashboard/prices";
 import ValueDisplay from "@/components/ui/value-display";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -17,6 +17,7 @@ export default function StakingSummaryCard({
   alreadyStaked,
   amount,
   symbol,
+  newTotal,
   currentYield,
   newYield,
   type,
@@ -24,14 +25,11 @@ export default function StakingSummaryCard({
   alreadyStaked: number;
   amount: number;
   symbol: CurrencyCode;
+  newTotal: number;
   currentYield: number;
   newYield: number;
   type: "deposit" | "withdraw";
 }) {
-  const newTotal =
-    type === "deposit"
-      ? alreadyStaked + amount
-      : Math.max(alreadyStaked - amount, 0);
   const yieldDiff = newYield - currentYield;
   const diffColor =
     yieldDiff > 0
