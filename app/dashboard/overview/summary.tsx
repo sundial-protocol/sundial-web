@@ -6,14 +6,12 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { formatAmount } from "@/hooks/dashboard/prices";
-import { DollarSign } from "lucide-react";
 
 export default function PortfolioSummary({ data }: { data: any }) {
   return (
     <Card className="col-span-2">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <DollarSign className="w-5 h-5" />
           Portfolio Summary
         </CardTitle>
         <CardDescription>
@@ -42,17 +40,6 @@ export default function PortfolioSummary({ data }: { data: any }) {
               ${formatAmount(data.adaValue || 0, 0)}
             </div>
             <div className="text-xs text-muted-foreground">Cardano Value</div>
-          </div>
-        </div>
-
-        <div className="pt-4 border-t">
-          <div className="text-center">
-            <div className="text-xl font-bold text-green-600">
-              {formatAmount(data.monthlyRewards, 0)}
-            </div>
-            <div className="text-sm text-muted-foreground">
-              Monthly Rewards (USD)
-            </div>
           </div>
         </div>
       </CardContent>

@@ -2,7 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { SupportedChain } from "@/lib/multichain";
-import usePrices from "./prices";
+import usePrices, {
+  convertWithPrices,
+  DEFAULT_PRICES,
+  PricesMap,
+} from "./prices";
 import { getYield } from "./get-yield";
 
 export interface LoggedTx {
@@ -72,8 +76,11 @@ export interface EarningsData {
   type: "historical" | "current" | "projected";
 }
 
-export function generateEarningsData(ada: number, btc: number): EarningsData[] {
-  const { convert } = usePrices();
+export function generateEarningsData(
+  ada: number,
+  btc: number,
+  priceMap: PricesMap
+): EarningsData[] {
   const today = new Date();
   const currentMonth = today.getMonth(); // 0-11
   const currentYear = today.getFullYear();
@@ -115,10 +122,16 @@ export function generateEarningsData(ada: number, btc: number): EarningsData[] {
       });
     } else {
       const btcProjected = btc; // staking rewards not currently paid in BTC
-      const btcValue = convert(btc, "BTC", "USD");
-      const adaValue = convert(ada, "ADA", "USD");
+      const btcValue = convertWithPrices(btc, "BTC", "USD", priceMap);
+      const adaValue = convertWithPrices(ada, "ADA", "USD", priceMap);
       const adaProjected =
-        ada + convert(getYield(adaValue + btcValue), "USD", "ADA");
+        ada +
+        convertWithPrices(
+          getYield(adaValue + btcValue),
+          "USD",
+          "ADA",
+          priceMap
+        );
 
       data.push({
         month: monthName,
@@ -149,7 +162,8 @@ export function useDashboardData() {
   const [earningsData, setEarningsData] = useState<EarningsData[]>(() =>
     generateEarningsData(
       mockPortfolioData.staking.ADA.staked,
-      mockPortfolioData.staking.BTC.staked
+      mockPortfolioData.staking.BTC.staked,
+      DEFAULT_PRICES
     )
   );
   const [transactions, setTransactions] = useState<LoggedTx[]>([
@@ -349,6 +363,11 @@ export function useDashboardData() {
 
 export function usePortfolioCalculations(portfolioData: PortfolioData) {
   const { convert, prices } = usePrices();
+  const btcRewards = 0;
+  const adaRewards = getYield(
+    convert(portfolioData.holdings.BTC, "BTC", "USD") +
+      convert(portfolioData.holdings.ADA, "ADA", "USD")
+  );
 
   return {
     // USD Values (computed on demand)
@@ -366,19 +385,9 @@ export function usePortfolioCalculations(portfolioData: PortfolioData) {
 
     // Monthly Rewards (computed)
     monthlyRewards: {
-      BTC:
-        (portfolioData.staking.BTC.staked *
-          portfolioData.staking.BTC.yield *
-          prices.BTC) /
-        12,
-      ADA:
-        (portfolioData.staking.ADA.staked *
-          portfolioData.staking.ADA.yield *
-          prices.ADA) /
-        12,
-      total: function () {
-        return this.BTC + this.ADA;
-      },
+      BTC: btcRewards,
+      ADA: adaRewards,
+      total: btcRewards + adaRewards,
     },
 
     // Asset Allocation

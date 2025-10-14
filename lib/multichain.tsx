@@ -1,12 +1,13 @@
 import { Bitcoin, Coins } from "lucide-react";
 import { isDev } from "@/lib/utils";
+import { CurrencyCode } from "@/hooks/dashboard/prices";
 
 export type SupportedChain = "btc" | "ada" | "btc_testnet" | "ada_testnet";
 
 export interface ChainConfig {
   id: SupportedChain;
   name: string;
-  symbol: string;
+  symbol: CurrencyCode;
   icon: React.ReactNode;
   addressPrefix: string;
   minDeposit: number;

@@ -16,7 +16,7 @@ export default function WithdrawTab() {
 
   // Get current staked amount from dashboard data
   const alreadyStaked = calculations.totalStakedValue;
-  const currentYield = calculations.monthlyRewards.total();
+  const currentYield = calculations.monthlyRewards.total;
 
   const config = chainConfigs[selectedChain];
 

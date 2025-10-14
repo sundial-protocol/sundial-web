@@ -6,15 +6,20 @@ import StakingSummaryCard from "./staking-summary";
 import { SupportedChain, chainConfigs } from "../../../lib/multichain";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import { getYield } from "@/hooks/dashboard/get-yield";
+import usePrices from "@/hooks/dashboard/prices";
 
 export default function DepositTab() {
-  const { calculations, updateStakedAmount } = useDashboardContext();
+  const { portfolioData, calculations, updateStakedAmount } =
+    useDashboardContext();
+  const { convert } = usePrices();
   const [selectedChain, setSelectedChain] = useState<SupportedChain>("btc");
   const [amount, setAmount] = useState("");
-
-  const alreadyStaked = calculations.totalStakedValue;
-  const currentYield = calculations.monthlyRewards.total();
   const config = chainConfigs[selectedChain];
+
+  const alreadyStaked =
+    portfolioData.holdings[config.symbol as "BTC" | "ADA"] || 0;
+  const currentYield =
+    convert(calculations.monthlyRewards.total, "USD", config.symbol) || 0;
 
   const handleAmountChange = (newAmount: string, chain: SupportedChain) => {
     setAmount(newAmount);
@@ -38,7 +43,7 @@ export default function DepositTab() {
   // Calculate new values for deposits
   const amountNum = Number(amount) || 0;
   const newTotal = alreadyStaked + amountNum;
-  const newYield = newTotal >= 1 ? getYield(newTotal) : 0;
+  const newYield = getYield(newTotal) ?? 0;
 
   return (
     <div className="mx-auto p-6">

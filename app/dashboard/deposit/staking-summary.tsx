@@ -8,6 +8,8 @@ import {
 
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import usePrices, { CurrencyCode } from "@/hooks/dashboard/prices";
+import ValueDisplay from "@/components/ui/value-display";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -21,7 +23,7 @@ export default function StakingSummaryCard({
 }: {
   alreadyStaked: number;
   amount: number;
-  symbol: string;
+  symbol: CurrencyCode;
   currentYield: number;
   newYield: number;
   type: "deposit" | "withdraw";
@@ -30,6 +32,13 @@ export default function StakingSummaryCard({
     type === "deposit"
       ? alreadyStaked + amount
       : Math.max(alreadyStaked - amount, 0);
+  const yieldDiff = newYield - currentYield;
+  const diffColor =
+    yieldDiff > 0
+      ? "text-green-600"
+      : yieldDiff < 0
+      ? "text-red-600"
+      : "text-gray-500";
 
   const chartLabels =
     type === "deposit"
@@ -37,14 +46,6 @@ export default function StakingSummaryCard({
       : ["Remaining Staked", "Withdrawing"];
   const chartColors =
     type === "deposit" ? ["#fbbf24", "#34d399"] : ["#fbbf24", "#f87171"];
-
-  const yieldDiff = newYield * newTotal - currentYield * alreadyStaked;
-  const diffColor =
-    yieldDiff > 0
-      ? "text-green-600"
-      : yieldDiff < 0
-      ? "text-red-600"
-      : "text-gray-500";
 
   return (
     <Card>
@@ -100,7 +101,7 @@ export default function StakingSummaryCard({
               Already Staked
             </span>
             <span className="font-mono">
-              {alreadyStaked} {symbol}
+              <ValueDisplay currency={symbol} value={alreadyStaked} />
             </span>
           </div>
           <div className="flex justify-between">
@@ -108,25 +109,25 @@ export default function StakingSummaryCard({
               {type === "deposit" ? "Adding" : "Withdrawing"}
             </span>
             <span className="font-mono">
-              {amount} {symbol}
+              <ValueDisplay currency={symbol} value={amount} />
             </span>
           </div>
           <div className="flex justify-between border-t pt-2">
             <span className="font-semibold">New Total</span>
             <span className="font-mono font-semibold">
-              {newTotal} {symbol}
+              <ValueDisplay currency={symbol} value={newTotal} />
             </span>
           </div>
           <div className="flex justify-between mt-4">
             <span className="text-sm text-muted-foreground">Current Yield</span>
             <span className="font-mono">
-              {(alreadyStaked * currentYield).toFixed(4)} BTC
+              <ValueDisplay currency={symbol} value={currentYield} />
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">New Yield</span>
             <span className="font-mono">
-              {(newTotal * newYield).toFixed(4)} BTC
+              <ValueDisplay currency={symbol} value={newYield} />
             </span>
           </div>
           <div className="flex justify-between">
@@ -135,7 +136,11 @@ export default function StakingSummaryCard({
             </span>
             <span className={`font-mono ${diffColor}`}>
               {yieldDiff > 0 ? "+" : ""}
-              {yieldDiff.toFixed(4)} BTC
+              <ValueDisplay
+                currency={symbol}
+                value={yieldDiff}
+                className={`font-mono ${diffColor}`}
+              />
             </span>
           </div>
         </div>

@@ -1,15 +1,18 @@
 import { useCallback, useMemo, useState } from "react";
 
-export type CurrencyCode = "USD" | "BTC" | "ADA" | "EUR";
+export type CurrencyCode = "USD" | "BTC" | "ADA" | "EUR" | "tBTC" | "tADA";
 export type StakingCurrencyCode = "USD" | "BTC";
 
 export type PricesMap = Record<CurrencyCode, number>;
 
-const DEFAULT_PRICES: PricesMap = {
+export const DEFAULT_PRICES: PricesMap = {
   USD: 1,
   BTC: 100000, // 1 BTC = 100,000 USD (hardcoded example)
   ADA: 0.7, // 1 ADA = $0.70 USD (hardcoded example)
   EUR: 1.05,
+  // Testnet currencies - will have to split based on environment later
+  tBTC: 100000,
+  tADA: 0.7,
 };
 
 /**
@@ -44,7 +47,7 @@ export function usePrices(initial?: Partial<PricesMap>) {
     (from: CurrencyCode, to: CurrencyCode) => {
       const fromUsd = getPriceInUSD(from);
       const toUsd = getPriceInUSD(to);
-      return toUsd / fromUsd;
+      return fromUsd / toUsd;
     },
     [getPriceInUSD]
   );
@@ -123,7 +126,7 @@ export function convertWithPrices(
   if (typeof fromUsd !== "number" || typeof toUsd !== "number") {
     throw new Error("unknown currency in prices map");
   }
-  return (toUsd / fromUsd) * amount;
+  return (fromUsd / toUsd) * amount;
 }
 
 /**
