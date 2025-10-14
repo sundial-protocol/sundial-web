@@ -96,11 +96,11 @@ export default function Navbar() {
           )}
         >
           <NavLink
-            href="/solutions"
+            href="/dashboard"
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
             <BadgeCheck className={navIconCn} />
-            {drawerOpen && <span className="text-sm">Solutions</span>}
+            {drawerOpen && <span className="text-sm">Dashboard</span>}
           </NavLink>
 
           <NavLink

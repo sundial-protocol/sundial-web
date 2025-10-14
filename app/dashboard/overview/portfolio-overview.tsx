@@ -3,10 +3,10 @@ import { useState } from "react";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import PortfolioSummary from "./summary";
 import QuickActions from "./quick-actions";
-import AssetAllocation from "./asset-allocation";
 import WalletsCard from "./wallets-card";
 import EarningsGraph from "./earnings-graph";
 import { DEFAULT_PRICES } from "@/hooks/dashboard/prices";
+import TxAllocation from "./tx-allocation";
 
 export function PortfolioOverview() {
   const { portfolioData, calculations, isLoading, error } =
@@ -42,10 +42,7 @@ export function PortfolioOverview() {
           }}
         />
 
-        <AssetAllocation
-          portfolioData={portfolioData}
-          calculations={calculations}
-        />
+        <TxAllocation />
       </div>
 
       <QuickActions />

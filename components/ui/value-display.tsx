@@ -15,9 +15,11 @@ export default function ValueDisplay({
     <span className={className}>
       {currency === "USD"
         ? `$${value.toFixed(2)}`
-        : `${value} ${currency} ($${convert(value, currency, "USD").toFixed(
-            2
-          )})`}
+        : `${value.toFixed(4)} ${currency} ($${convert(
+            value,
+            currency,
+            "USD"
+          ).toFixed(2)})`}
     </span>
   );
 }

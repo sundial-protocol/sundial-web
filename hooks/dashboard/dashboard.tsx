@@ -159,28 +159,7 @@ export function useDashboardData() {
       DEFAULT_PRICES
     )
   );
-  const [transactions, setTransactions] = useState<LoggedTx[]>([
-    {
-      id: "tx-mock-1",
-      type: "deposit",
-      asset: "btc",
-      amount: 0.1,
-      usdValue: 5200,
-      status: "completed",
-      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
-      txHash: "bc1mock...transaction1",
-    },
-    {
-      id: "tx-mock-2",
-      type: "withdraw",
-      asset: "btc",
-      amount: 0.05,
-      usdValue: 2600,
-      status: "completed",
-      timestamp: new Date(Date.now() - 48 * 60 * 60 * 1000), // 2 days ago
-      txHash: "bc1mock...transaction2",
-    },
-  ]);
+  const [transactions, setTransactions] = useState<LoggedTx[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
