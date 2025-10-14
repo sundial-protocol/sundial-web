@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
-import { usePrices } from "@/hooks/dashboard/prices";
 import PortfolioSummary from "./summary";
 import QuickActions from "./quick-actions";
 import AssetAllocation from "./asset-allocation";
@@ -9,22 +8,9 @@ import WalletsCard from "./wallets-card";
 import EarningsGraph from "./earnings-graph";
 
 export function PortfolioOverview() {
-  const { portfolioData, earningsData, isLoading, error } =
+  const { portfolioData, calculations, earningsData, isLoading, error } =
     useDashboardContext();
   const [btcWallet, setBtcWallet] = useState<string | null>(null);
-
-  // Use the prices hook for conversions
-  const { convert, prices } = usePrices();
-
-  // Calculate USD values using the prices hook
-  const btcValueUSD = convert(portfolioData.totalBTC, "BTC", "USD");
-  const adaValueUSD = convert(portfolioData.totalADA || 0, "ADA", "USD");
-  const totalValueUSD = btcValueUSD + adaValueUSD;
-  const monthlyRewardsUSD = convert(
-    portfolioData.monthlyRewards || 0,
-    "BTC",
-    "USD"
-  );
 
   if (isLoading)
     return <div className="p-4 text-center">Loading dashboard...</div>;
@@ -44,14 +30,17 @@ export function PortfolioOverview() {
           data={{
             ...portfolioData,
             // Override with USD converted values
-            totalValue: totalValueUSD,
-            btcValue: btcValueUSD,
-            adaValue: adaValueUSD,
-            monthlyRewards: monthlyRewardsUSD,
+            totalValue: calculations.totalValue,
+            btcValue: calculations.btcValue,
+            adaValue: calculations.adaValue,
+            monthlyRewards: calculations.monthlyRewards,
           }}
         />
 
-        <AssetAllocation portfolioData={portfolioData} />
+        <AssetAllocation
+          portfolioData={portfolioData}
+          calculations={calculations}
+        />
       </div>
 
       <QuickActions />

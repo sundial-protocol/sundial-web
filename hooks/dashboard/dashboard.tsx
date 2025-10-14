@@ -49,6 +49,8 @@ export interface PortfolioData {
   };
 }
 
+export type PortfolioCalculations = ReturnType<typeof usePortfolioCalculations>;
+
 export interface StakingPosition {
   id: string;
   type: string; // "Bitcoin Staking", "Liquid Staking", etc.
@@ -70,9 +72,8 @@ export interface EarningsData {
   type: "historical" | "current" | "projected";
 }
 
-export function generateEarningsData(
-  currentStaked: number = 0
-): EarningsData[] {
+export function generateEarningsData(ada: number, btc: number): EarningsData[] {
+  const { convert } = usePrices();
   const today = new Date();
   const currentMonth = today.getMonth(); // 0-11
   const currentYear = today.getFullYear();
@@ -113,19 +114,11 @@ export function generateEarningsData(
         type: "current",
       });
     } else {
-      // Calculate projected earnings based on current staked amount
-      const monthsFromNow = i;
-      const baseYield = 0.085; // 8.5% annual
-      const monthlyYield = baseYield / 12;
-      const btcPrice = 52000;
-
-      const monthlyEarnings =
-        currentStaked > 0
-          ? Math.round(currentStaked * monthlyYield * btcPrice)
-          : 0;
-
-      const btcProjected = Math.round(monthlyEarnings * 0.9); // 90% BTC
-      const adaProjected = Math.round(monthlyEarnings * 0.1); // 10% ADA
+      const btcProjected = btc; // staking rewards not currently paid in BTC
+      const btcValue = convert(btc, "BTC", "USD");
+      const adaValue = convert(ada, "ADA", "USD");
+      const adaProjected =
+        ada + convert(getYield(adaValue + btcValue), "USD", "ADA");
 
       data.push({
         month: monthName,
@@ -154,7 +147,10 @@ export function useDashboardData() {
   });
   const calculations = usePortfolioCalculations(portfolioData);
   const [earningsData, setEarningsData] = useState<EarningsData[]>(() =>
-    generateEarningsData(mockPortfolioData.staking.BTC.staked)
+    generateEarningsData(
+      mockPortfolioData.staking.ADA.staked,
+      mockPortfolioData.staking.BTC.staked
+    )
   );
   const [transactions, setTransactions] = useState<LoggedTx[]>([
     {

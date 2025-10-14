@@ -5,24 +5,10 @@ import {
   CardContent,
   CardDescription,
 } from "@/components/ui/card";
-import {
-  formatCurrency,
-  formatPercentage,
-  PortfolioData,
-} from "@/hooks/dashboard/dashboard";
 import { formatAmount } from "@/hooks/dashboard/prices";
-import {
-  Bitcoin,
-  DollarSign,
-  Shield,
-  TrendingDown,
-  TrendingUp,
-} from "lucide-react";
+import { DollarSign } from "lucide-react";
 
 export default function PortfolioSummary({ data }: { data: any }) {
-  const isPositive = data.dailyChange > 0;
-  const isNegative = data.dailyChange < 0;
-
   return (
     <Card className="col-span-2">
       <CardHeader>
@@ -62,7 +48,7 @@ export default function PortfolioSummary({ data }: { data: any }) {
         <div className="pt-4 border-t">
           <div className="text-center">
             <div className="text-xl font-bold text-green-600">
-              ${formatAmount(data.monthlyRewards, 0)}
+              {formatAmount(data.monthlyRewards, 0)}
             </div>
             <div className="text-sm text-muted-foreground">
               Monthly Rewards (USD)

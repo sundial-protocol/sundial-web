@@ -5,6 +5,7 @@ import StakingForm from "./staking-form";
 import StakingSummaryCard from "./staking-summary";
 import { SupportedChain, chainConfigs } from "../../../lib/multichain";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
+import { getYield } from "@/hooks/dashboard/get-yield";
 
 export default function DepositTab() {
   const { calculations, updateStakedAmount } = useDashboardContext();
@@ -37,8 +38,7 @@ export default function DepositTab() {
   // Calculate new values for deposits
   const amountNum = Number(amount) || 0;
   const newTotal = alreadyStaked + amountNum;
-  const newYield =
-    newTotal >= 1 ? Math.min(currentYield + 0.001, 0.12) : currentYield; // Cap at 12%
+  const newYield = newTotal >= 1 ? getYield(newTotal) : 0;
 
   return (
     <div className="mx-auto p-6">

@@ -6,18 +6,20 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { PortfolioData } from "@/hooks/dashboard/dashboard";
+import {
+  PortfolioCalculations,
+  PortfolioData,
+} from "@/hooks/dashboard/dashboard";
 import { formatAmount, usePrices } from "@/hooks/dashboard/prices";
 
 export default function AssetAllocation({
   portfolioData,
+  calculations,
 }: {
   portfolioData: PortfolioData;
+  calculations: PortfolioCalculations;
 }) {
   const { convert } = usePrices();
-  const totalValueUSD = portfolioData.totalValue;
-  const btcValueUSD = convert(portfolioData.totalBTC, "BTC", "USD");
-  const adaValueUSD = convert(portfolioData.totalADA || 0, "ADA", "USD");
   return (
     <Card className="col-span-3">
       <CardHeader>
@@ -31,28 +33,34 @@ export default function AssetAllocation({
         <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
           <div className="text-center">
             <div className="text-2xl font-bold text-orange-600">
-              {formatAmount(portfolioData.totalBTC, 4)} BTC
+              {formatAmount(portfolioData.holdings.BTC, 4)} BTC
             </div>
             <div className="text-sm text-muted-foreground">
-              ${formatAmount(btcValueUSD, 0)} USD
+              ${formatAmount(calculations.btcValue, 0)} USD
             </div>
             <div className="text-xs text-muted-foreground">
-              {portfolioData.totalBTC > 0
-                ? ((btcValueUSD / totalValueUSD) * 100).toFixed(2)
+              {portfolioData.holdings.BTC > 0
+                ? (
+                    (calculations.btcValue / calculations.totalValue) *
+                    100
+                  ).toFixed(2)
                 : 0}
               % of portfolio
             </div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-blue-600">
-              {formatAmount(portfolioData.totalADA || 0, 2)} ADA
+              {formatAmount(portfolioData.holdings.ADA || 0, 2)} ADA
             </div>
             <div className="text-sm text-muted-foreground">
-              ${formatAmount(adaValueUSD, 0)} USD
+              ${formatAmount(calculations.adaValue, 0)} USD
             </div>
             <div className="text-xs text-muted-foreground">
-              {totalValueUSD > 0
-                ? ((adaValueUSD / totalValueUSD) * 100).toFixed(2)
+              {calculations.totalValue > 0
+                ? (
+                    (calculations.adaValue / calculations.totalValue) *
+                    100
+                  ).toFixed(2)
                 : 0}
               % of portfolio
             </div>
@@ -60,11 +68,11 @@ export default function AssetAllocation({
         </div>
 
         {/* Individual positions */}
-        {portfolioData.positions.map((position, index) => {
-          const positionValueUSD = convert(position.value || 0, "BTC", "USD");
+        {portfolioData.staking.BTC.positions.map((position, index) => {
+          const positionValueUSD = convert(position.amount || 0, "BTC", "USD");
           const percentage =
-            portfolioData.totalBTC > 0
-              ? (position.amount / portfolioData.totalBTC) * 100
+            portfolioData.holdings.BTC > 0
+              ? (position.amount / portfolioData.holdings.BTC) * 100
               : 0;
 
           return (
