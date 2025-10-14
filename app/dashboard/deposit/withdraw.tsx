@@ -7,18 +7,21 @@ import { SupportedChain, chainConfigs } from "@/lib/multichain";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { getYield } from "@/hooks/dashboard/get-yield";
+import { usePrices } from "@/hooks/dashboard/prices";
 
 export default function WithdrawTab() {
   const { portfolioData, calculations, updateStakedAmount, isLoading } =
     useDashboardContext();
+  const { convert } = usePrices();
   const [selectedChain, setSelectedChain] = useState<SupportedChain>("btc");
   const [amount, setAmount] = useState("");
-
-  // Get current staked amount from dashboard data
-  const alreadyStaked = calculations.totalStakedValue;
-  const currentYield = calculations.monthlyRewards.total;
-
   const config = chainConfigs[selectedChain];
+
+  const alreadyStaked =
+    portfolioData.holdings[config.symbol as "BTC" | "ADA"] || 0;
+  const currentYield =
+    convert(calculations.monthlyRewards.total, "USD", config.symbol) || 0;
 
   const handleAmountChange = (newAmount: string, chain: SupportedChain) => {
     setAmount(newAmount);
@@ -30,26 +33,20 @@ export default function WithdrawTab() {
     chain: SupportedChain,
     amount: string
   ) => {
-    // Handle successful withdrawal and update dashboard data
-    console.log("Withdrawal successful:", { txHash, chain, amount });
+    console.log("Deposit successful:", { txHash, chain, amount });
 
     // Update the staked amount in the dashboard
-    updateStakedAmount(chain as SupportedChain, Number(amount), "withdraw");
+    updateStakedAmount(chain as "btc" | "ada", Number(amount), "deposit");
 
     // Reset form
     setAmount("");
-
-    // You could also show a success toast here
-    // toast.success(`Successfully withdrew ${amount} ${chain.toUpperCase()}`);
   };
 
-  // Calculate new values
+  // Calculate new values for deposits
   const amountNum = Number(amount) || 0;
-  const newTotal = Math.max(0, alreadyStaked - amountNum);
-  const newYield =
-    newTotal >= 1 ? currentYield : Math.max(0, currentYield - 0.005);
+  const newTotal = alreadyStaked + amountNum;
+  const newYield = getYield(newTotal) ?? 0;
 
-  // Show current staking status
   if (isLoading) {
     return <div className="p-6 text-center">Loading staking data...</div>;
   }
@@ -70,23 +67,6 @@ export default function WithdrawTab() {
 
   return (
     <div className="mx-auto p-6">
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold mb-2">Withdraw Assets</h2>
-        <p className="text-muted-foreground">
-          Withdraw your staked assets back to your wallet
-        </p>
-        <div className="mt-4 p-4 bg-muted rounded-lg">
-          <p className="text-sm">
-            <span className="font-medium">Currently Staked:</span>{" "}
-            {alreadyStaked} BTC
-          </p>
-          <p className="text-sm">
-            <span className="font-medium">Current Yield:</span>{" "}
-            {(currentYield * 100).toFixed(2)}%
-          </p>
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Left: Withdraw Form */}
         <StakingForm

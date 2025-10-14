@@ -6,10 +6,10 @@ import StakingSummaryCard from "./staking-summary";
 import { SupportedChain, chainConfigs } from "../../../lib/multichain";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import { getYield } from "@/hooks/dashboard/get-yield";
-import usePrices from "@/hooks/dashboard/prices";
+import { usePrices } from "@/hooks/dashboard/prices";
 
 export default function DepositTab() {
-  const { portfolioData, calculations, updateStakedAmount } =
+  const { portfolioData, calculations, updateStakedAmount, isLoading } =
     useDashboardContext();
   const { convert } = usePrices();
   const [selectedChain, setSelectedChain] = useState<SupportedChain>("btc");
@@ -44,6 +44,10 @@ export default function DepositTab() {
   const amountNum = Number(amount) || 0;
   const newTotal = alreadyStaked + amountNum;
   const newYield = getYield(newTotal) ?? 0;
+
+  if (isLoading) {
+    return <div className="p-6 text-center">Loading staking data...</div>;
+  }
 
   return (
     <div className="mx-auto p-6">
