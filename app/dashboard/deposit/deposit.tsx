@@ -7,13 +7,12 @@ import { SupportedChain, chainConfigs } from "../../../lib/multichain";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 
 export default function DepositTab() {
-  const { portfolioData, updateStakedAmount, isLoading } =
-    useDashboardContext();
+  const { calculations, updateStakedAmount } = useDashboardContext();
   const [selectedChain, setSelectedChain] = useState<SupportedChain>("btc");
   const [amount, setAmount] = useState("");
 
-  const alreadyStaked = portfolioData.totalStaked;
-  const currentYield = portfolioData.currentYield;
+  const alreadyStaked = calculations.totalStakedValue;
+  const currentYield = calculations.monthlyRewards.total();
   const config = chainConfigs[selectedChain];
 
   const handleAmountChange = (newAmount: string, chain: SupportedChain) => {

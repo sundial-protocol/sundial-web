@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { SupportedChain } from "@/lib/multichain";
+import usePrices from "./prices";
+import { getYield } from "./get-yield";
 
 export interface LoggedTx {
   id: string;
@@ -18,32 +20,43 @@ export type RiskEval = "Zero" | "Low" | "Medium" | "High";
 
 // Types
 export interface PortfolioData {
-  //USD Value
-  totalValue: number;
-  dailyChange: number;
-  dailyChangePercent: number;
-  btcValue: number;
-  adaValue: number;
+  // Core Holdings (source of truth)
+  holdings: {
+    BTC: number;
+    ADA: number;
+  };
 
-  // Actual Amounts
-  btcChange: number;
-  adaChange: number;
-  btcChangePercent: number;
-  adaChangePercent: number;
-  // Add staking-specific fields
-  totalADA: number;
-  totalBTC: number;
-  totalStaked: number;
-  currentYield: number;
-  monthlyRewards: number;
-  positions: Array<{
-    type: string;
-    amount: number;
-    value: number;
-    apy: number;
-    risk: string;
-    lockPeriod: string;
-  }>;
+  // Staking Information
+  staking: {
+    BTC: {
+      staked: number;
+      yield: number; // Annual yield percentage
+      positions: StakingPosition[];
+    };
+    ADA: {
+      staked: number;
+      yield: number;
+      positions: StakingPosition[];
+    };
+  };
+
+  performance?: {
+    dailyChange: {
+      BTC: number;
+      ADA: number;
+    };
+    lastUpdate: Date;
+  };
+}
+
+export interface StakingPosition {
+  id: string;
+  type: string; // "Bitcoin Staking", "Liquid Staking", etc.
+  amount: number;
+  apy: number;
+  risk: RiskEval;
+  lockPeriod: string;
+  startDate: Date;
 }
 
 export interface EarningsData {
@@ -132,10 +145,16 @@ export function generateEarningsData(
 
 // Custom Hooks
 export function useDashboardData() {
-  const [portfolioData, setPortfolioData] =
-    useState<PortfolioData>(mockPortfolioData);
+  const [portfolioData, setPortfolioData] = useState<PortfolioData>({
+    holdings: { BTC: 0, ADA: 0 },
+    staking: {
+      BTC: { staked: 0, yield: 0, positions: [] },
+      ADA: { staked: 0, yield: 0, positions: [] },
+    },
+  });
+  const calculations = usePortfolioCalculations(portfolioData);
   const [earningsData, setEarningsData] = useState<EarningsData[]>(() =>
-    generateEarningsData(mockPortfolioData.totalStaked)
+    generateEarningsData(mockPortfolioData.staking.BTC.staked)
   );
   const [transactions, setTransactions] = useState<LoggedTx[]>([
     {
@@ -170,97 +189,31 @@ export function useDashboardData() {
     txHash?: string
   ) => {
     setPortfolioData((prev) => {
+      const asset = chain.toUpperCase() as "BTC" | "ADA";
       const multiplier = type === "deposit" ? 1 : -1;
       const amountChange = amount * multiplier;
 
-      // Calculate new staked amounts
-      const newTotalStaked = Math.max(0, prev.totalStaked + amountChange);
-      const newTotalBTC = chain === "btc" ? newTotalStaked : prev.totalBTC;
-
-      // Calculate new yield based on staked amount (simple linear relationship)
-      const newYield =
-        newTotalStaked > 0 ? Math.min(0.085 + newTotalStaked * 0.001, 0.12) : 0;
-
-      // Calculate new values
-      const btcPrice = 52000; // Mock BTC price
-      const newBtcValue = newTotalBTC * btcPrice;
-      const newTotalValue = newBtcValue + prev.adaValue;
-      const newMonthlyRewards = newTotalStaked * newYield * (btcPrice / 12);
-
-      // Update positions
-      let newPositions = [...prev.positions];
-
-      if (type === "deposit" && amount > 0) {
-        // Add or update position
-        const existingIndex = newPositions.findIndex(
-          (p) => p.type === "Bitcoin Staking"
-        );
-
-        if (existingIndex >= 0) {
-          newPositions[existingIndex] = {
-            ...newPositions[existingIndex],
-            amount: newPositions[existingIndex].amount + amount,
-            value: (newPositions[existingIndex].amount + amount) * btcPrice,
-            apy: newYield * 100,
-          };
-        } else {
-          newPositions.push({
-            type: "Bitcoin Staking",
-            amount: amount,
-            value: amount * btcPrice,
-            apy: newYield * 100,
-            risk: "Low",
-            lockPeriod: "7 days",
-          });
-        }
-      } else if (type === "withdraw") {
-        // Reduce or remove positions
-        newPositions = newPositions
-          .map((pos) => {
-            if (pos.type === "Bitcoin Staking" && pos.amount > 0) {
-              const newAmount = Math.max(0, pos.amount - amount);
-              return {
-                ...pos,
-                amount: newAmount,
-                value: newAmount * btcPrice,
-                apy: newYield * 100,
-              };
-            }
-            return pos;
-          })
-          .filter((pos) => pos.amount > 0); // Remove positions with 0 amount
-      }
-
-      const updatedPortfolioData = {
-        ...prev,
-        totalStaked: newTotalStaked,
-        totalBTC: newTotalBTC,
-        currentYield: newYield,
-        monthlyRewards: newMonthlyRewards,
-        btcValue: newBtcValue,
-        totalValue: newTotalValue,
-        positions: newPositions,
-        // Update daily change to reflect the transaction
-        dailyChange: prev.dailyChange + amountChange * btcPrice,
-        dailyChangePercent:
-          newTotalValue > 0
-            ? ((amountChange * btcPrice) / newTotalValue) * 100
-            : 0,
+      // Update holdings
+      const newHoldings = {
+        ...prev.holdings,
+        [asset]: Math.max(0, prev.holdings[asset] + amountChange),
       };
 
-      // Update earnings data with the new staked amount
-      setEarningsData(generateEarningsData(newTotalStaked));
+      // Update staking
+      const newStaking = {
+        ...prev.staking,
+        [asset]: {
+          ...prev.staking[asset],
+          staked: Math.max(0, prev.staking[asset].staked + amountChange),
+          yield: getYield(prev.staking[asset].staked + amountChange), // Your yield calculation logic
+        },
+      };
 
-      console.log("Portfolio updated:", {
-        previousStaked: prev.totalStaked,
-        newStaked: newTotalStaked,
-        amountChange,
-        type,
-        newTotalValue,
-        newMonthlyRewards,
-      });
-
-      return updatedPortfolioData;
+      return {
+        ...prev,
+        holdings: newHoldings,
+        staking: newStaking,
+      };
     });
 
     // Add transaction to history
@@ -382,6 +335,7 @@ export function useDashboardData() {
   return {
     portfolioData,
     earningsData,
+    calculations,
     updateStakedAmount,
     error,
     isLoading,
@@ -394,6 +348,54 @@ export function useDashboardData() {
     addPendingTransaction,
     updateTransactionStatus,
     removeTransaction,
+  };
+}
+
+export function usePortfolioCalculations(portfolioData: PortfolioData) {
+  const { convert, prices } = usePrices();
+
+  return {
+    // USD Values (computed on demand)
+    totalValue:
+      convert(portfolioData.holdings.BTC, "BTC", "USD") +
+      convert(portfolioData.holdings.ADA, "ADA", "USD"),
+
+    btcValue: convert(portfolioData.holdings.BTC, "BTC", "USD"),
+    adaValue: convert(portfolioData.holdings.ADA, "ADA", "USD"),
+
+    // Staking Summary
+    totalStakedValue:
+      convert(portfolioData.staking.BTC.staked, "BTC", "USD") +
+      convert(portfolioData.staking.ADA.staked, "ADA", "USD"),
+
+    // Monthly Rewards (computed)
+    monthlyRewards: {
+      BTC:
+        (portfolioData.staking.BTC.staked *
+          portfolioData.staking.BTC.yield *
+          prices.BTC) /
+        12,
+      ADA:
+        (portfolioData.staking.ADA.staked *
+          portfolioData.staking.ADA.yield *
+          prices.ADA) /
+        12,
+      total: function () {
+        return this.BTC + this.ADA;
+      },
+    },
+
+    // Asset Allocation
+    allocation: {
+      btcPercent:
+        (portfolioData.holdings.BTC /
+          (portfolioData.holdings.BTC + portfolioData.holdings.ADA)) *
+        100,
+      adaPercent:
+        (portfolioData.holdings.ADA /
+          (portfolioData.holdings.BTC + portfolioData.holdings.ADA)) *
+        100,
+    },
   };
 }
 
@@ -430,21 +432,29 @@ export function getAssetPrice(asset: "BTC" | "ADA"): number {
 
 // Start everything at 0
 export const mockPortfolioData: PortfolioData = {
-  totalValue: 0,
-  dailyChange: 0,
-  dailyChangePercent: 0,
-  btcValue: 0,
-  adaValue: 0,
-  btcChange: 0,
-  adaChange: 0,
-  btcChangePercent: 0,
-  adaChangePercent: 0,
-  totalBTC: 0,
-  totalADA: 0,
-  totalStaked: 0,
-  currentYield: 0,
-  monthlyRewards: 0,
-  positions: [],
+  holdings: {
+    BTC: 0,
+    ADA: 0,
+  },
+  staking: {
+    BTC: {
+      staked: 0,
+      yield: 0,
+      positions: [],
+    },
+    ADA: {
+      staked: 0,
+      yield: 0,
+      positions: [],
+    },
+  },
+  performance: {
+    dailyChange: {
+      BTC: 0,
+      ADA: 0,
+    },
+    lastUpdate: new Date(0),
+  },
 };
 
 export const mockEarningsData: EarningsData[] = [

@@ -9,14 +9,14 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 export default function WithdrawTab() {
-  const { portfolioData, updateStakedAmount, isLoading } =
+  const { portfolioData, calculations, updateStakedAmount, isLoading } =
     useDashboardContext();
   const [selectedChain, setSelectedChain] = useState<SupportedChain>("btc");
   const [amount, setAmount] = useState("");
 
   // Get current staked amount from dashboard data
-  const alreadyStaked = portfolioData.totalStaked;
-  const currentYield = portfolioData.currentYield;
+  const alreadyStaked = calculations.totalStakedValue;
+  const currentYield = calculations.monthlyRewards.total();
 
   const config = chainConfigs[selectedChain];
 
