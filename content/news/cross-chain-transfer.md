@@ -13,3 +13,5 @@ This achievement highlights the power of combining Bitcoin's security with Carda
 Sheldon Hunt, Sundial Protocol's founder, stated: "This sets the foundation for Bitcoin to operate across ecosystems without compromising its core values." Edan Yago, core contributor to BitcoinOS, echoed that sentiment, calling it "a turning point" for Bitcoin's integration with programmable finance."
 
 We see this as a major leap toward a future where liquidity and utility flow freely across chains—bridgeless, secure, and decentralized.
+
+[Watch the video here.](https://www.youtube.com/watch?v=4E1z6sYDRJA)
