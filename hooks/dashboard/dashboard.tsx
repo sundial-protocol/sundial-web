@@ -197,22 +197,6 @@ export function useDashboardData() {
         staking: newStaking,
       };
     });
-
-    // Add transaction to history
-    if (txHash) {
-      const transaction: LoggedTx = {
-        id: `tx-${Date.now()}`,
-        type,
-        asset: chain,
-        amount,
-        txHash,
-        timestamp: new Date(),
-        status: "completed",
-      };
-
-      setTransactions((prev) => [transaction, ...prev]);
-      console.log("Transaction added to history:", transaction);
-    }
   };
 
   // Function to add pending transaction (called when transaction is initiated)

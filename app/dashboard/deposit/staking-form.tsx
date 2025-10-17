@@ -260,12 +260,7 @@ export default function StakingForm({
       setTxHash(hash);
 
       // Update dashboard with successful transaction
-      updateStakedAmount(
-        selectedChain as SupportedChain,
-        Number(amount),
-        type,
-        hash
-      );
+      updateStakedAmount(selectedChain as SupportedChain, Number(amount), type);
 
       // Update transaction status
       updateTransactionStatus(transactionId, "completed", hash);
@@ -309,12 +304,7 @@ export default function StakingForm({
       setBroadcastResult(txidStr);
 
       // Update dashboard with successful transaction
-      updateStakedAmount(
-        selectedChain as SupportedChain,
-        Number(amount),
-        type,
-        txidStr
-      );
+      updateStakedAmount(selectedChain as SupportedChain, Number(amount), type);
 
       // Update transaction status
       if (pendingTransactionId) {
@@ -598,8 +588,7 @@ export default function StakingForm({
                   updateStakedAmount(
                     selectedChain as SupportedChain,
                     Number(amount),
-                    type,
-                    txid
+                    type
                   );
 
                   // Update transaction status
