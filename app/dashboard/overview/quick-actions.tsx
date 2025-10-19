@@ -28,7 +28,7 @@ export default function QuickActions() {
           <Link href="/dashboard?tab=strategies">View Strategies</Link>
         </Button>
         <Button variant="outline" asChild>
-          <Link href="/dashboard?tab=transactions">View History</Link>
+          <Link href="/dashboard?tab=history">View History</Link>
         </Button>
       </CardContent>
     </Card>

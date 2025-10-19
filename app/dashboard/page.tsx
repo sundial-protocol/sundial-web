@@ -2,7 +2,8 @@
 
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 import { DashboardProvider } from "@/lib/contexts/dashboard-context";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { PortfolioOverview } from "./overview/portfolio-overview";
 import { TransactionHistory } from "./tx-history";
 import { YieldCatalog } from "./yield-catalog";
@@ -12,7 +13,12 @@ import WithdrawTab from "./deposit/withdraw";
 import { Section } from "@/components/ui/section";
 
 function DashboardContent() {
-  const [activeTab, setActiveTab] = useState("portfolio");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Get tab from URL params, default to "portfolio"
+  const tabFromUrl = searchParams.get("tab") || "portfolio";
+  const [activeTab, setActiveTab] = useState(tabFromUrl);
 
   const tabs = [
     { id: "portfolio", label: "Portfolio" },
@@ -22,6 +28,43 @@ function DashboardContent() {
     { id: "strategies", label: "Strategies", disabled: true },
     { id: "history", label: "History" },
   ];
+
+  // Update URL when tab changes
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+
+    // Update URL search params
+    const params = new URLSearchParams(searchParams);
+    params.set("tab", tabId);
+    router.replace(`/dashboard?${params.toString()}`, { scroll: false });
+  };
+
+  // Sync state with URL on initial load and when URL changes
+  useEffect(() => {
+    const urlTab = searchParams.get("tab");
+    if (urlTab && urlTab !== activeTab) {
+      // Validate that the tab exists and is not disabled
+      const validTab = tabs.find((tab) => tab.id === urlTab && !tab.disabled);
+      if (validTab) {
+        setActiveTab(urlTab);
+      } else {
+        // If invalid tab, redirect to portfolio
+        handleTabChange("portfolio");
+      }
+    }
+  }, [searchParams]);
+
+  // Handle browser back/forward navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      const urlTab =
+        new URLSearchParams(window.location.search).get("tab") || "portfolio";
+      setActiveTab(urlTab);
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
   const renderActiveTab = () => {
     switch (activeTab) {
@@ -51,7 +94,7 @@ function DashboardContent() {
             {tabs.map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => !tab.disabled && setActiveTab(tab.id)}
+                onClick={() => !tab.disabled && handleTabChange(tab.id)}
                 disabled={tab.disabled}
                 className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors ${
                   tab.disabled
