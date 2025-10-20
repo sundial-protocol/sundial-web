@@ -9,15 +9,17 @@ import { getYield } from "@/hooks/dashboard/get-yield";
 import { usePrices } from "@/hooks/dashboard/prices";
 
 export default function DepositTab() {
-  const { portfolioData, calculations, updateStakedAmount, isLoading } =
-    useDashboardContext();
+  const { calculations, updateStakedAmount, isLoading } = useDashboardContext();
   const { convert } = usePrices();
   const [selectedChain, setSelectedChain] = useState<SupportedChain>("btc");
   const [amount, setAmount] = useState("");
   const config = chainConfigs[selectedChain];
 
-  const alreadyStaked =
-    portfolioData.holdings[config.symbol as "BTC" | "ADA"] || 0;
+  const alreadyStakedUSD = convert(
+    config.symbol === "BTC" ? calculations.btcValue : calculations.adaValue,
+    "USD",
+    config.symbol
+  );
   const currentYield =
     convert(calculations.monthlyRewards.total, "USD", config.symbol) || 0;
 
@@ -42,7 +44,8 @@ export default function DepositTab() {
 
   // Calculate new values for deposits
   const amountNum = Number(amount) || 0;
-  const newTotal = alreadyStaked + amountNum;
+  const newTotal =
+    alreadyStakedUSD + convert(amountNum, "USD", config.symbol) || 0;
   const newYield = getYield(newTotal) ?? 0;
 
   if (isLoading) {
@@ -66,7 +69,7 @@ export default function DepositTab() {
 
         <div className="flex flex-col gap-6">
           <StakingSummaryCard
-            alreadyStaked={alreadyStaked}
+            alreadyStaked={alreadyStakedUSD}
             amount={amountNum}
             symbol={config.symbol}
             newTotal={newTotal}

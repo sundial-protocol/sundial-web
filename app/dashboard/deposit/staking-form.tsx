@@ -30,6 +30,7 @@ import { chainConfigs, SupportedChain } from "../../../lib/multichain";
 import { depositAddress } from "@/hooks/get-scripts";
 import { TransactionWatcher } from "@/components/btc/tx-watcher";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
+import Link from "next/link";
 
 type TransactionType = "deposit" | "withdraw";
 
@@ -650,7 +651,7 @@ export default function StakingForm({
                 Make Another {isDeposit ? "Deposit" : "Withdrawal"}
               </Button>
               <Button asChild>
-                <a href="/dashboard?tab=portfolio">View Portfolio</a>
+                <Link href="/dashboard?tab=portfolio">View Portfolio</Link>
               </Button>
             </div>
           </div>
