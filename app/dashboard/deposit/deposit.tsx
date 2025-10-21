@@ -35,9 +35,6 @@ export default function DepositTab() {
   ) => {
     console.log("Deposit successful:", { txHash, chain, amount });
 
-    // Update the staked amount in the dashboard
-    updateStakedAmount(chain as "btc" | "ada", Number(amount), "deposit");
-
     // Reset form
     setAmount("");
   };

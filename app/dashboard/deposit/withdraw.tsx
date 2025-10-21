@@ -35,10 +35,7 @@ export default function WithdrawTab() {
     chain: SupportedChain,
     amount: string
   ) => {
-    console.log("Deposit successful:", { txHash, chain, amount });
-
-    // Update the staked amount in the dashboard
-    updateStakedAmount(chain as "btc" | "ada", Number(amount), "deposit");
+    console.log("Withdraw successful:", { txHash, chain, amount });
 
     // Reset form
     setAmount("");
