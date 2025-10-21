@@ -38,7 +38,6 @@ export function PortfolioOverview() {
             totalValue: calculations.totalValue,
             btcValue: calculations.btcValue,
             adaValue: calculations.adaValue,
-            monthlyRewards: calculations.monthlyRewards,
           }}
         />
 

@@ -17,12 +17,11 @@ export default function WithdrawTab() {
   const [amount, setAmount] = useState("");
   const config = chainConfigs[selectedChain];
 
-  const alreadyStakedUSD =
-    convert(
-      config.symbol === "BTC" ? calculations.btcValue : calculations.adaValue,
-      "USD",
-      config.symbol
-    ) || 0;
+  const alreadyStaked = convert(
+    config.symbol === "BTC" ? calculations.btcValue : calculations.adaValue,
+    "USD",
+    config.symbol
+  );
   const currentYield =
     convert(calculations.monthlyRewards.total, "USD", config.symbol) || 0;
 
@@ -45,19 +44,20 @@ export default function WithdrawTab() {
     setAmount("");
   };
 
-  // Calculate new values for deposits
+  // Calculate new values for withdrawals
   const amountNum = Number(amount) || 0;
-  const newTotal = Math.max(
-    alreadyStakedUSD - convert(amountNum, "USD", config.symbol),
-    0
-  );
-  const newYield = getYield(newTotal) ?? 0;
+  const newTotal = Math.max(alreadyStaked - amountNum, 0);
+
+  // Convert newTotal to USD before passing to getYield
+  const newYieldUSD = getYield(convert(newTotal, config.symbol, "USD")) ?? 0;
+  // Then convert back
+  const newYield = convert(newYieldUSD, "USD", config.symbol);
 
   if (isLoading) {
     return <div className="p-6 text-center">Loading staking data...</div>;
   }
 
-  if (alreadyStakedUSD === 0) {
+  if (alreadyStaked === 0) {
     return (
       <div className="p-6 text-center">
         <h2 className="text-2xl font-bold mb-4">No Active Stakes</h2>
@@ -85,7 +85,7 @@ export default function WithdrawTab() {
         {/* Right: Staking/Yield Summary */}
         <div className="flex flex-col gap-6">
           <StakingSummaryCard
-            alreadyStaked={alreadyStakedUSD}
+            alreadyStaked={alreadyStaked}
             amount={amountNum}
             symbol={config.symbol}
             newTotal={newTotal}

@@ -15,7 +15,7 @@ export default function DepositTab() {
   const [amount, setAmount] = useState("");
   const config = chainConfigs[selectedChain];
 
-  const alreadyStakedUSD = convert(
+  const alreadyStaked = convert(
     config.symbol === "BTC" ? calculations.btcValue : calculations.adaValue,
     "USD",
     config.symbol
@@ -42,11 +42,14 @@ export default function DepositTab() {
     setAmount("");
   };
 
-  // Calculate new values for deposits
+  // Calculate new values for withdrawals
   const amountNum = Number(amount) || 0;
-  const newTotal =
-    alreadyStakedUSD + convert(amountNum, "USD", config.symbol) || 0;
-  const newYield = getYield(newTotal) ?? 0;
+  const newTotal = Math.max(alreadyStaked + amountNum, 0);
+
+  // Convert newTotal to USD before passing to getYield
+  const newYieldUSD = getYield(convert(newTotal, config.symbol, "USD")) ?? 0;
+  // Then convert back
+  const newYield = convert(newYieldUSD, "USD", config.symbol);
 
   if (isLoading) {
     return <div className="p-6 text-center">Loading staking data...</div>;
@@ -69,7 +72,7 @@ export default function DepositTab() {
 
         <div className="flex flex-col gap-6">
           <StakingSummaryCard
-            alreadyStaked={alreadyStakedUSD}
+            alreadyStaked={alreadyStaked}
             amount={amountNum}
             symbol={config.symbol}
             newTotal={newTotal}
