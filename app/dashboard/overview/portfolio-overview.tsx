@@ -6,7 +6,7 @@ import QuickActions from "./quick-actions";
 import WalletsCard from "./wallets-card";
 import EarningsGraph from "./earnings-graph";
 import { DEFAULT_PRICES } from "@/hooks/dashboard/prices";
-import TxAllocation from "./tx-allocation";
+import AssetAllocation from "./asset-allocation";
 
 export function PortfolioOverview() {
   const { portfolioData, calculations, isLoading, error } =
@@ -41,7 +41,7 @@ export function PortfolioOverview() {
           }}
         />
 
-        <TxAllocation />
+        <AssetAllocation />
       </div>
 
       <QuickActions />
