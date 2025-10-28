@@ -28,7 +28,7 @@ export default function Team() {
   // Scroll to top when switching to member detail view
   useEffect(() => {
     if (showMemberDetail) {
-      window.scrollTo({ top: 500, behavior: "smooth" });
+      window.scrollTo({ top: 500, behavior: "instant" });
     }
   }, [showMemberDetail]);
 
@@ -74,7 +74,7 @@ export default function Team() {
     setSelectedMember(null);
     // Small delay to ensure state is updated before scrolling
     setTimeout(() => {
-      window.scrollTo({ top: 500, behavior: "smooth" });
+      window.scrollTo({ top: 500, behavior: "instant" });
     }, 100);
   };
 
