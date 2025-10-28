@@ -25,6 +25,13 @@ export default function Team() {
     setIsClient(true);
   }, []);
 
+  // Scroll to top when switching to member detail view
+  useEffect(() => {
+    if (showMemberDetail) {
+      window.scrollTo({ top: 500, behavior: "smooth" });
+    }
+  }, [showMemberDetail]);
+
   // Get available teams dynamically
   const availableTeams = Object.keys(People) as TeamName[];
   const currentTeamIndex = availableTeams.indexOf(selectedTeam);
@@ -62,6 +69,15 @@ export default function Team() {
     }
   };
 
+  const handleBackToTeam = () => {
+    setShowMemberDetail(false);
+    setSelectedMember(null);
+    // Small delay to ensure state is updated before scrolling
+    setTimeout(() => {
+      window.scrollTo({ top: 500, behavior: "smooth" });
+    }, 100);
+  };
+
   const goToNextTeam = () => {
     const nextIndex = (currentTeamIndex + 1) % availableTeams.length;
     handleTeamSelect(availableTeams[nextIndex]);
@@ -86,88 +102,6 @@ export default function Team() {
     : null;
   let displayMembers = members || [];
 
-  // Mobile detail view
-  if (showMemberDetail && selectedMember) {
-    return (
-      <SunbeamBackground
-        beams={[
-          {
-            styles: {
-              content: '""',
-              position: "absolute",
-              left: "0",
-              top: "-300px",
-              width: "100%",
-              height: "1600px",
-              background:
-                "linear-gradient(to top left, hsl(var(--primary)) 0%, hsl(var(--primary)) 40%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 80%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)",
-              clipPath: "polygon(190% 100%, 0% 0%, 0% 35%)",
-              zIndex: "-1",
-              opacity: "0.3",
-            },
-          },
-        ]}
-      >
-        <Section className="py-12 px-4">
-          {/* Back Button */}
-          <div className="mb-6">
-            <Button
-              variant="outline"
-              onClick={() => setShowMemberDetail(false)}
-              className="flex items-center gap-2"
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Back to {getTeamDisplayName(selectedTeam)}
-            </Button>
-          </div>
-
-          {/* Member Detail */}
-          <div className="flex flex-col items-center text-center space-y-6 max-w-2xl mx-auto bg-primary/20">
-            <Image
-              src={selectedMember.image}
-              alt={selectedMember.name}
-              width={192}
-              height={192}
-              className={`w-48 h-48 rounded-full border-4 border-primary/20 object-cover ${
-                selectedMember.needsInversion
-                  ? "dark:invert dark:brightness-50"
-                  : ""
-              }`}
-            />
-            <div className="space-y-4">
-              <h1 className="text-4xl font-bold text-primary">
-                {selectedMember.name}
-              </h1>
-              <p className="text-xl text-muted-foreground">
-                {selectedMember.role}
-              </p>
-              {selectedMember.description && (
-                <p className="text-gray-500 text-base">
-                  {selectedMember.description}
-                </p>
-              )}
-              {selectedMember.bio && (
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {selectedMember.bio}
-                </p>
-              )}
-              {selectedMember.link && (
-                <a
-                  href={selectedMember.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block mt-4 text-primary hover:text-primary/80 transition-colors"
-                >
-                  View Profile →
-                </a>
-              )}
-            </div>
-          </div>
-        </Section>
-      </SunbeamBackground>
-    );
-  }
-
   return (
     <SunbeamBackground
       beams={[
@@ -189,129 +123,191 @@ export default function Team() {
       ]}
     >
       <Section className="py-12 md:py-24 items-center text-center space-y-6">
-        {/* Header with Team Navigation */}
-        <div className="flex items-center justify-center gap-4 mb-6">
-          {/* Team Navigation Buttons */}
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={goToPrevTeam}
-              className="h-8 w-8 p-0"
-              disabled={availableTeams.length <= 1}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-
-            <div className="flex flex-col items-center min-w-[200px]">
-              <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold tracking-tighter">
-                {getTeamDisplayName(selectedTeam)}
-              </h1>
-              {availableTeams.length > 1 && (
-                <div className="flex items-center gap-1 mt-2">
-                  {availableTeams.map((team, index) => (
-                    <button
-                      key={team}
-                      onClick={() => handleTeamSelect(team)}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        team === selectedTeam
-                          ? "bg-primary w-6"
-                          : "bg-primary/30 hover:bg-primary/50"
-                      }`}
-                    />
-                  ))}
-                </div>
-              )}
+        {/* Mobile Detail View - Conditionally Rendered Content */}
+        {showMemberDetail && selectedMember ? (
+          <>
+            {/* Back Button */}
+            <div className="mb-6 flex justify-start w-full max-w-2xl mx-auto">
+              <Button
+                variant="outline"
+                onClick={handleBackToTeam}
+                className="flex items-center gap-2"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Back to {getTeamDisplayName(selectedTeam)}
+              </Button>
             </div>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={goToNextTeam}
-              className="h-8 w-8 p-0"
-              disabled={availableTeams.length <= 1}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Layout Container */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Desktop Left Panel - Selected Member */}
-          <div className="hidden lg:flex flex-col px-12 items-center text-center space-y-4">
-            {desktopSelectedMember ? (
-              <div className="flex flex-col items-center text-center p-8 bg-primary-foreground/30 backdrop-blur-sm rounded-lg shadow-lg border border-primary/20">
-                <Image
-                  src={desktopSelectedMember.image}
-                  alt={desktopSelectedMember.name}
-                  width={192}
-                  height={192}
-                  className={`w-48 h-48 rounded-full mb-6 border-4 border-primary/20 object-cover ${
-                    desktopSelectedMember.needsInversion
-                      ? "dark:invert dark:brightness-50"
-                      : ""
-                  }`}
-                />
-                <h2 className="text-3xl font-bold text-primary mb-2">
-                  {desktopSelectedMember.name}
-                </h2>
-                <p className="text-xl text-muted-foreground mb-4">
-                  {desktopSelectedMember.role}
+            {/* Member Detail */}
+            <div className="flex flex-col items-center text-center space-y-6 max-w-2xl mx-auto">
+              <Image
+                src={selectedMember.image}
+                alt={selectedMember.name}
+                width={192}
+                height={192}
+                className={`w-48 h-48 rounded-full border-4 border-primary/20 object-cover ${
+                  selectedMember.needsInversion
+                    ? "dark:invert dark:brightness-50"
+                    : ""
+                }`}
+              />
+              <div className="space-y-4">
+                <h1 className="text-4xl font-bold text-primary">
+                  {selectedMember.name}
+                </h1>
+                <p className="text-xl text-muted-foreground">
+                  {selectedMember.role}
                 </p>
-                {desktopSelectedMember.description && (
-                  <p className="text-gray-500 text-base mb-4">
-                    {desktopSelectedMember.description}
+                {selectedMember.description && (
+                  <p className="text-gray-500 text-base">
+                    {selectedMember.description}
                   </p>
                 )}
-                {desktopSelectedMember.bio && (
-                  <p className="text-sm text-muted-foreground max-w-sm">
-                    {desktopSelectedMember.bio}
+                {selectedMember.bio && (
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {selectedMember.bio}
                   </p>
                 )}
-                {desktopSelectedMember.link && (
+                {selectedMember.link && (
                   <a
-                    href={desktopSelectedMember.link}
+                    href={selectedMember.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-4 text-primary hover:text-primary/80 transition-colors"
+                    className="inline-block mt-4 text-primary hover:text-primary/80 transition-colors"
                   >
                     View Profile →
                   </a>
                 )}
               </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center text-center p-8 bg-primary-foreground/10 backdrop-blur-sm rounded-lg border-2 border-dashed border-primary/20 min-h-[400px]">
-                <Users className="h-12 w-12 text-muted-foreground mb-4" />
-                <p className="text-muted-foreground text-lg">
-                  Click on a team member to learn more about them
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Right Panel - Team Grid */}
-          <div className="container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 md:col-span-2 gap-4 md:gap-6 p-4 md:p-6">
-            {displayMembers
-              .filter((member) => {
-                // Only filter on client side and desktop
-                if (!isClient) return true; // Show all during SSR
-
-                return window.innerWidth >= 1024
-                  ? member.name !== desktopSelectedMember?.name
-                  : true;
-              })
-              .map((member) => (
-                <div
-                  key={member.name}
-                  onClick={() => handleMemberSelect(member)}
-                  className="cursor-pointer transition-all duration-200 hover:scale-105"
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Team View - Header with Team Navigation */}
+            <div className="flex items-center justify-center gap-4 mb-6">
+              {/* Team Navigation Buttons */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={goToPrevTeam}
+                  className="h-8 w-8 p-0"
+                  disabled={availableTeams.length <= 1}
                 >
-                  <TeamMember {...member} />
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+
+                <div className="flex flex-col items-center min-w-[200px]">
+                  <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold tracking-tighter">
+                    {getTeamDisplayName(selectedTeam)}
+                  </h1>
+                  {availableTeams.length > 1 && (
+                    <div className="flex items-center gap-1 mt-2">
+                      {availableTeams.map((team, index) => (
+                        <button
+                          key={team}
+                          onClick={() => handleTeamSelect(team)}
+                          className={`w-2 h-2 rounded-full transition-all ${
+                            team === selectedTeam
+                              ? "bg-primary w-6"
+                              : "bg-primary/30 hover:bg-primary/50"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
-              ))}
-          </div>
-        </div>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={goToNextTeam}
+                  className="h-8 w-8 p-0"
+                  disabled={availableTeams.length <= 1}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Layout Container */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Desktop Left Panel - Selected Member */}
+              <div className="hidden lg:flex flex-col px-12 items-center text-center space-y-4">
+                {desktopSelectedMember ? (
+                  <div className="flex flex-col items-center text-center p-8 bg-primary-foreground/30 backdrop-blur-sm rounded-lg shadow-lg border border-primary/20">
+                    <Image
+                      src={desktopSelectedMember.image}
+                      alt={desktopSelectedMember.name}
+                      width={192}
+                      height={192}
+                      className={`w-48 h-48 rounded-full mb-6 border-4 border-primary/20 object-cover ${
+                        desktopSelectedMember.needsInversion
+                          ? "dark:invert dark:brightness-50"
+                          : ""
+                      }`}
+                    />
+                    <h2 className="text-3xl font-bold text-primary mb-2">
+                      {desktopSelectedMember.name}
+                    </h2>
+                    <p className="text-xl text-muted-foreground mb-4">
+                      {desktopSelectedMember.role}
+                    </p>
+                    {desktopSelectedMember.description && (
+                      <p className="text-gray-500 text-base mb-4">
+                        {desktopSelectedMember.description}
+                      </p>
+                    )}
+                    {desktopSelectedMember.bio && (
+                      <p className="text-sm text-muted-foreground max-w-sm">
+                        {desktopSelectedMember.bio}
+                      </p>
+                    )}
+                    {desktopSelectedMember.link && (
+                      <a
+                        href={desktopSelectedMember.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-4 text-primary hover:text-primary/80 transition-colors"
+                      >
+                        View Profile →
+                      </a>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-center p-8 bg-primary-foreground/10 backdrop-blur-sm rounded-lg border-2 border-dashed border-primary/20 min-h-[400px]">
+                    <Users className="h-12 w-12 text-muted-foreground mb-4" />
+                    <p className="text-muted-foreground text-lg">
+                      Click on a team member to learn more about them
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Right Panel - Team Grid */}
+              <div className="container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 md:col-span-2 gap-4 md:gap-6 p-4 md:p-6">
+                {displayMembers
+                  .filter((member) => {
+                    // Only filter on client side and desktop
+                    if (!isClient) return true; // Show all during SSR
+
+                    return window.innerWidth >= 1024
+                      ? member.name !== desktopSelectedMember?.name
+                      : true;
+                  })
+                  .map((member) => (
+                    <div
+                      key={member.name}
+                      onClick={() => handleMemberSelect(member)}
+                      className="cursor-pointer transition-all duration-200 hover:scale-105"
+                    >
+                      <TeamMember {...member} />
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </>
+        )}
       </Section>
     </SunbeamBackground>
   );
