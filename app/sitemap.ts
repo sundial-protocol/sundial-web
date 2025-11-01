@@ -13,7 +13,7 @@ export default async function sitemap({
 }: {
   id: string;
 }): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://sundial-protocol.com";
+  const baseUrl = "https://sundialprotocol.com";
 
   if (id === "main") {
     // Static pages sitemap
@@ -37,13 +37,13 @@ export default async function sitemap({
         priority: 0.8,
       },
       {
-        url: `${baseUrl}/roadmap`,
+        url: `${baseUrl}/resources`,
         lastModified: new Date(),
         changeFrequency: "monthly",
         priority: 0.7,
       },
       {
-        url: `${baseUrl}/docs`,
+        url: `${baseUrl}/technology`,
         lastModified: new Date(),
         changeFrequency: "weekly",
         priority: 0.7,

@@ -1,0 +1,24 @@
+User-agent: *
+Allow: /
+
+# Allow all main content areas
+Allow: /news/
+Allow: /company/
+Allow: /dashboard/
+Allow: /docs/
+Allow: /resources/roadmap/
+
+# Allow static assets
+Allow: /images/
+Allow: /team/
+
+# Disallow admin or development paths
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+
+# Sitemap index location
+Sitemap: https://sundialprotocol.com/sitemap.xml
+
+# Crawl delay to be respectful
+Crawl-delay: 1
