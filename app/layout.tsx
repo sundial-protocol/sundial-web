@@ -37,14 +37,16 @@ const galanoGrotesque = localFont({
   display: "swap",
 });
 
+const title = "Sundial: Institutional Grade Bitcoin Infrastructure";
+const description =
+  "Sundial is the first Layer-2 to natively unlock and put trillions of dollars of Bitcoin to work through smart contracts and yield generation.";
+
 export const metadata: Metadata = {
-  title: "Sundial: Institutional Grade Bitcoin Infrastructure",
-  description:
-    "The first UTXO-native Layer 2 enabling secure, compliant Bitcoin yield generation at scale.",
+  title,
+  description,
   openGraph: {
-    title: "Sundial: Institutional Grade Bitcoin Infrastructure",
-    description:
-      "The first UTXO-native Layer 2 enabling secure, compliant Bitcoin yield generation at scale.",
+    title,
+    description,
     url: `https://${process.env.NEXT_PUBLIC_SITE_URL}/`,
     siteName: "Sundial",
     images: [
@@ -62,10 +64,9 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     site: "@sundial",
-    title: "Sundial: Institutional Grade Bitcoin Infrastructure",
+    title,
     creator: "@sundialprotocol",
-    description:
-      "The first UTXO-native Layer 2 enabling secure, compliant Bitcoin yield generation at scale.",
+    description,
     images: [
       {
         url: "/SocialDefaultLogo.png",
@@ -86,6 +87,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="canonical" href="https://sundialprotocol.com"></link>
       </head>
       <body
         className={cn(

@@ -118,9 +118,9 @@ export function AdvancedFeatures() {
         <div className="grid grid-cols-1 lg:grid-cols-3 container px-4 md:px-6 z-10">
           <div className="flex flex-row justify-center space-y-4">
             <div className="space-y-2 p-6">
-              <h1 className="text-5xl font-bold tracking-tighter sm:text-6xl md:text-7xl">
+              <h2 className="text-5xl font-bold tracking-tighter sm:text-6xl md:text-7xl">
                 Advanced Features
-              </h1>
+              </h2>
               <p className="mx-auto max-w-[700px] text-foreground/90 md:text-xl">
                 Sundial offers a unique set of features that maximize your
                 Bitcoin yields while maintaining security.
