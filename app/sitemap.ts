@@ -3,6 +3,9 @@ import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 
+// Generate sitemap entries for different sections of the site
+// Sitemap index is located at sitemap.xml until https://github.com/vercel/next.js/pull/61391 is resolved
+
 export async function generateSitemaps() {
   // Return array of sitemap IDs
   return [{ id: "main" }, { id: "news" }];
