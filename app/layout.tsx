@@ -7,6 +7,15 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import CustomThemeProvider from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
+import type { Viewport } from "next";
+
+// for mobile
+export const viewport: Viewport = {
+  themeColor: "white",
+  width: "device-width", // Matches the viewport width to the device's screen width
+  initialScale: 1, // Sets the initial zoom level to 100%
+  maximumScale: 1, // Prevents user from zooming out
+};
 
 const roboto = Roboto({
   subsets: ["latin"],
