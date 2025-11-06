@@ -1,7 +1,7 @@
 ---
 title: "The Sundial Team Attended BTC Vegas"
 date: "2025-06-02"
-image: "/news/6225Saylor.jpg"
+image: "!6225Saylor.jpg"
 ---
 
 _Sundial and Michael Saylor_

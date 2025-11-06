@@ -133,7 +133,7 @@ export default function UseCases() {
               "0% bridge risk",
               "$100M+ BTC Committed",
             ]}
-            backgroundImage="/notepad.jpg"
+            backgroundImage="/stock-images/notepad.jpg"
           />
           <Step
             icon={PiggyBank}
@@ -145,7 +145,7 @@ export default function UseCases() {
               "Multisig Security",
               "Real-time Reporting",
             ]}
-            backgroundImage="/building.jpg"
+            backgroundImage="/stock-images/building.jpg"
           />
           <Step
             icon={Building2}
@@ -157,7 +157,7 @@ export default function UseCases() {
               "REST & WSS APIs",
               "24/7 Support",
             ]}
-            backgroundImage="/workers.jpg"
+            backgroundImage="/stock-images/workers.jpg"
           />
         </div>
         <div className="flex justify-center mt-12">

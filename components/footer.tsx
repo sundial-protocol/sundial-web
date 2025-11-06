@@ -1,6 +1,58 @@
 "use client";
 
+import { useTheme } from "next-themes";
 import Link from "next/link";
+
+interface SocialIconProps {
+  href: string;
+  alt: string;
+  src: string;
+}
+
+function SocialIcon({ href, alt, src }: SocialIconProps) {
+  let isDark = useTheme().theme === "dark";
+  let hoverFilter = isDark ? "hover:invert" : "hover:invert-0";
+
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`transition-colors invert-[30%] ${hoverFilter}`}
+    >
+      <img src={src} alt={alt} className="w-5 h-5" />
+    </a>
+  );
+}
+
+interface FooterLinkProps {
+  href: string;
+  children: React.ReactNode;
+  external?: boolean;
+}
+
+function FooterLink({ href, children, external = false }: FooterLinkProps) {
+  const baseClasses = "text-gray-500 hover:text-foreground";
+
+  if (external) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={baseClasses}
+      >
+        {children}
+      </a>
+    );
+  }
+
+  return (
+    <Link href={href} className={baseClasses}>
+      {children}
+    </Link>
+  );
+}
 
 export default function Footer() {
   return (
@@ -38,7 +90,8 @@ export default function Footer() {
               target="_blank"
               className="text-sm text-gray-500"
             >
-              <p className="pt-4">1 NORTH BRIDGE ROAD #24-02</p>
+              <p className="pt-4">SUNDIAL PROTOCOL PTE. LTD.</p>
+              <p>1 NORTH BRIDGE ROAD #24-02</p>
               <p>HIGH STREET CENTRE</p>
               <p>SINGAPORE, 179094</p>
             </a>
@@ -48,39 +101,18 @@ export default function Footer() {
             <h4 className="font-bold">Resources</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link
+                <FooterLink
                   href="https://sundial-protocol-docs.readthedocs.io/"
-                  className="text-gray-500 hover:text-gray-900"
-                  target="_blank"
+                  external
                 >
                   Documentation
-                </Link>
+                </FooterLink>
               </li>
               <li>
-                <Link
-                  href="/resources/litepaper"
-                  className="text-gray-500 hover:text-gray-900"
-                >
-                  Litepaper
-                </Link>
+                <FooterLink href="/resources/litepaper">Litepaper</FooterLink>
               </li>
               <li>
-                <Link
-                  href="/news"
-                  className="text-gray-500 hover:text-gray-900"
-                >
-                  News
-                </Link>
-              </li>
-              <li>
-                <a
-                  href="https://github.com/sundial-protocol"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-500 hover:text-gray-900"
-                >
-                  GitHub
-                </a>
+                <FooterLink href="/news">News</FooterLink>
               </li>
             </ul>
           </div>
@@ -88,46 +120,59 @@ export default function Footer() {
             <h4 className="font-bold">Community</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a
+                <FooterLink
                   href="https://share-na2.hsforms.com/2u5VZYZfzSfmIHQKtEJcgQg40ejm1"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-500 hover:text-gray-900"
+                  external
                 >
                   Get Updates
-                </a>
+                </FooterLink>
               </li>
               <li>
-                <a
+                <FooterLink
                   href="https://calendly.com/lewis-sundialprotocol/new-meeting"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-500 hover:text-gray-900"
+                  external
                 >
                   Talk To Us
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://linkedin.com/company/sundial-protocol/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-500 hover:text-gray-900"
-                >
-                  LinkedIn
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://x.com/SundialProtocol"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-500 hover:text-gray-900"
-                >
-                  X
-                </a>
+                </FooterLink>
               </li>
             </ul>
+
+            {/* Social Media Icons Row 
+              These were pulled from the svgs on iconfinder.com & placed in the /icons/ folder. 
+              Colors are inverted by default - expect black logos from the site.
+            */}
+            <div className="flex items-center gap-4 pt-8">
+              <SocialIcon
+                href="https://linkedin.com/company/sundial-protocol/"
+                alt="LinkedIn"
+                src="/icons/linkedin.svg"
+              />
+              <SocialIcon
+                href="https://x.com/SundialProtocol"
+                alt="X (Twitter)"
+                src="/icons/x.svg"
+              />
+              <SocialIcon
+                href="https://t.me/sundialprotocol"
+                alt="Telegram"
+                src="/icons/telegram.svg"
+              />
+              <SocialIcon
+                href="https://github.com/sundial-protocol"
+                alt="GitHub"
+                src="/icons/github.svg"
+              />
+              {/* <SocialIcon
+                href="https://discord.gg/sundialprotocol" is this the right link?
+                alt="Discord"
+                src="/icons/discord.svg"
+              /> */}
+              <SocialIcon
+                href="https://youtube.com/@sundialprotocol"
+                alt="YouTube"
+                src="/icons/youtube.svg"
+              />
+            </div>
           </div>
         </div>
         <div className="mt-8 border-t pt-8 text-center text-sm text-gray-500">

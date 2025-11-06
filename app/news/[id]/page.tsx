@@ -3,8 +3,37 @@ import { getNews } from "@/hooks/get-news";
 import Image from "next/image";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const news = await getNews();
+  const article = news.find((item) => item.id === id);
+  return {
+    title: article?.title || "Sundial News",
+    description: article?.title || "",
+    openGraph: {
+      title: article?.title,
+      description: article?.title,
+      url: `https://${process.env.NEXT_PUBLIC_SITE_URL}/news/${id}`,
+      images: [
+        {
+          url: article?.image || "/SocialDefaultLogo.png",
+          width: 1200,
+          height: 630,
+          alt: article?.title,
+        },
+      ],
+      type: "article",
+    },
+  };
+}
 
 export default async function NewsPage({
   params,
@@ -41,6 +70,7 @@ export default async function NewsPage({
               {article.content ? (
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeRaw]}
                   components={{
                     img: (props) => {
                       const { src = "", alt = "" } = props as {

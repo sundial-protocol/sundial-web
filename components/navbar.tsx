@@ -7,12 +7,9 @@ import { useTheme } from "next-themes";
 import { useState } from "react";
 import {
   BadgeCheck,
-  Sunrise,
   HomeIcon,
-  Newspaper,
   FileCode2,
   Building,
-  FolderArchive,
   Folder,
 } from "lucide-react";
 import Image from "next/image";

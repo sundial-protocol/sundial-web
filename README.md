@@ -70,9 +70,18 @@ Before you begin, ensure you have the following installed on your system:
 - **Start**: `npm run start` - Starts the production server (run after build)
 - **Lint**: `npm run lint` - Runs ESLint to check for code issues
 
+## Updating builds for external (non-Ikigai) contributors
+
+Because this project builds from the Ikigai Vercel organization, external contributors will not be recognized. The process for integrating their changes is simple:
+
+- External contributors should open a PR to the main branch of this repository.
+- An Ikigai team member will review and merge the PR.
+
 ## Adding New Articles
 
 The news system automatically reads markdown files from the `content/news/` directory.
+
+These markdown files support syntax from [unified](https://unifiedjs.com/), specifically the [commonmark](https://commonmark.org/help/) markdown syntax and [rehype-raw](https://github.com/rehypejs/rehype-raw) for HTML rendering, which supports all standard HTML tags.
 
 ### 1. Create Markdown Content File
 
@@ -84,7 +93,7 @@ Create a new markdown file in `content/news/` with a short slug describing the a
 ---
 title: "Your Article Title"
 date: "2025-01-15"
-image: "/news/your-article-image.jpg"
+image: "your-article-image.jpg"
 ---
 
 # Your Article Title
@@ -101,6 +110,16 @@ Your article content goes here. You can use standard Markdown syntax:
 [Links to other pages](/docs)
 
 ![Images](/news/your-article-image.jpg)
+```
+
+The header images are expected to be 1920x1080 pixels. If your header image is not a similar aspect ratio, you can prefix the image with a `!` to maintain the aspect ratio and display the image more flexibly.
+
+```markdown
+---
+title: "Your Article Title"
+date: "2025-01-15"
+image: "!your-article-image.jpg"
+---
 ```
 
 ### 2. Add Images

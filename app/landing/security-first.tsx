@@ -110,9 +110,9 @@ export function SecurityFirst() {
         <div className="grid grid-cols-1 lg:grid-cols-3 container px-4 md:px-6 z-10">
           <div className="flex flex-row justify-center space-y-4">
             <div className="mx-auto space-y-2 p-6 md:pl-12 lg:pl-0">
-              <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
+              <h2 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
                 Security-First Architecture
-              </h1>
+              </h2>
               <p className="max-w-[700px] text-foreground/90 md:text-xl">
                 Sundial prioritizes institutional-grade security with a
                 UTXO-based architecture that eliminates common attack vectors
