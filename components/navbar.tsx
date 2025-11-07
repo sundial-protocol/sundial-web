@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   BadgeCheck,
   HomeIcon,
@@ -43,19 +43,35 @@ function NavLink({
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const [drawerOpen, setDrawerOpen] = useState(true);
+  const [scrollY, setScrollY] = useState(0);
   const pathname = usePathname();
+
+  // Track scroll position to maintain navbar position
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+
+    // Passive listener for better performance
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const navIconCn = drawerOpen ? "h-6 w-6" : "h-5 w-5";
 
   return (
     <header
       className={cn(
-        `sticky top-0 z-50 pt-8 w-full transition-all`,
+        `fixed top-0 left-0 right-0 z-50 pt-8 w-full transition-all`,
+        // Use fixed positioning instead of sticky to prevent dropdown interference
         drawerOpen
           ? "bg-primary-foreground/70 h-24"
           : "bg-transparent pointer-events-none",
         pathname == "/roadmap" && "pointer-events-none"
       )}
+      style={{
+        // Ensure the navbar stays at the top regardless of scroll
+        transform: `translateY(0px)`,
+      }}
     >
       <div className="container flex h-8 items-center justify-center">
         {drawerOpen && (

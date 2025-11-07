@@ -109,7 +109,7 @@ export default function RootLayout({
         <WalletProvider>
           <CustomThemeProvider>
             <Navbar />
-            <main className="pt-12">{children}</main>
+            <main className="pt-24">{children}</main>
             <Footer />
           </CustomThemeProvider>
         </WalletProvider>
