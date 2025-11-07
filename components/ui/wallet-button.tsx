@@ -55,7 +55,7 @@ export function WalletButton() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" disabled={isConnecting || isInitializing}>
+        <Button variant="outline" disabled={isConnecting || isInitializing}>
           {isConnecting || isInitializing ? (
             <Loader2 className="size-6 animate-spin" />
           ) : isConnected ? (
