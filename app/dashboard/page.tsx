@@ -11,6 +11,7 @@ import { PrebuiltStrategies } from "./prebuilt-strategies";
 import Deposit from "./deposit/deposit";
 import WithdrawTab from "./deposit/withdraw";
 import { Section } from "@/components/ui/section";
+import LendingTab from "./lending";
 
 function DashboardContent() {
   const router = useRouter();
@@ -24,6 +25,7 @@ function DashboardContent() {
     { id: "portfolio", label: "Portfolio" },
     { id: "deposit", label: "Deposit" },
     { id: "withdraw", label: "Withdraw" },
+    { id: "lend", label: "Lend" },
     { id: "yield", label: "Yield", disabled: true },
     { id: "strategies", label: "Strategies", disabled: true },
     { id: "history", label: "History" },
@@ -76,6 +78,8 @@ function DashboardContent() {
         return <WithdrawTab />;
       case "yield":
         return <YieldCatalog />;
+      case "lend":
+        return <LendingTab />;
       case "strategies":
         return <PrebuiltStrategies />;
       case "history":
