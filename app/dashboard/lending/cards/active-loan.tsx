@@ -62,7 +62,7 @@ export default function ActiveLoanCard({
   // Expanded Loan Management View
   if (showManageLoan) {
     return (
-      <Card className="border-blue-200 bg-blue-50/50 lg:col-span-2">
+      <Card className="lg:col-span-2">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -254,7 +254,7 @@ export default function ActiveLoanCard({
 
   // Summary View (Default)
   return (
-    <Card className="border-blue-200 bg-blue-50/50">
+    <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
           <Clock className="h-5 w-5 text-blue-600" />
