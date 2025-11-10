@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 import { DashboardProvider } from "@/lib/contexts/dashboard-context";
 import { useState, useEffect } from "react";
@@ -13,6 +14,19 @@ import WithdrawTab from "./deposit/withdraw";
 import { Section } from "@/components/ui/section";
 import LendingTab from "./lending";
 
+// Loading component
+function DashboardLoading() {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center space-y-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+        <p className="text-muted-foreground">Loading dashboard...</p>
+      </div>
+    </div>
+  );
+}
+
+// Extract the component that uses useSearchParams
 function DashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -152,7 +166,9 @@ export default function DashboardPage() {
         <div className="min-h-screen">
           <Section className="pb-24">
             <div className="container mx-auto px-4">
-              <DashboardContent />
+              <Suspense fallback={<DashboardLoading />}>
+                <DashboardContent />
+              </Suspense>
             </div>
           </Section>
         </div>
