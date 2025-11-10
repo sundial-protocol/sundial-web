@@ -12,7 +12,7 @@ import { PrebuiltStrategies } from "./prebuilt-strategies";
 import Deposit from "./deposit/deposit";
 import WithdrawTab from "./deposit/withdraw";
 import { Section } from "@/components/ui/section";
-import LendingTab from "./lending";
+import LendingTab from "./lending/lending";
 
 // Loading component
 function DashboardLoading() {
