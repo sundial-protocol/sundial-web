@@ -9,19 +9,24 @@ import {
   Activity,
   AlertTriangle,
   Clock,
+  CreditCard,
   RefreshCw,
   TrendingUp,
   X,
 } from "lucide-react";
 import { useState } from "react";
 
+interface ActiveLoanCardProps {
+  showManageLoan: boolean;
+  setShowManageLoan: (show: boolean) => void;
+  isExpanded?: boolean;
+}
+
 export default function ActiveLoanCard({
   showManageLoan,
   setShowManageLoan,
-}: {
-  showManageLoan: boolean;
-  setShowManageLoan: (value: boolean) => void;
-}) {
+  isExpanded = false,
+}: ActiveLoanCardProps) {
   const [paymentAmount, setPaymentAmount] = useState("");
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
@@ -59,14 +64,16 @@ export default function ActiveLoanCard({
 
   if (!activeLoan) return null;
 
-  // Expanded Loan Management View
+  // Expanded Loan Management View - Takes 2x2 grid space when expanded
   if (showManageLoan) {
     return (
-      <Card className="lg:col-span-2">
+      <Card
+        className={isExpanded ? "lg:col-span-2 lg:row-span-2" : "lg:col-span-2"}
+      >
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Clock className="h-5 w-5 text-blue-600" />
+            <CardTitle className="text-xl flex items-center gap-2">
+              <Clock className="h-6 w-6 text-blue-600" />
               Manage Active Loan
             </CardTitle>
             <Button
@@ -79,186 +86,237 @@ export default function ActiveLoanCard({
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Loan Overview */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="text-center p-3 bg-white/70 rounded-lg">
-              <div className="text-lg font-bold">
-                ${formatAmount(activeLoan.amount, 0)}
+          {/* Enhanced layout for expanded view */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left side - Overview and Payment */}
+            <div className="space-y-6">
+              {/* Loan Overview */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="text-center p-4 bg-white/70 rounded-lg">
+                  <div className="text-xl font-bold">
+                    ${formatAmount(activeLoan.amount, 0)}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Original Amount
+                  </div>
+                </div>
+                <div className="text-center p-4 bg-red-50 rounded-lg">
+                  <div className="text-xl font-bold text-red-700">
+                    ${formatAmount(activeLoan.totalOwed, 2)}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Total Owed
+                  </div>
+                </div>
+                <div className="text-center p-4 bg-yellow-50 rounded-lg">
+                  <div className="text-xl font-bold text-yellow-700">
+                    ${formatAmount(activeLoan.interestAccrued, 2)}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Interest Accrued
+                  </div>
+                </div>
+                <div className="text-center p-4 bg-blue-50 rounded-lg">
+                  <div className="text-xl font-bold text-blue-700">
+                    {activeLoan.interestRate}%
+                  </div>
+                  <div className="text-sm text-muted-foreground">APR</div>
+                </div>
               </div>
-              <div className="text-xs text-muted-foreground">Original</div>
-            </div>
-            <div className="text-center p-3 bg-red-50 rounded-lg">
-              <div className="text-lg font-bold">
-                ${formatAmount(activeLoan.totalOwed, 2)}
-              </div>
-              <div className="text-xs text-muted-foreground">Total Owed</div>
-            </div>
-            <div className="text-center p-3 bg-yellow-50 rounded-lg">
-              <div className="text-lg font-bold">
-                ${formatAmount(activeLoan.interestAccrued, 2)}
-              </div>
-              <div className="text-xs text-muted-foreground">Interest</div>
-            </div>
-            <div className="text-center p-3 bg-blue-50 rounded-lg">
-              <div className="text-lg font-bold">
-                {activeLoan.interestRate}%
-              </div>
-              <div className="text-xs text-muted-foreground">APR</div>
-            </div>
-          </div>
 
-          {/* Due Date Warning */}
-          {daysToDue <= 7 && (
-            <div className="flex items-center gap-2 p-3 bg-orange-50 rounded-lg">
-              <AlertTriangle className="h-4 w-4 text-orange-600" />
-              <div className="text-sm text-orange-700">
-                {daysToDue > 0 ? (
-                  <>Loan due in {daysToDue} days</>
-                ) : (
-                  <>Loan is {Math.abs(daysToDue)} days overdue</>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Payment Interface */}
-          <div className="space-y-4">
-            <Label className="text-sm font-medium">Make Payment</Label>
-
-            {/* Quick Payment Options */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  setPaymentAmount(activeLoan.monthlyPayment.toString())
-                }
-                className="text-xs"
-              >
-                Monthly Payment
-                <span className="ml-1 text-muted-foreground">
-                  ${formatAmount(activeLoan.monthlyPayment, 2)}
-                </span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  setPaymentAmount(activeLoan.totalOwed.toString())
-                }
-                className="text-xs"
-              >
-                Pay in Full
-                <span className="ml-1 text-muted-foreground">
-                  ${formatAmount(activeLoan.totalOwed, 2)}
-                </span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  setPaymentAmount(activeLoan.interestAccrued.toString())
-                }
-                className="text-xs"
-              >
-                Interest Only
-                <span className="ml-1 text-muted-foreground">
-                  ${formatAmount(activeLoan.interestAccrued, 2)}
-                </span>
-              </Button>
-            </div>
-
-            {/* Custom Payment Amount */}
-            <div className="flex gap-2">
-              <Input
-                placeholder="Enter amount"
-                value={paymentAmount}
-                onChange={(e) => setPaymentAmount(e.target.value)}
-                type="number"
-                step="0.01"
-              />
-              {/* <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    disabled={!paymentAmount || Number(paymentAmount) <= 0}
-                    className="min-w-[100px]"
-                  >
-                    {isProcessingPayment ? (
-                      <RefreshCw className="h-4 w-4 animate-spin" />
+              {/* Due Date Warning */}
+              {daysToDue <= 7 && (
+                <div className="flex items-center gap-3 p-4 bg-orange-50 rounded-lg border border-orange-200">
+                  <AlertTriangle className="h-5 w-5 text-orange-600" />
+                  <div className="text-sm text-orange-700">
+                    {daysToDue > 0 ? (
+                      <>Loan due in {daysToDue} days</>
                     ) : (
-                      "Pay Now"
+                      <>Loan is {Math.abs(daysToDue)} days overdue</>
                     )}
+                  </div>
+                </div>
+              )}
+
+              {/* Payment Interface */}
+              <div className="space-y-4">
+                <Label className="text-lg font-semibold">Make Payment</Label>
+
+                {/* Quick Payment Options */}
+                <div className="space-y-2">
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      setPaymentAmount(activeLoan.monthlyPayment.toString())
+                    }
+                    className="w-full justify-between"
+                  >
+                    Monthly Payment
+                    <span className="font-bold">
+                      ${formatAmount(activeLoan.monthlyPayment, 2)}
+                    </span>
                   </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Confirm Payment</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Are you sure you want to make a payment of $
-                      {paymentAmount} {activeLoan.asset}?
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handlePayment}>
-                      Confirm Payment
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog> */}
-            </div>
-          </div>
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      setPaymentAmount(activeLoan.totalOwed.toString())
+                    }
+                    className="w-full justify-between"
+                  >
+                    Pay in Full
+                    <span className="font-bold">
+                      ${formatAmount(activeLoan.totalOwed, 2)}
+                    </span>
+                  </Button>
+                </div>
 
-          {/* Next Payment Info */}
-          <div className="p-4 bg-white/70 rounded-lg">
-            <div className="flex justify-between items-center mb-3">
-              <span className="text-sm font-medium">Next Payment Due</span>
-              <span className="text-lg font-bold text-blue-600">
-                ${formatAmount(activeLoan.monthlyPayment, 2)}
-              </span>
-            </div>
-            <div className="text-sm text-muted-foreground">
-              Due: {activeLoan.nextPaymentDate.toLocaleDateString()}
-            </div>
-            <div className="grid grid-cols-2 gap-4 mt-3 text-xs">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Principal:</span>
-                <span>${formatAmount(activeLoan.monthlyPayment * 0.8, 2)}</span>
+                {/* Custom Payment Amount */}
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter custom amount"
+                    value={paymentAmount}
+                    onChange={(e) => setPaymentAmount(e.target.value)}
+                    type="number"
+                    step="0.01"
+                    className="flex-1"
+                  />
+                  {/* <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        disabled={!paymentAmount || Number(paymentAmount) <= 0}
+                        className="min-w-[120px]"
+                      >
+                        {isProcessingPayment ? (
+                          <RefreshCw className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <>
+                            <CreditCard className="h-4 w-4 mr-2" />
+                            Pay Now
+                          </>
+                        )}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Confirm Payment</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to make a payment of ${" "}
+                          {paymentAmount} {activeLoan.asset}? This action cannot
+                          be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handlePayment}>
+                          Confirm Payment
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog> */}
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Interest:</span>
-                <span>${formatAmount(activeLoan.monthlyPayment * 0.2, 2)}</span>
-              </div>
             </div>
-          </div>
 
-          {/* Quick Actions */}
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="flex-1">
-              <TrendingUp className="h-4 w-4 mr-1" />
-              Extend Term
-            </Button>
-            <Button variant="outline" size="sm" className="flex-1">
-              <RefreshCw className="h-4 w-4 mr-1" />
-              Refinance
-            </Button>
-            <Button variant="outline" size="sm" className="flex-1">
-              <Activity className="h-4 w-4 mr-1" />
-              History
-            </Button>
+            {/* Right side - Details and Actions */}
+            <div className="space-y-6">
+              {/* Next Payment Info */}
+              <div className="p-6 bg-white/70 rounded-lg">
+                <h4 className="text-lg font-semibold mb-4">Next Payment Due</h4>
+                <div className="text-center mb-4">
+                  <div className="text-3xl font-bold text-blue-600">
+                    ${formatAmount(activeLoan.monthlyPayment, 2)}
+                  </div>
+                  <div className="text-muted-foreground">
+                    Due: {activeLoan.nextPaymentDate.toLocaleDateString()}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Principal</span>
+                    <span className="font-medium">
+                      ${formatAmount(activeLoan.monthlyPayment * 0.8, 2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Interest</span>
+                    <span className="font-medium">
+                      ${formatAmount(activeLoan.monthlyPayment * 0.2, 2)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Loan Terms */}
+              <div className="p-6 bg-white/70 rounded-lg">
+                <h4 className="text-lg font-semibold mb-4">Loan Terms</h4>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Loan Type</span>
+                    <span className="capitalize font-medium">
+                      {activeLoan.type}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Interest Rate</span>
+                    <span className="font-medium">
+                      {activeLoan.interestRate}% APR
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Start Date</span>
+                    <span className="font-medium">
+                      {activeLoan.startDate.toLocaleDateString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Due Date</span>
+                    <span className="font-medium">
+                      {activeLoan.dueDate.toLocaleDateString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">
+                      Payments Remaining
+                    </span>
+                    <span className="font-medium">
+                      {activeLoan.paymentsRemaining}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="grid grid-cols-2 gap-3">
+                <Button variant="outline" className="w-full">
+                  <TrendingUp className="h-4 w-4 mr-2" />
+                  Extend Term
+                </Button>
+                <Button variant="outline" className="w-full">
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Refinance
+                </Button>
+                <Button variant="outline" className="w-full">
+                  <Activity className="h-4 w-4 mr-2" />
+                  Payment History
+                </Button>
+                <Button variant="outline" className="w-full">
+                  Download Statements
+                </Button>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
     );
   }
 
-  // Summary View (Default)
+  // Summary View (Default) - Normal card for grid
   return (
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
           <Clock className="h-5 w-5 text-blue-600" />
-          Active Loan
+          Active Loans
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -305,7 +363,7 @@ export default function ActiveLoanCard({
           className="w-full mt-3"
           onClick={() => setShowManageLoan(true)}
         >
-          Manage Loan
+          Manage Loans
         </Button>
       </CardContent>
     </Card>
