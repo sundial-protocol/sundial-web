@@ -1,46 +1,44 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { TrendingUp, RefreshCw } from "lucide-react";
 import { formatAmount } from "@/hooks/dashboard/prices";
-import { TrendingUp } from "lucide-react";
-import { useGetLoans } from "@/hooks/dashboard/get-loans";
+import { useLendingStats } from "@/hooks/dashboard/lending";
+import { Button } from "@/components/ui/button";
 
 export default function LendingStatsCard() {
-  const { lendingHistory } = useGetLoans();
-
-  const totalBorrowed = lendingHistory.reduce(
-    (sum, loan) => sum + loan.amount,
-    0
-  );
-  const totalInterestPaid = lendingHistory.reduce(
-    (sum, loan) => sum + loan.interestPaid,
-    0
-  );
-  const successfulLoans = lendingHistory.filter(
-    (loan) => loan.status === "paid"
-  ).length;
-  const totalLoans = lendingHistory.length;
-  const paymentSuccessRate =
-    totalLoans > 0 ? (successfulLoans / totalLoans) * 100 : 0;
+  const { stats, refreshData } = useLendingStats();
 
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg flex items-center gap-2">
-          <TrendingUp className="h-5 w-5" />
-          Lending Stats
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            Lending Stats
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={refreshData}
+            className="h-6 w-6 p-0"
+          >
+            <RefreshCw className="h-3 w-3" />
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
           <div className="text-center p-3 bg-blue-50 rounded-lg">
             <div className="text-lg font-bold">
-              ${formatAmount(totalBorrowed, 0)}
+              ${formatAmount(stats.totalBorrowed, 0)}
             </div>
             <div className="text-xs text-muted-foreground">Total Borrowed</div>
           </div>
           <div className="text-center p-3 bg-green-50 rounded-lg">
             <div className="text-lg font-bold">
-              ${formatAmount(totalInterestPaid, 2)}
+              ${formatAmount(stats.totalInterestPaid, 2)}
             </div>
             <div className="text-xs text-muted-foreground">Interest Paid</div>
           </div>
@@ -52,14 +50,25 @@ export default function LendingStatsCard() {
               Payment Success Rate
             </span>
             <span className="text-sm font-medium text-green-600">
-              {paymentSuccessRate.toFixed(0)}%
+              {stats.paymentSuccessRate.toFixed(0)}%
             </span>
           </div>
-          <Progress value={paymentSuccessRate} className="h-2" />
+          <Progress value={stats.paymentSuccessRate} className="h-2" />
 
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>{successfulLoans} successful</span>
-            <span>{totalLoans} total loans</span>
+            <span>{stats.successfulLoans} successful</span>
+            <span>{stats.totalLoans} total loans</span>
+          </div>
+        </div>
+
+        <div className="space-y-2 text-xs border-t pt-3">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Active Loans:</span>
+            <span className="font-medium">{stats.activeLoanCount}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Completed Loans:</span>
+            <span className="font-medium">{stats.successfulLoans}</span>
           </div>
         </div>
       </CardContent>

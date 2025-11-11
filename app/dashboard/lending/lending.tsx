@@ -10,36 +10,32 @@ import CreditLoan from "./credit";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import PortfolioActivityCard from "./cards/portfolio-card";
+import { LendingProvider, useLending } from "@/hooks/dashboard/lending";
 
-export default function LendingTab() {
-  const [showManageLoan, setShowManageLoan] = useState(false);
-  const [showFullLoanInterface, setShowFullLoanInterface] = useState(false);
+function LendingTabContent() {
+  const {
+    showManageLoan,
+    showFullLoanInterface,
+    setShowFullLoanInterface,
+    stats,
+    activeLoans,
+  } = useLending();
 
   return (
     <div className="mx-auto max-w-7xl p-6">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 auto-rows-min">
         {/* Full Loan Interface Card - Takes 2x2 when expanded */}
         {showFullLoanInterface ? (
-          <FullLoanInterfaceCard
-            onClose={() => setShowFullLoanInterface(false)}
-          />
+          <FullLoanInterfaceCard />
         ) : (
-          !showManageLoan && (
-            <LoanInterfaceSummaryCard
-              onExpand={() => setShowFullLoanInterface(true)}
-            />
-          )
+          !showManageLoan && <LoanInterfaceSummaryCard />
         )}
 
         <PortfolioActivityCard />
 
         {/* Active Loan Card - Normal or expanded */}
         {!showFullLoanInterface && (
-          <ActiveLoanCard
-            showManageLoan={showManageLoan}
-            setShowManageLoan={setShowManageLoan}
-            isExpanded={showManageLoan}
-          />
+          <ActiveLoanCard isExpanded={showManageLoan} />
         )}
 
         {/* Sidebar Cards - Hide when expanded views are shown */}
@@ -50,7 +46,9 @@ export default function LendingTab() {
 }
 
 // Summary Card Component for the Loan Interface
-function LoanInterfaceSummaryCard({ onExpand }: { onExpand: () => void }) {
+function LoanInterfaceSummaryCard() {
+  const { setShowFullLoanInterface, stats } = useLending();
+
   return (
     <Card className="lg:col-span-2">
       <CardHeader className="pb-3">
@@ -108,24 +106,28 @@ function LoanInterfaceSummaryCard({ onExpand }: { onExpand: () => void }) {
           </div>
         </div>
 
-        {/* Quick Stats */}
+        {/* Quick Stats - Now using real data */}
         <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
           <div className="grid grid-cols-3 gap-4 text-center text-xs">
             <div>
               <div className="font-semibold text-gray-900 dark:text-gray-100">
-                $2.4M
+                ${(stats.totalBorrowed / 1000).toFixed(1)}K
               </div>
-              <div className="text-gray-600 dark:text-gray-400">Total Lent</div>
+              <div className="text-gray-600 dark:text-gray-400">
+                Total Borrowed
+              </div>
             </div>
             <div>
               <div className="font-semibold text-gray-900 dark:text-gray-100">
-                12.5%
+                {stats.paymentSuccessRate.toFixed(0)}%
               </div>
-              <div className="text-gray-600 dark:text-gray-400">Avg APR</div>
+              <div className="text-gray-600 dark:text-gray-400">
+                Success Rate
+              </div>
             </div>
             <div>
               <div className="font-semibold text-gray-900 dark:text-gray-100">
-                847
+                {stats.activeLoanCount}
               </div>
               <div className="text-gray-600 dark:text-gray-400">
                 Active Loans
@@ -134,7 +136,10 @@ function LoanInterfaceSummaryCard({ onExpand }: { onExpand: () => void }) {
           </div>
         </div>
 
-        <Button className="w-full mt-4" onClick={onExpand}>
+        <Button
+          className="w-full mt-4"
+          onClick={() => setShowFullLoanInterface(true)}
+        >
           Apply for Loan
         </Button>
 
@@ -153,13 +158,19 @@ function LoanInterfaceSummaryCard({ onExpand }: { onExpand: () => void }) {
 }
 
 // Full Loan Interface Component - Takes 2x2 grid space
-function FullLoanInterfaceCard({ onClose }: { onClose: () => void }) {
+function FullLoanInterfaceCard() {
+  const { setShowFullLoanInterface } = useLending();
+
   return (
     <Card className="lg:col-span-2 lg:row-span-2">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-xl">New Loan Application</CardTitle>
-          <Button variant="ghost" size="sm" onClick={onClose}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowFullLoanInterface(false)}
+          >
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -196,5 +207,13 @@ function FullLoanInterfaceCard({ onClose }: { onClose: () => void }) {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+export default function LendingTab() {
+  return (
+    <LendingProvider>
+      <LendingTabContent />
+    </LendingProvider>
   );
 }
