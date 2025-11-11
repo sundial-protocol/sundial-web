@@ -14,17 +14,21 @@ import {
 } from "@/components/ui/select";
 import usePrices, { formatAmount } from "@/hooks/dashboard/prices";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
-import { AlertTriangle, TrendingDown } from "lucide-react";
+import { useLending } from "@/hooks/dashboard/lending";
+import { AlertTriangle, TrendingDown, RefreshCw } from "lucide-react";
 import { useState } from "react";
 
 export default function CollateralizedLoan() {
   const { portfolioData } = useDashboardContext();
   const { convert } = usePrices();
+  const { addLoan, isProcessingNewLoan, setShowFullLoanInterface } =
+    useLending();
 
   const [collateralAsset, setCollateralAsset] = useState("BTC");
   const [borrowAsset, setBorrowAsset] = useState("USDC");
   const [collateralAmount, setCollateralAmount] = useState("");
   const [borrowAmount, setBorrowAmount] = useState("");
+  const [loanTerm, setLoanTerm] = useState("30");
 
   // Available assets for collateral
   const availableCollateral = {
@@ -55,6 +59,92 @@ export default function CollateralizedLoan() {
     if (ltv < 60) return "text-yellow-600";
     return "text-red-600";
   };
+
+  const calculateDueDate = (days: number) => {
+    const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + days);
+    return dueDate;
+  };
+
+  const calculateMonthlyPayment = (
+    amount: number,
+    rate: number,
+    days: number
+  ) => {
+    const monthlyRate = rate / 100 / 12;
+    const months = days / 30;
+    const totalWithInterest = amount * (1 + (rate / 100) * (days / 365));
+    return totalWithInterest / months;
+  };
+
+  const handleBorrow = async () => {
+    if (!collateralAmount || !borrowAmount) return;
+
+    const confirmed = confirm(
+      `Create collateralized loan?\n\n` +
+        `Collateral: ${collateralAmount} ${collateralAsset}\n` +
+        `Borrow: ${borrowAmount} ${borrowAsset}\n` +
+        `Interest Rate: ${currentBorrowRate}% APR\n` +
+        `Term: ${loanTerm} days\n` +
+        `LTV: ${currentLTV.toFixed(1)}%\n\n` +
+        `This will lock your collateral until the loan is repaid.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const loanData = {
+        type: "collateral" as const,
+        amount: Number(borrowAmount),
+        asset: borrowAsset,
+        collateral: {
+          amount: Number(collateralAmount),
+          asset: collateralAsset,
+        },
+        interestRate: currentBorrowRate,
+        startDate: new Date(),
+        dueDate: calculateDueDate(Number(loanTerm)),
+        status: "active" as const,
+        totalOwed:
+          Number(borrowAmount) +
+          (((Number(borrowAmount) * currentBorrowRate) / 100) *
+            Number(loanTerm)) /
+            365,
+        interestAccrued: 0,
+        monthlyPayment: calculateMonthlyPayment(
+          Number(borrowAmount),
+          currentBorrowRate,
+          Number(loanTerm)
+        ),
+        nextPaymentDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        paymentsRemaining: Math.ceil(Number(loanTerm) / 30),
+        totalPaid: 0,
+        interestPaid: 0,
+      };
+
+      await addLoan(loanData);
+
+      // Reset form
+      setCollateralAmount("");
+      setBorrowAmount("");
+      setLoanTerm("30");
+
+      alert(
+        `Loan created successfully!\nBorrowed: ${borrowAmount} ${borrowAsset}\nCollateral locked: ${collateralAmount} ${collateralAsset}`
+      );
+    } catch (error) {
+      alert("Failed to create loan. Please try again.");
+      console.error("Loan creation error:", error);
+    }
+  };
+
+  const isFormValid =
+    collateralAmount &&
+    borrowAmount &&
+    currentLTV <= maxLTV &&
+    Number(borrowAmount) <= maxBorrow &&
+    Number(collateralAmount) <=
+      availableCollateral[collateralAsset as keyof typeof availableCollateral];
 
   return (
     <Card className="bg-gray-50 dark:bg-gray-900 col-span-2">
@@ -104,6 +194,7 @@ export default function CollateralizedLoan() {
                 onChange={(e) => setCollateralAmount(e.target.value)}
                 type="number"
                 step="0.00001"
+                disabled={isProcessingNewLoan}
               />
               <Button
                 variant="ghost"
@@ -116,6 +207,7 @@ export default function CollateralizedLoan() {
                     ].toString()
                   )
                 }
+                disabled={isProcessingNewLoan}
               >
                 MAX
               </Button>
@@ -159,6 +251,7 @@ export default function CollateralizedLoan() {
                 onChange={(e) => setBorrowAmount(e.target.value)}
                 type="number"
                 step="0.01"
+                disabled={isProcessingNewLoan}
               />
               <Button
                 variant="ghost"
@@ -167,7 +260,7 @@ export default function CollateralizedLoan() {
                 onClick={() =>
                   maxBorrow > 0 && setBorrowAmount(maxBorrow.toFixed(2))
                 }
-                disabled={!collateralAmount}
+                disabled={!collateralAmount || isProcessingNewLoan}
               >
                 MAX
               </Button>
@@ -177,6 +270,27 @@ export default function CollateralizedLoan() {
           <div className="text-xs text-muted-foreground">
             Max borrow: ${formatAmount(maxBorrow, 2)}
           </div>
+        </div>
+
+        {/* Loan Term */}
+        <div className="space-y-3">
+          <Label className="text-sm font-medium text-muted-foreground">
+            Loan Term
+          </Label>
+          <Select value={loanTerm} onValueChange={setLoanTerm}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7">7 days</SelectItem>
+              <SelectItem value="14">14 days</SelectItem>
+              <SelectItem value="30">30 days</SelectItem>
+              <SelectItem value="60">60 days</SelectItem>
+              <SelectItem value="90">90 days</SelectItem>
+              <SelectItem value="180">180 days</SelectItem>
+              <SelectItem value="365">365 days</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* LTV Display */}
@@ -195,6 +309,47 @@ export default function CollateralizedLoan() {
           </div>
         )}
 
+        {/* Loan Summary */}
+        {isFormValid && (
+          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <div className="text-sm font-medium mb-2">Loan Summary</div>
+            <div className="space-y-1 text-xs">
+              <div className="flex justify-between">
+                <span>Monthly Payment:</span>
+                <span className="font-medium">
+                  $
+                  {formatAmount(
+                    calculateMonthlyPayment(
+                      Number(borrowAmount),
+                      currentBorrowRate,
+                      Number(loanTerm)
+                    ),
+                    2
+                  )}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Total Interest:</span>
+                <span className="font-medium">
+                  $
+                  {formatAmount(
+                    (((Number(borrowAmount) * currentBorrowRate) / 100) *
+                      Number(loanTerm)) /
+                      365,
+                    2
+                  )}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Due Date:</span>
+                <span className="font-medium">
+                  {calculateDueDate(Number(loanTerm)).toLocaleDateString()}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Risk Warning */}
         {currentLTV > 60 && (
           <div className="flex items-center gap-2 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
@@ -205,18 +360,32 @@ export default function CollateralizedLoan() {
           </div>
         )}
 
+        {/* Insufficient Collateral Warning */}
+        {Number(collateralAmount) >
+          availableCollateral[
+            collateralAsset as keyof typeof availableCollateral
+          ] &&
+          collateralAmount && (
+            <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+              <AlertTriangle className="h-4 w-4 text-red-600" />
+              <div className="text-xs text-red-700 dark:text-red-400">
+                Insufficient {collateralAsset} balance
+              </div>
+            </div>
+          )}
+
         <Button
           className="w-full"
           size="lg"
-          disabled={
-            !collateralAmount ||
-            !borrowAmount ||
-            currentLTV > maxLTV ||
-            Number(borrowAmount) > maxBorrow
-          }
+          disabled={!isFormValid || isProcessingNewLoan}
+          onClick={handleBorrow}
         >
-          <TrendingDown className="w-4 h-4 mr-2" />
-          Borrow {borrowAsset}
+          {isProcessingNewLoan ? (
+            <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+          ) : (
+            <TrendingDown className="w-4 h-4 mr-2" />
+          )}
+          {isProcessingNewLoan ? "Creating Loan..." : `Borrow ${borrowAsset}`}
         </Button>
       </CardContent>
     </Card>

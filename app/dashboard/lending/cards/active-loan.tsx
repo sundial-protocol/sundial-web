@@ -4,13 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { formatAmount } from "@/hooks/dashboard/prices";
 import {
@@ -24,12 +17,14 @@ import {
   CheckCircle,
   Calendar,
   DollarSign,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import {
   useLending,
-  useActiveLoan,
+  useActiveLoans,
   usePaymentHistory,
 } from "@/hooks/dashboard/lending";
 
@@ -121,8 +116,13 @@ export default function ActiveLoanCard({
     isProcessingRefinance,
   } = useLending();
 
-  const activeLoan = useActiveLoan();
-  const paymentHistory = usePaymentHistory(activeLoan?.id);
+  const activeLoans = useActiveLoans(); // Changed to get all active loans
+  const [selectedLoanId, setSelectedLoanId] = useState<string | null>(null);
+  const [expandedLoans, setExpandedLoans] = useState<Set<string>>(new Set());
+
+  // Get the currently selected loan for management
+  const selectedLoan = activeLoans.find((loan) => loan.id === selectedLoanId);
+  const paymentHistory = usePaymentHistory(selectedLoan?.id);
 
   const [paymentAmount, setPaymentAmount] = useState("");
   const [showExtendModal, setShowExtendModal] = useState(false);
@@ -132,17 +132,34 @@ export default function ActiveLoanCard({
   const [refinanceRate, setRefinanceRate] = useState("10.5");
   const [refinanceTerm, setRefinanceTerm] = useState("90");
 
+  // Toggle expanded view for a specific loan
+  const toggleLoanExpansion = (loanId: string) => {
+    const newExpanded = new Set(expandedLoans);
+    if (newExpanded.has(loanId)) {
+      newExpanded.delete(loanId);
+    } else {
+      newExpanded.add(loanId);
+    }
+    setExpandedLoans(newExpanded);
+  };
+
+  // Select a loan for management
+  const selectLoanForManagement = (loanId: string) => {
+    setSelectedLoanId(loanId);
+    setShowManageLoan(true);
+  };
+
   const handlePayment = async () => {
-    if (!activeLoan) return;
+    if (!selectedLoan) return;
 
     const confirmed = confirm(
-      `Are you sure you want to make a payment of $${paymentAmount} ${activeLoan.asset}? This action cannot be undone.`
+      `Are you sure you want to make a payment of $${paymentAmount} ${selectedLoan.asset}? This action cannot be undone.`
     );
 
     if (!confirmed) return;
 
     try {
-      await makePayment(activeLoan.id, Number(paymentAmount));
+      await makePayment(selectedLoan.id, Number(paymentAmount));
       setPaymentAmount("");
       setShowManageLoan(false);
       alert("Payment processed successfully!");
@@ -152,11 +169,11 @@ export default function ActiveLoanCard({
   };
 
   const handleExtendTerm = async () => {
-    if (!activeLoan) return;
+    if (!selectedLoan) return;
 
     try {
-      await extendLoan(activeLoan.id, Number(extensionDays));
-      const newDueDate = new Date(activeLoan.dueDate);
+      await extendLoan(selectedLoan.id, Number(extensionDays));
+      const newDueDate = new Date(selectedLoan.dueDate);
       newDueDate.setDate(newDueDate.getDate() + Number(extensionDays));
       alert(
         `Loan extended by ${extensionDays} days. New due date: ${newDueDate.toLocaleDateString()}`
@@ -169,11 +186,11 @@ export default function ActiveLoanCard({
   };
 
   const handleRefinance = async () => {
-    if (!activeLoan) return;
+    if (!selectedLoan) return;
 
     try {
       await refinanceLoan(
-        activeLoan.id,
+        selectedLoan.id,
         Number(refinanceRate),
         Number(refinanceTerm)
       );
@@ -189,16 +206,16 @@ export default function ActiveLoanCard({
   };
 
   const downloadStatements = () => {
-    if (!activeLoan) return;
+    if (!selectedLoan) return;
 
     const statementData = {
-      loanId: activeLoan.id,
+      loanId: selectedLoan.id,
       borrower: "User Address: 0x1234...abcd",
-      originalAmount: activeLoan.amount,
-      currentBalance: activeLoan.totalOwed,
-      interestRate: activeLoan.interestRate,
-      startDate: activeLoan.startDate.toLocaleDateString(),
-      dueDate: activeLoan.dueDate.toLocaleDateString(),
+      originalAmount: selectedLoan.amount,
+      currentBalance: selectedLoan.totalOwed,
+      interestRate: selectedLoan.interestRate,
+      startDate: selectedLoan.startDate.toLocaleDateString(),
+      dueDate: selectedLoan.dueDate.toLocaleDateString(),
       paymentHistory: paymentHistory,
       generatedAt: new Date().toISOString(),
     };
@@ -210,7 +227,7 @@ export default function ActiveLoanCard({
     downloadAnchorNode.setAttribute("href", dataStr);
     downloadAnchorNode.setAttribute(
       "download",
-      `loan-statement-${activeLoan.id}.json`
+      `loan-statement-${selectedLoan.id}.json`
     );
     document.body.appendChild(downloadAnchorNode);
     downloadAnchorNode.click();
@@ -243,7 +260,28 @@ export default function ActiveLoanCard({
     }
   };
 
-  if (!activeLoan) {
+  // Helper function to get status color for loan
+  const getLoanStatusColor = (loan: any) => {
+    const daysToDue = Math.ceil(
+      (loan.dueDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    if (daysToDue <= 0) return "bg-red-100 text-red-700";
+    if (daysToDue <= 7) return "bg-orange-100 text-orange-700";
+    return "bg-green-100 text-green-700";
+  };
+
+  const getLoanStatus = (loan: any) => {
+    const daysToDue = Math.ceil(
+      (loan.dueDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    if (daysToDue <= 0) return "Overdue";
+    if (daysToDue <= 7) return "Due Soon";
+    return "Current";
+  };
+
+  if (!activeLoans || activeLoans.length === 0) {
     return (
       <Card>
         <CardHeader className="pb-3">
@@ -259,13 +297,8 @@ export default function ActiveLoanCard({
     );
   }
 
-  const daysToDue = Math.ceil(
-    (activeLoan.dueDate.getTime() - new Date().getTime()) /
-      (1000 * 60 * 60 * 24)
-  );
-
-  // Expanded Loan Management View
-  if (showManageLoan) {
+  // If managing a specific loan, show the detailed management view
+  if (showManageLoan && selectedLoan) {
     return (
       <>
         <Card
@@ -277,12 +310,15 @@ export default function ActiveLoanCard({
             <div className="flex items-center justify-between">
               <CardTitle className="text-xl flex items-center gap-2">
                 <Clock className="h-6 w-6 text-blue-600" />
-                Manage Active Loan
+                Manage Loan #{selectedLoan.id}
               </CardTitle>
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setShowManageLoan(false)}
+                onClick={() => {
+                  setShowManageLoan(false);
+                  setSelectedLoanId(null);
+                }}
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -296,7 +332,7 @@ export default function ActiveLoanCard({
                 <div className="grid grid-cols-2 gap-3">
                   <div className="text-center p-4 bg-white/70 rounded-lg">
                     <div className="text-xl font-bold">
-                      ${formatAmount(activeLoan.amount, 0)}
+                      ${formatAmount(selectedLoan.amount, 0)}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       Original Amount
@@ -304,7 +340,7 @@ export default function ActiveLoanCard({
                   </div>
                   <div className="text-center p-4 bg-red-50 rounded-lg">
                     <div className="text-xl font-bold text-red-700">
-                      ${formatAmount(activeLoan.totalOwed, 2)}
+                      ${formatAmount(selectedLoan.totalOwed, 2)}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       Total Owed
@@ -312,7 +348,7 @@ export default function ActiveLoanCard({
                   </div>
                   <div className="text-center p-4 bg-yellow-50 rounded-lg">
                     <div className="text-xl font-bold text-yellow-700">
-                      ${formatAmount(activeLoan.interestAccrued, 2)}
+                      ${formatAmount(selectedLoan.interestAccrued, 2)}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       Interest Accrued
@@ -320,25 +356,34 @@ export default function ActiveLoanCard({
                   </div>
                   <div className="text-center p-4 bg-blue-50 rounded-lg">
                     <div className="text-xl font-bold text-blue-700">
-                      {activeLoan.interestRate}%
+                      {selectedLoan.interestRate.toFixed(1)}%
                     </div>
                     <div className="text-sm text-muted-foreground">APR</div>
                   </div>
                 </div>
 
                 {/* Due Date Warning */}
-                {daysToDue <= 7 && (
-                  <div className="flex items-center gap-3 p-4 bg-orange-50 rounded-lg border border-orange-200">
-                    <AlertTriangle className="h-5 w-5 text-orange-600" />
-                    <div className="text-sm text-orange-700">
-                      {daysToDue > 0 ? (
-                        <>Loan due in {daysToDue} days</>
-                      ) : (
-                        <>Loan is {Math.abs(daysToDue)} days overdue</>
-                      )}
-                    </div>
-                  </div>
-                )}
+                {(() => {
+                  const daysToDue = Math.ceil(
+                    (selectedLoan.dueDate.getTime() - new Date().getTime()) /
+                      (1000 * 60 * 60 * 24)
+                  );
+
+                  return (
+                    daysToDue <= 7 && (
+                      <div className="flex items-center gap-3 p-4 bg-orange-50 rounded-lg border border-orange-200">
+                        <AlertTriangle className="h-5 w-5 text-orange-600" />
+                        <div className="text-sm text-orange-700">
+                          {daysToDue > 0 ? (
+                            <>Loan due in {daysToDue} days</>
+                          ) : (
+                            <>Loan is {Math.abs(daysToDue)} days overdue</>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  );
+                })()}
 
                 {/* Payment Interface */}
                 <div className="space-y-4">
@@ -348,25 +393,25 @@ export default function ActiveLoanCard({
                     <Button
                       variant="outline"
                       onClick={() =>
-                        setPaymentAmount(activeLoan.monthlyPayment.toString())
+                        setPaymentAmount(selectedLoan.monthlyPayment.toString())
                       }
                       className="w-full justify-between"
                     >
                       Monthly Payment
                       <span className="font-bold">
-                        ${formatAmount(activeLoan.monthlyPayment, 2)}
+                        ${formatAmount(selectedLoan.monthlyPayment, 2)}
                       </span>
                     </Button>
                     <Button
                       variant="outline"
                       onClick={() =>
-                        setPaymentAmount(activeLoan.totalOwed.toString())
+                        setPaymentAmount(selectedLoan.totalOwed.toString())
                       }
                       className="w-full justify-between"
                     >
                       Pay in Full
                       <span className="font-bold">
-                        ${formatAmount(activeLoan.totalOwed, 2)}
+                        ${formatAmount(selectedLoan.totalOwed, 2)}
                       </span>
                     </Button>
                   </div>
@@ -404,23 +449,23 @@ export default function ActiveLoanCard({
                   </h4>
                   <div className="text-center mb-4">
                     <div className="text-3xl font-bold text-blue-600">
-                      ${formatAmount(activeLoan.monthlyPayment, 2)}
+                      ${formatAmount(selectedLoan.monthlyPayment, 2)}
                     </div>
                     <div className="text-muted-foreground">
-                      Due: {activeLoan.nextPaymentDate.toLocaleDateString()}
+                      Due: {selectedLoan.nextPaymentDate.toLocaleDateString()}
                     </div>
                   </div>
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Principal</span>
                       <span className="font-medium">
-                        ${formatAmount(activeLoan.monthlyPayment * 0.8, 2)}
+                        ${formatAmount(selectedLoan.monthlyPayment * 0.8, 2)}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Interest</span>
                       <span className="font-medium">
-                        ${formatAmount(activeLoan.monthlyPayment * 0.2, 2)}
+                        ${formatAmount(selectedLoan.monthlyPayment * 0.2, 2)}
                       </span>
                     </div>
                   </div>
@@ -433,7 +478,7 @@ export default function ActiveLoanCard({
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Loan Type</span>
                       <span className="capitalize font-medium">
-                        {activeLoan.type}
+                        {selectedLoan.type}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -441,19 +486,19 @@ export default function ActiveLoanCard({
                         Interest Rate
                       </span>
                       <span className="font-medium">
-                        {activeLoan.interestRate}% APR
+                        {selectedLoan.interestRate.toFixed(1)}% APR
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Start Date</span>
                       <span className="font-medium">
-                        {activeLoan.startDate.toLocaleDateString()}
+                        {selectedLoan.startDate.toLocaleDateString()}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Due Date</span>
                       <span className="font-medium">
-                        {activeLoan.dueDate.toLocaleDateString()}
+                        {selectedLoan.dueDate.toLocaleDateString()}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -461,7 +506,7 @@ export default function ActiveLoanCard({
                         Payments Remaining
                       </span>
                       <span className="font-medium">
-                        {activeLoan.paymentsRemaining}
+                        {selectedLoan.paymentsRemaining}
                       </span>
                     </div>
                   </div>
@@ -544,7 +589,7 @@ export default function ActiveLoanCard({
               <div className="text-sm text-yellow-800">
                 <strong>New Due Date:</strong>{" "}
                 {new Date(
-                  activeLoan.dueDate.getTime() +
+                  selectedLoan.dueDate.getTime() +
                     Number(extensionDays) * 24 * 60 * 60 * 1000
                 ).toLocaleDateString()}
               </div>
@@ -617,8 +662,8 @@ export default function ActiveLoanCard({
               <div className="text-sm text-green-800">
                 <strong>Monthly Savings:</strong> $
                 {(
-                  (((activeLoan.interestRate - Number(refinanceRate)) / 100) *
-                    activeLoan.amount) /
+                  (((selectedLoan.interestRate - Number(refinanceRate)) / 100) *
+                    selectedLoan.amount) /
                   12
                 ).toFixed(2)}
               </div>
@@ -655,7 +700,7 @@ export default function ActiveLoanCard({
         >
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Complete transaction history for loan {activeLoan.id}
+              Complete transaction history for loan {selectedLoan.id}
             </p>
 
             <div className="space-y-3 max-h-96 overflow-y-auto">
@@ -668,7 +713,7 @@ export default function ActiveLoanCard({
                     {getTypeIcon(payment.type)}
                     <div>
                       <div className="font-medium">
-                        ${formatAmount(payment.amount, 2)} {activeLoan.asset}
+                        ${formatAmount(payment.amount, 2)} {selectedLoan.asset}
                       </div>
                       <div className="text-xs text-muted-foreground">
                         {payment.date.toLocaleDateString()} • {payment.type}
@@ -701,60 +746,205 @@ export default function ActiveLoanCard({
     );
   }
 
-  // Summary View (Default)
+  // Multi-loan overview
   return (
-    <Card>
+    <Card className={isExpanded ? "lg:col-span-2 lg:row-span-2" : ""}>
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg flex items-center gap-2">
-          <Clock className="h-5 w-5 text-blue-600" />
-          Active Loan
+        <CardTitle className="text-lg flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Clock className="h-5 w-5 text-blue-600" />
+            Active Loans ({activeLoans.length})
+          </div>
+          <div className="text-sm font-normal text-muted-foreground">
+            Total: $
+            {formatAmount(
+              activeLoans.reduce((sum, loan) => sum + loan.totalOwed, 0),
+              2
+            )}
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-muted-foreground">Amount</span>
-          <span className="font-medium">
-            ${formatAmount(activeLoan.amount, 0)} {activeLoan.asset}
-          </span>
-        </div>
+        {activeLoans.map((loan) => {
+          const daysToDue = Math.ceil(
+            (loan.dueDate.getTime() - new Date().getTime()) /
+              (1000 * 60 * 60 * 24)
+          );
+          const isExpanded = expandedLoans.has(loan.id);
 
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-muted-foreground">Total Owed</span>
-          <span className="font-medium">
-            ${formatAmount(activeLoan.totalOwed, 2)}
-          </span>
-        </div>
+          return (
+            <div
+              key={loan.id}
+              className="border rounded-lg p-4 bg-white/50 hover:bg-white/70 transition-colors"
+            >
+              {/* Loan Header */}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3 px-2">
+                  <h4 className="font-medium">Loan #{loan.id}</h4>
+                  <Badge className={getLoanStatusColor(loan)}>
+                    {getLoanStatus(loan)}
+                  </Badge>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">
+                    ${formatAmount(loan.totalOwed, 2)}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleLoanExpansion(loan.id)}
+                  >
+                    {isExpanded ? (
+                      <ChevronUp className="h-4 w-4" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
 
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-muted-foreground">Interest Rate</span>
-          <span className="font-medium">{activeLoan.interestRate}% APR</span>
-        </div>
+              {/* Loan Summary */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
+                <div>
+                  <span className="text-muted-foreground">Amount</span>
+                  <div className="font-medium">
+                    ${formatAmount(loan.amount, 0)} {loan.asset}
+                  </div>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">APR</span>
+                  <div className="font-medium">
+                    {loan.interestRate.toFixed(1)}%
+                  </div>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Due Date</span>
+                  <div className="font-medium">
+                    {loan.dueDate.toLocaleDateString()}
+                  </div>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Days Left</span>
+                  <div
+                    className={`font-medium ${
+                      daysToDue <= 7
+                        ? "text-orange-600"
+                        : daysToDue <= 0
+                        ? "text-red-600"
+                        : "text-green-600"
+                    }`}
+                  >
+                    {daysToDue > 0
+                      ? daysToDue
+                      : `${Math.abs(daysToDue)} overdue`}
+                  </div>
+                </div>
+              </div>
 
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-muted-foreground">Due Date</span>
-          <span className="font-medium">
-            {activeLoan.dueDate.toLocaleDateString()}
-          </span>
-        </div>
+              {/* Expanded Details */}
+              {isExpanded && (
+                <div className="mt-4 pt-4 border-t space-y-3">
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">
+                        Interest Accrued
+                      </span>
+                      <div className="font-medium">
+                        ${formatAmount(loan.interestAccrued, 2)}
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">
+                        Monthly Payment
+                      </span>
+                      <div className="font-medium">
+                        ${formatAmount(loan.monthlyPayment, 2)}
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">
+                        Payments Remaining
+                      </span>
+                      <div className="font-medium">
+                        {loan.paymentsRemaining}
+                      </div>
+                    </div>
+                  </div>
 
-        {daysToDue <= 7 && (
-          <div className="flex items-center gap-2 p-2 bg-orange-100 rounded">
-            <AlertTriangle className="h-3 w-3 text-orange-600" />
-            <div className="text-xs text-orange-700">
-              {daysToDue > 0
-                ? `Due in ${daysToDue} days`
-                : `${Math.abs(daysToDue)} days overdue`}
+                  {/* Quick Actions */}
+                  <div className="flex gap-2 pt-2">
+                    <Button
+                      size="sm"
+                      onClick={() => selectLoanForManagement(loan.id)}
+                    >
+                      Manage
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedLoanId(loan.id);
+                        setPaymentAmount(loan.monthlyPayment.toString());
+                        // You could show a quick payment modal here
+                      }}
+                    >
+                      Quick Pay
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Warning for overdue/due soon */}
+              {daysToDue <= 7 && (
+                <div className="flex items-center gap-2 mt-3 p-2 bg-orange-100 rounded text-xs text-orange-700">
+                  <AlertTriangle className="h-3 w-3" />
+                  <span>
+                    {daysToDue > 0
+                      ? `Payment due in ${daysToDue} days`
+                      : `Payment is ${Math.abs(daysToDue)} days overdue`}
+                  </span>
+                </div>
+              )}
             </div>
-          </div>
-        )}
+          );
+        })}
 
-        <Button
-          size="sm"
-          className="w-full mt-3"
-          onClick={() => setShowManageLoan(true)}
-        >
-          Manage Loan
-        </Button>
+        {/* Summary Actions */}
+        <div className="pt-3 border-t">
+          <div className="flex justify-between items-center text-sm">
+            <span className="text-muted-foreground">
+              {
+                activeLoans.filter((loan) => {
+                  const days = Math.ceil(
+                    (loan.dueDate.getTime() - new Date().getTime()) /
+                      (1000 * 60 * 60 * 24)
+                  );
+                  return days <= 7;
+                }).length
+              }{" "}
+              loans need attention
+            </span>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                // Expand all loans that need attention
+                const needAttention = activeLoans
+                  .filter((loan) => {
+                    const days = Math.ceil(
+                      (loan.dueDate.getTime() - new Date().getTime()) /
+                        (1000 * 60 * 60 * 24)
+                    );
+                    return days <= 7;
+                  })
+                  .map((loan) => loan.id);
+                setExpandedLoans(new Set(needAttention));
+              }}
+            >
+              Show Due Soon
+            </Button>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

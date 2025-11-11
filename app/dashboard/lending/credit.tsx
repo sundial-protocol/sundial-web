@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { formatAmount } from "@/hooks/dashboard/prices";
+import { useLending } from "@/hooks/dashboard/lending";
 import { AlertTriangle, Badge, RefreshCw, Shield, Star } from "lucide-react";
 import { useState } from "react";
 
@@ -32,24 +33,32 @@ export interface CreditScore {
 }
 
 export default function CreditLoan() {
+  const { addLoan, isProcessingNewLoan, stats } = useLending();
+
   const [borrowAsset, setBorrowAsset] = useState("USDC");
   const [borrowAmount, setBorrowAmount] = useState("");
+  const [loanTerm, setLoanTerm] = useState("30");
   const [isLoadingScore, setIsLoadingScore] = useState(false);
 
-  // Mock credit score data - in reality, this would come from an API
+  // Mock credit score data - enhanced based on user's actual lending history
   const [creditScore, setCreditScore] = useState<CreditScore>({
-    score: 742,
-    grade: "A-",
+    score: 742 + stats.paymentSuccessRate * 0.5, // Boost score based on success rate
+    grade:
+      stats.paymentSuccessRate > 90
+        ? "A"
+        : stats.paymentSuccessRate > 80
+        ? "A-"
+        : "B+",
     factors: {
-      paymentHistory: 95,
+      paymentHistory: Math.min(95, stats.paymentSuccessRate + 5),
       accountAge: 78,
       transactionVolume: 82,
       liquidationEvents: 100, // No liquidations = 100%
       protocolUsage: 67,
     },
-    creditLimit: 25000,
-    interestRate: 12.5,
-    lastUpdated: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+    creditLimit: Math.min(50000, 5000 + stats.totalLoans * 2500), // Increase limit with loan history
+    interestRate: Math.max(5, 15 - stats.paymentSuccessRate * 0.1), // Better rate for good history
+    lastUpdated: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
   });
 
   const getScoreColor = (score: number) => {
@@ -68,13 +77,32 @@ export default function CreditLoan() {
 
   const refreshCreditScore = async () => {
     setIsLoadingScore(true);
-    // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    // Mock updated score
+    // Update score based on current stats
+    const newScore =
+      742 +
+      stats.paymentSuccessRate * 0.5 +
+      Math.floor(Math.random() * 20 - 10);
+    const newGrade =
+      newScore >= 800
+        ? "A+"
+        : newScore >= 750
+        ? "A"
+        : newScore >= 700
+        ? "A-"
+        : "B+";
+
     setCreditScore((prev) => ({
       ...prev,
-      score: prev.score + Math.floor(Math.random() * 20 - 10), // ±10 points
+      score: Math.max(300, Math.min(850, newScore)),
+      grade: newGrade,
+      factors: {
+        ...prev.factors,
+        paymentHistory: Math.min(100, stats.paymentSuccessRate + 5),
+      },
+      creditLimit: Math.min(50000, 5000 + stats.totalLoans * 2500),
+      interestRate: Math.max(5, 15 - stats.paymentSuccessRate * 0.1),
       lastUpdated: new Date(),
     }));
     setIsLoadingScore(false);
@@ -90,6 +118,97 @@ export default function CreditLoan() {
     if (util < 70) return "text-yellow-600";
     return "text-red-600";
   };
+
+  const calculateDueDate = (days: number) => {
+    const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + days);
+    return dueDate;
+  };
+
+  const calculateMonthlyPayment = (
+    amount: number,
+    rate: number,
+    days: number
+  ) => {
+    const monthlyRate = rate / 100 / 12;
+    const months = days / 30;
+    const totalWithInterest = amount * (1 + (rate / 100) * (days / 365));
+    return totalWithInterest / months;
+  };
+
+  const calculateOriginationFee = (amount: number) => {
+    return amount * 0.01; // 1% origination fee
+  };
+
+  const handleBorrow = async () => {
+    if (!borrowAmount) return;
+
+    const originationFee = calculateOriginationFee(Number(borrowAmount));
+    const netAmount = Number(borrowAmount) - originationFee;
+
+    const confirmed = confirm(
+      `Create credit-based loan?\n\n` +
+        `Borrow: ${borrowAmount} ${borrowAsset}\n` +
+        `Net Amount (after fees): ${netAmount.toFixed(2)} ${borrowAsset}\n` +
+        `Origination Fee: ${originationFee.toFixed(2)} ${borrowAsset}\n` +
+        `Interest Rate: ${creditScore.interestRate.toFixed(1)}% APR\n` +
+        `Term: ${loanTerm} days\n` +
+        `Credit Score: ${creditScore.score} (${creditScore.grade})\n\n` +
+        `This is an unsecured loan based on your credit history.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const loanData = {
+        type: "credit" as const,
+        amount: Number(borrowAmount),
+        asset: borrowAsset,
+        interestRate: creditScore.interestRate,
+        startDate: new Date(),
+        dueDate: calculateDueDate(Number(loanTerm)),
+        status: "active" as const,
+        totalOwed:
+          Number(borrowAmount) +
+          (((Number(borrowAmount) * creditScore.interestRate) / 100) *
+            Number(loanTerm)) /
+            365,
+        interestAccrued: 0,
+        monthlyPayment: calculateMonthlyPayment(
+          Number(borrowAmount),
+          creditScore.interestRate,
+          Number(loanTerm)
+        ),
+        nextPaymentDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        paymentsRemaining: Math.ceil(Number(loanTerm) / 30),
+        totalPaid: 0,
+        interestPaid: 0,
+      };
+
+      await addLoan(loanData);
+
+      // Reset form
+      setBorrowAmount("");
+      setLoanTerm("30");
+
+      alert(
+        `Credit loan approved!\nBorrowed: ${borrowAmount} ${borrowAsset}\nNet amount: ${netAmount.toFixed(
+          2
+        )} ${borrowAsset}\nOrigination fee: ${originationFee.toFixed(
+          2
+        )} ${borrowAsset}`
+      );
+    } catch (error) {
+      alert("Failed to create loan. Please try again.");
+      console.error("Loan creation error:", error);
+    }
+  };
+
+  const isFormValid =
+    borrowAmount &&
+    Number(borrowAmount) <= creditScore.creditLimit &&
+    Number(borrowAmount) > 0 &&
+    creditScore.score >= 500; // Minimum score requirement
 
   return (
     <Card className="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20">
@@ -139,7 +258,7 @@ export default function CreditLoan() {
                   creditScore.score
                 )}`}
               >
-                {creditScore.score}
+                {creditScore.score.toFixed(0)}
               </div>
               <div className="text-sm text-muted-foreground">Score</div>
             </div>
@@ -163,7 +282,7 @@ export default function CreditLoan() {
               <div className="flex justify-between">
                 <span>Payment History</span>
                 <span className="font-medium">
-                  {creditScore.factors.paymentHistory}%
+                  {creditScore.factors.paymentHistory.toFixed(0)}%
                 </span>
               </div>
               <Progress
@@ -236,6 +355,7 @@ export default function CreditLoan() {
                 type="number"
                 step="0.01"
                 max={creditScore.creditLimit}
+                disabled={isProcessingNewLoan}
               />
               <Button
                 variant="ghost"
@@ -244,6 +364,7 @@ export default function CreditLoan() {
                 onClick={() =>
                   setBorrowAmount(creditScore.creditLimit.toString())
                 }
+                disabled={isProcessingNewLoan}
               >
                 MAX
               </Button>
@@ -253,6 +374,25 @@ export default function CreditLoan() {
           <div className="text-xs text-muted-foreground">
             Credit limit: ${formatAmount(creditScore.creditLimit, 0)}
           </div>
+        </div>
+
+        {/* Loan Term */}
+        <div className="space-y-3">
+          <Label className="text-sm font-medium text-muted-foreground">
+            Loan Term
+          </Label>
+          <Select value={loanTerm} onValueChange={setLoanTerm}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="30">30 days</SelectItem>
+              <SelectItem value="60">60 days</SelectItem>
+              <SelectItem value="90">90 days</SelectItem>
+              <SelectItem value="180">180 days</SelectItem>
+              <SelectItem value="365">365 days</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Utilization */}
@@ -275,6 +415,56 @@ export default function CreditLoan() {
           </div>
         )}
 
+        {/* Loan Summary */}
+        {isFormValid && (
+          <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+            <div className="text-sm font-medium mb-2">Loan Summary</div>
+            <div className="space-y-1 text-xs">
+              <div className="flex justify-between">
+                <span>Origination Fee (1%):</span>
+                <span className="font-medium">
+                  $
+                  {formatAmount(
+                    calculateOriginationFee(Number(borrowAmount)),
+                    2
+                  )}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Net Amount:</span>
+                <span className="font-medium">
+                  $
+                  {formatAmount(
+                    Number(borrowAmount) -
+                      calculateOriginationFee(Number(borrowAmount)),
+                    2
+                  )}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Monthly Payment:</span>
+                <span className="font-medium">
+                  $
+                  {formatAmount(
+                    calculateMonthlyPayment(
+                      Number(borrowAmount),
+                      creditScore.interestRate,
+                      Number(loanTerm)
+                    ),
+                    2
+                  )}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Due Date:</span>
+                <span className="font-medium">
+                  {calculateDueDate(Number(loanTerm)).toLocaleDateString()}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* High Utilization Warning */}
         {utilizationPercent > 70 && (
           <div className="flex items-center gap-2 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
@@ -285,28 +475,39 @@ export default function CreditLoan() {
           </div>
         )}
 
+        {/* Low Credit Score Warning */}
+        {creditScore.score < 600 && (
+          <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+            <AlertTriangle className="h-4 w-4 text-red-600" />
+            <div className="text-xs text-red-700 dark:text-red-400">
+              Credit score below 600. Consider building credit history first.
+            </div>
+          </div>
+        )}
+
         <Button
           className="w-full"
           size="lg"
-          disabled={
-            !borrowAmount ||
-            Number(borrowAmount) > creditScore.creditLimit ||
-            creditScore.score < 500 // Minimum score requirement
-          }
+          disabled={!isFormValid || isProcessingNewLoan}
+          onClick={handleBorrow}
         >
-          <Star className="w-4 h-4 mr-2" />
-          Borrow {borrowAsset}
+          {isProcessingNewLoan ? (
+            <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+          ) : (
+            <Star className="w-4 h-4 mr-2" />
+          )}
+          {isProcessingNewLoan ? "Creating Loan..." : `Borrow ${borrowAsset}`}
         </Button>
 
         {/* Loan Terms */}
         <div className="space-y-2 text-xs text-muted-foreground border-t pt-4">
           <div className="flex justify-between">
             <span>Interest rate:</span>
-            <span>{creditScore.interestRate}% APR</span>
+            <span>{creditScore.interestRate.toFixed(1)}% APR</span>
           </div>
           <div className="flex justify-between">
             <span>Loan term:</span>
-            <span>30-365 days (flexible)</span>
+            <span>{loanTerm} days (flexible)</span>
           </div>
           <div className="flex justify-between">
             <span>Origination fee:</span>
@@ -315,6 +516,10 @@ export default function CreditLoan() {
           <div className="flex justify-between">
             <span>Credit check:</span>
             <span>Soft inquiry (no impact)</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Based on {stats.totalLoans} loan history:</span>
+            <span>{stats.paymentSuccessRate.toFixed(0)}% success rate</span>
           </div>
         </div>
       </CardContent>

@@ -450,6 +450,11 @@ export function useActiveLoan() {
   return activeLoans[0] || null; // Return first active loan
 }
 
+export function useActiveLoans() {
+  const { activeLoans } = useLending();
+  return activeLoans; // Return all active loans
+}
+
 export function useLendingStats() {
   const { stats, refreshData } = useLending();
   return { stats, refreshData };
