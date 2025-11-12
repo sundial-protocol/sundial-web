@@ -21,6 +21,7 @@ import {
   LoanData,
 } from "@/hooks/dashboard/lending";
 import { useState } from "react";
+import { useToast } from "@/components/ui/toast";
 
 export default function PortfolioActivityCard() {
   const {
@@ -36,6 +37,7 @@ export default function PortfolioActivityCard() {
   const allPaymentHistory = usePaymentHistory();
   const [showAllLoans, setShowAllLoans] = useState(false);
   const [showAllActivity, setShowAllActivity] = useState(false);
+  const { addToast } = useToast();
 
   // Get recent activity (last 10 items)
   const recentActivity = allPaymentHistory
@@ -359,8 +361,11 @@ export default function PortfolioActivityCard() {
                 size="sm"
                 variant="outline"
                 onClick={() => {
-                  // Could open loan application or show stats
-                  alert("Feature coming soon!");
+                  addToast({
+                    type: "info",
+                    title: "Feature Coming Soon",
+                    message: "Loan application feature is under development.",
+                  });
                 }}
                 className="text-xs h-8"
               >

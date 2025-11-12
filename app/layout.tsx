@@ -9,6 +9,7 @@ import CustomThemeProvider from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
 import { WalletProvider } from "@/components/wallet-provider";
 import type { Viewport } from "next";
+import { ToastProvider } from "@/components/ui/toast";
 
 // for mobile
 export const viewport: Viewport = {
@@ -108,9 +109,11 @@ export default function RootLayout({
       >
         <WalletProvider>
           <CustomThemeProvider>
-            <Navbar />
-            <main className="pt-24">{children}</main>
-            <Footer />
+            <ToastProvider>
+              <Navbar />
+              <main className="pt-24">{children}</main>
+              <Footer />
+            </ToastProvider>
           </CustomThemeProvider>
         </WalletProvider>
       </body>

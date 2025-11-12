@@ -16,27 +16,14 @@ import { formatAmount } from "@/hooks/dashboard/prices";
 import { useLending } from "@/hooks/dashboard/lending";
 import { AlertTriangle, Badge, RefreshCw, Shield, Star, X } from "lucide-react";
 import { useState } from "react";
-import { PsbtSigning, usePsbtGeneration } from "@/components/btc/psbt-signing";
+import { usePsbtGeneration } from "@/components/btc/psbt-signing";
 import {
   TransactionFlow,
   useTransactionFlow,
   TransactionMethod,
 } from "@/components/transactions/transaction-flow";
-
-export interface CreditScore {
-  score: number;
-  grade: string;
-  factors: {
-    paymentHistory: number;
-    accountAge: number;
-    transactionVolume: number;
-    liquidationEvents: number;
-    protocolUsage: number;
-  };
-  creditLimit: number;
-  interestRate: number;
-  lastUpdated: Date;
-}
+import { useToast } from "@/components/ui/toast";
+import { useConfirmation } from "@/components/ui/confirmation";
 
 export default function CreditLoan() {
   const { addLoan, isProcessingNewLoan, stats } = useLending();
@@ -46,6 +33,8 @@ export default function CreditLoan() {
     startTransaction,
     closeTransaction,
   } = useTransactionFlow();
+  const { addToast } = useToast();
+  const { confirm } = useConfirmation();
 
   const [borrowAsset, setBorrowAsset] = useState("USDC");
   const [borrowAmount, setBorrowAmount] = useState("");
@@ -56,7 +45,7 @@ export default function CreditLoan() {
   const { generatePsbt, loading: generatingPsbt } = usePsbtGeneration();
 
   // Mock credit score data - enhanced based on user's actual lending history
-  const [creditScore, setCreditScore] = useState<CreditScore>({
+  const [creditScore, setCreditScore] = useState({
     score: 742 + stats.paymentSuccessRate * 0.5, // Boost score based on success rate
     grade:
       stats.paymentSuccessRate > 90
@@ -161,16 +150,20 @@ export default function CreditLoan() {
     const originationFee = calculateOriginationFee(Number(borrowAmount));
     const netAmount = Number(borrowAmount) - originationFee;
 
-    const confirmed = confirm(
-      `Create credit-based loan?\n\n` +
-        `Borrow: ${borrowAmount} ${borrowAsset}\n` +
-        `Net Amount (after fees): ${netAmount.toFixed(2)} ${borrowAsset}\n` +
-        `Origination Fee: ${originationFee.toFixed(2)} ${borrowAsset}\n` +
-        `Interest Rate: ${creditScore.interestRate.toFixed(1)}% APR\n` +
-        `Term: ${loanTerm} days\n` +
-        `Credit Score: ${creditScore.score} (${creditScore.grade})\n\n` +
-        `This is an unsecured loan based on your credit history.`
-    );
+    const confirmed = await confirm({
+      title: "Create Credit-Based Loan",
+      message: `Borrow: ${borrowAmount} ${borrowAsset}\nNet Amount (after fees): ${netAmount.toFixed(
+        2
+      )} ${borrowAsset}\nOrigination Fee: ${originationFee.toFixed(
+        2
+      )} ${borrowAsset}\nInterest Rate: ${creditScore.interestRate.toFixed(
+        1
+      )}% APR\nTerm: ${loanTerm} days\nCredit Score: ${creditScore.score} (${
+        creditScore.grade
+      })\n\nThis is an unsecured loan based on your credit history.`,
+      confirmText: "Create Loan",
+      cancelText: "Cancel",
+    });
 
     if (!confirmed) return;
 
@@ -206,15 +199,21 @@ export default function CreditLoan() {
       setBorrowAmount("");
       setLoanTerm("30");
 
-      alert(
-        `Credit loan approved!\nBorrowed: ${borrowAmount} ${borrowAsset}\nNet amount: ${netAmount.toFixed(
+      addToast({
+        type: "success",
+        title: "Credit Loan Created",
+        message: `Borrowed: ${borrowAmount} ${borrowAsset}\nNet amount: ${netAmount.toFixed(
           2
         )} ${borrowAsset}\nOrigination fee: ${originationFee.toFixed(
           2
-        )} ${borrowAsset}`
-      );
+        )} ${borrowAsset}`,
+      });
     } catch (error) {
-      alert("Failed to create loan. Please try again.");
+      addToast({
+        type: "error",
+        title: "Loan Creation Failed",
+        message: "Failed to create loan. Please try again.",
+      });
       console.error("Loan creation error:", error);
     }
   };
@@ -224,27 +223,27 @@ export default function CreditLoan() {
 
     const bitcoinSignatureRequired = Math.floor(
       Number(borrowAmount) * 0.1 * 100000000
-    ); // 10% of loan in sats as "proof of funds"
-
-    const confirmed = confirm(
-      `Create Bitcoin-backed credit loan?\n\n` +
-        `Borrow: ${borrowAmount} ${borrowAsset}\n` +
-        `Credit Score Boost: +50 points for Bitcoin verification\n` +
-        `Interest Rate: ${(creditScore.interestRate * 0.7).toFixed(
-          1
-        )}% APR (30% discount)\n` +
-        `Term: ${loanTerm} days\n\n` +
-        `Sign a small Bitcoin transaction (${(
-          bitcoinSignatureRequired / 100000000
-        ).toFixed(8)} BTC) to prove Bitcoin ownership and get better terms.`
     );
+
+    const confirmed = await confirm({
+      title: "Create Bitcoin-Backed Credit Loan",
+      message: `Borrow: ${borrowAmount} ${borrowAsset}\nCredit Score Boost: +50 points for Bitcoin verification\nInterest Rate: ${(
+        creditScore.interestRate * 0.7
+      ).toFixed(
+        1
+      )}% APR (30% discount)\nTerm: ${loanTerm} days\n\nSign a small Bitcoin transaction (${(
+        bitcoinSignatureRequired / 100000000
+      ).toFixed(8)} BTC) to prove Bitcoin ownership and get better terms.`,
+      confirmText: "Generate Transaction",
+      cancelText: "Cancel",
+    });
 
     if (!confirmed) return;
 
     try {
       const psbt = await generatePsbt({
         sourceAddress: "user-btc-address",
-        targetAddress: "credit-verification-address", // Verification address (funds returned)
+        targetAddress: "credit-verification-address",
         amount: bitcoinSignatureRequired / 100000000,
         chain: "btc",
       });
@@ -252,7 +251,12 @@ export default function CreditLoan() {
       setCreditLoanPsbt(psbt);
       setShowBitcoinCreditLoan(true);
     } catch (error) {
-      alert("Failed to generate credit verification transaction");
+      addToast({
+        type: "error",
+        title: "Transaction Generation Failed",
+        message:
+          "Failed to generate credit verification transaction. Please try again.",
+      });
     }
   };
 
@@ -340,7 +344,6 @@ export default function CreditLoan() {
           await addLoan(loanData);
 
           if (withBitcoinBoost) {
-            // Update credit score
             setCreditScore((prev) => ({
               ...prev,
               score: Math.min(850, prev.score + 50),
@@ -351,17 +354,23 @@ export default function CreditLoan() {
           setBorrowAmount("");
           setLoanTerm("30");
 
-          alert(
-            `${
-              withBitcoinBoost ? "Bitcoin-verified" : "Credit"
-            } loan created!\nMethod: ${
-              result.method
-            }\nAmount: ${borrowAmount} ${borrowAsset}\nRate: ${enhancedRate.toFixed(
-              1
-            )}% APR`
-          );
+          addToast({
+            type: "success",
+            title: `${
+              withBitcoinBoost ? "Bitcoin-Verified" : ""
+            } Credit Loan Created`,
+            message: `Successfully borrowed ${borrowAmount} ${borrowAsset}. ${
+              withBitcoinBoost
+                ? `Enhanced rate: ${enhancedRate.toFixed(1)}% APR`
+                : ""
+            }`,
+          });
         } catch (error) {
-          alert("Failed to create loan");
+          addToast({
+            type: "error",
+            title: "Loan Creation Failed",
+            message: "Failed to create loan. Please try again.",
+          });
         } finally {
           closeTransaction();
         }
@@ -721,7 +730,10 @@ export default function CreditLoan() {
       </Card>
 
       {showCreditFlow && creditConfig && (
-        <TransactionFlow {...creditConfig} showAsModal={true} />
+        <TransactionFlow
+          {...(creditConfig as Required<typeof creditConfig>)}
+          showAsModal={true}
+        />
       )}
     </>
   );

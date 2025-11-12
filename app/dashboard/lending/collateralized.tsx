@@ -15,7 +15,7 @@ import {
 import usePrices, { formatAmount } from "@/hooks/dashboard/prices";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import { useLending } from "@/hooks/dashboard/lending";
-import { AlertTriangle, TrendingDown, RefreshCw } from "lucide-react";
+import { AlertTriangle, TrendingDown, RefreshCw, X } from "lucide-react";
 import { useState } from "react";
 import {
   TransactionFlow,
@@ -23,6 +23,8 @@ import {
   TransactionMethod,
 } from "@/components/transactions/transaction-flow";
 import { usePsbtGeneration, PsbtSigning } from "@/components/btc/psbt-signing";
+import { useToast } from "@/components/ui/toast";
+import { useConfirmation } from "@/components/ui/confirmation";
 
 export default function CollateralizedLoan() {
   const { portfolioData } = useDashboardContext();
@@ -44,6 +46,8 @@ export default function CollateralizedLoan() {
   const [showBitcoinCollateral, setShowBitcoinCollateral] = useState(false);
   const [collateralPsbt, setCollateralPsbt] = useState("");
   const { generatePsbt, loading: generatingPsbt } = usePsbtGeneration();
+  const { addToast } = useToast();
+  const { confirm } = useConfirmation();
 
   // Available assets for collateral
   const availableCollateral = {
@@ -95,15 +99,14 @@ export default function CollateralizedLoan() {
   const handleBorrow = async () => {
     if (!collateralAmount || !borrowAmount) return;
 
-    const confirmed = confirm(
-      `Create collateralized loan?\n\n` +
-        `Collateral: ${collateralAmount} ${collateralAsset}\n` +
-        `Borrow: ${borrowAmount} ${borrowAsset}\n` +
-        `Interest Rate: ${currentBorrowRate}% APR\n` +
-        `Term: ${loanTerm} days\n` +
-        `LTV: ${currentLTV.toFixed(1)}%\n\n` +
-        `This will lock your collateral until the loan is repaid.`
-    );
+    const confirmed = await confirm({
+      title: "Create Collateralized Loan",
+      message: `Create collateralized loan?\n\nCollateral: ${collateralAmount} ${collateralAsset}\nBorrow: ${borrowAmount} ${borrowAsset}\nInterest Rate: ${currentBorrowRate}% APR\nTerm: ${loanTerm} days\nLTV: ${currentLTV.toFixed(
+        1
+      )}%\n\nThis will lock your collateral until the loan is repaid.`,
+      confirmText: "Create Loan",
+      cancelText: "Cancel",
+    });
 
     if (!confirmed) return;
 
@@ -144,11 +147,17 @@ export default function CollateralizedLoan() {
       setBorrowAmount("");
       setLoanTerm("30");
 
-      alert(
-        `Loan created successfully!\nBorrowed: ${borrowAmount} ${borrowAsset}\nCollateral locked: ${collateralAmount} ${collateralAsset}`
-      );
+      addToast({
+        type: "success",
+        title: "Loan Created Successfully",
+        message: `Borrowed ${borrowAmount} ${borrowAsset} with ${collateralAmount} ${collateralAsset} as collateral.`,
+      });
     } catch (error) {
-      alert("Failed to create loan. Please try again.");
+      addToast({
+        type: "error",
+        title: "Loan Creation Failed",
+        message: "Failed to create loan. Please try again.",
+      });
       console.error("Loan creation error:", error);
     }
   };
@@ -156,22 +165,21 @@ export default function CollateralizedLoan() {
   const handleBitcoinCollateralLoan = async () => {
     if (!collateralAmount || !borrowAmount) return;
 
-    const confirmed = confirm(
-      `Create Bitcoin-collateralized loan?\n\n` +
-        `Collateral: ${collateralAmount} BTC (locked in smart contract)\n` +
-        `Borrow: ${borrowAmount} ${borrowAsset}\n` +
-        `Interest Rate: ${currentBorrowRate}% APR\n` +
-        `Term: ${loanTerm} days\n` +
-        `LTV: ${currentLTV.toFixed(1)}%\n\n` +
-        `Your Bitcoin will be locked in a secure smart contract until repayment.`
-    );
+    const confirmed = await confirm({
+      title: "Create Bitcoin-Collateralized Loan",
+      message: `Create Bitcoin-collateralized loan?\n\nCollateral: ${collateralAmount} BTC (locked in smart contract)\nBorrow: ${borrowAmount} ${borrowAsset}\nInterest Rate: ${currentBorrowRate}% APR\nTerm: ${loanTerm} days\nLTV: ${currentLTV.toFixed(
+        1
+      )}%\n\nYour Bitcoin will be locked in a secure smart contract until repayment.`,
+      confirmText: "Generate Transaction",
+      cancelText: "Cancel",
+    });
 
     if (!confirmed) return;
 
     try {
       const psbt = await generatePsbt({
-        sourceAddress: "user-btc-address", // From wallet
-        targetAddress: "collateral-contract-address", // Smart contract for collateral
+        sourceAddress: "user-btc-address",
+        targetAddress: "collateral-contract-address",
         amount: Number(collateralAmount),
         chain: "btc",
       });
@@ -179,7 +187,12 @@ export default function CollateralizedLoan() {
       setCollateralPsbt(psbt);
       setShowBitcoinCollateral(true);
     } catch (error) {
-      alert("Failed to generate collateral transaction");
+      addToast({
+        type: "error",
+        title: "Transaction Generation Failed",
+        message: "Failed to generate collateral transaction. Please try again.",
+      });
+      console.error("PSBT generation error:", error);
     }
   };
 
@@ -262,11 +275,17 @@ export default function CollateralizedLoan() {
           setCollateralAmount("");
           setBorrowAmount("");
 
-          alert(
-            `Collateral loan created!\nMethod: ${result.method}\nCollateral: ${collateralAmount} ${collateralAsset}\nBorrowed: ${borrowAmount} ${borrowAsset}`
-          );
+          addToast({
+            type: "success",
+            title: "Collateral Loan Created",
+            message: `Method: ${result.method}\nCollateral: ${collateralAmount} ${collateralAsset}\nBorrowed: ${borrowAmount} ${borrowAsset}`,
+          });
         } catch (error) {
-          alert("Failed to create loan");
+          addToast({
+            type: "error",
+            title: "Loan Creation Failed",
+            message: "Failed to create loan. Please try again.",
+          });
         } finally {
           closeTransaction();
         }
@@ -595,9 +614,9 @@ export default function CollateralizedLoan() {
                       collateral: {
                         amount: Number(collateralAmount),
                         asset: collateralAsset,
-                        txid: txid, // Store the collateral transaction
+                        txid: txid,
                       },
-                      interestRate: currentBorrowRate * 0.8, // Lower rate for BTC collateral
+                      interestRate: currentBorrowRate * 0.8,
                       startDate: new Date(),
                       dueDate: calculateDueDate(Number(loanTerm)),
                       status: "active" as const,
@@ -629,18 +648,20 @@ export default function CollateralizedLoan() {
                     setBorrowAmount("");
                     setLoanTerm("30");
 
-                    alert(
-                      `Bitcoin collateral loan created!\n` +
-                        `Collateral locked: ${collateralAmount} BTC\n` +
-                        `Borrowed: ${borrowAmount} ${borrowAsset}\n` +
-                        `Transaction: ${txid}`
-                    );
+                    addToast({
+                      type: "success",
+                      title: "Bitcoin Collateral Loan Created",
+                      message: `Successfully locked ${collateralAmount} BTC and borrowed ${borrowAmount} ${borrowAsset}. Transaction: ${txid}`,
+                    });
                   }}
                   onError={(error) => {
                     console.error("Collateral lock error:", error);
-                    alert(
-                      "Failed to lock Bitcoin collateral. Please try again."
-                    );
+                    addToast({
+                      type: "error",
+                      title: "Collateral Lock Failed",
+                      message:
+                        "Failed to lock Bitcoin collateral. Please try again.",
+                    });
                   }}
                   title={`Lock ${collateralAmount} BTC as Collateral`}
                   description={`Sign this transaction to lock your Bitcoin and receive ${borrowAmount} ${borrowAsset}`}
@@ -654,7 +675,10 @@ export default function CollateralizedLoan() {
       </Card>
 
       {showCollateralFlow && collateralConfig && (
-        <TransactionFlow {...collateralConfig} showAsModal={true} />
+        <TransactionFlow
+          {...(collateralConfig as Required<typeof collateralConfig>)}
+          showAsModal={true}
+        />
       )}
     </>
   );

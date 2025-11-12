@@ -20,8 +20,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import { useState, useEffect } from "react";
-import { createPortal } from "react-dom";
+import { useState } from "react";
 import {
   useLending,
   useActiveLoans,
@@ -33,79 +32,12 @@ import {
   useTransactionFlow,
   TransactionMethod,
 } from "@/components/transactions/transaction-flow";
+import Modal from "@/components/ui/modal";
+import { useToast } from "@/components/ui/toast";
+import { useConfirmation } from "@/components/ui/confirmation";
 
 interface ActiveLoansCardProps {
   isExpanded?: boolean;
-}
-
-// Simple Modal Component with Portal and CSS Override
-function Modal({
-  isOpen,
-  onClose,
-  title,
-  children,
-  className = "",
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  title: string;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-      const style = document.createElement("style");
-      style.textContent = `
-        [data-radix-popper-content-wrapper] {
-          z-index: 99999 !important;
-        }
-        [data-radix-select-content] {
-          z-index: 99999 !important;
-        }
-      `;
-      style.id = "modal-select-override";
-      document.head.appendChild(style);
-    } else {
-      document.body.style.overflow = "unset";
-      const existingStyle = document.getElementById("modal-select-override");
-      if (existingStyle) {
-        existingStyle.remove();
-      }
-    }
-
-    return () => {
-      document.body.style.overflow = "unset";
-      const existingStyle = document.getElementById("modal-select-override");
-      if (existingStyle) {
-        existingStyle.remove();
-      }
-    };
-  }, [isOpen]);
-
-  if (!mounted || !isOpen) return null;
-
-  const modalContent = (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9998] p-4">
-      <div
-        className={`bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto relative z-[9999] ${className}`}
-      >
-        <div className="flex items-center justify-between p-4 border-b">
-          <h3 className="text-lg font-semibold">{title}</h3>
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-        <div className="p-4 relative z-[10000]">{children}</div>
-      </div>
-    </div>
-  );
-
-  return createPortal(modalContent, document.body);
 }
 
 export default function ActiveLoansCard({
@@ -153,25 +85,9 @@ export default function ActiveLoansCard({
   const [refinanceRate, setRefinanceRate] = useState("10.5");
   const [refinanceTerm, setRefinanceTerm] = useState("90");
 
-  // Add the missing handleBitcoinPayment function
-  const handleBitcoinPayment = async (amount: number) => {
-    if (!selectedLoan) return;
-
-    try {
-      const psbt = await generatePsbt({
-        sourceAddress: "user-btc-address", // Get from wallet context
-        targetAddress: "loan-payment-address", // Loan payment address
-        amount: amount / 50000, // Convert USD to BTC (assuming $50k BTC price)
-        chain: "btc",
-      });
-
-      setPaymentPsbt(psbt);
-      setShowBitcoinPayment(true);
-    } catch (error) {
-      alert("Failed to generate payment transaction");
-      console.error("PSBT generation error:", error);
-    }
-  };
+  // Add the new hooks
+  const { addToast } = useToast();
+  const { confirm } = useConfirmation();
 
   // Toggle expanded view for a specific loan
   const toggleLoanExpansion = (loanId: string) => {
@@ -194,9 +110,12 @@ export default function ActiveLoansCard({
   const handlePayment = async () => {
     if (!selectedLoan) return;
 
-    const confirmed = confirm(
-      `Are you sure you want to make a payment of $${paymentAmount} ${selectedLoan.asset}? This action cannot be undone.`
-    );
+    const confirmed = await confirm({
+      title: "Confirm Payment",
+      message: `Are you sure you want to make a payment of $${paymentAmount} ${selectedLoan.asset}? This action cannot be undone.`,
+      confirmText: "Make Payment",
+      cancelText: "Cancel",
+    });
 
     if (!confirmed) return;
 
@@ -204,9 +123,18 @@ export default function ActiveLoansCard({
       await makePayment(selectedLoan.id, Number(paymentAmount));
       setPaymentAmount("");
       setShowManageLoan(false);
-      alert("Payment processed successfully!");
+
+      addToast({
+        type: "success",
+        title: "Payment Successful",
+        message: `Payment of $${paymentAmount} ${selectedLoan.asset} has been processed successfully.`,
+      });
     } catch (error) {
-      alert("Payment failed. Please try again.");
+      addToast({
+        type: "error",
+        title: "Payment Failed",
+        message: "Unable to process your payment. Please try again.",
+      });
     }
   };
 
@@ -234,12 +162,18 @@ export default function ActiveLoansCard({
       onComplete: async (result) => {
         try {
           await makePayment(loan.id, amount);
-          alert(
-            `Payment successful!\nMethod: ${result.method}\nTransaction: ${result.txid}`
-          );
+          addToast({
+            type: "success",
+            title: "Payment Successful",
+            message: `Payment of $${amount} via ${result.method} completed successfully.`,
+          });
           closeTransaction();
         } catch (error) {
-          alert("Failed to process payment");
+          addToast({
+            type: "error",
+            title: "Payment Failed",
+            message: "Unable to process your payment. Please try again.",
+          });
           closeTransaction();
         }
       },
@@ -249,25 +183,76 @@ export default function ActiveLoansCard({
     });
   };
 
+  // Add the missing handleBitcoinPayment function
+  const handleBitcoinPayment = async (amount: number) => {
+    if (!selectedLoan) return;
+
+    try {
+      const psbt = await generatePsbt({
+        sourceAddress: "user-btc-address", // Get from wallet context
+        targetAddress: "loan-payment-address", // Loan payment address
+        amount: amount / 50000, // Convert USD to BTC (assuming $50k BTC price)
+        chain: "btc",
+      });
+
+      setPaymentPsbt(psbt);
+      setShowBitcoinPayment(true);
+    } catch (error) {
+      addToast({
+        type: "error",
+        title: "Transaction Generation Failed",
+        message:
+          "Unable to generate Bitcoin payment transaction. Please try again.",
+      });
+      console.error("PSBT generation error:", error);
+    }
+  };
+
   const handleExtendTerm = async () => {
     if (!selectedLoan) return;
+
+    const confirmed = await confirm({
+      title: "Extend Loan Term",
+      message: `Extend loan by ${extensionDays} days? This will add interest charges.`,
+      confirmText: "Extend Loan",
+      cancelText: "Cancel",
+    });
+
+    if (!confirmed) return;
 
     try {
       await extendLoan(selectedLoan.id, Number(extensionDays));
       const newDueDate = new Date(selectedLoan.dueDate);
       newDueDate.setDate(newDueDate.getDate() + Number(extensionDays));
-      alert(
-        `Loan extended by ${extensionDays} days. New due date: ${newDueDate.toLocaleDateString()}`
-      );
+
+      addToast({
+        type: "success",
+        title: "Loan Extended",
+        message: `Loan extended by ${extensionDays} days. New due date: ${newDueDate.toLocaleDateString()}`,
+      });
+
       setExtensionDays("30");
       setShowExtendModal(false);
     } catch (error) {
-      alert("Failed to extend loan. Please try again.");
+      addToast({
+        type: "error",
+        title: "Extension Failed",
+        message: "Failed to extend loan. Please try again.",
+      });
     }
   };
 
   const handleRefinance = async () => {
     if (!selectedLoan) return;
+
+    const confirmed = await confirm({
+      title: "Refinance Loan",
+      message: `Refinance loan to ${refinanceRate}% APR for ${refinanceTerm} days? This will close your current loan and create a new one.`,
+      confirmText: "Refinance",
+      cancelText: "Cancel",
+    });
+
+    if (!confirmed) return;
 
     try {
       await refinanceLoan(
@@ -275,14 +260,22 @@ export default function ActiveLoansCard({
         Number(refinanceRate),
         Number(refinanceTerm)
       );
-      alert(
-        `Loan refinanced at ${refinanceRate}% APR for ${refinanceTerm} days`
-      );
+
+      addToast({
+        type: "success",
+        title: "Loan Refinanced",
+        message: `Loan refinanced at ${refinanceRate}% APR for ${refinanceTerm} days`,
+      });
+
       setRefinanceRate("10.5");
       setRefinanceTerm("90");
       setShowRefinanceModal(false);
     } catch (error) {
-      alert("Failed to refinance loan. Please try again.");
+      addToast({
+        type: "error",
+        title: "Refinancing Failed",
+        message: "Failed to refinance loan. Please try again.",
+      });
     }
   };
 
@@ -888,11 +881,20 @@ export default function ActiveLoansCard({
                     setShowBitcoinPayment(false);
                     setPaymentPsbt("");
                     setPaymentAmount("");
-                    alert(`Bitcoin payment confirmed!\nTransaction: ${txid}`);
+
+                    addToast({
+                      type: "success",
+                      title: "Bitcoin Payment Confirmed",
+                      message: `Payment of $${paymentAmount} confirmed on Bitcoin network.`,
+                    });
                   }}
                   onError={(error) => {
                     console.error("Bitcoin payment error:", error);
-                    alert("Bitcoin payment failed. Please try again.");
+                    addToast({
+                      type: "error",
+                      title: "Bitcoin Payment Failed",
+                      message: "Bitcoin payment failed. Please try again.",
+                    });
                   }}
                   title={`Pay $${paymentAmount} in Bitcoin`}
                   description={`Complete your loan payment of $${paymentAmount} by signing this Bitcoin transaction`}
@@ -904,8 +906,11 @@ export default function ActiveLoansCard({
           </div>
         )}
 
-        {showPaymentFlow && paymentConfig && (
-          <TransactionFlow {...paymentConfig} showAsModal={true} />
+        {showPaymentFlow && paymentConfig && paymentConfig.type && (
+          <TransactionFlow
+            {...(paymentConfig as Required<typeof paymentConfig>)}
+            showAsModal={true}
+          />
         )}
       </>
     );

@@ -13,6 +13,7 @@ import Deposit from "./deposit/deposit";
 import WithdrawTab from "./deposit/withdraw";
 import { Section } from "@/components/ui/section";
 import LendingTab from "./lending/lending";
+import { ConfirmationProvider } from "@/components/ui/confirmation";
 
 // Loading component
 function DashboardLoading() {
@@ -163,15 +164,17 @@ export default function DashboardPage() {
       ]}
     >
       <DashboardProvider>
-        <div className="min-h-screen">
-          <Section className="pb-24">
-            <div className="container mx-auto px-4">
-              <Suspense fallback={<DashboardLoading />}>
-                <DashboardContent />
-              </Suspense>
-            </div>
-          </Section>
-        </div>
+        <ConfirmationProvider>
+          <div className="min-h-screen">
+            <Section className="pb-24">
+              <div className="container mx-auto px-4">
+                <Suspense fallback={<DashboardLoading />}>
+                  <DashboardContent />
+                </Suspense>
+              </div>
+            </Section>
+          </div>
+        </ConfirmationProvider>
       </DashboardProvider>
     </SunbeamBackground>
   );
