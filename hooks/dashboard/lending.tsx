@@ -131,7 +131,7 @@ const mockLoans: LoanData[] = [
     id: "loan-003",
     type: "collateral",
     amount: 3000,
-    asset: "DAI",
+    asset: "DJED",
     collateral: { amount: 2500, asset: "ADA" },
     interestRate: 9.2,
     startDate: new Date("2023-12-01"),

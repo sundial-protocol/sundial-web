@@ -31,6 +31,7 @@ import { depositAddress } from "@/hooks/get-scripts";
 import { TransactionWatcher } from "@/components/btc/tx-watcher";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import Link from "next/link";
+import { PsbtSigning } from "@/components/btc/psbt-signing";
 
 type TransactionType = "deposit" | "withdraw";
 
@@ -543,84 +544,48 @@ export default function StakingForm({
 
         {step === "psbt" &&
           (selectedChain === "btc" || selectedChain === "btc_testnet") && (
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  Step 1: Sign the PSBT
-                </label>
-                <div className="relative">
-                  <textarea
-                    className="w-full p-3 border rounded-md text-xs font-mono bg-muted"
-                    rows={4}
-                    value={psbtBase64}
-                    readOnly
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="absolute top-2 right-2"
-                    onClick={() => copyToClipboard(psbtBase64)}
-                  >
-                    {copied ? (
-                      <CheckCircle className="w-3 h-3" />
-                    ) : (
-                      <Copy className="w-3 h-3" />
-                    )}
-                  </Button>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Copy the above PSBT and sign it in your Bitcoin wallet (e.g.
-                  Sparrow, Electrum), then broadcast the signed transaction.
-                </p>
-              </div>
+            <PsbtSigning
+              psbtBase64={psbtBase64}
+              targetAddress={
+                isDeposit ? depositAddress(selectedChain) : withdrawAddress
+              }
+              expectedAmount={Math.floor(Number(amount) * 1e8)}
+              chain={selectedChain}
+              onTransactionFound={(txid) => {
+                console.log("Transaction found:", txid);
+                setBroadcastResult(txid);
 
-              <TransactionWatcher
-                targetAddress={
-                  isDeposit ? depositAddress(selectedChain) : withdrawAddress
-                }
-                expectedAmount={Math.floor(Number(amount) * 1e8)}
-                chain={selectedChain}
-                onTransactionFound={(txid) => {
-                  console.log("Transaction found:", txid);
-                  setBroadcastResult(txid);
+                // Update dashboard with successful transaction
+                updateStakedAmount(
+                  selectedChain as SupportedChain,
+                  Number(amount),
+                  type
+                );
 
-                  // Update dashboard with successful transaction
-                  updateStakedAmount(
-                    selectedChain as SupportedChain,
-                    Number(amount),
-                    type
+                // Update transaction status
+                if (pendingTransactionId) {
+                  updateTransactionStatus(
+                    pendingTransactionId,
+                    "completed",
+                    txid
                   );
+                }
 
-                  // Update transaction status
-                  if (pendingTransactionId) {
-                    updateTransactionStatus(
-                      pendingTransactionId,
-                      "completed",
-                      txid
-                    );
-                  }
+                setStep("done");
+                onSuccess?.(txid, selectedChain, amount);
+              }}
+              onError={(error) => {
+                console.error("Transaction watching error:", error);
+                setError(error);
 
-                  setStep("done");
-                  onSuccess?.(txid, selectedChain, amount);
-                }}
-                onError={(error) => {
-                  console.error("Transaction watching error:", error);
-                  setError(error);
-
-                  // Update transaction as failed
-                  if (pendingTransactionId) {
-                    updateTransactionStatus(pendingTransactionId, "failed");
-                  }
-                }}
-              />
-
-              {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                  <p className="text-red-600 text-sm">{error}</p>
-                </div>
-              )}
-            </div>
+                // Update transaction as failed
+                if (pendingTransactionId) {
+                  updateTransactionStatus(pendingTransactionId, "failed");
+                }
+              }}
+              title={`Sign ${isDeposit ? "Deposit" : "Withdrawal"} Transaction`}
+              description={`Complete your ${amount} ${config.symbol} ${type} by signing the transaction below`}
+            />
           )}
 
         {step === "done" && (

@@ -27,8 +27,14 @@ import {
   useActiveLoans,
   usePaymentHistory,
 } from "@/hooks/dashboard/lending";
+import { PsbtSigning, usePsbtGeneration } from "@/components/btc/psbt-signing";
+import {
+  TransactionFlow,
+  useTransactionFlow,
+  TransactionMethod,
+} from "@/components/transactions/transaction-flow";
 
-interface ActiveLoanCardProps {
+interface ActiveLoansCardProps {
   isExpanded?: boolean;
 }
 
@@ -102,9 +108,9 @@ function Modal({
   return createPortal(modalContent, document.body);
 }
 
-export default function ActiveLoanCard({
+export default function ActiveLoansCard({
   isExpanded = false,
-}: ActiveLoanCardProps) {
+}: ActiveLoansCardProps) {
   const {
     showManageLoan,
     setShowManageLoan,
@@ -116,9 +122,24 @@ export default function ActiveLoanCard({
     isProcessingRefinance,
   } = useLending();
 
-  const activeLoans = useActiveLoans(); // Changed to get all active loans
+  const activeLoans = useActiveLoans();
   const [selectedLoanId, setSelectedLoanId] = useState<string | null>(null);
   const [expandedLoans, setExpandedLoans] = useState<Set<string>>(new Set());
+
+  // Add the transaction flow hook
+  const {
+    isOpen: showPaymentFlow,
+    config: paymentConfig,
+    startTransaction,
+    closeTransaction,
+  } = useTransactionFlow();
+
+  // Add the Bitcoin payment state
+  const [showBitcoinPayment, setShowBitcoinPayment] = useState(false);
+  const [paymentPsbt, setPaymentPsbt] = useState("");
+
+  // Add the PSBT generation hook
+  const { generatePsbt, loading: generatingPsbt } = usePsbtGeneration();
 
   // Get the currently selected loan for management
   const selectedLoan = activeLoans.find((loan) => loan.id === selectedLoanId);
@@ -131,6 +152,26 @@ export default function ActiveLoanCard({
   const [extensionDays, setExtensionDays] = useState("30");
   const [refinanceRate, setRefinanceRate] = useState("10.5");
   const [refinanceTerm, setRefinanceTerm] = useState("90");
+
+  // Add the missing handleBitcoinPayment function
+  const handleBitcoinPayment = async (amount: number) => {
+    if (!selectedLoan) return;
+
+    try {
+      const psbt = await generatePsbt({
+        sourceAddress: "user-btc-address", // Get from wallet context
+        targetAddress: "loan-payment-address", // Loan payment address
+        amount: amount / 50000, // Convert USD to BTC (assuming $50k BTC price)
+        chain: "btc",
+      });
+
+      setPaymentPsbt(psbt);
+      setShowBitcoinPayment(true);
+    } catch (error) {
+      alert("Failed to generate payment transaction");
+      console.error("PSBT generation error:", error);
+    }
+  };
 
   // Toggle expanded view for a specific loan
   const toggleLoanExpansion = (loanId: string) => {
@@ -149,6 +190,7 @@ export default function ActiveLoanCard({
     setShowManageLoan(true);
   };
 
+  // Traditional payment handler (for the management interface)
   const handlePayment = async () => {
     if (!selectedLoan) return;
 
@@ -166,6 +208,45 @@ export default function ActiveLoanCard({
     } catch (error) {
       alert("Payment failed. Please try again.");
     }
+  };
+
+  const handleQuickPayment = (loan: any, amount: number) => {
+    const availableMethods: TransactionMethod[] = ["traditional", "bitcoin"];
+
+    startTransaction({
+      type: "payment",
+      amount,
+      asset: loan.asset,
+      availableMethods,
+      details: {
+        description: `Loan payment for loan #${loan.id}`,
+        toAddress: "loan-payment-contract-address",
+        benefits: [
+          "Reduce outstanding balance",
+          "Improve payment history",
+          "Avoid late fees",
+        ],
+        fees: {
+          traditional: 2.5,
+          bitcoin: 0.25,
+        },
+      },
+      onComplete: async (result) => {
+        try {
+          await makePayment(loan.id, amount);
+          alert(
+            `Payment successful!\nMethod: ${result.method}\nTransaction: ${result.txid}`
+          );
+          closeTransaction();
+        } catch (error) {
+          alert("Failed to process payment");
+          closeTransaction();
+        }
+      },
+      onCancel: closeTransaction,
+      showAsModal: true,
+      title: `Pay Loan #${loan.id}`,
+    });
   };
 
   const handleExtendTerm = async () => {
@@ -418,24 +499,52 @@ export default function ActiveLoanCard({
 
                   <div className="flex gap-2">
                     <Input
-                      placeholder="Enter custom amount"
+                      placeholder="Custom amount"
                       value={paymentAmount}
                       onChange={(e) => setPaymentAmount(e.target.value)}
                       type="number"
                       step="0.01"
                       className="flex-1"
                     />
-                    <Button
-                      disabled={!paymentAmount || Number(paymentAmount) <= 0}
-                      className="min-w-[120px]"
-                      onClick={handlePayment}
-                    >
-                      {isProcessingPayment ? (
-                        <RefreshCw className="h-4 w-4 animate-spin" />
-                      ) : (
-                        "Pay Now"
-                      )}
-                    </Button>
+                    <div className="flex gap-1">
+                      <Button
+                        disabled={!paymentAmount || Number(paymentAmount) <= 0}
+                        className="min-w-[100px]"
+                        onClick={handlePayment}
+                      >
+                        {isProcessingPayment ? (
+                          <RefreshCw className="h-4 w-4 animate-spin" />
+                        ) : (
+                          "Pay USD"
+                        )}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        disabled={
+                          !paymentAmount ||
+                          Number(paymentAmount) <= 0 ||
+                          generatingPsbt
+                        }
+                        onClick={() =>
+                          handleBitcoinPayment(Number(paymentAmount))
+                        }
+                      >
+                        {generatingPsbt ? (
+                          <RefreshCw className="h-4 w-4 animate-spin" />
+                        ) : (
+                          "Pay BTC"
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Bitcoin Payment Instructions */}
+                  <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                    <div className="text-sm text-orange-700 dark:text-orange-400">
+                      <strong>Bitcoin Payments:</strong> Pay directly from your
+                      Bitcoin wallet. Lower fees and instant settlement on
+                      Bitcoin network.
+                    </div>
                   </div>
                 </div>
               </div>
@@ -742,6 +851,62 @@ export default function ActiveLoanCard({
             </div>
           </div>
         </Modal>
+
+        {/* Bitcoin Payment Modal */}
+        {showBitcoinPayment && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between p-4 border-b">
+                <h3 className="text-lg font-semibold">
+                  Bitcoin Payment - ${paymentAmount}
+                </h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setShowBitcoinPayment(false);
+                    setPaymentPsbt("");
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="p-4">
+                <PsbtSigning
+                  psbtBase64={paymentPsbt}
+                  targetAddress="loan-payment-address"
+                  expectedAmount={Math.floor(
+                    (Number(paymentAmount) * 100000000) / 50000
+                  )} // Convert USD to sats
+                  chain="btc"
+                  onTransactionFound={(txid) => {
+                    console.log("Payment transaction found:", txid);
+
+                    // Process the Bitcoin payment
+                    makePayment(selectedLoan.id, Number(paymentAmount));
+
+                    setShowBitcoinPayment(false);
+                    setPaymentPsbt("");
+                    setPaymentAmount("");
+                    alert(`Bitcoin payment confirmed!\nTransaction: ${txid}`);
+                  }}
+                  onError={(error) => {
+                    console.error("Bitcoin payment error:", error);
+                    alert("Bitcoin payment failed. Please try again.");
+                  }}
+                  title={`Pay $${paymentAmount} in Bitcoin`}
+                  description={`Complete your loan payment of $${paymentAmount} by signing this Bitcoin transaction`}
+                  instructions="Sign this transaction in your Bitcoin wallet to complete your loan payment. The payment will be processed once the transaction is confirmed on the Bitcoin network."
+                  showCard={false}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showPaymentFlow && paymentConfig && (
+          <TransactionFlow {...paymentConfig} showAsModal={true} />
+        )}
       </>
     );
   }
@@ -882,11 +1047,9 @@ export default function ActiveLoanCard({
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => {
-                        setSelectedLoanId(loan.id);
-                        setPaymentAmount(loan.monthlyPayment.toString());
-                        // You could show a quick payment modal here
-                      }}
+                      onClick={() =>
+                        handleQuickPayment(loan, loan.monthlyPayment)
+                      }
                     >
                       Quick Pay
                     </Button>

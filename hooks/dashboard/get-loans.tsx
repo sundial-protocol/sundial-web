@@ -1,4 +1,3 @@
-
 export interface LoanHistory {
   id: string;
   type: "collateral" | "credit";
@@ -19,7 +18,7 @@ export interface LoanHistory {
 export function useGetLoans() {
   // This would normally fetch data from an API or database
   const lendingHistory: LoanHistory[] = [
-        {
+    {
       id: "loan-001",
       type: "collateral",
       amount: 5000,
@@ -48,7 +47,7 @@ export function useGetLoans() {
       id: "loan-003",
       type: "collateral",
       amount: 3000,
-      asset: "DAI",
+      asset: "DJED",
       collateral: { amount: 2500, asset: "ADA" },
       interestRate: 9.2,
       startDate: new Date("2023-12-01"),

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Shield, X } from "lucide-react";
 import LendingStatsCard from "./cards/lending-stats";
-import ActiveLoanCard from "./cards/active-loan";
+import ActiveLoansCard from "./cards/active-loans";
 import CollateralizedLoan from "./collateralized";
 import CreditLoan from "./credit";
 import { Button } from "@/components/ui/button";
@@ -35,7 +35,7 @@ function LendingTabContent() {
 
         {/* Active Loan Card - Normal or expanded */}
         {!showFullLoanInterface && (
-          <ActiveLoanCard isExpanded={showManageLoan} />
+          <ActiveLoansCard isExpanded={showManageLoan} />
         )}
 
         {/* Sidebar Cards - Hide when expanded views are shown */}
