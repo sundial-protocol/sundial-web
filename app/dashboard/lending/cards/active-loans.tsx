@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useLending, usePaymentHistory } from "@/hooks/dashboard/lending";
-// UPDATED: Get both transaction and loan context
+// Get both transaction and loan context
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import { PsbtSigning, usePsbtGeneration } from "@/components/btc/psbt-signing";
 import {
@@ -50,22 +50,22 @@ export default function ActiveLoansCard({
     isProcessingPayment,
     isProcessingExtension,
     isProcessingRefinance,
-    // REMOVED: We'll get loans from dashboard context instead
+    // We'll get loans from dashboard context instead
     // loans,
     // activeLoans,
   } = useLending();
 
-  // UPDATED: Get both transaction functions and loan data from dashboard context
+  // Get both transaction functions and loan data from dashboard context
   const {
     addPendingTransaction,
     updateTransactionStatus,
     getLendingTransactions,
-    // NEW: Get loan data from dashboard context
+    // Get loan data from dashboard context
     portfolioData,
     transactions,
   } = useDashboardContext();
 
-  // NEW: Calculate active loans from dashboard transactions
+  // Calculate active loans from dashboard transactions
   const activeLoans = useMemo(() => {
     // Get all loan creation transactions
     const loanCreationTxs = getLendingTransactions().filter(
@@ -168,7 +168,7 @@ export default function ActiveLoansCard({
   // Get the currently selected loan for management
   const selectedLoan = activeLoans.find((loan) => loan.id === selectedLoanId);
 
-  // UPDATED: Calculate payment history from dashboard transactions
+  // Calculate payment history from dashboard transactions
   const paymentHistory = useMemo(() => {
     if (!selectedLoan) return [];
 
@@ -246,8 +246,6 @@ export default function ActiveLoansCard({
         }
       );
 
-      console.log("🚀 Created pending payment transaction:", transactionId);
-
       // Step 2: Process payment through lending system
       await makePayment(selectedLoan.id, Number(paymentAmount));
 
@@ -306,16 +304,11 @@ export default function ActiveLoansCard({
         }
       );
 
-      console.log(
-        "🚀 Created pending quick payment transaction:",
-        transactionId
-      );
-
       // Show transaction flow with callback to complete the transaction
       const availableMethods: TransactionMethod[] = ["traditional", "bitcoin"];
 
       startTransaction({
-        type: "payment",
+        type: "loan_payment",
         amount,
         asset: loan.asset,
         availableMethods,

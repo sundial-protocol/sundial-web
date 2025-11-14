@@ -14,9 +14,17 @@ import {
 } from "@/components/ui/select";
 import { formatAmount } from "@/hooks/dashboard/prices";
 import { useLending } from "@/hooks/dashboard/lending";
-//  Import dashboard context for transaction recording
+// Import dashboard context for transaction recording
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
-import { AlertTriangle, Badge, RefreshCw, Shield, Star, X } from "lucide-react";
+import {
+  AlertTriangle,
+  Badge,
+  RefreshCw,
+  Shield,
+  Star,
+  X,
+  Download,
+} from "lucide-react";
 import { useState } from "react";
 import { usePsbtGeneration } from "@/components/btc/psbt-signing";
 import {
@@ -30,7 +38,7 @@ import { useConfirmation } from "@/components/ui/confirmation";
 export default function CreditLoan() {
   const { addLoan, isProcessingNewLoan, stats } = useLending();
 
-  //  Get dashboard context for transaction recording
+  // Get dashboard context for transaction recording
   const { addPendingTransaction, updateTransactionStatus } =
     useDashboardContext();
 
@@ -53,7 +61,7 @@ export default function CreditLoan() {
 
   // Mock credit score data - enhanced based on user's actual lending history
   const [creditScore, setCreditScore] = useState({
-    score: 742 + stats.paymentSuccessRate * 0.5, // Boost score based on success rate
+    score: 742 + stats.paymentSuccessRate * 0.5,
     grade:
       stats.paymentSuccessRate > 90
         ? "A"
@@ -64,11 +72,11 @@ export default function CreditLoan() {
       paymentHistory: Math.min(95, stats.paymentSuccessRate + 5),
       accountAge: 78,
       transactionVolume: 82,
-      liquidationEvents: 100, // No liquidations = 100%
+      liquidationEvents: 100,
       protocolUsage: 67,
     },
-    creditLimit: Math.min(50000, 5000 + stats.totalLoans * 2500), // Increase limit with loan history
-    interestRate: Math.max(5, 15 - stats.paymentSuccessRate * 0.1), // Better rate for good history
+    creditLimit: Math.min(50000, 5000 + stats.totalLoans * 2500),
+    interestRate: Math.max(5, 15 - stats.paymentSuccessRate * 0.1),
     lastUpdated: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
   });
 
@@ -90,7 +98,6 @@ export default function CreditLoan() {
     setIsLoadingScore(true);
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    // Update score based on current stats
     const newScore =
       742 +
       stats.paymentSuccessRate * 0.5 +
@@ -151,7 +158,7 @@ export default function CreditLoan() {
     return amount * 0.01; // 1% origination fee
   };
 
-  // Add transaction recording to handleBorrow
+  // UPDATED: Direct loan creation handler (traditional flow)
   const handleBorrow = async () => {
     if (!borrowAmount) return;
 
@@ -160,16 +167,16 @@ export default function CreditLoan() {
 
     const confirmed = await confirm({
       title: "Create Credit-Based Loan",
-      message: `Borrow: ${borrowAmount} ${borrowAsset}\nNet Amount (after fees): ${netAmount.toFixed(
+      message: `You will receive: ${netAmount.toFixed(
         2
-      )} ${borrowAsset}\nOrigination Fee: ${originationFee.toFixed(
+      )} ${borrowAsset}\nLoan Amount: ${borrowAmount} ${borrowAsset}\nOrigination Fee: ${originationFee.toFixed(
         2
       )} ${borrowAsset}\nInterest Rate: ${creditScore.interestRate.toFixed(
         1
       )}% APR\nTerm: ${loanTerm} days\nCredit Score: ${creditScore.score} (${
         creditScore.grade
-      })\n\nThis is an unsecured loan based on your credit history.`,
-      confirmText: "Create Loan",
+      })\n\nThis is an unsecured loan - no collateral required.`,
+      confirmText: "Receive Loan",
       cancelText: "Cancel",
     });
 
@@ -178,15 +185,15 @@ export default function CreditLoan() {
     let transactionId = "";
 
     try {
-      //  Create pending transaction first
+      // Create pending transaction first
       transactionId = addPendingTransaction(
         borrowAsset.toLowerCase(),
         Number(borrowAmount),
         "loan_created",
         {
-          details: `Credit loan created - ${borrowAmount} ${borrowAsset} at ${creditScore.interestRate.toFixed(
-            1
-          )}% APR`,
+          details: `Credit loan approved - receiving ${netAmount.toFixed(
+            2
+          )} ${borrowAsset} at ${creditScore.interestRate.toFixed(1)}% APR`,
           interestRate: creditScore.interestRate,
         }
       );
@@ -220,7 +227,7 @@ export default function CreditLoan() {
 
       const newLoan = await addLoan(loanData);
 
-      // Update transaction with loan ID and mark as completed
+      // Mark transaction as completed
       updateTransactionStatus(transactionId, "completed");
 
       // Reset form
@@ -229,17 +236,17 @@ export default function CreditLoan() {
 
       addToast({
         type: "success",
-        title: "Credit Loan Created",
-        message: `Borrowed: ${borrowAmount} ${borrowAsset}\nNet amount: ${netAmount.toFixed(
+        title: "Credit Loan Approved!",
+        message: `You will receive: ${netAmount.toFixed(
           2
         )} ${borrowAsset}\nOrigination fee: ${originationFee.toFixed(
           2
-        )} ${borrowAsset}`,
+        )} ${borrowAsset}\nFunds will be transferred to your account.`,
       });
 
-      console.log("Credit loan created successfully:", {
+      console.log("✅ Credit loan created successfully:", {
         transactionId,
-        loanAmount: borrowAmount,
+        netAmount: netAmount.toFixed(2),
         interestRate: creditScore.interestRate,
       });
     } catch (error) {
@@ -250,41 +257,46 @@ export default function CreditLoan() {
 
       addToast({
         type: "error",
-        title: "Loan Creation Failed",
-        message: "Failed to create loan. Please try again.",
+        title: "Loan Application Failed",
+        message: "Failed to process your loan application. Please try again.",
       });
-      console.error("Credit loan creation error:", error);
+      console.error("❌ Credit loan creation error:", error);
     }
   };
 
-  // Add transaction recording to handleCreateCreditLoan
+  // UPDATED: Enhanced transaction flow handler
   const handleCreateCreditLoan = (withBitcoinBoost = false) => {
     if (!borrowAmount) return;
 
-    const availableMethods: TransactionMethod[] = withBitcoinBoost
-      ? ["bitcoin"]
-      : ["traditional"];
+    const availableMethods: TransactionMethod[] = ["traditional"];
+    if (withBitcoinBoost) {
+      availableMethods.push("bitcoin");
+    }
+
     const enhancedRate = withBitcoinBoost
       ? creditScore.interestRate * 0.7
       : creditScore.interestRate;
     const originationFee = withBitcoinBoost
       ? Number(borrowAmount) * 0.005
       : Number(borrowAmount) * 0.01;
+    const netAmount = Number(borrowAmount) - originationFee;
 
     startTransaction({
-      type: withBitcoinBoost ? "verification" : "deposit",
-      amount: withBitcoinBoost
-        ? Number(borrowAmount) * 0.1
-        : Number(borrowAmount),
+      type: "loan_created",
+      amount: netAmount, // Show net amount user will receive
       asset: borrowAsset,
       availableMethods,
       details: {
         description: withBitcoinBoost
-          ? `Verify Bitcoin ownership to unlock enhanced credit terms for ${borrowAmount} ${borrowAsset} loan`
-          : `Create credit loan for ${borrowAmount} ${borrowAsset}`,
-        toAddress: withBitcoinBoost
-          ? "verification-address"
-          : "credit-loan-address",
+          ? `Verify Bitcoin ownership for enhanced credit terms and receive ${netAmount.toFixed(
+              2
+            )} ${borrowAsset}`
+          : `Receive ${netAmount.toFixed(
+              2
+            )} ${borrowAsset} credit loan (after ${originationFee.toFixed(
+              2
+            )} ${borrowAsset} origination fee)`,
+        toAddress: "your-wallet-address",
         benefits: withBitcoinBoost
           ? [
               "+50 credit score boost",
@@ -292,35 +304,39 @@ export default function CreditLoan() {
               "50% higher credit limit",
               "50% lower origination fee",
               `Enhanced rate: ${enhancedRate.toFixed(1)}% APR`,
+              `You receive: ${(Number(borrowAmount) * 0.995).toFixed(
+                2
+              )} ${borrowAsset}`,
             ]
           : [
-              `Borrow ${borrowAmount} ${borrowAsset}`,
+              `Receive ${netAmount.toFixed(2)} ${borrowAsset}`,
               `${creditScore.interestRate.toFixed(1)}% APR rate`,
-              "Unsecured credit loan",
+              "No collateral required",
               "Build credit history",
+              "Instant approval",
             ],
         fees: {
           traditional: originationFee,
-          bitcoin: originationFee,
+          bitcoin: originationFee * 0.5, // Lower fee for Bitcoin verification
         },
       },
       onComplete: async (result) => {
         let transactionId = "";
 
         try {
-          //  Create pending transaction for loan creation
+          // Create pending transaction for loan disbursement
           transactionId = addPendingTransaction(
             borrowAsset.toLowerCase(),
             Number(borrowAmount),
             "loan_created",
             {
               details: withBitcoinBoost
-                ? `Bitcoin-verified credit loan - ${borrowAmount} ${borrowAsset} at ${enhancedRate.toFixed(
-                    1
-                  )}% APR`
-                : `Credit loan created - ${borrowAmount} ${borrowAsset} at ${enhancedRate.toFixed(
-                    1
-                  )}% APR`,
+                ? `Bitcoin-verified credit loan - receiving ${netAmount.toFixed(
+                    2
+                  )} ${borrowAsset} at ${enhancedRate.toFixed(1)}% APR`
+                : `Credit loan approved - receiving ${netAmount.toFixed(
+                    2
+                  )} ${borrowAsset} at ${enhancedRate.toFixed(1)}% APR`,
               interestRate: enhancedRate,
             }
           );
@@ -350,11 +366,12 @@ export default function CreditLoan() {
             interestPaid: 0,
             bitcoinVerified: withBitcoinBoost,
             verificationTxid: result.txid,
+            disbursementMethod: result.method,
           };
 
           const newLoan = await addLoan(loanData);
 
-          //  Mark transaction as completed with loan ID
+          // Mark transaction as completed with loan ID
           updateTransactionStatus(transactionId, "completed");
 
           if (withBitcoinBoost) {
@@ -371,44 +388,47 @@ export default function CreditLoan() {
           addToast({
             type: "success",
             title: `${
-              withBitcoinBoost ? "Bitcoin-Verified" : ""
-            } Credit Loan Created`,
-            message: `Successfully borrowed ${borrowAmount} ${borrowAsset}. ${
+              withBitcoinBoost ? "Bitcoin-Verified " : ""
+            }Credit Loan Approved!`,
+            message: `Funds disbursed: ${netAmount.toFixed(
+              2
+            )} ${borrowAsset}\nMethod: ${result.method}\n${
               withBitcoinBoost
                 ? `Enhanced rate: ${enhancedRate.toFixed(1)}% APR`
                 : ""
             }`,
           });
 
-          console.log("Credit loan via transaction flow completed:", {
+          console.log("✅ Credit loan disbursement completed:", {
             transactionId,
             method: result.method,
+            netAmount: netAmount.toFixed(2),
             bitcoinBoost: withBitcoinBoost,
           });
         } catch (error) {
-          //  Mark transaction as failed
+          // Mark transaction as failed
           if (transactionId) {
             updateTransactionStatus(transactionId, "failed");
           }
 
           addToast({
             type: "error",
-            title: "Loan Creation Failed",
-            message: "Failed to create loan. Please try again.",
+            title: "Loan Disbursement Failed",
+            message: "Failed to disburse loan funds. Please try again.",
           });
-          console.error("Credit loan via transaction flow failed:", error);
+          console.error("❌ Credit loan disbursement failed:", error);
         } finally {
           closeTransaction();
         }
       },
       onCancel: () => {
-        console.log("Credit loan transaction cancelled by user");
+        console.log("📝 Credit loan application cancelled by user");
         closeTransaction();
       },
       showAsModal: true,
       title: withBitcoinBoost
-        ? "Bitcoin Credit Verification"
-        : "Create Credit Loan",
+        ? "Bitcoin Credit Verification & Disbursement"
+        : "Credit Loan Disbursement",
     });
   };
 
@@ -416,7 +436,7 @@ export default function CreditLoan() {
     borrowAmount &&
     Number(borrowAmount) <= creditScore.creditLimit &&
     Number(borrowAmount) > 0 &&
-    creditScore.score >= 500; // Minimum score requirement
+    creditScore.score >= 500;
 
   return (
     <>
@@ -428,12 +448,13 @@ export default function CreditLoan() {
               {creditScore.interestRate.toFixed(1)}%
             </div>
           </div>
+          {/* UPDATED: Clarify this is about receiving funds */}
           <p className="text-sm text-muted-foreground">
-            Unsecured loan based on your onchain credit
+            Receive funds instantly - no collateral required
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Credit Score Display */}
+          {/* Credit Score Display - no changes needed */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -482,12 +503,12 @@ export default function CreditLoan() {
                   ${formatAmount(creditScore.creditLimit, 0)}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  Credit Limit
+                  Available Credit
                 </div>
               </div>
             </div>
 
-            {/* Credit Factors */}
+            {/* Credit Factors - unchanged */}
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="space-y-1">
                 <div className="flex justify-between">
@@ -540,10 +561,10 @@ export default function CreditLoan() {
             </div>
           </div>
 
-          {/* Borrow Section */}
+          {/* UPDATED: Borrow Section - emphasize receiving money */}
           <div className="space-y-3">
             <Label className="text-sm font-medium text-muted-foreground">
-              Borrow Amount
+              Amount to Receive
             </Label>
 
             <div className="flex gap-2">
@@ -582,15 +603,32 @@ export default function CreditLoan() {
               </div>
             </div>
 
+            {/* UPDATED: Clarify this is about credit availability */}
             <div className="text-xs text-muted-foreground">
-              Credit limit: ${formatAmount(creditScore.creditLimit, 0)}
+              Available to borrow: ${formatAmount(creditScore.creditLimit, 0)}
             </div>
+
+            {/* NEW: Show what user will actually receive after fees */}
+            {borrowAmount && Number(borrowAmount) > 0 && (
+              <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded">
+                <div className="text-sm text-green-700 dark:text-green-400">
+                  <Download className="w-4 h-4 inline mr-1" />
+                  You will receive: $
+                  {formatAmount(
+                    Number(borrowAmount) -
+                      calculateOriginationFee(Number(borrowAmount)),
+                    2
+                  )}{" "}
+                  {borrowAsset}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Loan Term */}
+          {/* Loan Term - unchanged */}
           <div className="space-y-3">
             <Label className="text-sm font-medium text-muted-foreground">
-              Loan Term
+              Repayment Term
             </Label>
             <Select value={loanTerm} onValueChange={setLoanTerm}>
               <SelectTrigger>
@@ -606,7 +644,7 @@ export default function CreditLoan() {
             </Select>
           </div>
 
-          {/* Utilization */}
+          {/* Utilization - unchanged */}
           {borrowAmount && (
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
@@ -628,30 +666,39 @@ export default function CreditLoan() {
             </div>
           )}
 
-          {/* Loan Summary */}
+          {/* UPDATED: Loan Summary - emphasize what user receives */}
           {isFormValid && (
             <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
               <div className="text-sm font-medium mb-2">Loan Summary</div>
               <div className="space-y-1 text-xs">
                 <div className="flex justify-between">
+                  <span>Loan Amount:</span>
+                  <span className="font-medium">
+                    ${formatAmount(Number(borrowAmount), 2)} {borrowAsset}
+                  </span>
+                </div>
+                <div className="flex justify-between">
                   <span>Origination Fee (1%):</span>
                   <span className="font-medium">
-                    $
+                    -$
                     {formatAmount(
                       calculateOriginationFee(Number(borrowAmount)),
                       2
                     )}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Net Amount:</span>
-                  <span className="font-medium">
+                <div className="flex justify-between border-t pt-1">
+                  <span className="text-green-700 font-medium">
+                    You Receive:
+                  </span>
+                  <span className="font-bold text-green-700">
                     $
                     {formatAmount(
                       Number(borrowAmount) -
                         calculateOriginationFee(Number(borrowAmount)),
                       2
-                    )}
+                    )}{" "}
+                    {borrowAsset}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -678,7 +725,7 @@ export default function CreditLoan() {
             </div>
           )}
 
-          {/* High Utilization Warning */}
+          {/* Warning sections - unchanged */}
           {utilizationPercent > 70 && (
             <div className="flex items-center gap-2 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
               <AlertTriangle className="h-4 w-4 text-orange-600" />
@@ -688,7 +735,6 @@ export default function CreditLoan() {
             </div>
           )}
 
-          {/* Low Credit Score Warning */}
           {creditScore.score < 600 && (
             <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
               <AlertTriangle className="h-4 w-4 text-red-600" />
@@ -698,6 +744,7 @@ export default function CreditLoan() {
             </div>
           )}
 
+          {/* UPDATED: Action Buttons - emphasize receiving funds */}
           <div className="flex gap-2">
             <Button
               className="flex-1"
@@ -708,9 +755,9 @@ export default function CreditLoan() {
               {isProcessingNewLoan ? (
                 <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
               ) : (
-                <Star className="w-4 h-4 mr-2" />
+                <Download className="w-4 h-4 mr-2" />
               )}
-              Create Loan
+              Get Loan
             </Button>
 
             <Button
@@ -723,19 +770,20 @@ export default function CreditLoan() {
             </Button>
           </div>
 
-          {/* Bitcoin Credit Benefits */}
+          {/* UPDATED: Bitcoin Credit Benefits - clarify the flow */}
           <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
             <div className="text-sm text-orange-700 dark:text-orange-400">
-              <strong>Bitcoin Credit Boost:</strong> Prove Bitcoin ownership for
-              +50 credit score points, 30% lower interest rates, and higher
-              credit limits.
+              <strong>Bitcoin Credit Boost:</strong> Verify Bitcoin ownership
+              for +50 credit score points, 30% lower interest rates, and higher
+              credit limits. No Bitcoin deposit required - just proof of
+              ownership.
             </div>
           </div>
 
-          {/* Loan Terms - update to show Bitcoin benefits */}
+          {/* UPDATED: Loan Terms - clarify the benefits */}
           <div className="space-y-2 text-xs text-muted-foreground border-t pt-4">
             <div className="flex justify-between">
-              <span>Interest rate:</span>
+              <span>Standard interest rate:</span>
               <span>{creditScore.interestRate.toFixed(1)}% APR</span>
             </div>
             <div className="flex justify-between">
@@ -745,12 +793,16 @@ export default function CreditLoan() {
               </span>
             </div>
             <div className="flex justify-between">
-              <span>Loan term:</span>
+              <span>Repayment term:</span>
               <span>{loanTerm} days (flexible)</span>
             </div>
             <div className="flex justify-between">
               <span>Origination fee:</span>
-              <span>1.0%</span>
+              <span>1.0% (deducted from loan amount)</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Collateral required:</span>
+              <span className="text-green-600 font-medium">None</span>
             </div>
             <div className="flex justify-between">
               <span>Credit check:</span>

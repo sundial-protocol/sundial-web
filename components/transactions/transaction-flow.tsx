@@ -12,14 +12,9 @@ import {
   DollarSign,
 } from "lucide-react";
 import { PsbtSigning, usePsbtGeneration } from "@/components/btc/psbt-signing";
+import { TransactionType } from "@/hooks/dashboard/dashboard";
 
 export type TransactionMethod = "bitcoin" | "traditional" | "cardano";
-export type TransactionType =
-  | "payment"
-  | "deposit"
-  | "withdrawal"
-  | "collateral"
-  | "verification";
 
 export interface TransactionFlowProps {
   /** Type of transaction */
@@ -82,11 +77,16 @@ export function TransactionFlow({
     if (title) return title;
 
     const typeLabels = {
-      payment: "Make Payment",
+      loan_payment: "Make Payment",
       deposit: "Deposit Funds",
-      withdrawal: "Withdraw Funds",
-      collateral: "Lock Collateral",
-      verification: "Verify Ownership",
+      withdraw: "Withdraw Funds",
+      stake: "Stake Assets",
+      unstake: "Unstake Assets",
+      reward: "Claim Rewards",
+      loan_created: "Create Loan",
+      loan_extended: "Extend Loan",
+      loan_refinanced: "Refinance Loan",
+      loan_closed: "Close Loan",
     };
 
     return typeLabels[type] || "Complete Transaction";

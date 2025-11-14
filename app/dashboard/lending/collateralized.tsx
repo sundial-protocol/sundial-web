@@ -274,7 +274,7 @@ export default function CollateralizedLoan() {
     }
 
     startTransaction({
-      type: "collateral",
+      type: "loan_created",
       amount: Number(collateralAmount),
       asset: collateralAsset,
       availableMethods,
