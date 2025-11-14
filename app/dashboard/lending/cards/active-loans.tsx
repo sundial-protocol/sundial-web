@@ -633,7 +633,6 @@ export default function ActiveLoansCard({
           <div className="text-sm text-muted-foreground mb-2">
             No active loans
           </div>
-          {/* NEW: Debug information */}
           <div className="text-xs text-muted-foreground">
             {allLendingTxs.length} lending transactions found (
             {loanCreationTxs.length} loan creations)
@@ -1246,12 +1245,6 @@ export default function ActiveLoansCard({
                   <Badge className={getLoanStatusColor(loan)}>
                     {getLoanStatus(loan)}
                   </Badge>
-                  {/* NEW: Show loan type indicator */}
-                  {loan.type === "collateral" && (
-                    <Badge variant="outline" className="text-xs">
-                      Collateral
-                    </Badge>
-                  )}
                   {loan.bitcoinVerified && (
                     <Badge
                       variant="outline"
@@ -1343,7 +1336,6 @@ export default function ActiveLoansCard({
                         ${formatAmount(loan.totalPaid, 2)}
                       </div>
                     </div>
-                    {/* NEW: Show collateral if present */}
                     {loan.collateral && (
                       <div className="col-span-2">
                         <span className="text-muted-foreground">
