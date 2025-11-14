@@ -91,91 +91,9 @@ interface LendingContextType {
 const LendingContext = createContext<LendingContextType | undefined>(undefined);
 
 // Mock data - in production, this would come from an API
-const mockLoans: LoanData[] = [
-  {
-    id: "loan-001",
-    type: "collateral",
-    amount: 5000,
-    asset: "USDC",
-    collateral: { amount: 0.15, asset: "BTC" },
-    interestRate: 8.5,
-    startDate: new Date("2024-01-15"),
-    dueDate: new Date("2024-02-14"),
-    status: "paid",
-    totalOwed: 0,
-    interestAccrued: 35.42,
-    monthlyPayment: 0,
-    nextPaymentDate: new Date(),
-    paymentsRemaining: 0,
-    totalPaid: 5035.42,
-    interestPaid: 35.42,
-  },
-  {
-    id: "loan-002",
-    type: "credit",
-    amount: 2500,
-    asset: "USDC",
-    interestRate: 12.5,
-    startDate: new Date("2024-02-20"),
-    dueDate: new Date("2024-03-21"),
-    status: "active",
-    totalOwed: 2526.04,
-    interestAccrued: 26.04,
-    monthlyPayment: 105.25,
-    nextPaymentDate: new Date("2024-03-01"),
-    paymentsRemaining: 1,
-    totalPaid: 0,
-    interestPaid: 0,
-  },
-  {
-    id: "loan-003",
-    type: "collateral",
-    amount: 3000,
-    asset: "DJED",
-    collateral: { amount: 2500, asset: "ADA" },
-    interestRate: 9.2,
-    startDate: new Date("2023-12-01"),
-    dueDate: new Date("2024-01-01"),
-    status: "paid",
-    totalOwed: 0,
-    interestAccrued: 23.5,
-    monthlyPayment: 0,
-    nextPaymentDate: new Date(),
-    paymentsRemaining: 0,
-    totalPaid: 3023.5,
-    interestPaid: 23.5,
-  },
-];
+const mockLoans: LoanData[] = [];
 
-const mockPaymentHistory: PaymentHistoryEntry[] = [
-  {
-    id: "pay-001",
-    loanId: "loan-002",
-    date: new Date("2024-02-01"),
-    amount: 105.25,
-    type: "payment",
-    status: "completed",
-    transactionHash: "0x1234...abcd",
-  },
-  {
-    id: "pay-002",
-    loanId: "loan-001",
-    date: new Date("2024-01-01"),
-    amount: 105.25,
-    type: "payment",
-    status: "completed",
-    transactionHash: "0x5678...efgh",
-  },
-  {
-    id: "pay-003",
-    loanId: "loan-003",
-    date: new Date("2023-12-15"),
-    amount: 15.5,
-    type: "interest",
-    status: "completed",
-    transactionHash: "0x9abc...ijkl",
-  },
-];
+const mockPaymentHistory: PaymentHistoryEntry[] = [];
 
 function calculateStats(loans: LoanData[]): LendingStats {
   const totalBorrowed = loans.reduce((sum, loan) => sum + loan.amount, 0);

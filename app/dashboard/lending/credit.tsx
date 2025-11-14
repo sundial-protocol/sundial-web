@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/select";
 import { formatAmount } from "@/hooks/dashboard/prices";
 import { useLending } from "@/hooks/dashboard/lending";
+//  Import dashboard context for transaction recording
+import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import { AlertTriangle, Badge, RefreshCw, Shield, Star, X } from "lucide-react";
 import { useState } from "react";
 import { usePsbtGeneration } from "@/components/btc/psbt-signing";
@@ -27,6 +29,11 @@ import { useConfirmation } from "@/components/ui/confirmation";
 
 export default function CreditLoan() {
   const { addLoan, isProcessingNewLoan, stats } = useLending();
+
+  //  Get dashboard context for transaction recording
+  const { addPendingTransaction, updateTransactionStatus } =
+    useDashboardContext();
+
   const {
     isOpen: showCreditFlow,
     config: creditConfig,
@@ -144,6 +151,7 @@ export default function CreditLoan() {
     return amount * 0.01; // 1% origination fee
   };
 
+  // Add transaction recording to handleBorrow
   const handleBorrow = async () => {
     if (!borrowAmount) return;
 
@@ -167,7 +175,24 @@ export default function CreditLoan() {
 
     if (!confirmed) return;
 
+    let transactionId = "";
+
     try {
+      //  Create pending transaction first
+      transactionId = addPendingTransaction(
+        borrowAsset.toLowerCase(),
+        Number(borrowAmount),
+        "loan_created",
+        {
+          details: `Credit loan created - ${borrowAmount} ${borrowAsset} at ${creditScore.interestRate.toFixed(
+            1
+          )}% APR`,
+          interestRate: creditScore.interestRate,
+        }
+      );
+
+      console.log("🚀 Created pending credit loan transaction:", transactionId);
+
       const loanData = {
         type: "credit" as const,
         amount: Number(borrowAmount),
@@ -193,7 +218,10 @@ export default function CreditLoan() {
         interestPaid: 0,
       };
 
-      await addLoan(loanData);
+      const newLoan = await addLoan(loanData);
+
+      // Update transaction with loan ID and mark as completed
+      updateTransactionStatus(transactionId, "completed");
 
       // Reset form
       setBorrowAmount("");
@@ -208,64 +236,28 @@ export default function CreditLoan() {
           2
         )} ${borrowAsset}`,
       });
+
+      console.log("Credit loan created successfully:", {
+        transactionId,
+        loanAmount: borrowAmount,
+        interestRate: creditScore.interestRate,
+      });
     } catch (error) {
+      // Mark transaction as failed
+      if (transactionId) {
+        updateTransactionStatus(transactionId, "failed");
+      }
+
       addToast({
         type: "error",
         title: "Loan Creation Failed",
         message: "Failed to create loan. Please try again.",
       });
-      console.error("Loan creation error:", error);
+      console.error("Credit loan creation error:", error);
     }
   };
 
-  const handleBitcoinCreditLoan = async () => {
-    if (!borrowAmount) return;
-
-    const bitcoinSignatureRequired = Math.floor(
-      Number(borrowAmount) * 0.1 * 100000000
-    );
-
-    const confirmed = await confirm({
-      title: "Create Bitcoin-Backed Credit Loan",
-      message: `Borrow: ${borrowAmount} ${borrowAsset}\nCredit Score Boost: +50 points for Bitcoin verification\nInterest Rate: ${(
-        creditScore.interestRate * 0.7
-      ).toFixed(
-        1
-      )}% APR (30% discount)\nTerm: ${loanTerm} days\n\nSign a small Bitcoin transaction (${(
-        bitcoinSignatureRequired / 100000000
-      ).toFixed(8)} BTC) to prove Bitcoin ownership and get better terms.`,
-      confirmText: "Generate Transaction",
-      cancelText: "Cancel",
-    });
-
-    if (!confirmed) return;
-
-    try {
-      const psbt = await generatePsbt({
-        sourceAddress: "user-btc-address",
-        targetAddress: "credit-verification-address",
-        amount: bitcoinSignatureRequired / 100000000,
-        chain: "btc",
-      });
-
-      setCreditLoanPsbt(psbt);
-      setShowBitcoinCreditLoan(true);
-    } catch (error) {
-      addToast({
-        type: "error",
-        title: "Transaction Generation Failed",
-        message:
-          "Failed to generate credit verification transaction. Please try again.",
-      });
-    }
-  };
-
-  const isFormValid =
-    borrowAmount &&
-    Number(borrowAmount) <= creditScore.creditLimit &&
-    Number(borrowAmount) > 0 &&
-    creditScore.score >= 500; // Minimum score requirement
-
+  // Add transaction recording to handleCreateCreditLoan
   const handleCreateCreditLoan = (withBitcoinBoost = false) => {
     if (!borrowAmount) return;
 
@@ -283,7 +275,7 @@ export default function CreditLoan() {
       type: withBitcoinBoost ? "verification" : "deposit",
       amount: withBitcoinBoost
         ? Number(borrowAmount) * 0.1
-        : Number(borrowAmount), // 10% verification amount for Bitcoin
+        : Number(borrowAmount),
       asset: borrowAsset,
       availableMethods,
       details: {
@@ -313,7 +305,26 @@ export default function CreditLoan() {
         },
       },
       onComplete: async (result) => {
+        let transactionId = "";
+
         try {
+          //  Create pending transaction for loan creation
+          transactionId = addPendingTransaction(
+            borrowAsset.toLowerCase(),
+            Number(borrowAmount),
+            "loan_created",
+            {
+              details: withBitcoinBoost
+                ? `Bitcoin-verified credit loan - ${borrowAmount} ${borrowAsset} at ${enhancedRate.toFixed(
+                    1
+                  )}% APR`
+                : `Credit loan created - ${borrowAmount} ${borrowAsset} at ${enhancedRate.toFixed(
+                    1
+                  )}% APR`,
+              interestRate: enhancedRate,
+            }
+          );
+
           const loanData = {
             type: "credit" as const,
             amount: Number(borrowAmount),
@@ -341,7 +352,10 @@ export default function CreditLoan() {
             verificationTxid: result.txid,
           };
 
-          await addLoan(loanData);
+          const newLoan = await addLoan(loanData);
+
+          //  Mark transaction as completed with loan ID
+          updateTransactionStatus(transactionId, "completed");
 
           if (withBitcoinBoost) {
             setCreditScore((prev) => ({
@@ -365,23 +379,44 @@ export default function CreditLoan() {
                 : ""
             }`,
           });
+
+          console.log("Credit loan via transaction flow completed:", {
+            transactionId,
+            method: result.method,
+            bitcoinBoost: withBitcoinBoost,
+          });
         } catch (error) {
+          //  Mark transaction as failed
+          if (transactionId) {
+            updateTransactionStatus(transactionId, "failed");
+          }
+
           addToast({
             type: "error",
             title: "Loan Creation Failed",
             message: "Failed to create loan. Please try again.",
           });
+          console.error("Credit loan via transaction flow failed:", error);
         } finally {
           closeTransaction();
         }
       },
-      onCancel: closeTransaction,
+      onCancel: () => {
+        console.log("Credit loan transaction cancelled by user");
+        closeTransaction();
+      },
       showAsModal: true,
       title: withBitcoinBoost
         ? "Bitcoin Credit Verification"
         : "Create Credit Loan",
     });
   };
+
+  const isFormValid =
+    borrowAmount &&
+    Number(borrowAmount) <= creditScore.creditLimit &&
+    Number(borrowAmount) > 0 &&
+    creditScore.score >= 500; // Minimum score requirement
 
   return (
     <>

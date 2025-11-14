@@ -13,6 +13,9 @@ import {
   RefreshCw,
   Eye,
   EyeOff,
+  CreditCard,
+  DollarSign,
+  Calendar,
 } from "lucide-react";
 import { formatAmount } from "@/hooks/dashboard/prices";
 import {
@@ -20,8 +23,28 @@ import {
   usePaymentHistory,
   LoanData,
 } from "@/hooks/dashboard/lending";
+// Import dashboard context for transactions
+import { useDashboardContext } from "@/lib/contexts/dashboard-context";
+import {
+  TransactionType,
+  LendingTransaction,
+} from "@/hooks/dashboard/dashboard";
 import { useState } from "react";
 import { useToast } from "@/components/ui/toast";
+
+interface ActivityItem {
+  id: string;
+  type: string;
+  amount: number;
+  asset: string;
+  status: string;
+  date: Date;
+  loanId?: string;
+  transactionHash?: string;
+  source: "payment" | "transaction";
+  details?: string;
+  interestRate?: number;
+}
 
 export default function PortfolioActivityCard() {
   const {
@@ -34,15 +57,77 @@ export default function PortfolioActivityCard() {
     setShowManageLoan,
   } = useLending();
 
+  // Get lending transactions from dashboard context
+  const { getLendingTransactions } = useDashboardContext();
+
   const allPaymentHistory = usePaymentHistory();
   const [showAllLoans, setShowAllLoans] = useState(false);
   const [showAllActivity, setShowAllActivity] = useState(false);
   const { addToast } = useToast();
 
+  // Combine payment history and lending transactions
+  const getCombinedActivity = (): ActivityItem[] => {
+    const paymentItems: ActivityItem[] = allPaymentHistory.map((payment) => ({
+      id: payment.id,
+      type: payment.type,
+      amount: payment.amount,
+      asset: payment.loanId
+        ? loans.find((l) => l.id === payment.loanId)?.asset || "USD"
+        : "USD",
+      status: payment.status,
+      date: payment.date,
+      loanId: payment.loanId,
+      transactionHash: payment.transactionHash,
+      source: "payment" as const,
+    }));
+
+    const transactionItems: ActivityItem[] = getLendingTransactions().map(
+      (tx) => ({
+        id: tx.id,
+        type: getTransactionDisplayType(tx.type),
+        amount: tx.amount,
+        asset: tx.asset.toUpperCase(),
+        status: tx.status,
+        date: tx.timestamp,
+        loanId: tx.loanId,
+        transactionHash: tx.txHash,
+        source: "transaction" as const,
+        details: tx.details,
+        interestRate: tx.interestRate,
+      })
+    );
+
+    // Combine and sort by date
+    return [...paymentItems, ...transactionItems].sort(
+      (a, b) => b.date.getTime() - a.date.getTime()
+    );
+  };
+
+  // Convert transaction types to display-friendly names
+  const getTransactionDisplayType = (type: TransactionType): string => {
+    switch (type) {
+      case "loan_created":
+        return "loan_creation";
+      case "loan_payment":
+        return "payment";
+      case "loan_extended":
+        return "extension";
+      case "loan_refinanced":
+        return "refinance";
+      case "loan_closed":
+        return "closure";
+      default:
+        return type;
+    }
+  };
+
+  const combinedActivity = getCombinedActivity();
+
   // Get recent activity (last 10 items)
-  const recentActivity = allPaymentHistory
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, showAllActivity ? allPaymentHistory.length : 5);
+  const recentActivity = combinedActivity.slice(
+    0,
+    showAllActivity ? combinedActivity.length : 5
+  );
 
   // Get loan display list
   const displayLoans = showAllLoans ? loans : loans.slice(0, 4);
@@ -77,11 +162,35 @@ export default function PortfolioActivityCard() {
     }
   };
 
-  const getActivityIcon = (type: string, status: string) => {
+  // Updated to handle both payment and transaction types
+  const getActivityIcon = (
+    type: string,
+    status: string,
+    source: "payment" | "transaction"
+  ) => {
     if (status === "failed") {
       return <AlertTriangle className="h-3 w-3 text-red-600" />;
     }
 
+    // Handle transaction types differently
+    if (source === "transaction") {
+      switch (type) {
+        case "loan_creation":
+          return <CreditCard className="h-3 w-3 text-blue-600" />;
+        case "payment":
+          return <DollarSign className="h-3 w-3 text-green-600" />;
+        case "extension":
+          return <Calendar className="h-3 w-3 text-orange-600" />;
+        case "refinance":
+          return <RefreshCw className="h-3 w-3 text-purple-600" />;
+        case "closure":
+          return <CheckCircle className="h-3 w-3 text-gray-600" />;
+        default:
+          return <Activity className="h-3 w-3 text-gray-600" />;
+      }
+    }
+
+    // Original payment type handling
     switch (type) {
       case "payment":
         return <CheckCircle className="h-3 w-3 text-green-600" />;
@@ -105,6 +214,28 @@ export default function PortfolioActivityCard() {
       default:
         return "bg-gray-100 text-gray-700";
     }
+  };
+
+  // Get activity type display name
+  const getActivityTypeDisplay = (
+    type: string,
+    source: "payment" | "transaction"
+  ) => {
+    if (source === "transaction") {
+      switch (type) {
+        case "loan_creation":
+          return "Loan Created";
+        case "extension":
+          return "Loan Extended";
+        case "refinance":
+          return "Loan Refinanced";
+        case "closure":
+          return "Loan Closed";
+        default:
+          return type.charAt(0).toUpperCase() + type.slice(1);
+      }
+    }
+    return type.charAt(0).toUpperCase() + type.slice(1);
   };
 
   const handleLoanClick = (loan: LoanData) => {
@@ -263,12 +394,12 @@ export default function PortfolioActivityCard() {
           </div>
         </div>
 
-        {/* Recent Activity */}
+        {/* Recent Activity with Combined Data */}
         <div>
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-sm font-medium">Recent Activity</h4>
             <div className="text-xs text-muted-foreground">
-              {allPaymentHistory.length} transactions
+              {combinedActivity.length} transactions
             </div>
           </div>
 
@@ -278,19 +409,54 @@ export default function PortfolioActivityCard() {
                 const loan = loans.find((l) => l.id === activity.loanId);
                 return (
                   <div
-                    key={activity.id}
+                    key={`${activity.source}-${activity.id}`}
                     className="flex items-center justify-between p-2 rounded border-l-2 border-l-blue-200 bg-gray-50/50 dark:bg-gray-800/50"
                   >
                     <div className="flex items-center gap-2">
-                      {getActivityIcon(activity.type, activity.status)}
+                      {getActivityIcon(
+                        activity.type,
+                        activity.status,
+                        activity.source
+                      )}
                       <div>
                         <div className="text-xs font-medium">
-                          ${formatAmount(activity.amount, 2)}{" "}
-                          {loan?.asset || ""}
+                          {activity.type === "loan_creation" &&
+                          activity.amount === 0 ? (
+                            <span>Loan Created</span>
+                          ) : (
+                            <>
+                              ${formatAmount(activity.amount, 2)}{" "}
+                              {activity.asset}
+                            </>
+                          )}
+                          {/* Show interest rate for loan creation */}
+                          {activity.type === "loan_creation" &&
+                            activity.interestRate && (
+                              <span className="ml-1 text-blue-600">
+                                @ {activity.interestRate.toFixed(1)}%
+                              </span>
+                            )}
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {activity.type} • {activity.date.toLocaleDateString()}
+                          {getActivityTypeDisplay(
+                            activity.type,
+                            activity.source
+                          )}{" "}
+                          • {activity.date.toLocaleDateString()}
+                          {/* Show loan ID for transaction activities */}
+                          {activity.loanId &&
+                            activity.source === "transaction" && (
+                              <span className="ml-1 font-mono">
+                                #{activity.loanId.slice(-6)}
+                              </span>
+                            )}
                         </div>
+                        {/* Show transaction details */}
+                        {activity.details && (
+                          <div className="text-xs text-muted-foreground max-w-32 truncate">
+                            {activity.details}
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1">
@@ -301,6 +467,18 @@ export default function PortfolioActivityCard() {
                       >
                         {activity.status}
                       </Badge>
+                      {/* Show source indicator */}
+                      <div className="text-xs text-muted-foreground">
+                        {activity.source === "transaction" ? (
+                          <span className="px-1 bg-purple-100 text-purple-700 rounded">
+                            Tx
+                          </span>
+                        ) : (
+                          <span className="px-1 bg-blue-100 text-blue-700 rounded">
+                            Pay
+                          </span>
+                        )}
+                      </div>
                       {activity.transactionHash && (
                         <div className="text-xs text-blue-600 font-mono">
                           {activity.transactionHash.slice(0, 8)}...
@@ -316,7 +494,8 @@ export default function PortfolioActivityCard() {
               </div>
             )}
 
-            {allPaymentHistory.length > 5 && (
+            {/* Updated show more button to use combined activity count */}
+            {combinedActivity.length > 5 && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -331,7 +510,7 @@ export default function PortfolioActivityCard() {
                 ) : (
                   <>
                     <Eye className="h-3 w-3 mr-1" />
-                    Show All ({allPaymentHistory.length - 5} more)
+                    Show All ({combinedActivity.length - 5} more)
                   </>
                 )}
               </Button>

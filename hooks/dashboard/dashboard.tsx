@@ -9,15 +9,59 @@ import usePrices, {
 } from "./prices";
 import { getYield } from "./get-yield";
 
+// Enhanced transaction types to include lending
+export type TransactionType =
+  | "deposit"
+  | "withdraw"
+  | "stake"
+  | "unstake"
+  | "reward"
+  | "loan_created"
+  | "loan_payment"
+  | "loan_extended"
+  | "loan_refinanced"
+  | "loan_closed";
+
 export interface LoggedTx {
   id: string;
-  type: "deposit" | "withdraw" | "stake" | "unstake" | "reward";
-  asset: string; // "btc", "ada", etc.
+  type: TransactionType; // Enhanced to include lending types
+  asset: string; // "btc", "ada", "usdc", etc.
   amount: number;
   txHash?: string; // Optional for pending transactions
   timestamp: Date;
   status: "pending" | "completed" | "failed";
   usdValue?: number;
+
+  // Lending-specific fields (optional for backward compatibility)
+  loanId?: string;
+  collateral?: {
+    asset: string;
+    amount: number;
+  };
+  interestRate?: number;
+  details?: string;
+}
+
+// New lending-specific transaction type guards
+export interface StakingTransaction extends LoggedTx {
+  type: "deposit" | "withdraw" | "stake" | "unstake" | "reward";
+  chain?: string;
+}
+
+export interface LendingTransaction extends LoggedTx {
+  type:
+    | "loan_created"
+    | "loan_payment"
+    | "loan_extended"
+    | "loan_refinanced"
+    | "loan_closed";
+  loanId: string; // Required for lending transactions
+  collateral?: {
+    asset: string;
+    amount: number;
+  };
+  interestRate?: number;
+  details?: string;
 }
 
 export type RiskEval = "Zero" | "Low" | "Medium" | "High";
@@ -199,25 +243,44 @@ export function useDashboardData() {
     });
   };
 
-  // Function to add pending transaction (called when transaction is initiated)
+  // Function to add pending transaction (now supports lending)
   const addPendingTransaction = (
-    chain: SupportedChain,
+    chain: SupportedChain | string,
     amount: number,
-    type: "deposit" | "withdraw"
+    type: TransactionType,
+    extraData?: {
+      loanId?: string;
+      collateral?: { asset: string; amount: number };
+      interestRate?: number;
+      details?: string;
+    }
   ) => {
     const transactionId = `tx-${Date.now()}-${Math.random()
       .toString(36)
       .substr(2, 9)}`;
 
+    // Calculate USD value
+    let usdValue = amount;
+    const chainLower = chain.toLowerCase();
+    if (chainLower === "btc") {
+      usdValue = amount * 52000;
+    } else if (chainLower === "ada") {
+      usdValue = amount * 0.35;
+    }
+
     const newTx: LoggedTx = {
       id: transactionId,
       type,
-      asset: chain,
+      asset: chainLower,
       amount,
       timestamp: new Date(),
       status: "pending",
-      usdValue: amount * (chain === "btc" ? 52000 : 0.35), // Calculate USD value
-      // txHash is undefined for pending transactions
+      usdValue,
+      // Add lending-specific fields if provided
+      ...(extraData?.loanId && { loanId: extraData.loanId }),
+      ...(extraData?.collateral && { collateral: extraData.collateral }),
+      ...(extraData?.interestRate && { interestRate: extraData.interestRate }),
+      ...(extraData?.details && { details: extraData.details }),
     };
 
     setTransactions((prev) => [newTx, ...prev]);
@@ -264,6 +327,59 @@ export function useDashboardData() {
     });
   };
 
+  //  Transaction helper functions for lending
+  const getTransactionsByType = (
+    type: TransactionType | TransactionType[]
+  ): LoggedTx[] => {
+    const types = Array.isArray(type) ? type : [type];
+    return transactions.filter((tx) => types.includes(tx.type));
+  };
+
+  const getTransactionsByLoanId = (loanId: string): LendingTransaction[] => {
+    return transactions.filter(
+      (tx): tx is LendingTransaction => "loanId" in tx && tx.loanId === loanId
+    );
+  };
+
+  const getStakingTransactions = (): StakingTransaction[] => {
+    return transactions.filter((tx): tx is StakingTransaction =>
+      ["deposit", "withdraw", "stake", "unstake", "reward"].includes(tx.type)
+    );
+  };
+
+  const getLendingTransactions = (): LendingTransaction[] => {
+    return transactions.filter((tx): tx is LendingTransaction =>
+      [
+        "loan_created",
+        "loan_payment",
+        "loan_extended",
+        "loan_refinanced",
+        "loan_closed",
+      ].includes(tx.type)
+    );
+  };
+
+  //  Refresh function to simulate data fetching
+  const refreshData = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // In a real app, you'd fetch fresh data here
+      console.log("📊 Dashboard data refreshed");
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to refresh data";
+      setError(errorMessage);
+      console.error("Failed to refresh dashboard data:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Clean up old failed transactions (optional)
   useEffect(() => {
     const cleanup = setInterval(() => {
@@ -299,6 +415,7 @@ export function useDashboardData() {
   );
 
   return {
+    // EXISTING RETURNS (unchanged)
     portfolioData,
     earningsData,
     calculations,
@@ -306,14 +423,21 @@ export function useDashboardData() {
     error,
     isLoading,
 
-    // Transaction-related returns
+    // EXISTING Transaction-related returns (unchanged)
     transactions,
     pendingTransactions,
     completedTransactions,
     failedTransactions,
-    addPendingTransaction,
+    addPendingTransaction, // Now enhanced to support lending
     updateTransactionStatus,
     removeTransaction,
+
+    //  Lending-specific helper functions
+    getTransactionsByType,
+    getTransactionsByLoanId,
+    getStakingTransactions,
+    getLendingTransactions,
+    refreshData,
   };
 }
 
@@ -360,7 +484,23 @@ export function usePortfolioCalculations(portfolioData: PortfolioData) {
   };
 }
 
-// Utility functions
+//  Helper hooks for specific transaction types
+export function useStakingTransactions() {
+  const { getStakingTransactions } = useDashboardData();
+  return getStakingTransactions();
+}
+
+export function useLendingTransactions() {
+  const { getLendingTransactions } = useDashboardData();
+  return getLendingTransactions();
+}
+
+export function useTransactionsByLoan(loanId: string) {
+  const { getTransactionsByLoanId } = useDashboardData();
+  return getTransactionsByLoanId(loanId);
+}
+
+// EXISTING: Utility functions (unchanged)
 export function formatCurrency(amount: number, currency = "USD"): string {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -391,7 +531,7 @@ export function getAssetPrice(asset: "BTC" | "ADA"): number {
   return prices[asset];
 }
 
-// Start everything at 0
+// EXISTING: Mock data (unchanged)
 export const mockPortfolioData: PortfolioData = {
   holdings: {
     BTC: 0,

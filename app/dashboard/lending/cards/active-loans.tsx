@@ -20,12 +20,10 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import { useState } from "react";
-import {
-  useLending,
-  useActiveLoans,
-  usePaymentHistory,
-} from "@/hooks/dashboard/lending";
+import { useState, useMemo } from "react";
+import { useLending, usePaymentHistory } from "@/hooks/dashboard/lending";
+// UPDATED: Get both transaction and loan context
+import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import { PsbtSigning, usePsbtGeneration } from "@/components/btc/psbt-signing";
 import {
   TransactionFlow,
@@ -52,9 +50,103 @@ export default function ActiveLoansCard({
     isProcessingPayment,
     isProcessingExtension,
     isProcessingRefinance,
+    // REMOVED: We'll get loans from dashboard context instead
+    // loans,
+    // activeLoans,
   } = useLending();
 
-  const activeLoans = useActiveLoans();
+  // UPDATED: Get both transaction functions and loan data from dashboard context
+  const {
+    addPendingTransaction,
+    updateTransactionStatus,
+    getLendingTransactions,
+    // NEW: Get loan data from dashboard context
+    portfolioData,
+    transactions,
+  } = useDashboardContext();
+
+  // NEW: Calculate active loans from dashboard transactions
+  const activeLoans = useMemo(() => {
+    // Get all loan creation transactions
+    const loanCreationTxs = getLendingTransactions().filter(
+      (tx) => tx.type === "loan_created" && tx.status === "completed"
+    );
+
+    // Get all loan payment transactions
+    const loanPayments = getLendingTransactions().filter(
+      (tx) => tx.type === "loan_payment" && tx.status === "completed"
+    );
+
+    // Calculate current loan states
+    const loans = loanCreationTxs
+      .map((creationTx) => {
+        // Find all payments for this loan
+        const payments = loanPayments.filter(
+          (payment) => payment.loanId === creationTx.loanId
+        );
+
+        const totalPaid = payments.reduce(
+          (sum, payment) => sum + payment.amount,
+          0
+        );
+        const originalAmount = creationTx.amount;
+        const interestRate = creationTx.interestRate || 10.5;
+
+        // Calculate days since loan creation
+        const daysSinceCreation = Math.floor(
+          (new Date().getTime() - creationTx.timestamp.getTime()) /
+            (1000 * 60 * 60 * 24)
+        );
+
+        // Calculate accrued interest (simple daily compounding)
+        const dailyRate = interestRate / 100 / 365;
+        const interestAccrued = originalAmount * dailyRate * daysSinceCreation;
+        const totalOwed = originalAmount + interestAccrued;
+
+        // Calculate due date (assume 30-day loans by default)
+        const dueDate = new Date(
+          creationTx.timestamp.getTime() + 30 * 24 * 60 * 60 * 1000
+        );
+
+        // Calculate monthly payment (assuming 30-day term)
+        const monthlyPayment = totalOwed / 1; // Single payment for 30-day loan
+
+        return {
+          id: creationTx.loanId || creationTx.id,
+          type: creationTx.collateral ? "collateral" : "credit",
+          amount: originalAmount,
+          asset: creationTx.asset.toUpperCase(),
+          interestRate,
+          startDate: creationTx.timestamp,
+          dueDate,
+          status: totalPaid >= totalOwed ? "paid" : "active",
+          totalOwed: Math.max(0, totalOwed - totalPaid),
+          interestAccrued,
+          monthlyPayment,
+          nextPaymentDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          paymentsRemaining: totalPaid >= totalOwed ? 0 : 1,
+          totalPaid,
+          interestPaid: Math.min(totalPaid, interestAccrued),
+          collateral: creationTx.collateral,
+          creationTxHash: creationTx.txHash,
+          bitcoinVerified: creationTx.details?.includes("Bitcoin"),
+        };
+      })
+      .filter((loan) => loan.status === "active" && loan.totalOwed > 0);
+
+    return loans;
+  }, [getLendingTransactions]);
+
+  console.log("Active loans calculated from dashboard context:", {
+    totalLoans: activeLoans.length,
+    loans: activeLoans.map((loan) => ({
+      id: loan.id,
+      amount: loan.amount,
+      totalOwed: loan.totalOwed,
+      status: loan.status,
+    })),
+  });
+
   const [selectedLoanId, setSelectedLoanId] = useState<string | null>(null);
   const [expandedLoans, setExpandedLoans] = useState<Set<string>>(new Set());
 
@@ -75,7 +167,26 @@ export default function ActiveLoansCard({
 
   // Get the currently selected loan for management
   const selectedLoan = activeLoans.find((loan) => loan.id === selectedLoanId);
-  const paymentHistory = usePaymentHistory(selectedLoan?.id);
+
+  // UPDATED: Calculate payment history from dashboard transactions
+  const paymentHistory = useMemo(() => {
+    if (!selectedLoan) return [];
+
+    // Get all payment transactions for this loan
+    const loanPayments = getLendingTransactions().filter(
+      (tx) => tx.loanId === selectedLoan.id && tx.type === "loan_payment"
+    );
+
+    return loanPayments.map((payment) => ({
+      id: payment.id,
+      type: "payment",
+      amount: payment.amount,
+      date: payment.timestamp,
+      status: payment.status,
+      transactionHash: payment.txHash,
+      loanId: payment.loanId,
+    }));
+  }, [selectedLoan, getLendingTransactions]);
 
   const [paymentAmount, setPaymentAmount] = useState("");
   const [showExtendModal, setShowExtendModal] = useState(false);
@@ -106,7 +217,7 @@ export default function ActiveLoansCard({
     setShowManageLoan(true);
   };
 
-  // Traditional payment handler (for the management interface)
+  // Enhanced payment handler using dashboard transactions
   const handlePayment = async () => {
     if (!selectedLoan) return;
 
@@ -119,8 +230,35 @@ export default function ActiveLoansCard({
 
     if (!confirmed) return;
 
+    let transactionId = "";
+
     try {
+      // Step 1: Create pending transaction in dashboard
+      transactionId = addPendingTransaction(
+        selectedLoan.asset.toLowerCase(),
+        Number(paymentAmount),
+        "loan_payment",
+        {
+          loanId: selectedLoan.id,
+          details: `Payment of ${paymentAmount} ${
+            selectedLoan.asset
+          } for loan ${selectedLoan.id.slice(-6)}`,
+        }
+      );
+
+      console.log("🚀 Created pending payment transaction:", transactionId);
+
+      // Step 2: Process payment through lending system
       await makePayment(selectedLoan.id, Number(paymentAmount));
+
+      // Step 3: Mark transaction as completed
+      updateTransactionStatus(
+        transactionId,
+        "completed",
+        `payment-${Date.now()}`
+      );
+
+      // Step 4: Reset form and close modal
       setPaymentAmount("");
       setShowManageLoan(false);
 
@@ -129,7 +267,19 @@ export default function ActiveLoansCard({
         title: "Payment Successful",
         message: `Payment of $${paymentAmount} ${selectedLoan.asset} has been processed successfully.`,
       });
+
+      console.log("✅ Payment completed successfully:", {
+        transactionId,
+        loanId: selectedLoan.id,
+        amount: paymentAmount,
+      });
     } catch (error) {
+      // Mark transaction as failed if something went wrong
+      if (transactionId) {
+        updateTransactionStatus(transactionId, "failed");
+      }
+
+      console.error("❌ Payment failed:", error);
       addToast({
         type: "error",
         title: "Payment Failed",
@@ -138,76 +288,139 @@ export default function ActiveLoansCard({
     }
   };
 
-  const handleQuickPayment = (loan: any, amount: number) => {
-    const availableMethods: TransactionMethod[] = ["traditional", "bitcoin"];
+  // Enhanced quick payment with transaction logging
+  const handleQuickPayment = async (loan: any, amount: number) => {
+    let transactionId = "";
 
-    startTransaction({
-      type: "payment",
-      amount,
-      asset: loan.asset,
-      availableMethods,
-      details: {
-        description: `Loan payment for loan #${loan.id}`,
-        toAddress: "loan-payment-contract-address",
-        benefits: [
-          "Reduce outstanding balance",
-          "Improve payment history",
-          "Avoid late fees",
-        ],
-        fees: {
-          traditional: 2.5,
-          bitcoin: 0.25,
-        },
-      },
-      onComplete: async (result) => {
-        try {
-          await makePayment(loan.id, amount);
-          addToast({
-            type: "success",
-            title: "Payment Successful",
-            message: `Payment of $${amount} via ${result.method} completed successfully.`,
-          });
-          closeTransaction();
-        } catch (error) {
-          addToast({
-            type: "error",
-            title: "Payment Failed",
-            message: "Unable to process your payment. Please try again.",
-          });
-          closeTransaction();
+    try {
+      // Create pending transaction first
+      transactionId = addPendingTransaction(
+        loan.asset.toLowerCase(),
+        amount,
+        "loan_payment",
+        {
+          loanId: loan.id,
+          details: `Quick payment of ${amount} ${
+            loan.asset
+          } for loan ${loan.id.slice(-6)}`,
         }
-      },
-      onCancel: closeTransaction,
-      showAsModal: true,
-      title: `Pay Loan #${loan.id}`,
-    });
+      );
+
+      console.log(
+        "🚀 Created pending quick payment transaction:",
+        transactionId
+      );
+
+      // Show transaction flow with callback to complete the transaction
+      const availableMethods: TransactionMethod[] = ["traditional", "bitcoin"];
+
+      startTransaction({
+        type: "payment",
+        amount,
+        asset: loan.asset,
+        availableMethods,
+        details: {
+          description: `Loan payment for loan #${loan.id}`,
+          toAddress: "loan-payment-contract-address",
+          benefits: [
+            "Reduce outstanding balance",
+            "Improve payment history",
+            "Avoid late fees",
+          ],
+          fees: {
+            traditional: 2.5,
+            bitcoin: 0.25,
+          },
+        },
+        onComplete: async (result) => {
+          try {
+            // Process payment through lending system
+            await makePayment(loan.id, amount);
+
+            // Mark transaction as completed
+            updateTransactionStatus(transactionId, "completed");
+
+            addToast({
+              type: "success",
+              title: "Payment Successful",
+              message: `Payment of $${amount} via ${result.method} completed successfully.`,
+            });
+            closeTransaction();
+          } catch (error) {
+            updateTransactionStatus(transactionId, "failed");
+            addToast({
+              type: "error",
+              title: "Payment Failed",
+              message: "Unable to process your payment. Please try again.",
+            });
+            closeTransaction();
+          }
+        },
+        onCancel: () => {
+          // Mark transaction as failed if cancelled
+          updateTransactionStatus(transactionId, "failed");
+          closeTransaction();
+        },
+        showAsModal: true,
+        title: `Pay Loan #${loan.id}`,
+      });
+    } catch (error) {
+      if (transactionId) {
+        updateTransactionStatus(transactionId, "failed");
+      }
+      addToast({
+        type: "error",
+        title: "Payment Setup Failed",
+        message: "Unable to setup payment. Please try again.",
+      });
+    }
   };
 
-  // Add the missing handleBitcoinPayment function
+  // Enhanced Bitcoin payment with transaction logging
   const handleBitcoinPayment = async (amount: number) => {
     if (!selectedLoan) return;
 
+    let transactionId = "";
+
     try {
+      // Step 1: Create pending Bitcoin payment transaction
+      transactionId = addPendingTransaction(
+        "btc", // Bitcoin payments
+        amount / 50000, // Convert USD to BTC (assuming $50k BTC price)
+        "loan_payment",
+        {
+          loanId: selectedLoan.id,
+          details: `Bitcoin payment of $${amount} for loan ${selectedLoan.id.slice(
+            -6
+          )}`,
+        }
+      );
+
+      // Step 2: Generate PSBT
       const psbt = await generatePsbt({
         sourceAddress: "user-btc-address", // Get from wallet context
         targetAddress: "loan-payment-address", // Loan payment address
-        amount: amount / 50000, // Convert USD to BTC (assuming $50k BTC price)
+        amount: amount / 50000, // Convert USD to BTC
         chain: "btc",
       });
 
       setPaymentPsbt(psbt);
       setShowBitcoinPayment(true);
     } catch (error) {
+      if (transactionId) {
+        updateTransactionStatus(transactionId, "failed");
+      }
+
       addToast({
         type: "error",
         title: "Transaction Generation Failed",
         message:
           "Unable to generate Bitcoin payment transaction. Please try again.",
       });
-      console.error("PSBT generation error:", error);
     }
   };
 
+  // Enhanced loan extension with transaction logging
   const handleExtendTerm = async () => {
     if (!selectedLoan) return;
 
@@ -220,8 +433,28 @@ export default function ActiveLoansCard({
 
     if (!confirmed) return;
 
+    let transactionId = "";
+
     try {
+      // Create transaction for loan extension
+      transactionId = addPendingTransaction(
+        selectedLoan.asset.toLowerCase(),
+        0, // No amount for extension
+        "loan_extended",
+        {
+          loanId: selectedLoan.id,
+          details: `Loan ${selectedLoan.id.slice(
+            -6
+          )} extended by ${extensionDays} days`,
+        }
+      );
+
+      // Process extension
       await extendLoan(selectedLoan.id, Number(extensionDays));
+
+      // Mark transaction as completed
+      updateTransactionStatus(transactionId, "completed");
+
       const newDueDate = new Date(selectedLoan.dueDate);
       newDueDate.setDate(newDueDate.getDate() + Number(extensionDays));
 
@@ -234,6 +467,9 @@ export default function ActiveLoansCard({
       setExtensionDays("30");
       setShowExtendModal(false);
     } catch (error) {
+      if (transactionId) {
+        updateTransactionStatus(transactionId, "failed");
+      }
       addToast({
         type: "error",
         title: "Extension Failed",
@@ -242,6 +478,7 @@ export default function ActiveLoansCard({
     }
   };
 
+  // Enhanced loan refinancing with transaction logging
   const handleRefinance = async () => {
     if (!selectedLoan) return;
 
@@ -254,12 +491,32 @@ export default function ActiveLoansCard({
 
     if (!confirmed) return;
 
+    let transactionId = "";
+
     try {
+      // Create transaction for loan refinancing
+      transactionId = addPendingTransaction(
+        selectedLoan.asset.toLowerCase(),
+        selectedLoan.totalOwed,
+        "loan_refinanced",
+        {
+          loanId: selectedLoan.id,
+          interestRate: Number(refinanceRate),
+          details: `Loan ${selectedLoan.id.slice(
+            -6
+          )} refinanced - ${refinanceRate}% APR for ${refinanceTerm} days`,
+        }
+      );
+
+      // Process refinancing
       await refinanceLoan(
         selectedLoan.id,
         Number(refinanceRate),
         Number(refinanceTerm)
       );
+
+      // Mark transaction as completed
+      updateTransactionStatus(transactionId, "completed");
 
       addToast({
         type: "success",
@@ -271,6 +528,9 @@ export default function ActiveLoansCard({
       setRefinanceTerm("90");
       setShowRefinanceModal(false);
     } catch (error) {
+      if (transactionId) {
+        updateTransactionStatus(transactionId, "failed");
+      }
       addToast({
         type: "error",
         title: "Refinancing Failed",
@@ -282,6 +542,11 @@ export default function ActiveLoansCard({
   const downloadStatements = () => {
     if (!selectedLoan) return;
 
+    // Include all transactions related to this loan
+    const loanTransactions = getLendingTransactions().filter(
+      (tx) => tx.loanId === selectedLoan.id
+    );
+
     const statementData = {
       loanId: selectedLoan.id,
       borrower: "User Address: 0x1234...abcd",
@@ -291,6 +556,7 @@ export default function ActiveLoansCard({
       startDate: selectedLoan.startDate.toLocaleDateString(),
       dueDate: selectedLoan.dueDate.toLocaleDateString(),
       paymentHistory: paymentHistory,
+      transactionHistory: loanTransactions, // Include all loan transactions
       generatedAt: new Date().toISOString(),
     };
 
@@ -355,7 +621,13 @@ export default function ActiveLoansCard({
     return "Current";
   };
 
+  // Show debug info when no active loans
   if (!activeLoans || activeLoans.length === 0) {
+    const allLendingTxs = getLendingTransactions();
+    const loanCreationTxs = allLendingTxs.filter(
+      (tx) => tx.type === "loan_created"
+    );
+
     return (
       <Card>
         <CardHeader className="pb-3">
@@ -365,7 +637,14 @@ export default function ActiveLoansCard({
           </CardTitle>
         </CardHeader>
         <CardContent className="text-center py-8">
-          <div className="text-sm text-muted-foreground">No active loans</div>
+          <div className="text-sm text-muted-foreground mb-2">
+            No active loans
+          </div>
+          {/* NEW: Debug information */}
+          <div className="text-xs text-muted-foreground">
+            {allLendingTxs.length} lending transactions found (
+            {loanCreationTxs.length} loan creations)
+          </div>
         </CardContent>
       </Card>
     );
@@ -611,6 +890,29 @@ export default function ActiveLoansCard({
                         {selectedLoan.paymentsRemaining}
                       </span>
                     </div>
+                    {/* Show collateral info if available */}
+                    {selectedLoan.collateral && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Collateral
+                        </span>
+                        <span className="font-medium">
+                          {selectedLoan.collateral.amount}{" "}
+                          {selectedLoan.collateral.asset}
+                        </span>
+                      </div>
+                    )}
+                    {/* Show Bitcoin verification status */}
+                    {selectedLoan.bitcoinVerified && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Verification
+                        </span>
+                        <span className="font-medium text-orange-600">
+                          🟠 Bitcoin Verified
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -873,9 +1175,9 @@ export default function ActiveLoansCard({
                   )} // Convert USD to sats
                   chain="btc"
                   onTransactionFound={(txid) => {
-                    console.log("Payment transaction found:", txid);
+                    console.log("✅ Bitcoin payment transaction found:", txid);
 
-                    // Process the Bitcoin payment
+                    // Process the Bitcoin payment with transaction logging
                     makePayment(selectedLoan.id, Number(paymentAmount));
 
                     setShowBitcoinPayment(false);
@@ -889,7 +1191,7 @@ export default function ActiveLoansCard({
                     });
                   }}
                   onError={(error) => {
-                    console.error("Bitcoin payment error:", error);
+                    console.error("❌ Bitcoin payment error:", error);
                     addToast({
                       type: "error",
                       title: "Bitcoin Payment Failed",
@@ -950,10 +1252,24 @@ export default function ActiveLoansCard({
               {/* Loan Header */}
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3 px-2">
-                  <h4 className="font-medium">Loan #{loan.id}</h4>
+                  <h4 className="font-medium">Loan #{loan.id.slice(-6)}</h4>
                   <Badge className={getLoanStatusColor(loan)}>
                     {getLoanStatus(loan)}
                   </Badge>
+                  {/* NEW: Show loan type indicator */}
+                  {loan.type === "collateral" && (
+                    <Badge variant="outline" className="text-xs">
+                      Collateral
+                    </Badge>
+                  )}
+                  {loan.bitcoinVerified && (
+                    <Badge
+                      variant="outline"
+                      className="text-xs text-orange-600"
+                    >
+                      🟠 BTC
+                    </Badge>
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium">
@@ -1032,13 +1348,22 @@ export default function ActiveLoansCard({
                       </div>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">
-                        Payments Remaining
-                      </span>
+                      <span className="text-muted-foreground">Total Paid</span>
                       <div className="font-medium">
-                        {loan.paymentsRemaining}
+                        ${formatAmount(loan.totalPaid, 2)}
                       </div>
                     </div>
+                    {/* NEW: Show collateral if present */}
+                    {loan.collateral && (
+                      <div className="col-span-2">
+                        <span className="text-muted-foreground">
+                          Collateral
+                        </span>
+                        <div className="font-medium">
+                          {loan.collateral.amount} {loan.collateral.asset}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Quick Actions */}

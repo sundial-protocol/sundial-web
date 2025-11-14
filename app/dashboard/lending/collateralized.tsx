@@ -28,6 +28,11 @@ import { useConfirmation } from "@/components/ui/confirmation";
 
 export default function CollateralizedLoan() {
   const { portfolioData } = useDashboardContext();
+
+  // Get dashboard transaction functions
+  const { addPendingTransaction, updateTransactionStatus, transactions } =
+    useDashboardContext();
+
   const { convert } = usePrices();
   const { addLoan, isProcessingNewLoan, setShowFullLoanInterface } =
     useLending();
@@ -96,6 +101,7 @@ export default function CollateralizedLoan() {
     return totalWithInterest / months;
   };
 
+  // Add transaction recording to handleBorrow
   const handleBorrow = async () => {
     if (!collateralAmount || !borrowAmount) return;
 
@@ -110,7 +116,29 @@ export default function CollateralizedLoan() {
 
     if (!confirmed) return;
 
+    let transactionId = "";
+
     try {
+      // Create pending transaction for loan creation
+      transactionId = addPendingTransaction(
+        borrowAsset.toLowerCase(),
+        Number(borrowAmount),
+        "loan_created",
+        {
+          details: `Collateral loan - ${borrowAmount} ${borrowAsset} with ${collateralAmount} ${collateralAsset} collateral at ${currentBorrowRate}% APR`,
+          interestRate: currentBorrowRate,
+          collateral: {
+            asset: collateralAsset,
+            amount: Number(collateralAmount),
+          },
+        }
+      );
+
+      console.log(
+        "🚀 Created pending collateral loan transaction:",
+        transactionId
+      );
+
       const loanData = {
         type: "collateral" as const,
         amount: Number(borrowAmount),
@@ -140,7 +168,10 @@ export default function CollateralizedLoan() {
         interestPaid: 0,
       };
 
-      await addLoan(loanData);
+      const newLoan = await addLoan(loanData);
+
+      // Mark transaction as completed
+      updateTransactionStatus(transactionId, "completed");
 
       // Reset form
       setCollateralAmount("");
@@ -152,16 +183,28 @@ export default function CollateralizedLoan() {
         title: "Loan Created Successfully",
         message: `Borrowed ${borrowAmount} ${borrowAsset} with ${collateralAmount} ${collateralAsset} as collateral.`,
       });
+
+      console.log("Collateral loan created successfully:", {
+        transactionId,
+        collateral: `${collateralAmount} ${collateralAsset}`,
+        borrowed: `${borrowAmount} ${borrowAsset}`,
+      });
     } catch (error) {
+      // Mark transaction as failed
+      if (transactionId) {
+        updateTransactionStatus(transactionId, "failed");
+      }
+
       addToast({
         type: "error",
         title: "Loan Creation Failed",
         message: "Failed to create loan. Please try again.",
       });
-      console.error("Loan creation error:", error);
+      console.error("Collateral loan creation error:", error);
     }
   };
 
+  // Add transaction recording to handleBitcoinCollateralLoan
   const handleBitcoinCollateralLoan = async () => {
     if (!collateralAmount || !borrowAmount) return;
 
@@ -176,7 +219,24 @@ export default function CollateralizedLoan() {
 
     if (!confirmed) return;
 
+    let transactionId = "";
+
     try {
+      // Create pending transaction for collateral deposit
+      transactionId = addPendingTransaction(
+        "btc",
+        Number(collateralAmount),
+        "loan_created",
+        {
+          details: `Bitcoin collateral loan - ${collateralAmount} BTC collateral for ${borrowAmount} ${borrowAsset}`,
+          interestRate: currentBorrowRate * 0.8, // Bitcoin gets better rate
+          collateral: {
+            asset: collateralAsset,
+            amount: Number(collateralAmount),
+          },
+        }
+      );
+
       const psbt = await generatePsbt({
         sourceAddress: "user-btc-address",
         targetAddress: "collateral-contract-address",
@@ -186,7 +246,14 @@ export default function CollateralizedLoan() {
 
       setCollateralPsbt(psbt);
       setShowBitcoinCollateral(true);
+
+      console.log("🚀 Generated Bitcoin collateral PSBT:", transactionId);
     } catch (error) {
+      // Mark transaction as failed if PSBT generation fails
+      if (transactionId) {
+        updateTransactionStatus(transactionId, "failed");
+      }
+
       addToast({
         type: "error",
         title: "Transaction Generation Failed",
@@ -196,20 +263,12 @@ export default function CollateralizedLoan() {
     }
   };
 
-  const isFormValid =
-    collateralAmount &&
-    borrowAmount &&
-    currentLTV <= maxLTV &&
-    Number(borrowAmount) <= maxBorrow &&
-    Number(collateralAmount) <=
-      availableCollateral[collateralAsset as keyof typeof availableCollateral];
-
+  // Add transaction recording to handleCreateLoan
   const handleCreateLoan = () => {
     if (!collateralAmount || !borrowAmount) return;
 
     const availableMethods: TransactionMethod[] = ["traditional"];
 
-    // Add Bitcoin option if BTC collateral
     if (collateralAsset === "BTC") {
       availableMethods.push("bitcoin");
     }
@@ -229,12 +288,34 @@ export default function CollateralizedLoan() {
           collateralAsset === "BTC" ? "20% rate discount for BTC" : "",
         ].filter(Boolean),
         fees: {
-          traditional: Number(borrowAmount) * 0.01, // 1% origination
-          bitcoin: Number(borrowAmount) * 0.005, // 0.5% origination for BTC
+          traditional: Number(borrowAmount) * 0.01,
+          bitcoin: Number(borrowAmount) * 0.005,
         },
       },
       onComplete: async (result) => {
+        let transactionId = "";
+
         try {
+          // Create pending transaction for loan
+          transactionId = addPendingTransaction(
+            borrowAsset.toLowerCase(),
+            Number(borrowAmount),
+            "loan_created",
+            {
+              details: `${
+                result.method === "bitcoin" ? "Bitcoin " : ""
+              }Collateral loan - ${borrowAmount} ${borrowAsset} with ${collateralAmount} ${collateralAsset}`,
+              interestRate:
+                result.method === "bitcoin"
+                  ? currentBorrowRate * 0.8
+                  : currentBorrowRate,
+              collateral: {
+                asset: collateralAsset,
+                amount: Number(collateralAmount),
+              },
+            }
+          );
+
           const loanData = {
             type: "collateral" as const,
             amount: Number(borrowAmount),
@@ -269,7 +350,10 @@ export default function CollateralizedLoan() {
             interestPaid: 0,
           };
 
-          await addLoan(loanData);
+          const newLoan = await addLoan(loanData);
+
+          // Mark transaction as completed
+          updateTransactionStatus(transactionId, "completed");
 
           // Reset form
           setCollateralAmount("");
@@ -280,21 +364,43 @@ export default function CollateralizedLoan() {
             title: "Collateral Loan Created",
             message: `Method: ${result.method}\nCollateral: ${collateralAmount} ${collateralAsset}\nBorrowed: ${borrowAmount} ${borrowAsset}`,
           });
+
+          console.log("Collateral loan via transaction flow completed:", {
+            transactionId,
+            method: result.method,
+          });
         } catch (error) {
+          // Mark transaction as failed
+          if (transactionId) {
+            updateTransactionStatus(transactionId, "failed");
+          }
+
           addToast({
             type: "error",
             title: "Loan Creation Failed",
             message: "Failed to create loan. Please try again.",
           });
+          console.error("Collateral loan via transaction flow failed:", error);
         } finally {
           closeTransaction();
         }
       },
-      onCancel: closeTransaction,
+      onCancel: () => {
+        console.log("Collateral loan transaction cancelled by user");
+        closeTransaction();
+      },
       showAsModal: true,
       title: "Create Collateral Loan",
     });
   };
+
+  const isFormValid =
+    collateralAmount &&
+    borrowAmount &&
+    currentLTV <= maxLTV &&
+    Number(borrowAmount) <= maxBorrow &&
+    Number(collateralAmount) <=
+      availableCollateral[collateralAsset as keyof typeof availableCollateral];
 
   return (
     <>
@@ -576,7 +682,7 @@ export default function CollateralizedLoan() {
           )}
         </CardContent>
 
-        {/* Bitcoin Collateral Modal */}
+        {/* Bitcoin Collateral Modal with transaction recording */}
         {showBitcoinCollateral && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
@@ -604,9 +710,20 @@ export default function CollateralizedLoan() {
                   )}
                   chain="btc"
                   onTransactionFound={(txid) => {
-                    console.log("Collateral locked:", txid);
+                    console.log("Bitcoin collateral locked:", txid);
 
-                    // Create the loan with Bitcoin collateral
+                    // Find and update the pending transaction
+                    const pendingTx = transactions.find(
+                      (tx) =>
+                        tx.status === "pending" &&
+                        tx.type === "loan_created" &&
+                        tx.collateral?.asset === "BTC"
+                    );
+
+                    if (pendingTx) {
+                      updateTransactionStatus(pendingTx.id, "completed", txid);
+                    }
+
                     const loanData = {
                       type: "collateral" as const,
                       amount: Number(borrowAmount),
@@ -656,6 +773,19 @@ export default function CollateralizedLoan() {
                   }}
                   onError={(error) => {
                     console.error("Collateral lock error:", error);
+
+                    // Mark pending transaction as failed
+                    const pendingTx = transactions.find(
+                      (tx) =>
+                        tx.status === "pending" &&
+                        tx.type === "loan_created" &&
+                        tx.collateral?.asset === "BTC"
+                    );
+
+                    if (pendingTx) {
+                      updateTransactionStatus(pendingTx.id, "failed");
+                    }
+
                     addToast({
                       type: "error",
                       title: "Collateral Lock Failed",
