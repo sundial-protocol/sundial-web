@@ -268,7 +268,7 @@ export default function ActiveLoansCard({
         message: `Payment of $${paymentAmount} ${selectedLoan.asset} has been processed successfully.`,
       });
 
-      console.log("✅ Payment completed successfully:", {
+      console.log("Payment completed successfully:", {
         transactionId,
         loanId: selectedLoan.id,
         amount: paymentAmount,
@@ -279,7 +279,7 @@ export default function ActiveLoansCard({
         updateTransactionStatus(transactionId, "failed");
       }
 
-      console.error("❌ Payment failed:", error);
+      console.error("Payment failed:", error);
       addToast({
         type: "error",
         title: "Payment Failed",
@@ -1175,8 +1175,6 @@ export default function ActiveLoansCard({
                   )} // Convert USD to sats
                   chain="btc"
                   onTransactionFound={(txid) => {
-                    console.log("✅ Bitcoin payment transaction found:", txid);
-
                     // Process the Bitcoin payment with transaction logging
                     makePayment(selectedLoan.id, Number(paymentAmount));
 
@@ -1191,7 +1189,6 @@ export default function ActiveLoansCard({
                     });
                   }}
                   onError={(error) => {
-                    console.error("❌ Bitcoin payment error:", error);
                     addToast({
                       type: "error",
                       title: "Bitcoin Payment Failed",
