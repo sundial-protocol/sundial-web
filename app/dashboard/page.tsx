@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { PortfolioOverview } from "./overview/portfolio-overview";
 import { TransactionHistory } from "./tx-history";
 import { YieldCatalog } from "./yield-catalog";
-import { PrebuiltStrategies } from "./prebuilt-strategies";
+import PrebuiltStrategies from "./prebuilt-strategies";
 import Deposit from "./deposit/deposit";
 import WithdrawTab from "./deposit/withdraw";
 import { Section } from "@/components/ui/section";

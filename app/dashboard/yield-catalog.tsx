@@ -212,9 +212,7 @@ export function YieldCatalog() {
               </div>
 
               <Button className="w-full" asChild>
-                <Link href={opportunity.type === "staking" ? "/stake" : "#"}>
-                  Start Earning
-                </Link>
+                <Link href={"/stake"}>Start Earning</Link>
               </Button>
             </CardContent>
           </Card>

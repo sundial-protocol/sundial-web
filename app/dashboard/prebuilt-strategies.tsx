@@ -27,10 +27,9 @@ import {
   Zap,
   Star,
 } from "lucide-react";
-import Link from "next/link";
 import { usePrebuiltStrategies } from "@/hooks/dashboard/prebuilt-strategies";
 
-export function PrebuiltStrategies() {
+export default function PrebuiltStrategies() {
   const { strategies, filterStrategies, isLoading } = usePrebuiltStrategies();
 
   const [filterRisk, setFilterRisk] = useState("all");
@@ -298,9 +297,7 @@ export function PrebuiltStrategies() {
                 </div>
               )}
 
-              <Button className="w-full" asChild>
-                <Link href="/stake">Deploy Strategy</Link>
-              </Button>
+              <Button className="w-full">Deploy Strategy</Button>
             </CardContent>
           </Card>
         ))}
