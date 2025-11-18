@@ -2,9 +2,9 @@
 
 import { HeroSection } from "@/components/ui/hero-section";
 import Link from "next/link";
-import Partners from "../../components/reusable-sections/partners";
 import { useEffect, useState } from "react";
 import { LucideArrowRight } from "lucide-react";
+import FeaturedPartner from "@/components/reusable-sections/featured-partner";
 // import Image from "next/image";
 
 function OrbitTrace({ size, color }: { size: number; color?: string }) {
@@ -324,7 +324,9 @@ export default function Hero() {
           </div>
         </div>
       </div>
-      <Partners />
+      <div className="absolute right-8 py-8 hidden lg:block">
+        <FeaturedPartner />
+      </div>
     </HeroSection>
   );
 }
