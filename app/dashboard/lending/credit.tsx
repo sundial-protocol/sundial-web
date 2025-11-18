@@ -198,8 +198,6 @@ export default function CreditLoan() {
         }
       );
 
-      console.log("🚀 Created pending credit loan transaction:", transactionId);
-
       const loanData = {
         type: "credit" as const,
         amount: Number(borrowAmount),
@@ -225,8 +223,6 @@ export default function CreditLoan() {
         interestPaid: 0,
       };
 
-      const newLoan = await addLoan(loanData);
-
       // Mark transaction as completed
       updateTransactionStatus(transactionId, "completed");
 
@@ -243,12 +239,6 @@ export default function CreditLoan() {
           2
         )} ${borrowAsset}\nFunds will be transferred to your account.`,
       });
-
-      console.log("✅ Credit loan created successfully:", {
-        transactionId,
-        netAmount: netAmount.toFixed(2),
-        interestRate: creditScore.interestRate,
-      });
     } catch (error) {
       // Mark transaction as failed
       if (transactionId) {
@@ -260,11 +250,10 @@ export default function CreditLoan() {
         title: "Loan Application Failed",
         message: "Failed to process your loan application. Please try again.",
       });
-      console.error("❌ Credit loan creation error:", error);
     }
   };
 
-  // UPDATED: Enhanced transaction flow handler
+  // Enhanced transaction flow handler
   const handleCreateCreditLoan = (withBitcoinBoost = false) => {
     if (!borrowAmount) return;
 
@@ -744,7 +733,7 @@ export default function CreditLoan() {
             </div>
           )}
 
-          {/* UPDATED: Action Buttons - emphasize receiving funds */}
+          {/* Action Buttons - emphasize receiving funds */}
           <div className="flex gap-2">
             <Button
               className="flex-1"
@@ -770,7 +759,7 @@ export default function CreditLoan() {
             </Button>
           </div>
 
-          {/* UPDATED: Bitcoin Credit Benefits - clarify the flow */}
+          {/* Bitcoin Credit Benefits - clarify the flow */}
           <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
             <div className="text-sm text-orange-700 dark:text-orange-400">
               <strong>Bitcoin Credit Boost:</strong> Verify Bitcoin ownership
@@ -780,7 +769,7 @@ export default function CreditLoan() {
             </div>
           </div>
 
-          {/* UPDATED: Loan Terms - clarify the benefits */}
+          {/* Loan Terms - clarify the benefits */}
           <div className="space-y-2 text-xs text-muted-foreground border-t pt-4">
             <div className="flex justify-between">
               <span>Standard interest rate:</span>

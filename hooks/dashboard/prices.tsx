@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 
 export type CurrencyCode = "USD" | "BTC" | "ADA" | "EUR" | "tBTC" | "tADA";
 export type StakingCurrencyCode = "USD" | "BTC";
@@ -7,7 +7,7 @@ export type PricesMap = Record<CurrencyCode, number>;
 
 export const DEFAULT_PRICES: PricesMap = {
   USD: 1,
-  BTC: 100000, // 1 BTC = 100,000 USD (hardcoded example)
+  BTC: 100000, // 1 BTC = 100,000 USD (fallback if API fails)
   ADA: 0.7, // 1 ADA = $0.70 USD (hardcoded example)
   EUR: 1.05,
   // Testnet currencies - will have to split based on environment later
@@ -27,6 +27,55 @@ export function usePrices(initial?: Partial<PricesMap>) {
     ...DEFAULT_PRICES,
     ...(initial ?? {}),
   }));
+  const [isLoading, setIsLoading] = useState(true);
+  const [lastFetch, setLastFetch] = useState<number>(0);
+
+  // Fetch real-time Bitcoin price
+  const fetchBitcoinPrice = useCallback(async () => {
+    try {
+      const response = await fetch("/api/btc-price");
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.price && typeof data.price === "number" && data.price > 0) {
+        setPrices((prev) => ({
+          ...prev,
+          BTC: data.price,
+          tBTC: data.price, // Update testnet BTC to same price
+        }));
+        setLastFetch(Date.now());
+        console.log("✅ Updated BTC price:", data.price);
+      } else {
+        throw new Error("Invalid price data received");
+      }
+    } catch (error) {
+      console.error("❌ Failed to fetch Bitcoin price:", error);
+      // Keep using the current/default price on error
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Initial fetch and periodic updates
+  useEffect(() => {
+    // Fetch immediately
+    fetchBitcoinPrice();
+
+    // Set up interval to fetch every 5 minutes (300,000ms)
+    const interval = setInterval(fetchBitcoinPrice, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [fetchBitcoinPrice]);
+
+  // Refresh price manually (useful for user-triggered updates)
+  const refreshBitcoinPrice = useCallback(async () => {
+    setIsLoading(true);
+    await fetchBitcoinPrice();
+  }, [fetchBitcoinPrice]);
 
   const getPriceInUSD = useCallback(
     (currency: CurrencyCode) => {
@@ -102,8 +151,22 @@ export function usePrices(initial?: Partial<PricesMap>) {
       convert,
       addPrice,
       removeCurrency,
+      refreshBitcoinPrice,
+      isLoading,
+      lastFetch,
+      lastUpdated: lastFetch ? new Date(lastFetch).toLocaleTimeString() : null,
     }),
-    [prices, getPriceInUSD, getRate, convert, addPrice, removeCurrency]
+    [
+      prices,
+      getPriceInUSD,
+      getRate,
+      convert,
+      addPrice,
+      removeCurrency,
+      refreshBitcoinPrice,
+      isLoading,
+      lastFetch,
+    ]
   );
 
   return utilities;
