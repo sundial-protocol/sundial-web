@@ -8,6 +8,19 @@ import { NewsTimeline } from "./news-timeline";
 export function NewsWidget({ item }: { item: NewsCard }) {
   const link = "/news/" + item.id;
 
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    } catch (error) {
+      return dateString; // Return original if parsing fails
+    }
+  };
+
   return (
     <div
       className={styles.newsItem}
@@ -17,13 +30,15 @@ export function NewsWidget({ item }: { item: NewsCard }) {
         backgroundPosition: "center",
       }}
     >
-      <span className="bg-black/80 p-4 rounded-lg flex flex-col space-y-2 text-white">
-        <h2 className="text-2xl font-bold py-2 text-primary">{item.date}</h2>
+      <Link
+        href={link}
+        className="bg-black/80 p-4 rounded flex flex-col space-y-2 text-primary text-lg"
+      >
         {item.title}
-        <Link href={link} className="text-gray-500">
-          Read more
-        </Link>
-      </span>
+        <span className="text-sm py-2 text-gray-100 italic">
+          {formatDate(item.date)}
+        </span>
+      </Link>
     </div>
   );
 }
