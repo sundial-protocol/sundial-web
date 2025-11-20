@@ -1,9 +1,10 @@
 import Link from "next/link";
-import styles from "./recent-news.module.css";
+import styles from "./news-timeline.module.css";
 import { Section } from "@/components/ui/section";
 import { getNews, NewsCard } from "@/hooks/get-news";
 import React from "react";
 import { NewsTimeline } from "./news-timeline";
+import NewsCTA from "./news-cta";
 
 export function NewsWidget({ item }: { item: NewsCard }) {
   const link = "/news/" + item.id;
@@ -66,6 +67,7 @@ export default async function NewsHighlights() {
           .filter((item) => highlightArticles.includes(item.id))
           .reverse()}
       />
+      <NewsCTA />
     </Section>
   );
 }

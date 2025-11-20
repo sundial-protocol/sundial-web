@@ -1,7 +1,7 @@
 import MaintenanceSunset from "@/components/reusable-sections/maintenance-sunset/maintenance-sunset";
 import Image from "next/image";
 import Team from "./team";
-import NewsHighlights from "../news/recent-news";
+import NewsHighlights from "../news/highlights";
 import Partners from "@/components/reusable-sections/partners";
 import { HeroSection } from "@/components/ui/hero-section";
 
