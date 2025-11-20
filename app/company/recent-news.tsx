@@ -28,13 +28,29 @@ export function NewsWidget({ item }: { item: NewsCard }) {
   );
 }
 
-export default async function RecentNews() {
+export default async function NewsHighlights() {
   const newsItems: NewsCard[] = await getNews();
+
+  const highlightArticles = [
+    "sundial-incorporated",
+    "checkpoint-partnership",
+    "BitAngels-Pitch",
+    "draper-university",
+    "ascent-partnership",
+    "appold-partnership",
+    "btc-vegas-2025",
+    "sundial-attends-t2049-t4is",
+    "financial-dashboard",
+  ];
 
   return (
     <Section>
       {/* Pass newsItems to a Client Component if needed */}
-      <NewsTimeline newsItems={newsItems.reverse()} />
+      <NewsTimeline
+        newsItems={newsItems
+          .filter((item) => highlightArticles.includes(item.id))
+          .reverse()}
+      />
     </Section>
   );
 }
