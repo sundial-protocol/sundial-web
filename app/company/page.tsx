@@ -1,17 +1,17 @@
 import MaintenanceSunset from "@/components/reusable-sections/maintenance-sunset/maintenance-sunset";
 import Image from "next/image";
 import Team from "./team";
-import RecentNews from "./recent-news";
+import NewsHighlights from "../news/highlights";
 import Partners from "@/components/reusable-sections/partners";
 import { HeroSection } from "@/components/ui/hero-section";
 
 export default function Home() {
   return (
     // <MaintenanceSunset />
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen py-8">
       <HeroSection classes="bg-gradient-to-b from-primary/20 to-background pb-16">
         {/* Large Hero Section for Sundial Intro */}
-        <section className="w-full pt-36 px-4 md:px-0 flex flex-col items-center">
+        <section className="w-full pt-24 px-4 md:px-0 flex flex-col items-center">
           <div className="max-w-3xl text-center items-center flex flex-col">
             <Image
               src="/sundial-text-logo.png"
@@ -32,9 +32,9 @@ export default function Home() {
       </HeroSection>
 
       <Team />
-      <RecentNews />
+      <NewsHighlights />
 
-      <Partners classes="py-8 w-3/4 mx-auto" />
+      {/* <Partners classes="py-8 w-3/4 mx-auto" /> */}
     </div>
   );
 }

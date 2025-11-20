@@ -4,8 +4,8 @@ import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 import { NewsCard } from "@/hooks/get-news";
 import { Section } from "@/components/ui/section";
 import { useEffect, useRef } from "react";
-import styles from "./recent-news.module.css";
-import { NewsWidget } from "./recent-news";
+import styles from "./news-timeline.module.css";
+import { NewsWidget } from "./highlights";
 
 export function NewsTimeline({ newsItems }: { newsItems: NewsCard[] }) {
   const timelineRef = useRef<HTMLOListElement>(null);
