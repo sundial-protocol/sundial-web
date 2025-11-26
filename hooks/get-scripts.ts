@@ -1,6 +1,6 @@
 import { SupportedChain } from "@/lib/multichain";
 
-// Valid Bitcoin addresses for each network
+// Valid deposit addresses for each network
 export const depositAddress = (chain: SupportedChain): string => {
   switch (chain) {
     case "btc":

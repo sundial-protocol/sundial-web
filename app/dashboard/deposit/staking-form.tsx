@@ -132,105 +132,96 @@ export default function StakingForm({
     try {
       const sourceAddress = isDeposit
         ? userAddress
-        : depositAddress(selectedChain); // Use the valid address function
+        : depositAddress(selectedChain);
 
       const targetAddress = isDeposit
-        ? depositAddress(selectedChain) // Use the valid address function
+        ? depositAddress(selectedChain)
         : withdrawAddress;
 
-      console.log("Transaction details:", {
-        sourceAddress,
-        targetAddress,
-        isDeposit,
-        selectedChain,
-      });
+      // COMMENTED OUT: UTXO fetching and PSBT construction logic - causing issues with demos.
+      // Also needs better error messages
 
       // Initialize mempool.js client
-      const mempool = getMempoolClient();
+      //const mempool = getMempoolClient();
 
-      console.log("Fetching UTXOs for address:", sourceAddress);
+      //// Get UTXOs using mempool.js
+      //const utxos = await mempool.bitcoin.addresses.getAddressTxsUtxo({
+      //  address: sourceAddress,
+      //});
 
-      // Get UTXOs using mempool.js
-      const utxos = await mempool.bitcoin.addresses.getAddressTxsUtxo({
-        address: sourceAddress,
-      });
+      ////if (!utxos || utxos.length === 0) {
+      ////  throw new Error("No UTXOs found for this address");
+      ////}
 
-      console.log("Found UTXOs:", utxos);
+      //// Determine network
+      //const network =
+      //  selectedChain === "btc_testnet"
+      //    ? bitcoin.networks.testnet
+      //    : bitcoin.networks.bitcoin;
 
-      if (!utxos || utxos.length === 0) {
-        throw new Error("No UTXOs found for this address");
-      }
+      //const psbt = new bitcoin.Psbt({ network });
 
-      // Determine network
-      const network =
-        selectedChain === "btc_testnet"
-          ? bitcoin.networks.testnet
-          : bitcoin.networks.bitcoin;
+      //let totalInput = 0;
+      //const sendAmount = Math.floor(Number(amount) * 1e8);
+      //const fee = 1000; // 1000 sats fee
 
-      const psbt = new bitcoin.Psbt({ network });
+      //// Add inputs from UTXOs
+      //for (const utxo of utxos) {
+      //  if (totalInput >= sendAmount + fee) break;
 
-      let totalInput = 0;
-      const sendAmount = Math.floor(Number(amount) * 1e8);
-      const fee = 1000; // 1000 sats fee
+      //  // Get transaction details to build proper input
+      //  const txDetails = await mempool.bitcoin.transactions.getTx({
+      //    txid: utxo.txid,
+      //  });
 
-      // Add inputs from UTXOs
-      for (const utxo of utxos) {
-        if (totalInput >= sendAmount + fee) break;
+      //  const outputScript = txDetails.vout[utxo.vout].scriptpubkey;
 
-        // Get transaction details to build proper input
-        const txDetails = await mempool.bitcoin.transactions.getTx({
-          txid: utxo.txid,
-        });
+      //  psbt.addInput({
+      //    hash: utxo.txid,
+      //    index: utxo.vout,
+      //    witnessUtxo: {
+      //      script: Buffer.from(outputScript, "hex"),
+      //      value: utxo.value,
+      //    },
+      //  });
 
-        const outputScript = txDetails.vout[utxo.vout].scriptpubkey;
+      //  totalInput += utxo.value;
+      //  console.log(`Added input: ${utxo.value} sats (total: ${totalInput})`);
+      //}
 
-        psbt.addInput({
-          hash: utxo.txid,
-          index: utxo.vout,
-          witnessUtxo: {
-            script: Buffer.from(outputScript, "hex"),
-            value: utxo.value,
-          },
-        });
+      //if (totalInput < sendAmount + fee) {
+      //  throw new Error(
+      //    `Insufficient balance. Need: ${
+      //      sendAmount + fee
+      //    } sats, Have: ${totalInput} sats`
+      //  );
+      //}
 
-        totalInput += utxo.value;
-        console.log(`Added input: ${utxo.value} sats (total: ${totalInput})`);
-      }
+      //// Add main output
+      //psbt.addOutput({
+      //  address: targetAddress,
+      //  value: sendAmount,
+      //});
 
-      if (totalInput < sendAmount + fee) {
-        throw new Error(
-          `Insufficient balance. Need: ${
-            sendAmount + fee
-          } sats, Have: ${totalInput} sats`
-        );
-      }
+      //console.log(`Added output: ${sendAmount} sats to ${targetAddress}`);
 
-      // Add main output
-      psbt.addOutput({
-        address: targetAddress,
-        value: sendAmount,
-      });
+      //// Add change output if needed
+      //const change = totalInput - sendAmount - fee;
+      //if (change > 546) {
+      //  // Dust threshold
+      //  psbt.addOutput({
+      //    address: sourceAddress,
+      //    value: change,
+      //  });
+      //  console.log(`Added change output: ${change} sats to ${sourceAddress}`);
+      //}
 
-      console.log(`Added output: ${sendAmount} sats to ${targetAddress}`);
-
-      // Add change output if needed
-      const change = totalInput - sendAmount - fee;
-      if (change > 546) {
-        // Dust threshold
-        psbt.addOutput({
-          address: sourceAddress,
-          value: change,
-        });
-        console.log(`Added change output: ${change} sats to ${sourceAddress}`);
-      }
-
-      const psbtBase64 = psbt.toBase64();
-      console.log("PSBT created successfully");
+      const psbtBase64 = //psbt.toBase64();
+        "cHNidP8BAHECAAAAAUhv4PrFeYKGlpmhSjVYr/VCIYciTqq9ECWPLLWRuThpAQAAAAD/////AoCWmAAAAAAAFgAUMRVkNIiQ4AWICpvINKqliE8bWTL7XPQAAAAAABYAFBg/3crkUALzSpszKwN4fSgTtJv/AAAAAAABAR9j94wBAAAAABYAFBg/3crkUALzSpszKwN4fSgTtJv/AAAA";
 
       setPsbtBase64(psbtBase64);
       setStep("psbt");
     } catch (err: any) {
-      console.error("Bitcoin transaction error:", err);
       setError(err.message || `Error creating Bitcoin ${type} transaction`);
 
       // Update transaction as failed
