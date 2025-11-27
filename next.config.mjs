@@ -20,6 +20,9 @@ const nextConfig = {
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
   },
+  compiler: {
+    removeConsole: process.env.NEXT_PUBLIC_SITE_ENV === "production",
+  },
 };
 
 mergeConfig(nextConfig, userConfig);
