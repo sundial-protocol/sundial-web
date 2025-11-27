@@ -14,6 +14,7 @@ import WithdrawTab from "./deposit/withdraw";
 import { Section } from "@/components/ui/section";
 import LendingTab from "./lending/lending";
 import { ConfirmationProvider } from "@/components/ui/confirmation";
+import DemoDisclaimer from "./demo-disclaimer";
 
 // Loading component
 function DashboardLoading() {
@@ -107,6 +108,9 @@ function DashboardContent() {
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
+        {/* Demo Disclaimer - visible on all tabs */}
+        <DemoDisclaimer classes="mb-6" />
+
         {/* Tab Navigation */}
         <div className="mb-8">
           <div className="flex space-x-1 bg-muted p-1 rounded-lg">
