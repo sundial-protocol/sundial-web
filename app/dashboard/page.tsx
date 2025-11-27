@@ -15,6 +15,7 @@ import { Section } from "@/components/ui/section";
 import LendingTab from "./lending/lending";
 import { ConfirmationProvider } from "@/components/ui/confirmation";
 import DemoDisclaimer from "./demo-disclaimer";
+import { PriceProvider } from "@/lib/contexts/price-context";
 
 // Loading component
 function DashboardLoading() {
@@ -167,19 +168,21 @@ export default function DashboardPage() {
         },
       ]}
     >
-      <DashboardProvider>
-        <ConfirmationProvider>
-          <div className="min-h-screen">
-            <Section className="pb-24">
-              <div className="container mx-auto px-4">
-                <Suspense fallback={<DashboardLoading />}>
-                  <DashboardContent />
-                </Suspense>
-              </div>
-            </Section>
-          </div>
-        </ConfirmationProvider>
-      </DashboardProvider>
+      <PriceProvider>
+        <DashboardProvider>
+          <ConfirmationProvider>
+            <div className="min-h-screen">
+              <Section className="pb-24">
+                <div className="container mx-auto px-4">
+                  <Suspense fallback={<DashboardLoading />}>
+                    <DashboardContent />
+                  </Suspense>
+                </div>
+              </Section>
+            </div>
+          </ConfirmationProvider>
+        </DashboardProvider>
+      </PriceProvider>
     </SunbeamBackground>
   );
 }

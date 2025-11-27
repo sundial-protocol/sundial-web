@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState, useEffect } from "react";
+import { useGlobalPrice } from "@/lib/contexts/price-context";
 
 export type CurrencyCode = "USD" | "BTC" | "ADA" | "EUR" | "tBTC" | "tADA";
 export type StakingCurrencyCode = "USD" | "BTC";
@@ -7,75 +8,28 @@ export type PricesMap = Record<CurrencyCode, number>;
 
 export const DEFAULT_PRICES: PricesMap = {
   USD: 1,
-  BTC: 100000, // 1 BTC = 100,000 USD (fallback if API fails)
-  ADA: 0.7, // 1 ADA = $0.70 USD (hardcoded example)
+  BTC: 100000,
+  ADA: 0.7,
   EUR: 1.05,
-  // Testnet currencies - will have to split based on environment later
   tBTC: 100000,
   tADA: 0.7,
 };
 
-/**
- * Hook providing conversion utilities between currencies.
- *
- * Basic usage:
- * const { convert, getRate, addPrice, prices } = usePrices();
- * convert(2, "BTC", "USD") // => ~200000
- */
 export function usePrices(initial?: Partial<PricesMap>) {
+  const { btcPrice, isLoading: btcLoading, refreshPrice } = useGlobalPrice();
   const [prices, setPrices] = useState<PricesMap>(() => ({
     ...DEFAULT_PRICES,
     ...(initial ?? {}),
   }));
-  const [isLoading, setIsLoading] = useState(true);
-  const [lastFetch, setLastFetch] = useState<number>(0);
 
-  // Fetch real-time Bitcoin price
-  const fetchBitcoinPrice = useCallback(async () => {
-    try {
-      const response = await fetch("/api/btc-price");
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (data.price && typeof data.price === "number" && data.price > 0) {
-        setPrices((prev) => ({
-          ...prev,
-          BTC: data.price,
-          tBTC: data.price, // Update testnet BTC to same price
-        }));
-        setLastFetch(Date.now());
-        console.log("✅ Updated BTC price:", data.price);
-      } else {
-        throw new Error("Invalid price data received");
-      }
-    } catch (error) {
-      console.error("❌ Failed to fetch Bitcoin price:", error);
-      // Keep using the current/default price on error
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Initial fetch and periodic updates
+  // Update BTC prices when global price changes
   useEffect(() => {
-    // Fetch immediately
-    fetchBitcoinPrice();
-
-    // Set up interval to fetch every 5 minutes (300,000ms)
-    const interval = setInterval(fetchBitcoinPrice, 5 * 60 * 1000);
-
-    return () => clearInterval(interval);
-  }, [fetchBitcoinPrice]);
-
-  // Refresh price manually (useful for user-triggered updates)
-  const refreshBitcoinPrice = useCallback(async () => {
-    setIsLoading(true);
-    await fetchBitcoinPrice();
-  }, [fetchBitcoinPrice]);
+    setPrices((prev) => ({
+      ...prev,
+      BTC: btcPrice,
+      tBTC: btcPrice,
+    }));
+  }, [btcPrice]);
 
   const getPriceInUSD = useCallback(
     (currency: CurrencyCode) => {
@@ -88,10 +42,6 @@ export function usePrices(initial?: Partial<PricesMap>) {
     [prices]
   );
 
-  /**
-   * Returns the conversion rate to multiply an amount in `from` to get amount in `to`.
-   * rate = (USD per to unit) / (USD per from unit)
-   */
   const getRate = useCallback(
     (from: CurrencyCode, to: CurrencyCode) => {
       const fromUsd = getPriceInUSD(from);
@@ -101,10 +51,6 @@ export function usePrices(initial?: Partial<PricesMap>) {
     [getPriceInUSD]
   );
 
-  /**
-   * Convert an amount from one currency to another.
-   * Example: convert(1, "BTC", "USD") => 100000
-   */
   const convert = useCallback(
     (amount: number, from: CurrencyCode, to: CurrencyCode) => {
       if (typeof amount !== "number" || !isFinite(amount)) {
@@ -116,10 +62,6 @@ export function usePrices(initial?: Partial<PricesMap>) {
     [getRate]
   );
 
-  /**
-   * Add or update a currency price (USD per unit).
-   * Useful for dynamic updates or adding new currencies.
-   */
   const addPrice = useCallback((currency: CurrencyCode, usdPerUnit: number) => {
     if (
       typeof usdPerUnit !== "number" ||
@@ -131,9 +73,6 @@ export function usePrices(initial?: Partial<PricesMap>) {
     setPrices((prev) => ({ ...prev, [currency]: usdPerUnit }));
   }, []);
 
-  /**
-   * Remove a currency from the map.
-   */
   const removeCurrency = useCallback((currency: CurrencyCode) => {
     setPrices((prev) => {
       if (!(currency in prev)) return prev;
@@ -151,10 +90,10 @@ export function usePrices(initial?: Partial<PricesMap>) {
       convert,
       addPrice,
       removeCurrency,
-      refreshBitcoinPrice,
-      isLoading,
-      lastFetch,
-      lastUpdated: lastFetch ? new Date(lastFetch).toLocaleTimeString() : null,
+      refreshBitcoinPrice: refreshPrice, // Use global refresh
+      isLoading: btcLoading,
+      lastFetch: 0, // Legacy compatibility
+      lastUpdated: null, // Use global context for this
     }),
     [
       prices,
@@ -163,18 +102,14 @@ export function usePrices(initial?: Partial<PricesMap>) {
       convert,
       addPrice,
       removeCurrency,
-      refreshBitcoinPrice,
-      isLoading,
-      lastFetch,
+      refreshPrice,
+      btcLoading,
     ]
   );
 
   return utilities;
 }
 
-/**
- * Lightweight standalone helpers (non-hook).
- */
 export function convertWithPrices(
   amount: number,
   from: CurrencyCode,
@@ -192,9 +127,6 @@ export function convertWithPrices(
   return (fromUsd / toUsd) * amount;
 }
 
-/**
- * Small formatter.
- */
 export function formatAmount(amount: number, decimals = 6) {
   if (!isFinite(amount)) return String(amount);
   const d = Math.max(0, Math.min(12, decimals));
