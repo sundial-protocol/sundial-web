@@ -130,7 +130,7 @@ export function generateEarningsData(
   const currentYear = today.getFullYear();
 
   const data: EarningsData[] = [];
-  let ada = convertWithPrices(adaValue, "USD", "ADA", priceMap);
+  let btc = btcValue;
 
   // Generate 12 months of data (6 historical, 6 projected from today)
   for (let i = -6; i <= 6; i++) {
@@ -166,18 +166,16 @@ export function generateEarningsData(
         type: "current",
       });
     } else {
-      ada =
-        ada +
-        convertWithPrices(getYield(ada + btcValue), "USD", "ADA", priceMap);
+      btc = btc + getYield(btc);
 
       data.push({
         month: monthName,
         btcEarnings: null,
         adaEarnings: null,
         total: null,
-        btcProjected: btcValue,
-        adaProjected: ada,
-        totalProjected: btcValue + ada,
+        btcProjected: btc,
+        adaProjected: adaValue,
+        totalProjected: btc + adaValue,
         type: "projected",
       });
     }
@@ -442,9 +440,9 @@ export function useDashboardData() {
 }
 
 export function usePortfolioCalculations(portfolioData: PortfolioData) {
-  const { convert, prices } = usePrices();
-  const btcRewards = 0;
-  const adaRewards = getYield(
+  const { convert } = usePrices();
+  const adaRewards = 0;
+  const btcRewards = getYield(
     convert(portfolioData.holdings.BTC, "BTC", "USD") +
       convert(portfolioData.holdings.ADA, "ADA", "USD")
   );

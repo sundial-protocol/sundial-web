@@ -170,7 +170,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     status: Transaction["status"],
     txHash?: string
   ) => {
-    console.log("🔄 Updating transaction status:", id, status);
+    console.log("Updating transaction status:", id, status);
 
     setTransactions((prev) => {
       const updated = prev.map((tx) =>
@@ -183,7 +183,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
 
   const removeTransaction = (id: string) => {
     setTransactions((prev) => prev.filter((tx) => tx.id !== id));
-    console.log("🗑️ Removed transaction:", id);
+    console.log("Removed transaction:", id);
   };
 
   const getTransactionsByType = (type: TxTypes | TxTypes[]): Transaction[] => {
@@ -211,7 +211,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
 
   const clearTransactions = () => {
     setTransactions([]);
-    console.log("🧹 Cleared all transactions");
+    console.log("Cleared all transactions");
   };
 
   // Auto-cleanup failed transactions after 10 minutes
