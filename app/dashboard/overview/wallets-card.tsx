@@ -91,6 +91,9 @@ export default function WalletsCard({
               <span className="font-semibold">Other</span>
             </div>
             <WalletButton />
+            <Button variant="outline" onClick={() => setBtcWallet(null)}>
+              Connect Dogecoin Wallet
+            </Button>
           </div>
         </div>
       </CardContent>

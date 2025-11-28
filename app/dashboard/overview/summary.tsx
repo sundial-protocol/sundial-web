@@ -39,7 +39,7 @@ export default function PortfolioSummary({ data }: { data: any }) {
             <div className="text-lg font-semibold text-blue-600">
               ${formatAmount(data.adaValue || 0, 0)}
             </div>
-            <div className="text-xs text-muted-foreground">Cardano Value</div>
+            <div className="text-xs text-muted-foreground">Other Holdings</div>
           </div>
         </div>
       </CardContent>

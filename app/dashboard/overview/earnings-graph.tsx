@@ -70,7 +70,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
           </p>
           <p className="text-sm">
             <span className="inline-block w-3 h-3 bg-blue-400 rounded mr-2"></span>
-            Cardano: ${formatAmount(adaValue, 2)}
+            Other: ${formatAmount(adaValue, 2)}
           </p>
           <p className="text-sm font-semibold">
             Total: ${formatAmount(totalValue, 2)}
@@ -107,7 +107,7 @@ export default function EarningsGraph(props: {
               <CardTitle>Earnings Overview</CardTitle>
               <CardDescription>
                 Historical performance and projected earnings across Bitcoin and
-                Other assets (USD values)
+                other assets (USD values)
               </CardDescription>
             </div>
             <Select value={timeRange} onValueChange={setTimeRange}>
@@ -182,14 +182,14 @@ export default function EarningsGraph(props: {
                 />
                 <Area
                   type="monotone"
-                  dataKey="adaProjected"
+                  dataKey="otherProjected"
                   stackId="2"
                   stroke="#3b82f6"
                   fill="#3b82f6"
                   fillOpacity={0.4}
                   strokeWidth={2}
                   strokeDasharray="5 5"
-                  name="Cardano Projected"
+                  name="Projected Other Assets"
                   connectNulls={false}
                 />
 
@@ -238,7 +238,7 @@ export default function EarningsGraph(props: {
                 ${formatAmount(earningsData[7]?.btcProjected || 0, 0)}
               </div>
               <div className="text-xs text-muted-foreground">
-                Projected BTC (This Month)
+                BTC (Projected - This Month)
               </div>
             </div>
             <div className="text-center">
@@ -246,7 +246,7 @@ export default function EarningsGraph(props: {
                 ${formatAmount(earningsData[7]?.adaProjected || 0, 0)}
               </div>
               <div className="text-xs text-muted-foreground">
-                Projected ADA (This Month)
+                Other Assets (Projected - This Month)
               </div>
             </div>
             <div className="text-center">
@@ -254,7 +254,7 @@ export default function EarningsGraph(props: {
                 ${formatAmount(earningsData[7]?.totalProjected || 0, 0)}
               </div>
               <div className="text-xs text-muted-foreground">
-                Total USD (This Month)
+                Total USD (Projected - This Month)
               </div>
             </div>
           </div>

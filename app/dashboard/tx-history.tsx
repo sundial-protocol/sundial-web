@@ -253,8 +253,7 @@ export function TransactionHistory() {
             </div>
           </CardTitle>
           <CardDescription>
-            View and manage all your blockchain transactions across Bitcoin,
-            Cardano, and lending activities
+            View and manage all your blockchain transactions
           </CardDescription>
         </CardHeader>
         <CardContent>

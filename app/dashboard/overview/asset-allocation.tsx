@@ -61,7 +61,7 @@ export default function AssetAllocation() {
     },
     // ADA Staked
     {
-      name: "Cardano Staked",
+      name: "Other Staked Assets",
       amount: stakedADA,
       symbol: "ADA",
       type: "staked",
@@ -76,7 +76,7 @@ export default function AssetAllocation() {
     },
     // ADA Unstaked
     {
-      name: "Cardano Holdings",
+      name: "Other Holdings",
       amount: unstakedADA,
       symbol: "ADA",
       type: "unstaked",
@@ -116,11 +116,9 @@ export default function AssetAllocation() {
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-blue-600">
-              {formatAmount(totalADA, 2)} ADA
-            </div>
-            <div className="text-sm text-muted-foreground">
               ${formatAmount(convert(totalADA, "ADA", "USD"), 0)} USD
             </div>
+            <div className="text-sm text-muted-foreground">other assets</div>
             <div className="text-xs text-green-600">
               {formatAmount(stakedADA, 2)} staked
             </div>
