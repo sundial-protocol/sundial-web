@@ -5,4 +5,4 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const isDev = process.env.NEXT_PUBLIC_SITE_ENV !== "production";
+export const isDev = process.env.NEXT_PUBLIC_VERCEL_ENV == "development";

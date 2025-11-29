@@ -21,7 +21,7 @@ const nextConfig = {
     parallelServerCompiles: true,
   },
   compiler: {
-    removeConsole: process.env.NEXT_PUBLIC_SITE_ENV === "production",
+    removeConsole: process.env.NEXT_PUBLIC_VERCEL_ENV === "production",
   },
 };
 
