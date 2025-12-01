@@ -8,6 +8,7 @@ import Image from "next/image";
 import { getNews } from "@/hooks/get-news";
 import HedgeCTA from "@/components/reusable-sections/hedge-cta";
 import NewsList from "../news/newslist";
+import NewsCTA from "../news/news-cta";
 
 export function PageLink({
   href,
@@ -124,15 +125,7 @@ export default async function DocsPage() {
       <Section className="p-24">
         <h2 className="text-2xl font-bold py-4">Latest News</h2>
         <NewsList news={latestNews} />
-        <div className="flex justify-end w-full mt-6">
-          <Link
-            href="/news"
-            className="flex items-center text-primary hover:text-primary/80 transition-colors"
-          >
-            <span>Read More</span>
-            <ArrowRight className="ml-1 h-4 w-4" />
-          </Link>
-        </div>
+        <NewsCTA classes="mt-8" />
 
         <HedgeCTA />
       </Section>
