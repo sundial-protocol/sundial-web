@@ -16,6 +16,8 @@ import LendingTab from "./lending/lending";
 import { ConfirmationProvider } from "@/components/ui/confirmation";
 import DemoDisclaimer from "./demo-disclaimer";
 import { PriceProvider } from "@/lib/contexts/price-context";
+import MaintenanceSunset from "@/components/reusable-sections/maintenance-sunset/maintenance-sunset";
+import { isProd } from "@/lib/flags";
 
 // Loading component
 function DashboardLoading() {
@@ -148,6 +150,10 @@ function DashboardContent() {
 }
 
 export default function DashboardPage() {
+  if (isProd) {
+    return <MaintenanceSunset />;
+  }
+
   return (
     <SunbeamBackground
       beams={[

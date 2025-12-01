@@ -34,6 +34,12 @@ Before you begin, ensure you have the following installed on your system:
    CMC_API_KEY=your_coinmarketcap_api_key_here
    ```
 
+   You can manually set the environment to preview | production | development (default)
+
+   ```
+   NEXT_PUBLIC_VERCEL_ENV=development
+   ```
+
    Set an auth token for GitHub Packages in your terminal:
 
    **Linux/MacOS:**

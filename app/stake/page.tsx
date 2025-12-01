@@ -21,6 +21,7 @@ import { StakeHero } from "./stake-hero";
 import { Section } from "@/components/ui/section";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 import MaintenanceSunset from "@/components/reusable-sections/maintenance-sunset/maintenance-sunset";
+import { isProd } from "@/lib/flags";
 
 // Mock data for validators
 const validators = Array.from({ length: 20 }, (_, i) => ({
@@ -46,6 +47,10 @@ function PageContent() {
   const validatorId = searchParams.get("validator");
   const stakeType = searchParams.get("type") || "regular";
 
+  if (isProd) {
+    return <MaintenanceSunset />;
+  }
+
   const [selectedValidator, setSelectedValidator] = useState(
     validatorId ? Number.parseInt(validatorId) : null
   );
@@ -70,7 +75,6 @@ function PageContent() {
   };
 
   return (
-    //<MaintenanceSunset />
     <div className="flex flex-col min-h-screen">
       <StakeHero />
       <SunbeamBackground

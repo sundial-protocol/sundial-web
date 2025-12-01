@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { isProd } from "@/lib/flags";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
 import {
@@ -11,6 +12,7 @@ import {
   FileCode2,
   Building,
   Folder,
+  Bitcoin,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -108,13 +110,23 @@ export default function Navbar() {
               : "bg-primary-foreground/70 backdrop-blur-md"
           )}
         >
-          <NavLink
-            href="/dashboard"
-            classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
-          >
-            <BadgeCheck className={navIconCn} />
-            {drawerOpen && <span className="text-sm">Dashboard</span>}
-          </NavLink>
+          {isProd ? (
+            <NavLink
+              href="/solutions"
+              classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
+            >
+              <BadgeCheck className={navIconCn} />
+              {drawerOpen && <span className="text-sm">Solutions</span>}
+            </NavLink>
+          ) : (
+            <NavLink
+              href="/dashboard"
+              classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
+            >
+              <Bitcoin className={navIconCn} />
+              {drawerOpen && <span className="text-sm">Dashboard</span>}
+            </NavLink>
+          )}
 
           <NavLink
             href="/technology"

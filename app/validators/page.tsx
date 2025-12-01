@@ -2,6 +2,7 @@ import Link from "next/link";
 import StakeCTA from "@/components/reusable-sections/stake-cta";
 import { HeroSection } from "@/components/ui/hero-section";
 import MaintenanceSunset from "@/components/reusable-sections/maintenance-sunset/maintenance-sunset";
+import { isProd } from "@/lib/flags";
 
 // Mock data for validators
 const validators = Array.from({ length: 20 }, (_, i) => ({
@@ -15,8 +16,11 @@ const validators = Array.from({ length: 20 }, (_, i) => ({
 }));
 
 export default function ValidatorsPage() {
+  if (isProd) {
+    return <MaintenanceSunset />;
+  }
+
   return (
-    //<MaintenanceSunset />
     <div className="flex flex-col min-h-screen mt-24">
       <HeroSection>
         <div className="flex flex-col items-center justify-center space-y-4 text-center">

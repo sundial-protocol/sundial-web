@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Check, Info } from "lucide-react";
+import MaintenanceSunset from "@/components/reusable-sections/maintenance-sunset/maintenance-sunset";
+import { isProd } from "@/lib/flags";
 
 // Function to get validator data by ID
 function getValidatorById(id: string) {
@@ -27,6 +29,10 @@ export default async function ValidatorDetailPage({
 }) {
   const awaitedParams = await params;
   const validator = getValidatorById(awaitedParams.id);
+
+  if (isProd) {
+    return <MaintenanceSunset />;
+  }
 
   return (
     <div className="flex flex-col min-h-screen">

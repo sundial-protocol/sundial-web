@@ -1,5 +1,5 @@
 import { Bitcoin, Coins } from "lucide-react";
-import { isDev } from "@/lib/utils";
+import { isDev } from "@/lib/flags";
 import { CurrencyCode } from "@/hooks/dashboard/prices";
 
 export type SupportedChain = "btc" | "ada" | "btc_testnet" | "ada_testnet";

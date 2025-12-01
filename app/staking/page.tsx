@@ -6,10 +6,13 @@ import StakingCTA from "./staking-cta";
 import { WhyStake } from "./why-stake";
 import { ValidatorsPreview } from "@/components/reusable-sections/validators-preview";
 import MaintenanceSunset from "@/components/reusable-sections/maintenance-sunset/maintenance-sunset";
+import { isProd } from "@/lib/flags";
 
 export default function StakingPage() {
+  if (isProd) {
+    return <MaintenanceSunset />;
+  }
   return (
-    //<MaintenanceSunset />
     <div className="flex flex-col min-h-screen">
       <StakingHero />
 
