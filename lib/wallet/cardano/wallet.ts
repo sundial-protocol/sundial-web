@@ -1,7 +1,7 @@
 import { WalletApi } from "@/global";
 import { decode as decodeCbor } from "cborg";
 
-import { knownWalletExtensions, KnownWalletName } from ".";
+import { knownWalletExtensions, KnownWalletName } from "..";
 import {
   ServerWalletNotSupported,
   WalletExtensionNotFoundError,
@@ -9,7 +9,7 @@ import {
   WalletNotCip30CompatibleError,
   WalletNotInstalledError,
   WrongNetworkTypeError,
-} from "./errors";
+} from "../errors";
 import { decodeHexAddress, NetworkType } from "./util";
 
 export function getInstalledWalletExtensions(supportedWallets?: string[]) {
@@ -78,7 +78,7 @@ export async function getNetwork(api: WalletApi) {
         const bech32Address = decodeHexAddress(hexAddresses[0]);
 
         let networkType = NetworkType.MAINNET;
-        if (bech32Address.startsWith("stake_test")) {
+        if (bech32Address.startsWith("addr_test1")) {
           networkType = NetworkType.TESTNET;
         }
 
