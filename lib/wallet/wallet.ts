@@ -22,6 +22,7 @@ export function getInstalledWalletExtensions(supportedWallets?: string[]) {
     .filter(
       (walletExtension) =>
         walletExtension !== "typhon" &&
+        !!cardano[walletExtension].enable &&
         typeof cardano[walletExtension].enable === "function"
     )
     .map((walletExtension) => walletExtension.toLowerCase());
