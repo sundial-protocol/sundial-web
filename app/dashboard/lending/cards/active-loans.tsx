@@ -50,9 +50,9 @@ export default function ActiveLoansCard({
     isProcessingPayment,
     isProcessingExtension,
     isProcessingRefinance,
-    // We'll get loans from dashboard context instead
-    // loans,
-    // activeLoans,
+    // Use loans from lending context which properly updates on payments
+    loans: contextLoans,
+    activeLoans: contextActiveLoans,
   } = useLending();
 
   // Get both transaction functions and loan data from dashboard context
@@ -65,77 +65,16 @@ export default function ActiveLoansCard({
     transactions,
   } = useDashboardContext();
 
-  // Calculate active loans from dashboard transactions
+  // Use active loans from lending context which properly tracks payments
   const activeLoans = useMemo(() => {
-    // Get all loan creation transactions
-    const loanCreationTxs = getLendingTransactions().filter(
-      (tx) => tx.type === "loan_created" && tx.status === "completed"
-    );
+    // Return the active loans from lending context instead of recalculating
+    return contextActiveLoans;
+  }, [contextActiveLoans]);
 
-    // Get all loan payment transactions
-    const loanPayments = getLendingTransactions().filter(
-      (tx) => tx.type === "loan_payment" && tx.status === "completed"
-    );
-
-    // Calculate current loan states
-    const loans = loanCreationTxs
-      .map((creationTx) => {
-        // Find all payments for this loan
-        const payments = loanPayments.filter(
-          (payment) => payment.loanId === creationTx.loanId
-        );
-
-        const totalPaid = payments.reduce(
-          (sum, payment) => sum + payment.amount,
-          0
-        );
-        const originalAmount = creationTx.amount;
-        const interestRate = creationTx.interestRate || 10.5;
-
-        // Calculate days since loan creation
-        const daysSinceCreation = Math.floor(
-          (new Date().getTime() - creationTx.timestamp.getTime()) /
-            (1000 * 60 * 60 * 24)
-        );
-
-        // Calculate accrued interest (simple daily compounding)
-        const dailyRate = interestRate / 100 / 365;
-        const interestAccrued = originalAmount * dailyRate * daysSinceCreation;
-        const totalOwed = originalAmount + interestAccrued;
-
-        // Calculate due date (assume 30-day loans by default)
-        const dueDate = new Date(
-          creationTx.timestamp.getTime() + 30 * 24 * 60 * 60 * 1000
-        );
-
-        // Calculate monthly payment (assuming 30-day term)
-        const monthlyPayment = totalOwed / 1; // Single payment for 30-day loan
-
-        return {
-          id: creationTx.loanId || creationTx.id,
-          type: creationTx.collateral ? "collateral" : "credit",
-          amount: originalAmount,
-          asset: creationTx.asset.toUpperCase(),
-          interestRate,
-          startDate: creationTx.timestamp,
-          dueDate,
-          status: totalPaid >= totalOwed ? "paid" : "active",
-          totalOwed: Math.max(0, totalOwed - totalPaid),
-          interestAccrued,
-          monthlyPayment,
-          nextPaymentDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-          paymentsRemaining: totalPaid >= totalOwed ? 0 : 1,
-          totalPaid,
-          interestPaid: Math.min(totalPaid, interestAccrued),
-          collateral: creationTx.collateral,
-          creationTxHash: creationTx.txHash,
-          bitcoinVerified: creationTx.details?.includes("Bitcoin"),
-        };
-      })
-      .filter((loan) => loan.status === "active" && loan.totalOwed > 0);
-
-    return loans;
-  }, [getLendingTransactions]);
+  // For backwards compatibility, also provide all loans
+  const loans = useMemo(() => {
+    return contextLoans;
+  }, [contextLoans]);
 
   console.log("Active loans calculated from dashboard context:", {
     totalLoans: activeLoans.length,
