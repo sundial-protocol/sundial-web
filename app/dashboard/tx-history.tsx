@@ -95,19 +95,19 @@ const getStatusBadge = (status: string) => {
   switch (status) {
     case "completed":
       return (
-        <Badge variant="secondary" className="bg-green-100 text-green-800">
+        <Badge variant="secondary" className="bg-green-800/20 text-green-800">
           Completed
         </Badge>
       );
     case "pending":
       return (
-        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+        <Badge variant="secondary" className="bg-yellow-800/20 text-yellow-800">
           Pending
         </Badge>
       );
     case "failed":
       return (
-        <Badge variant="secondary" className="bg-red-100 text-red-800">
+        <Badge variant="secondary" className="bg-red-800/20 text-red-800">
           Failed
         </Badge>
       );
@@ -328,13 +328,13 @@ export function TransactionHistory() {
           {/* Enhanced Summary Stats */}
           <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
             {/* Status Stats */}
-            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="p-4 bg-green-800/20 border border-green-200/90 rounded-lg">
               <div className="text-sm text-green-600">Completed</div>
               <div className="text-2xl font-bold text-green-800">
                 {transactions.filter((tx) => tx.status === "completed").length}
               </div>
             </div>
-            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="p-4 bg-yellow-800/20 border border-yellow-200/90 rounded-lg">
               <div className="text-sm text-yellow-600">Pending</div>
               <div className="text-2xl font-bold text-yellow-800">
                 {transactions.filter((tx) => tx.status === "pending").length}
@@ -342,25 +342,25 @@ export function TransactionHistory() {
             </div>
 
             {/*  Category Stats */}
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="p-4 bg-blue-800/20 border border-blue-200/90 rounded-lg">
               <div className="text-sm text-blue-600">Staking</div>
               <div className="text-lg font-bold text-blue-800">
                 {categoryStats.staking}
               </div>
             </div>
-            <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+            <div className="p-4 bg-purple-800/20 border border-purple-200/90 rounded-lg">
               <div className="text-sm text-purple-600">Lending</div>
               <div className="text-lg font-bold text-purple-800">
                 {categoryStats.lending}
               </div>
             </div>
-            <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
+            <div className="p-4 bg-orange-800/20 border border-orange-200/90 rounded-lg">
               <div className="text-sm text-orange-600">Portfolio</div>
               <div className="text-lg font-bold text-orange-800">
                 {categoryStats.portfolio}
               </div>
             </div>
-            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+            <div className="p-4 bg-emerald-800/20 border border-emerald-200/90 rounded-lg">
               <div className="text-sm text-emerald-600">Total Volume</div>
               <div className="text-lg font-bold text-emerald-800">
                 $

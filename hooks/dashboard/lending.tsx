@@ -6,6 +6,8 @@ import {
   useState,
   useCallback,
   ReactNode,
+  useEffect,
+  useMemo,
 } from "react";
 
 export interface LoanData {
@@ -136,10 +138,45 @@ export function LendingProvider({ children }: { children: ReactNode }) {
   const [isProcessingRefinance, setIsProcessingRefinance] = useState(false);
   const [isProcessingNewLoan, setIsProcessingNewLoan] = useState(false);
 
-  // Computed values
-  const activeLoans = loans.filter((loan) => loan.status === "active");
+  // Add periodic interest refresh
+  useEffect(() => {
+    // Update interest every hour for active loans
+    const interval = setInterval(() => {
+      if (loans.some((loan) => loan.status === "active")) {
+        // Force a re-calculation by updating the state slightly
+        setLoans((prevLoans) => [...prevLoans]);
+      }
+    }, 60 * 60 * 1000); // Every hour
+
+    return () => clearInterval(interval);
+  }, [loans]);
+
+  // Computed values with dynamic interest calculation
+  const activeLoans = useMemo(() => {
+    return loans
+      .filter((loan) => loan.status === "active")
+      .map((loan) => {
+        // Calculate days since loan creation for interest accrual
+        const daysSinceCreation = Math.floor(
+          (new Date().getTime() - loan.startDate.getTime()) /
+            (1000 * 60 * 60 * 24)
+        );
+
+        // Calculate daily compounding interest
+        const dailyRate = loan.interestRate / 100 / 365;
+        const accruedInterest = loan.amount * dailyRate * daysSinceCreation;
+        const currentTotalOwed = loan.amount + accruedInterest - loan.totalPaid;
+
+        return {
+          ...loan,
+          interestAccrued: accruedInterest,
+          totalOwed: Math.max(0, currentTotalOwed),
+        };
+      });
+  }, [loans]);
+
   const loanHistory = loans.filter((loan) => loan.status !== "active");
-  const stats = calculateStats(loans);
+  const stats = calculateStats([...activeLoans, ...loanHistory]);
 
   // Actions
   const addLoan = useCallback(async (loanData: Omit<LoanData, "id">) => {
@@ -304,14 +341,8 @@ export function LendingProvider({ children }: { children: ReactNode }) {
   );
 
   const refreshData = useCallback(async () => {
-    // In a real app, this would fetch fresh data from the API
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      // For now, just recalculate stats
-      // setLoans(prev => [...prev]);
-    } catch (error) {
-      console.error("Failed to refresh lending data:", error);
-    }
+    // Force a re-render to update interest calculations
+    setLoans((prevLoans) => [...prevLoans]);
   }, []);
 
   const contextValue: LendingContextType = {
