@@ -61,7 +61,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     const isProjected = data.btcProjected !== null && data.btcEarnings === null;
 
     return (
-      <div className="bg-white p-3 border rounded-lg shadow-lg">
+      <div className="bg-background p-3 border rounded-lg shadow-lg">
         <p className="font-semibold">{label}</p>
         <div className="space-y-1">
           <p className="text-sm">
@@ -250,7 +250,7 @@ export default function EarningsGraph(props: {
               </div>
             </div>
             <div className="text-center">
-              <div className="text-lg font-bold text-gray-800">
+              <div className="text-lg font-bold">
                 ${formatAmount(earningsData[7]?.totalProjected || 0, 0)}
               </div>
               <div className="text-xs text-muted-foreground">

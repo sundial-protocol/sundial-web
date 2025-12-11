@@ -408,7 +408,7 @@ export default function StakingForm({
             </div>
 
             {/* Chain Information */}
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
+            <div className="p-4 bg-blue-500/20 border border-blue-800/30 rounded-md">
               <div className="flex items-center gap-2 text-blue-700 font-medium mb-2">
                 {config.icon}
                 {config.name} {isDeposit ? "Staking" : "Withdrawal"} Information
