@@ -8,9 +8,10 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Bitcoin, Check, Coins, Copy } from "lucide-react";
-import { WalletButton } from "@/components/ui/wallet-button";
+import { WalletButton } from "@/lib/wallet/cardano/wallet-button";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { ConnectButton } from "@/lib/wallet/bitcoin/btcbutton";
 
 export type WalletsCardProps = {
   btcWallet: string | null;
@@ -51,37 +52,7 @@ export default function WalletsCard({
               <Bitcoin className="w-5 h-5 text-yellow-500" />
               <span className="font-semibold">Bitcoin</span>
             </div>
-            {btcWallet ? (
-              <>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs truncate">
-                    {formatAddress(btcWallet)}
-                  </span>
-                  <button
-                    onClick={() => handleCopy(btcWallet)}
-                    className="p-1 hover:bg-gray-100 rounded"
-                    title="Copy address"
-                  >
-                    {copied === btcWallet ? (
-                      <Check className="w-4 h-4 text-green-600" />
-                    ) : (
-                      <Copy className="w-4 h-4" />
-                    )}
-                  </button>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setBtcWallet(null)}
-                >
-                  Disconnect
-                </Button>
-              </>
-            ) : (
-              <Button variant="outline" onClick={() => setBtcWallet(null)}>
-                Connect Bitcoin Wallet
-              </Button>
-            )}
+            <ConnectButton />
           </div>
 
           {/* Other */}

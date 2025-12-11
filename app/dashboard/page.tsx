@@ -18,6 +18,7 @@ import DemoDisclaimer from "./demo-disclaimer";
 import { PriceProvider } from "@/lib/contexts/price-context";
 import MaintenanceSunset from "@/components/reusable-sections/maintenance-sunset/maintenance-sunset";
 import { isProd } from "@/lib/flags";
+import ContextProvider from "@/lib/wallet/bitcoin/context";
 
 // Loading component
 function DashboardLoading() {
@@ -177,15 +178,17 @@ export default function DashboardPage() {
       <PriceProvider>
         <DashboardProvider>
           <ConfirmationProvider>
-            <div className="min-h-screen">
-              <Section className="pb-24">
-                <div className="container mx-auto px-4">
-                  <Suspense fallback={<DashboardLoading />}>
-                    <DashboardContent />
-                  </Suspense>
-                </div>
-              </Section>
-            </div>
+            <ContextProvider>
+              <div className="min-h-screen">
+                <Section className="pb-24">
+                  <div className="container mx-auto px-4">
+                    <Suspense fallback={<DashboardLoading />}>
+                      <DashboardContent />
+                    </Suspense>
+                  </div>
+                </Section>
+              </div>
+            </ContextProvider>
           </ConfirmationProvider>
         </DashboardProvider>
       </PriceProvider>
