@@ -17,7 +17,7 @@ import { ConfirmationProvider } from "@/components/ui/confirmation";
 import DemoDisclaimer from "./demo-disclaimer";
 import { PriceProvider } from "@/lib/contexts/price-context";
 import MaintenanceSunset from "@/components/reusable-sections/maintenance-sunset/maintenance-sunset";
-import { isProd } from "@/lib/flags";
+import { Flags } from "@/lib/flags";
 import ContextProvider from "@/lib/wallet/bitcoin/context";
 
 // Loading component
@@ -151,7 +151,7 @@ function DashboardContent() {
 }
 
 export default function DashboardPage() {
-  if (isProd) {
+  if (Flags.DISABLE_DASHBOARD) {
     return <MaintenanceSunset />;
   }
 

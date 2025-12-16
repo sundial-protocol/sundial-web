@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { isProd } from "@/lib/flags";
+import { Flags } from "@/lib/flags";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
 import {
@@ -110,7 +110,7 @@ export default function Navbar() {
               : "bg-primary-foreground/70 backdrop-blur-md"
           )}
         >
-          {isProd ? (
+          {Flags.DISABLE_DASHBOARD ? (
             <NavLink
               href="/solutions"
               classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}

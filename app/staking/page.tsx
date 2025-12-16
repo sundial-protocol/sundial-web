@@ -6,10 +6,10 @@ import StakingCTA from "./staking-cta";
 import { WhyStake } from "./why-stake";
 import { ValidatorsPreview } from "@/components/reusable-sections/validators-preview";
 import MaintenanceSunset from "@/components/reusable-sections/maintenance-sunset/maintenance-sunset";
-import { isProd } from "@/lib/flags";
+import { Flags } from "@/lib/flags";
 
 export default function StakingPage() {
-  if (isProd) {
+  if (Flags.DISABLE_STAKING_PAGE) {
     return <MaintenanceSunset />;
   }
   return (

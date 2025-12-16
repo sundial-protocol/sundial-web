@@ -1,5 +1,5 @@
 import { Bitcoin, Coins } from "lucide-react";
-import { isDev } from "@/lib/flags";
+import { Flags } from "@/lib/flags";
 import { CurrencyCode } from "@/hooks/dashboard/prices";
 
 export type SupportedChain = "btc" | "ada" | "btc_testnet" | "ada_testnet";
@@ -70,7 +70,7 @@ export const chainConfigs: Record<SupportedChain, ChainConfig> = {
       "For development/testing only",
       "No real value",
     ],
-    enabled: isDev,
+    enabled: !Flags.DISABLE_TESTNET,
   },
   ada_testnet: {
     id: "ada_testnet",
@@ -87,6 +87,6 @@ export const chainConfigs: Record<SupportedChain, ChainConfig> = {
       "For development/testing only",
       "No real value",
     ],
-    enabled: isDev,
+    enabled: !Flags.DISABLE_TESTNET,
   },
 };
