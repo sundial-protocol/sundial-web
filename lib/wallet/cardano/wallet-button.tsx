@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import {
   getWalletDisplayName,
   getWalletIcon,
-  useWallet,
+  useCardanoWallet,
   WalletApiError,
 } from "@/lib/wallet";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,7 @@ export function WalletButton() {
     isConnecting,
     selectedWallet,
     installedExtensions,
-  } = useWallet();
+  } = useCardanoWallet();
 
   const handleClick = useCallback(
     async (extension: string) => {

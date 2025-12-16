@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import * as bitcoin from "bitcoinjs-lib";
+// import { BTCLocker, TimeUtils } from "@sundial-protocol/btc-locker";
 import mempoolJS from "@mempool/mempool.js";
 import {
   Card,
@@ -25,6 +26,8 @@ import {
   CheckCircle,
   ArrowDownLeft,
   ArrowUpRight,
+  Wallet,
+  AlertCircle,
 } from "lucide-react";
 import { chainConfigs, SupportedChain } from "../../../lib/multichain";
 import { depositAddress } from "@/hooks/get-scripts";
@@ -32,6 +35,18 @@ import { TransactionWatcher } from "@/components/btc/tx-watcher";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import Link from "next/link";
 import { PsbtSigning } from "@/components/btc/psbt-signing";
+import { ConnectButton } from "@/lib/wallet/bitcoin/btcbutton";
+import { WalletButton } from "@/lib/wallet/cardano/wallet-button";
+import { useToast } from "@/components/ui/toast";
+
+// Import the actual wallet contexts
+import {
+  ConnectedWalletInfo,
+  useAppKitAccount,
+  useWalletInfo,
+} from "@reown/appkit/react";
+import { useCardanoWallet } from "@/lib/wallet/cardano/context";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 type TransactionType = "deposit" | "withdraw";
 
@@ -52,6 +67,17 @@ export default function StakingForm({
   const { updateStakedAmount, addPendingTransaction, updateTransactionStatus } =
     useDashboardContext();
 
+  const { addToast } = useToast();
+
+  // Wallet contexts - using the actual implementations
+  const { walletInfo } = useWalletInfo();
+  const bitcoinWallet = walletInfo?.name ?? "Unknown Wallet";
+
+  const { address: bitcoinAddress } = useAppKitAccount();
+
+  const { selectedWallet: cardanoWallet, defaultAddress: cardanoAddress } =
+    useCardanoWallet();
+
   const [selectedChain, setSelectedChain] =
     useState<SupportedChain>(defaultChain);
   const [userAddress, setUserAddress] = useState("");
@@ -60,6 +86,7 @@ export default function StakingForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [isUsingConnectedWallet, setIsUsingConnectedWallet] = useState(false);
 
   // Bitcoin-specific states
   const [psbtBase64, setPsbtBase64] = useState("");
@@ -74,6 +101,61 @@ export default function StakingForm({
   const config = chainConfigs[selectedChain];
   const isDeposit = type === "deposit";
 
+  // Get connected wallet address based on selected chain
+  const getConnectedWalletAddress = () => {
+    switch (selectedChain) {
+      case "btc":
+      case "btc_testnet":
+        return bitcoinAddress;
+      case "ada":
+        return cardanoAddress;
+      default:
+        return null;
+    }
+  };
+
+  // Get wallet connection status
+  const getWalletConnectionStatus = () => {
+    switch (selectedChain) {
+      case "btc":
+      case "btc_testnet":
+        return {
+          isConnected: !!bitcoinWallet && !!bitcoinAddress,
+          wallet: bitcoinWallet,
+          address: bitcoinAddress,
+        };
+      case "ada":
+        return {
+          isConnected: !!cardanoWallet && !!cardanoAddress,
+          wallet: cardanoWallet,
+          address: cardanoAddress,
+        };
+      default:
+        return {
+          isConnected: false,
+          wallet: null,
+          address: null,
+        };
+    }
+  };
+
+  // Check for connected wallet and auto-fill address
+  useEffect(() => {
+    const connectedAddress = getConnectedWalletAddress();
+    if (connectedAddress && !userAddress) {
+      setUserAddress(connectedAddress);
+      setIsUsingConnectedWallet(true);
+      addToast({
+        type: "success",
+        title: "Wallet Connected",
+        message: `Using your connected ${config.name} wallet address`,
+      });
+    } else if (!connectedAddress && isUsingConnectedWallet) {
+      setUserAddress("");
+      setIsUsingConnectedWallet(false);
+    }
+  }, [selectedChain, bitcoinAddress, cardanoAddress, userAddress]);
+
   // Initialize mempool.js client based on selected chain
   const getMempoolClient = () => {
     const isTestnet = selectedChain === "btc_testnet";
@@ -86,11 +168,19 @@ export default function StakingForm({
   const copyToClipboard = async (text: string) => {
     await navigator.clipboard.writeText(text);
     setCopied(true);
+    addToast({
+      type: "success",
+      title: "Copied to Clipboard",
+      message: "Address has been copied to your clipboard",
+    });
     setTimeout(() => setCopied(false), 2000);
   };
 
   const resetForm = () => {
-    setUserAddress("");
+    // Don't reset userAddress if using connected wallet
+    if (!isUsingConnectedWallet) {
+      setUserAddress("");
+    }
     setWithdrawAddress("");
     setAmount("");
     setError(null);
@@ -102,12 +192,56 @@ export default function StakingForm({
 
   const handleChainChange = (chain: SupportedChain) => {
     setSelectedChain(chain);
-    resetForm();
+    setUserAddress(""); // Reset address when changing chains
+    setIsUsingConnectedWallet(false);
+    setWithdrawAddress("");
+    setAmount("");
+    setError(null);
+    setPsbtBase64("");
+    setBroadcastResult("");
+    setTxHash("");
+    setStep("form");
+
+    // Check for connected wallet on new chain after a brief delay
+    setTimeout(() => {
+      const connectedAddress = getConnectedWalletAddress();
+      if (connectedAddress) {
+        setUserAddress(connectedAddress);
+        setIsUsingConnectedWallet(true);
+      }
+    }, 100);
   };
 
   const handleAmountChange = (value: string) => {
     setAmount(value);
     onAmountChange?.(value, selectedChain);
+  };
+
+  const handleAddressChange = (value: string) => {
+    setUserAddress(value);
+    // If user manually changes address, mark as not using connected wallet
+    if (isUsingConnectedWallet && value !== getConnectedWalletAddress()) {
+      setIsUsingConnectedWallet(false);
+      addToast({
+        type: "info",
+        title: "Using Manual Address",
+        message:
+          "You're now using a manually entered address instead of your connected wallet",
+      });
+    }
+  };
+
+  const handleUseConnectedWallet = () => {
+    const connectedAddress = getConnectedWalletAddress();
+    if (connectedAddress) {
+      setUserAddress(connectedAddress);
+      setIsUsingConnectedWallet(true);
+      addToast({
+        type: "success",
+        title: "Connected Wallet Selected",
+        message: "Now using your connected wallet address",
+      });
+    }
   };
 
   // Track pending transaction
@@ -141,88 +275,25 @@ export default function StakingForm({
       // COMMENTED OUT: UTXO fetching and PSBT construction logic - causing issues with demos.
       // Also needs better error messages
 
-      // Initialize mempool.js client
-      //const mempool = getMempoolClient();
+      // const locker = new BTCLocker();
 
-      //// Get UTXOs using mempool.js
-      //const utxos = await mempool.bitcoin.addresses.getAddressTxsUtxo({
-      //  address: sourceAddress,
-      //});
+      // if (isDeposit) {
+      //   const locktime: number = TimeUtils.dateToTimestamp(
+      //     new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      //   ); // 30 days from now
 
-      ////if (!utxos || utxos.length === 0) {
-      ////  throw new Error("No UTXOs found for this address");
-      ////}
+      //   // locker.createTimelockScript(locktime);
+      // }
 
-      //// Determine network
-      //const network =
-      //  selectedChain === "btc_testnet"
-      //    ? bitcoin.networks.testnet
-      //    : bitcoin.networks.bitcoin;
-
-      //const psbt = new bitcoin.Psbt({ network });
-
-      //let totalInput = 0;
-      //const sendAmount = Math.floor(Number(amount) * 1e8);
-      //const fee = 1000; // 1000 sats fee
-
-      //// Add inputs from UTXOs
-      //for (const utxo of utxos) {
-      //  if (totalInput >= sendAmount + fee) break;
-
-      //  // Get transaction details to build proper input
-      //  const txDetails = await mempool.bitcoin.transactions.getTx({
-      //    txid: utxo.txid,
-      //  });
-
-      //  const outputScript = txDetails.vout[utxo.vout].scriptpubkey;
-
-      //  psbt.addInput({
-      //    hash: utxo.txid,
-      //    index: utxo.vout,
-      //    witnessUtxo: {
-      //      script: Buffer.from(outputScript, "hex"),
-      //      value: utxo.value,
-      //    },
-      //  });
-
-      //  totalInput += utxo.value;
-      //  console.log(`Added input: ${utxo.value} sats (total: ${totalInput})`);
-      //}
-
-      //if (totalInput < sendAmount + fee) {
-      //  throw new Error(
-      //    `Insufficient balance. Need: ${
-      //      sendAmount + fee
-      //    } sats, Have: ${totalInput} sats`
-      //  );
-      //}
-
-      //// Add main output
-      //psbt.addOutput({
-      //  address: targetAddress,
-      //  value: sendAmount,
-      //});
-
-      //console.log(`Added output: ${sendAmount} sats to ${targetAddress}`);
-
-      //// Add change output if needed
-      //const change = totalInput - sendAmount - fee;
-      //if (change > 546) {
-      //  // Dust threshold
-      //  psbt.addOutput({
-      //    address: sourceAddress,
-      //    value: change,
-      //  });
-      //  console.log(`Added change output: ${change} sats to ${sourceAddress}`);
-      //}
-
-      const psbtBase64 = //psbt.toBase64();
-        "cHNidP8BAHECAAAAAUhv4PrFeYKGlpmhSjVYr/VCIYciTqq9ECWPLLWRuThpAQAAAAD/////AoCWmAAAAAAAFgAUMRVkNIiQ4AWICpvINKqliE8bWTL7XPQAAAAAABYAFBg/3crkUALzSpszKwN4fSgTtJv/AAAAAAABAR9j94wBAAAAABYAFBg/3crkUALzSpszKwN4fSgTtJv/AAAA";
+      const psbtBase64 =
+        "cHNidP8BAHECAAAAAUhv4PrFeYKGlpmhSjVYr/VCIYciTqq9ECWPLLWRuThpAQAAAAD/////AoCWmAAAAAAAFgAUMRVkNIiQ4AWICpvINKqliE8bWTL7XPQAAAAAABYAFBg/3erkUALzSpszKwN4fSgTtJv/AAAAAAABAR9j94wBAAAAABYAFBg/3erkUALzSpszKwN4fSgTtJv/AAAA";
 
       setPsbtBase64(psbtBase64);
       setStep("psbt");
     } catch (err: any) {
-      setError(err.message || `Error creating Bitcoin ${type} transaction`);
+      const errorMessage =
+        err.message || `Error creating Bitcoin ${type} transaction`;
+      setError(errorMessage);
 
       // Update transaction as failed
       if (transactionId) {
@@ -260,8 +331,15 @@ export default function StakingForm({
 
       setStep("done");
       onSuccess?.(hash, selectedChain, amount);
+
+      addToast({
+        type: "success",
+        title: "Transaction Successful",
+        message: `${amount} ADA ${type} completed successfully`,
+      });
     } catch (err: any) {
-      setError(err.message || `Error processing ADA ${type}`);
+      const errorMessage = err.message || `Error processing ADA ${type}`;
+      setError(errorMessage);
 
       // Update transaction as failed
       updateTransactionStatus(transactionId, "failed");
@@ -308,7 +386,8 @@ export default function StakingForm({
       onSuccess?.(txidStr, selectedChain, amount);
     } catch (err: any) {
       console.error("Broadcast error:", err);
-      setError(err.message || "Broadcast error");
+      const errorMessage = err.message || "Broadcast error";
+      setError(errorMessage);
 
       // Update transaction as failed
       if (pendingTransactionId) {
@@ -360,6 +439,8 @@ export default function StakingForm({
     } Processed Successfully!`;
   };
 
+  const walletStatus = getWalletConnectionStatus();
+
   return (
     <Card>
       <CardHeader>
@@ -407,6 +488,59 @@ export default function StakingForm({
               </Select>
             </div>
 
+            {/* Wallet Connection Status */}
+            {walletStatus.isConnected ? (
+              <Alert>
+                <Wallet className="h-4 w-4" />
+                <AlertDescription>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-green-700 font-medium">
+                        Wallet Connected
+                      </span>
+                      <div className="text-sm text-muted-foreground mt-1">
+                        {walletStatus.address?.slice(0, 20)}...
+                        {walletStatus.address?.slice(-6)}
+                      </div>
+                    </div>
+                    {!isUsingConnectedWallet && walletStatus.address && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleUseConnectedWallet}
+                      >
+                        Use Connected Wallet
+                      </Button>
+                    )}
+                  </div>
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  <div className="flex items-center justify-between">
+                    <span>
+                      Connect your {config.name} wallet for easier transactions
+                    </span>
+                    <div>
+                      {selectedChain === "btc" ||
+                      selectedChain === "btc_testnet" ? (
+                        <ConnectButton />
+                      ) : selectedChain === "ada" ? (
+                        <WalletButton />
+                      ) : (
+                        <Button variant="outline" size="sm" disabled>
+                          Wallet not available
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            )}
+
             {/* Chain Information */}
             <div className="p-4 bg-blue-500/20 border border-blue-800/30 rounded-md">
               <div className="flex items-center gap-2 text-blue-700 font-medium mb-2">
@@ -424,14 +558,27 @@ export default function StakingForm({
             <div className="space-y-2">
               <label className="text-sm font-medium">
                 Your {config.name} Address
+                {isUsingConnectedWallet && (
+                  <span className="text-green-600 text-xs ml-2">
+                    (Using Connected Wallet)
+                  </span>
+                )}
               </label>
-              <Input
-                type="text"
-                value={userAddress}
-                onChange={(e) => setUserAddress(e.target.value)}
-                placeholder={`${config.addressPrefix}...`}
-                required
-              />
+              <div className="relative">
+                <Input
+                  type="text"
+                  value={userAddress}
+                  onChange={(e) => handleAddressChange(e.target.value)}
+                  placeholder={`${config.addressPrefix}...`}
+                  required
+                  className={
+                    isUsingConnectedWallet ? "bg-green-50 border-green-200" : ""
+                  }
+                />
+                {isUsingConnectedWallet && (
+                  <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-green-600" />
+                )}
+              </div>
               <p className="text-xs text-muted-foreground">
                 {isDeposit
                   ? `Your ${config.name} wallet address for receiving change or rewards`

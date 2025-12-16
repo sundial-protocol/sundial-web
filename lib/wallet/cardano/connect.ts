@@ -96,6 +96,9 @@ export async function connect(
     setters.setEnabled(true);
     setters.setConnected(true);
     setters.setLastSelectedWallet(wallet);
+    setters.setDefaultAddress(
+      await api.getUsedAddresses().then((addrs) => addrs[0] || "")
+    );
     setters.setChangeAddress(await getChangeAddress(api));
     setters.setStakeAddress(await getStakeAddress(api));
     setters.setAccountBalance(await getBalanceAda(api));
@@ -106,6 +109,7 @@ export async function connect(
     setters.setConnected(false);
     setters.setSelectedWallet("");
     setters.setLastSelectedWallet("");
+    setters.setDefaultAddress("");
     setters.setChangeAddress("");
     setters.setStakeAddress("");
     setters.setAccountBalance(0);

@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { createContext, Dispatch, SetStateAction, useContext } from 'react';
-import type { Lucid, Network, WalletApi } from 'lucid-cardano';
+import { createContext, Dispatch, SetStateAction, useContext } from "react";
+import type { Lucid, Network, WalletApi } from "lucid-cardano";
 
 export type WalletContextType = {
   lucid: Lucid | null;
@@ -14,6 +14,7 @@ export type WalletContextType = {
   network: Network;
   selectedWallet: string;
   lastSelectedWallet: string;
+  defaultAddress: string | null;
   changeAddress: string | null;
   stakeAddress: string | null;
   installedExtensions: string[];
@@ -33,6 +34,7 @@ export type WalletContextSetters = {
   setNetwork: Dispatch<SetStateAction<Network>>;
   setSelectedWallet: Dispatch<SetStateAction<string>>;
   setLastSelectedWallet: Dispatch<SetStateAction<string>>;
+  setDefaultAddress: Dispatch<SetStateAction<string>>;
   setChangeAddress: Dispatch<SetStateAction<string>>;
   setStakeAddress: Dispatch<SetStateAction<string>>;
   setInstalledExtensions: Dispatch<SetStateAction<string[]>>;
@@ -49,21 +51,25 @@ export const WalletContext = createContext<WalletContextType>({
   isEnabled: false,
   isConnecting: false,
   isConnected: false,
-  network: 'Mainnet',
-  selectedWallet: '',
-  lastSelectedWallet: '',
-  changeAddress: '',
-  stakeAddress: '',
+  network: "Mainnet",
+  selectedWallet: "",
+  lastSelectedWallet: "",
+  defaultAddress: "",
+  changeAddress: "",
+  stakeAddress: "",
   installedExtensions: [],
   accountBalance: 0,
   connect: noop,
   disconnect: noop,
 });
 
-export function useWallet() {
+export function useCardanoWallet() {
   const context = useContext(WalletContext);
 
-  if (context === undefined) throw new Error('Context can only be used withing the CaradanoProvider component');
+  if (context === undefined)
+    throw new Error(
+      "Context can only be used withing the CaradanoProvider component"
+    );
 
   return context;
 }
