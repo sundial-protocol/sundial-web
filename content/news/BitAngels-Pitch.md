@@ -10,5 +10,5 @@ Sundial Protocol contributor Robert Gaskell pitched Sundial at the BitAngels eve
 
 With a lead investor secured and our Seed round nearing completion, along with significant BTC commitments already pledged, we’re excited about the momentum building around Sundial as we continue to grow at pace.
 
-![Rob at BitAngels](bitangels_2.jpeg)
-![BitAngels Audience](bitangels_1.jpeg)
+![Rob at BitAngels](/news/bitangels_2.jpeg)
+![BitAngels Audience](/news/bitangels_1.jpeg)

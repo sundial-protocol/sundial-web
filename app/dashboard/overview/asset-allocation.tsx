@@ -102,7 +102,7 @@ export default function AssetAllocation() {
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Summary stats */}
-        <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+        <div className="grid grid-cols-2 gap-4 mb-6 p-4 border-b rounded-lg">
           <div className="text-center">
             <div className="text-2xl font-bold text-orange-600">
               {formatAmount(totalBTC, 4)} BTC

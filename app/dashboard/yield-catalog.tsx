@@ -137,8 +137,8 @@ export function YieldCatalog() {
               <Slider
                 value={minAPY}
                 onValueChange={setMinAPY}
-                max={20}
-                step={0.5}
+                max={10}
+                step={0.25}
                 className="mt-2"
               />
             </div>
