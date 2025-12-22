@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import * as bitcoin from "bitcoinjs-lib";
-// import { BTCLocker, TimeUtils } from "@sundial-protocol/btc-locker";
+import { BTCLocker, TimeUtils } from "@sundial-protocol/btc-locker";
 import mempoolJS from "@mempool/mempool.js";
 import {
   Card,
@@ -145,11 +145,6 @@ export default function StakingForm({
     if (connectedAddress && !userAddress) {
       setUserAddress(connectedAddress);
       setIsUsingConnectedWallet(true);
-      addToast({
-        type: "success",
-        title: "Wallet Connected",
-        message: `Using your connected ${config.name} wallet address`,
-      });
     } else if (!connectedAddress && isUsingConnectedWallet) {
       setUserAddress("");
       setIsUsingConnectedWallet(false);
@@ -272,18 +267,17 @@ export default function StakingForm({
         ? depositAddress(selectedChain)
         : withdrawAddress;
 
-      // COMMENTED OUT: UTXO fetching and PSBT construction logic - causing issues with demos.
-      // Also needs better error messages
+      const locker = new BTCLocker();
 
-      // const locker = new BTCLocker();
+      const userPubKey = walletInfo?.publicKeyHex as string;
 
-      // if (isDeposit) {
-      //   const locktime: number = TimeUtils.dateToTimestamp(
-      //     new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-      //   ); // 30 days from now
+      if (isDeposit) {
+        const locktime: number = TimeUtils.dateToTimestamp(
+          new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+        ); // 30 days from now
 
-      //   // locker.createTimelockScript(locktime);
-      // }
+        locker.createTimelockScript(locktime, userPubKey);
+      }
 
       const psbtBase64 =
         "cHNidP8BAHECAAAAAUhv4PrFeYKGlpmhSjVYr/VCIYciTqq9ECWPLLWRuThpAQAAAAD/////AoCWmAAAAAAAFgAUMRVkNIiQ4AWICpvINKqliE8bWTL7XPQAAAAAABYAFBg/3erkUALzSpszKwN4fSgTtJv/AAAAAAABAR9j94wBAAAAABYAFBg/3erkUALzSpszKwN4fSgTtJv/AAAA";
