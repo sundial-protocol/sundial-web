@@ -41,6 +41,7 @@ import { useToast } from "@/components/ui/toast";
 
 // Import the actual wallet contexts
 import {
+  AccountType,
   ConnectedWalletInfo,
   useAppKitAccount,
   useWalletInfo,
@@ -73,7 +74,8 @@ export default function StakingForm({
   const { walletInfo } = useWalletInfo();
   const bitcoinWallet = walletInfo?.name ?? "Unknown Wallet";
 
-  const { address: bitcoinAddress } = useAppKitAccount();
+  const { address: bitcoinAddress, allAccounts: bitcoinAccounts } =
+    useAppKitAccount();
 
   const { selectedWallet: cardanoWallet, defaultAddress: cardanoAddress } =
     useCardanoWallet();
@@ -269,7 +271,21 @@ export default function StakingForm({
 
       const locker = new BTCLocker();
 
-      const userPubKey = walletInfo?.publicKeyHex as string;
+      const getBTCPubKey = (address: string, accounts: AccountType[]) => {
+        for (const account of accounts) {
+          if (account.address === address && account.publicKey) {
+            return account.publicKey;
+          }
+        }
+      };
+
+      const userPubKey = getBTCPubKey(sourceAddress, bitcoinAccounts || []);
+
+      if (!userPubKey) {
+        throw new Error(
+          "Unable to retrieve public key for the provided address"
+        );
+      }
 
       if (isDeposit) {
         const locktime: number = TimeUtils.dateToTimestamp(
