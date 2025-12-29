@@ -102,8 +102,8 @@ importers:
         specifier: 1.0.0
         version: 1.0.0(@meshsdk/core-csl@1.8.14)(@meshsdk/core@1.8.14(@babel/core@7.28.4)(@bufbuild/protobuf@1.10.1)(@types/react-dom@19.0.4(@types/react@19.0.12))(@types/react@19.0.12)(bufferutil@4.0.9)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2)(tailwindcss@3.4.17)(utf-8-validate@5.0.10))
       '@sundial-protocol/btc-locker':
-        specifier: ^1.0.7
-        version: 1.0.7(@types/node@22.13.13)(typescript@5.8.2)
+        specifier: ^1.0.9
+        version: 1.0.9(@types/node@22.13.13)(typescript@5.8.2)
       '@tailwindcss/typography':
         specifier: ^0.5.16
         version: 0.5.16(tailwindcss@3.4.17)
@@ -1999,8 +1999,8 @@ packages:
       '@meshsdk/core': ^1.8
       '@meshsdk/core-csl': ^1.8
 
-  '@sundial-protocol/btc-locker@1.0.7':
-    resolution: {integrity: sha512-ZZnZJPfFmYfONtieRAK1gCfj594GmgexnVVMK9SkGOm3LErYksLuWUt5f7Ln1waUPG5/dR/x3bVAY/ZolKUGwg==, tarball: https://npm.pkg.github.com/download/@sundial-protocol/btc-locker/1.0.7/5ca6783ccf31e8ea8439f460b82873e0ec929bca}
+  '@sundial-protocol/btc-locker@1.0.9':
+    resolution: {integrity: sha512-bxy7MfrKcKeqI4BqG2jS2Kh4yqNG+I4GeitA3/LxuwFDdsfBzv5yIJ+GvEPRjVo3mqUNGSLg/TLIW7oHP0BsZQ==, tarball: https://npm.pkg.github.com/download/@sundial-protocol/btc-locker/1.0.9/e8e6dcb0263b30fb560e6c746601f652f1310c85}
     engines: {node: '>=14.0.0'}
     hasBin: true
 
@@ -9117,7 +9117,7 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@sundial-protocol/btc-locker@1.0.7(@types/node@22.13.13)(typescript@5.8.2)':
+  '@sundial-protocol/btc-locker@1.0.9(@types/node@22.13.13)(typescript@5.8.2)':
     dependencies:
       '@bitcoinerlab/secp256k1': 1.2.0
       bip32: 5.0.0(typescript@5.8.2)

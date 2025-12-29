@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import * as bitcoin from "bitcoinjs-lib";
 import { BTCLocker, TimeUtils } from "@sundial-protocol/btc-locker";
 import mempoolJS from "@mempool/mempool.js";
 import {
@@ -31,7 +30,6 @@ import {
 } from "lucide-react";
 import { chainConfigs, SupportedChain } from "../../../lib/multichain";
 import { depositAddress } from "@/hooks/get-scripts";
-import { TransactionWatcher } from "@/components/btc/tx-watcher";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import Link from "next/link";
 import { PsbtSigning } from "@/components/btc/psbt-signing";
@@ -75,7 +73,7 @@ export default function StakingForm({
   const bitcoinWallet = walletInfo?.name ?? "Unknown Wallet";
 
   const { address: bitcoinAddress, allAccounts: bitcoinAccounts } =
-    useAppKitAccount();
+    useAppKitAccount({ namespace: "bip122" });
 
   const { selectedWallet: cardanoWallet, defaultAddress: cardanoAddress } =
     useCardanoWallet();
@@ -287,19 +285,20 @@ export default function StakingForm({
         );
       }
 
+      let script = "script placeholder";
       if (isDeposit) {
         const locktime: number = TimeUtils.dateToTimestamp(
           new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
         ); // 30 days from now
 
-        locker.createTimelockScript(locktime, userPubKey);
+        console.log(await locker.createTimelockScript(locktime, userPubKey));
+      } else {
+        const psbtBase64 =
+          "cHNidP8BAHECAAAAAUhv4PrFeYKGlpmhSjVYr/VCIYciTqq9ECWPLLWRuThpAQAAAAD/////AoCWmAAAAAAAFgAUMRVkNIiQ4AWICpvINKqliE8bWTL7XPQAAAAAABYAFBg/3erkUALzSpszKwN4fSgTtJv/AAAAAAABAR9j94wBAAAAABYAFBg/3erkUALzSpszKwN4fSgTtJv/AAAA";
+
+        setPsbtBase64(psbtBase64);
+        setStep("psbt");
       }
-
-      const psbtBase64 =
-        "cHNidP8BAHECAAAAAUhv4PrFeYKGlpmhSjVYr/VCIYciTqq9ECWPLLWRuThpAQAAAAD/////AoCWmAAAAAAAFgAUMRVkNIiQ4AWICpvINKqliE8bWTL7XPQAAAAAABYAFBg/3erkUALzSpszKwN4fSgTtJv/AAAAAAABAR9j94wBAAAAABYAFBg/3erkUALzSpszKwN4fSgTtJv/AAAA";
-
-      setPsbtBase64(psbtBase64);
-      setStep("psbt");
     } catch (err: any) {
       const errorMessage =
         err.message || `Error creating Bitcoin ${type} transaction`;
