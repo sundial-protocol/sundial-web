@@ -29,7 +29,6 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { chainConfigs, SupportedChain } from "../../../lib/multichain";
-import { depositAddress } from "@/hooks/get-scripts";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import Link from "next/link";
 import { PsbtSigning } from "@/components/btc/psbt-signing";
@@ -82,6 +81,7 @@ export default function StakingForm({
     useState<SupportedChain>(defaultChain);
   const [userAddress, setUserAddress] = useState("");
   const [withdrawAddress, setWithdrawAddress] = useState("");
+  const [depositAddress, setDepositAddress] = useState("");
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -259,15 +259,7 @@ export default function StakingForm({
     setPendingTransactionId(transactionId);
 
     try {
-      const sourceAddress = isDeposit
-        ? userAddress
-        : depositAddress(selectedChain);
-
-      const targetAddress = isDeposit
-        ? depositAddress(selectedChain)
-        : withdrawAddress;
-
-      const locker = new BTCLocker();
+      const sourceAddress = isDeposit ? userAddress : depositAddress;
 
       const getBTCPubKey = (address: string, accounts: AccountType[]) => {
         for (const account of accounts) {
@@ -285,13 +277,21 @@ export default function StakingForm({
         );
       }
 
-      let script = "script placeholder";
+      const locker = new BTCLocker();
+
       if (isDeposit) {
         const locktime: number = TimeUtils.dateToTimestamp(
           new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
         ); // 30 days from now
 
-        console.log(await locker.createTimelockScript(locktime, userPubKey));
+        const scriptInfo = await locker.createTimelockScript(
+          locktime,
+          userPubKey
+        );
+
+        setDepositAddress(scriptInfo.address);
+
+        // TODO: actually construct & send transaction to fund the script address
       } else {
         const psbtBase64 =
           "cHNidP8BAHECAAAAAUhv4PrFeYKGlpmhSjVYr/VCIYciTqq9ECWPLLWRuThpAQAAAAD/////AoCWmAAAAAAAFgAUMRVkNIiQ4AWICpvINKqliE8bWTL7XPQAAAAAABYAFBg/3erkUALzSpszKwN4fSgTtJv/AAAAAAABAR9j94wBAAAAABYAFBg/3erkUALzSpszKwN4fSgTtJv/AAAA";
@@ -640,7 +640,7 @@ export default function StakingForm({
                 <div className="flex gap-2">
                   <Input
                     type="text"
-                    value={depositAddress(selectedChain)}
+                    value={depositAddress}
                     readOnly
                     className="bg-muted font-mono text-xs"
                   />
@@ -648,9 +648,7 @@ export default function StakingForm({
                     type="button"
                     variant="outline"
                     size="icon"
-                    onClick={() =>
-                      copyToClipboard(depositAddress(selectedChain))
-                    }
+                    onClick={() => copyToClipboard(depositAddress)}
                   >
                     {copied ? (
                       <CheckCircle className="w-4 h-4" />
@@ -693,9 +691,7 @@ export default function StakingForm({
           (selectedChain === "btc" || selectedChain === "btc_testnet") && (
             <PsbtSigning
               psbtBase64={psbtBase64}
-              targetAddress={
-                isDeposit ? depositAddress(selectedChain) : withdrawAddress
-              }
+              targetAddress={isDeposit ? depositAddress : withdrawAddress}
               expectedAmount={Math.floor(Number(amount) * 1e8)}
               chain={selectedChain}
               onTransactionFound={(txid) => {
