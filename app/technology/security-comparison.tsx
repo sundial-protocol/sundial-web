@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Section } from "@/components/ui/section";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import { CheckIcon, X } from "lucide-react";
 
 type StepProps = {
@@ -15,7 +14,7 @@ type StepProps = {
 };
 
 function Step({ icon: Icon, title, bulletPoints, color }: StepProps) {
-  const [scrollY, setScrollY] = useState(0);
+  const [_scrollY, setScrollY] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -37,24 +36,28 @@ function Step({ icon: Icon, title, bulletPoints, color }: StepProps) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scale = 1 + scrollY * 0.5;
+  // Use inline styles instead of dynamic Tailwind classes
+  const colorHex = color === "green" ? "#10b981" : "#ef4444";
+  const iconColorClass =
+    color === "green"
+      ? "text-green-500 border-green-500/30"
+      : "text-red-500 border-red-500/30";
 
   return (
     <Card
       ref={cardRef}
       className="rounded-lg overflow-hidden border-foreground shadow-xl relative"
       style={{
-        borderColor: color === "green" ? "#10b981" : "#ef4444",
-        boxShadow: `0 25px 50px -12px ${
-          color === "green"
-            ? "rgba(16, 185, 129, 0.5)"
-            : "rgba(239, 68, 68, 0.5)"
-        }`,
+        borderColor: `${colorHex}`,
+        boxShadow: `0 25px 50px -12px ${colorHex}`,
       }}
     >
       <CardHeader className="flex flex-row items-center justify-left p-4 bg-blur-none bg-black/30 relative z-10">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/30">
-          <Icon className="h-6 w-6 text-white" />
+        <div
+          className={`flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-md border ${iconColorClass}`}
+        >
+          {/* Use inline style for dynamic color */}
+          <Icon className={`h-6 w-6`} />
         </div>
         <h3 className="text-xl text-foreground font-bold pl-8">{title}</h3>
       </CardHeader>
@@ -63,10 +66,13 @@ function Step({ icon: Icon, title, bulletPoints, color }: StepProps) {
           {bulletPoints && bulletPoints.length > 0 && (
             <ul className="space-y-2">
               {bulletPoints.map((point, index) => (
-                <li key={index} className="flex items-start">
+                <li
+                  key={index}
+                  className="flex items-start hover:scale-105 transition-all transition duration-300 hover:underline"
+                >
                   <span className="mr-2">
-                    {" "}
-                    <Icon className="h-6 w-6 text-white" />
+                    {/* Use inline style for bullet point icons too */}
+                    <Icon className={`h-6 w-6 text-foreground`} />
                   </span>
                   <span className="">{point}</span>
                 </li>
