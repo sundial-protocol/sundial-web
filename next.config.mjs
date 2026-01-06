@@ -23,6 +23,15 @@ const nextConfig = {
   compiler: {
     removeConsole: process.env.NEXT_PUBLIC_VERCEL_ENV === "production",
   },
+  async redirects() {
+    return [
+      {
+        source: '/about',
+        destination: '/company',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 mergeConfig(nextConfig, userConfig);
