@@ -260,15 +260,15 @@ export default function RoadmapPage() {
       <div id="darknessOverlaySky" className={styles.darknessOverlaySky}></div>
       <div id="darknessOverlay" className={styles.darknessOverlay}>
         <div className="text-xl font-bold text-center items-center flex flex-col text-primary z-100 pt-6 space-y-8">
-          {/*<h1 className="text-4xl font-bold text-center text-primary z-100">
+          <h1 className="text-4xl font-bold text-center text-primary z-100">
             Join us on our journey to the moon.
-          </h1>*/}
-          <Image
+          </h1>
+          {/*<Image
             src="/Sundial+Roadmap+v2.png"
             alt="Roadmap"
             width={1200}
             height={1200}
-          />
+          />*/}
         </div>
       </div>
       <div
