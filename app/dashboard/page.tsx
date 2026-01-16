@@ -37,10 +37,6 @@ function DashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Get tab from URL params, default to "portfolio"
-  const tabFromUrl = searchParams.get("tab") || "portfolio";
-  const [activeTab, setActiveTab] = useState(tabFromUrl);
-
   const tabs = [
     { id: "portfolio", label: "Portfolio" },
     { id: "deposit", label: "Deposit" },
@@ -50,6 +46,17 @@ function DashboardContent() {
     { id: "strategies", label: "Strategies", disabled: true },
     { id: "history", label: "History" },
   ];
+
+  // Validate tab from URL params before setting initial state
+  const getValidatedTab = (urlTab: string | null) => {
+    if (!urlTab) return "portfolio";
+    const validTab = tabs.find((tab) => tab.id === urlTab && !tab.disabled);
+    return validTab ? urlTab : "portfolio";
+  };
+
+  const [activeTab, setActiveTab] = useState(() =>
+    getValidatedTab(searchParams.get("tab"))
+  );
 
   // Update URL when tab changes
   const handleTabChange = (tabId: string) => {
@@ -64,14 +71,16 @@ function DashboardContent() {
   // Sync state with URL on initial load and when URL changes
   useEffect(() => {
     const urlTab = searchParams.get("tab");
-    if (urlTab && urlTab !== activeTab) {
-      // Validate that the tab exists and is not disabled
-      const validTab = tabs.find((tab) => tab.id === urlTab && !tab.disabled);
-      if (validTab) {
-        setActiveTab(urlTab);
-      } else {
-        // If invalid tab, redirect to portfolio
-        handleTabChange("portfolio");
+    const validatedTab = getValidatedTab(urlTab);
+
+    if (validatedTab !== activeTab) {
+      setActiveTab(validatedTab);
+
+      // If we had to change the tab due to validation, update the URL
+      if (urlTab !== validatedTab) {
+        const params = new URLSearchParams(searchParams);
+        params.set("tab", validatedTab);
+        router.replace(`/dashboard?${params.toString()}`, { scroll: false });
       }
     }
   }, [searchParams]);
