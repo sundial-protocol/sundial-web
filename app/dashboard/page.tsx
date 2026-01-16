@@ -45,9 +45,9 @@ function DashboardContent() {
     { id: "portfolio", label: "Portfolio" },
     { id: "deposit", label: "Deposit" },
     { id: "withdraw", label: "Withdraw" },
-    { id: "lend", label: "Lend" },
-    { id: "yield", label: "Yield", disabled: false },
-    { id: "strategies", label: "Strategies", disabled: false },
+    { id: "lend", label: "Lend", disabled: true },
+    { id: "yield", label: "Yield", disabled: true },
+    { id: "strategies", label: "Strategies", disabled: true },
     { id: "history", label: "History" },
   ];
 
