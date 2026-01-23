@@ -87,12 +87,13 @@ export default function StakingForm({
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [isUsingConnectedWallet, setIsUsingConnectedWallet] = useState(false);
+  const [manualPublicKey, setManualPublicKey] = useState("");
 
   // Bitcoin-specific states
   const [psbtBase64, setPsbtBase64] = useState("");
   const [broadcastResult, setBroadcastResult] = useState("");
   const [step, setStep] = useState<"form" | "psbt" | "broadcast" | "done">(
-    "form"
+    "form",
   );
 
   // ADA-specific states
@@ -116,6 +117,7 @@ export default function StakingForm({
 
   // Get wallet connection status
   const getWalletConnectionStatus = () => {
+    console.log(selectedChain);
     switch (selectedChain) {
       case "btc":
       case "btc_testnet":
@@ -183,6 +185,7 @@ export default function StakingForm({
     setBroadcastResult("");
     setTxHash("");
     setStep("form");
+    setManualPublicKey("");
   };
 
   const handleChainChange = (chain: SupportedChain) => {
@@ -196,6 +199,7 @@ export default function StakingForm({
     setBroadcastResult("");
     setTxHash("");
     setStep("form");
+    setManualPublicKey("");
 
     // Check for connected wallet on new chain after a brief delay
     setTimeout(() => {
@@ -254,7 +258,7 @@ export default function StakingForm({
     const transactionId = addPendingTransaction(
       selectedChain as SupportedChain,
       Number(amount),
-      type
+      type,
     );
     setPendingTransactionId(transactionId);
 
@@ -267,26 +271,38 @@ export default function StakingForm({
             return account.publicKey;
           }
         }
+        return null;
       };
 
-      const userPubKey = getBTCPubKey(sourceAddress, bitcoinAccounts || []);
+      let userPubKey = getBTCPubKey(sourceAddress, bitcoinAccounts || []);
+      console.log("User Public Key:", userPubKey);
 
+      // If we can't get the public key from the API, check for manual input
       if (!userPubKey) {
-        throw new Error(
-          "Unable to retrieve public key for the provided address"
-        );
+        if (!manualPublicKey) {
+          throw new Error(
+            "Unable to retrieve public key from wallet. Please enter your public key manually below.",
+          );
+        }
+        // Validate manual public key format (basic validation)
+        if (!/^[0-9a-fA-F]{66}$/.test(manualPublicKey)) {
+          throw new Error(
+            "Invalid public key format. Please enter a valid 33-byte public key in hexadecimal format (66 characters).",
+          );
+        }
+        userPubKey = manualPublicKey;
       }
 
       const locker = new BTCLocker();
 
       if (isDeposit) {
         const locktime: number = TimeUtils.dateToTimestamp(
-          new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         ); // 30 days from now
 
         const scriptInfo = await locker.createTimelockScript(
           locktime,
-          userPubKey
+          userPubKey,
         );
 
         setDepositAddress(scriptInfo.address);
@@ -322,7 +338,7 @@ export default function StakingForm({
     const transactionId = addPendingTransaction(
       selectedChain as SupportedChain,
       Number(amount),
-      type
+      type,
     );
     setPendingTransactionId(transactionId);
 
@@ -595,6 +611,40 @@ export default function StakingForm({
               </p>
             </div>
 
+            {/* Public Key Input (Bitcoin only, shown when needed) */}
+            {(selectedChain === "btc" || selectedChain === "btc_testnet") && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  Public Key
+                  <span className="text-red-500 ml-1">*</span>
+                </label>
+                <Input
+                  type="text"
+                  value={manualPublicKey}
+                  onChange={(e) => setManualPublicKey(e.target.value)}
+                  placeholder="Enter your 33-byte public key in hexadecimal format (66 characters)"
+                  className="font-mono text-xs"
+                  maxLength={66}
+                />
+                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                  <p className="text-yellow-800 text-xs">
+                    <strong>Note:</strong> Your wallet couldn't provide the
+                    public key automatically. Please enter the public key
+                    corresponding to your Bitcoin address. You can usually find
+                    this in your wallet's advanced settings or transaction
+                    history.
+                  </p>
+                </div>
+                {manualPublicKey &&
+                  !/^[0-9a-fA-F]{66}$/.test(manualPublicKey) && (
+                    <p className="text-red-600 text-xs">
+                      Invalid format. Public key must be exactly 66 hexadecimal
+                      characters.
+                    </p>
+                  )}
+              </div>
+            )}
+
             {/* Withdraw Address (only for withdrawals) */}
             {!isDeposit && (
               <div className="space-y-2">
@@ -702,7 +752,7 @@ export default function StakingForm({
                 updateStakedAmount(
                   selectedChain as SupportedChain,
                   Number(amount),
-                  type
+                  type,
                 );
 
                 // Update transaction status
@@ -710,7 +760,7 @@ export default function StakingForm({
                   updateTransactionStatus(
                     pendingTransactionId,
                     "completed",
-                    txid
+                    txid,
                   );
                 }
 
