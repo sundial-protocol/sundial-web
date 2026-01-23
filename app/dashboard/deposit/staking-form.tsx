@@ -42,6 +42,8 @@ import {
   ConnectedWalletInfo,
   useAppKitAccount,
   useWalletInfo,
+  useAppKitState,
+  useAppKitNetwork,
 } from "@reown/appkit/react";
 import { useCardanoWallet } from "@/lib/wallet/cardano/context";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -73,6 +75,7 @@ export default function StakingForm({
 
   const { address: bitcoinAddress, allAccounts: bitcoinAccounts } =
     useAppKitAccount({ namespace: "bip122" });
+  const { caipNetwork } = useAppKitNetwork();
 
   const { selectedWallet: cardanoWallet, defaultAddress: cardanoAddress } =
     useCardanoWallet();
@@ -102,17 +105,21 @@ export default function StakingForm({
   const config = chainConfigs[selectedChain];
   const isDeposit = type === "deposit";
 
-  // Get connected wallet address based on selected chain
-  const getConnectedWalletAddress = () => {
-    switch (selectedChain) {
-      case "btc":
-      case "btc_testnet":
-        return bitcoinAddress;
-      case "ada":
-        return cardanoAddress;
-      default:
-        return null;
-    }
+  // Check if wallet is connected to wrong network
+  const isWalletOnWrongNetwork = () => {
+    if (!caipNetwork || !bitcoinAddress) return false;
+
+    // The caipNetwork.id is already the chain ID itself (not in CAIP format)
+    const chainId = String(caipNetwork.id || "");
+
+    const isMainnet = chainId === "000000000019d6689c085ae165831e93";
+    const isTestnet = chainId === "000000000933ea01ad0ee984209779ba";
+
+    const wrongNetwork =
+      (selectedChain === "btc" && !isMainnet) ||
+      (selectedChain === "btc_testnet" && !isTestnet);
+
+    return wrongNetwork;
   };
 
   // Get wallet connection status
@@ -121,24 +128,34 @@ export default function StakingForm({
     switch (selectedChain) {
       case "btc":
       case "btc_testnet":
+        const wrongNetwork = isWalletOnWrongNetwork();
         return {
-          isConnected: !!bitcoinWallet && !!bitcoinAddress,
+          isConnected: !!bitcoinWallet && !!bitcoinAddress && !wrongNetwork,
           wallet: bitcoinWallet,
-          address: bitcoinAddress,
+          address: wrongNetwork ? null : bitcoinAddress,
+          wrongNetwork,
         };
       case "ada":
         return {
           isConnected: !!cardanoWallet && !!cardanoAddress,
           wallet: cardanoWallet,
           address: cardanoAddress,
+          wrongNetwork: false,
         };
       default:
         return {
           isConnected: false,
           wallet: null,
           address: null,
+          wrongNetwork: false,
         };
     }
+  };
+
+  // Get connected wallet address based on selected chain
+  const getConnectedWalletAddress = () => {
+    const walletStatus = getWalletConnectionStatus();
+    return walletStatus.address;
   };
 
   // Check for connected wallet and auto-fill address
@@ -538,6 +555,30 @@ export default function StakingForm({
                         Use Connected Wallet
                       </Button>
                     )}
+                  </div>
+                </AlertDescription>
+              </Alert>
+            ) : walletStatus.wrongNetwork ? (
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-orange-700 font-medium">
+                        Wrong Network Connected
+                      </span>
+                      <div className="text-sm text-muted-foreground mt-1">
+                        Your wallet is connected to{" "}
+                        {selectedChain === "btc"
+                          ? "Bitcoin Testnet"
+                          : "Bitcoin Mainnet"}
+                        , but you've selected {config.name}. Please switch
+                        networks in your wallet.
+                      </div>
+                    </div>
+                    <div>
+                      <ConnectButton />
+                    </div>
                   </div>
                 </AlertDescription>
               </Alert>
