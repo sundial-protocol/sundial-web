@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { BTCLocker, TimeUtils } from "@sundial-protocol/btc-locker";
 import mempoolJS from "@mempool/mempool.js";
 import {
   Card,
@@ -124,7 +123,6 @@ export default function StakingForm({
 
   // Get wallet connection status
   const getWalletConnectionStatus = () => {
-    console.log(selectedChain);
     switch (selectedChain) {
       case "btc":
       case "btc_testnet":
@@ -310,28 +308,38 @@ export default function StakingForm({
         userPubKey = manualPublicKey;
       }
 
-      const locker = new BTCLocker();
+      // Call server API to create the transaction
+      const response = await fetch("/api/btc-transaction", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sourceAddress: sourceAddress,
+          withdrawAddress: isDeposit ? undefined : withdrawAddress,
+          amount: amount,
+          userPublicKey: userPubKey,
+          transactionType: isDeposit ? "deposit" : "withdraw",
+          network: selectedChain === "btc_testnet" ? "testnet" : "main",
+        }),
+      });
 
-      if (isDeposit) {
-        const locktime: number = TimeUtils.dateToTimestamp(
-          new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        ); // 30 days from now
-
-        const scriptInfo = await locker.createTimelockScript(
-          locktime,
-          userPubKey,
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.details ||
+            errorData.error ||
+            "Failed to create transaction",
         );
-
-        setDepositAddress(scriptInfo.address);
-
-        // TODO: actually construct & send transaction to fund the script address
-      } else {
-        const psbtBase64 =
-          "cHNidP8BAHECAAAAAUhv4PrFeYKGlpmhSjVYr/VCIYciTqq9ECWPLLWRuThpAQAAAAD/////AoCWmAAAAAAAFgAUMRVkNIiQ4AWICpvINKqliE8bWTL7XPQAAAAAABYAFBg/3erkUALzSpszKwN4fSgTtJv/AAAAAAABAR9j94wBAAAAABYAFBg/3erkUALzSpszKwN4fSgTtJv/AAAA";
-
-        setPsbtBase64(psbtBase64);
-        setStep("psbt");
       }
+
+      const transactionData = await response.json();
+
+      console.log("Transaction created successfully:", transactionData);
+
+      // Set the PSBT for signing
+      setPsbtBase64(transactionData.psbt);
+      setStep("psbt");
     } catch (err: any) {
       const errorMessage =
         err.message || `Error creating Bitcoin ${type} transaction`;
