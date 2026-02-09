@@ -38,12 +38,12 @@ import { useToast } from "@/components/ui/toast";
 // Import the actual wallet contexts
 import {
   AccountType,
-  ConnectedWalletInfo,
   useAppKitAccount,
   useWalletInfo,
-  useAppKitState,
   useAppKitNetwork,
+  useAppKitProvider,
 } from "@reown/appkit/react";
+import type { BitcoinConnector } from "@reown/appkit-adapter-bitcoin";
 import { useCardanoWallet } from "@/lib/wallet/cardano/context";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -67,6 +67,8 @@ export default function StakingForm({
     useDashboardContext();
 
   const { addToast } = useToast();
+  const { walletProvider: btcWalletProvider } = useAppKitProvider("bip122");
+  const bitcoinConnector = btcWalletProvider as BitcoinConnector;
 
   // Wallet contexts - using the actual implementations
   const { walletInfo } = useWalletInfo();
@@ -333,13 +335,19 @@ export default function StakingForm({
         );
       }
 
-      const transactionData = await response.json();
+      const unsignedTransactionData = await response.json();
 
-      console.log("Transaction created successfully:", transactionData);
+      console.log("Transaction created successfully:", unsignedTransactionData);
 
-      // Set the PSBT for signing
-      setPsbtBase64(transactionData.psbt);
-      setStep("psbt");
+      // // Set the PSBT for signing
+      // setPsbtBase64(unsignedTransactionData.psbt);
+      // setStep("psbt");
+
+      const signedPsbt = await bitcoinConnector?.signPSBT(
+        unsignedTransactionData.psbt,
+      );
+
+      console.log("PSBT signed successfully:", signedPsbt);
     } catch (err: any) {
       const errorMessage =
         err.message || `Error creating Bitcoin ${type} transaction`;
