@@ -344,7 +344,7 @@ export default function StakingForm({
       // setStep("psbt");
 
       const signedPsbt = await bitcoinConnector?.signPSBT(
-        unsignedTransactionData.psbt,
+        unsignedTransactionData,
       );
 
       console.log("PSBT signed successfully:", signedPsbt);
