@@ -96,6 +96,9 @@ export default function StakingForm({
   // Bitcoin-specific states
   const [psbtBase64, setPsbtBase64] = useState("");
   const [broadcastResult, setBroadcastResult] = useState("");
+  const [unsignedTransactionData, setUnsignedTransactionData] =
+    useState<any>(null);
+  const [isCalculatingPsbt, setIsCalculatingPsbt] = useState(false);
   const [step, setStep] = useState<"form" | "psbt" | "broadcast" | "done">(
     "form",
   );
@@ -158,9 +161,10 @@ export default function StakingForm({
     return walletStatus.address;
   };
 
-  // Check for connected wallet and auto-fill address
+  // Check for connected wallet and auto-fill address and public key
   useEffect(() => {
     const connectedAddress = getConnectedWalletAddress();
+
     if (connectedAddress && !userAddress) {
       setUserAddress(connectedAddress);
       setIsUsingConnectedWallet(true);
@@ -168,7 +172,108 @@ export default function StakingForm({
       setUserAddress("");
       setIsUsingConnectedWallet(false);
     }
-  }, [selectedChain, bitcoinAddress, cardanoAddress, userAddress]);
+
+    // Auto-fill public key for Bitcoin chains when wallet is connected
+    if (
+      (selectedChain === "btc" || selectedChain === "btc_testnet") &&
+      bitcoinAccounts
+    ) {
+      const getBTCPubKey = (address: string, accounts: AccountType[]) => {
+        for (const account of accounts) {
+          if (account.address === address && account.publicKey) {
+            return account.publicKey;
+          }
+        }
+        return null;
+      };
+
+      // Only auto-fill if the current userAddress matches a wallet address with a public key
+      if (userAddress && isUsingConnectedWallet) {
+        const walletPubKey = getBTCPubKey(userAddress, bitcoinAccounts);
+        if (
+          walletPubKey &&
+          (!manualPublicKey || manualPublicKey !== walletPubKey)
+        ) {
+          setManualPublicKey(walletPubKey);
+        }
+      } else if (!isUsingConnectedWallet && manualPublicKey) {
+        // Clear the auto-filled public key if user switches to manual address
+        const isWalletPubKey = bitcoinAccounts.some(
+          (account) => account.publicKey === manualPublicKey,
+        );
+        if (isWalletPubKey) {
+          setManualPublicKey("");
+        }
+      }
+    }
+  }, [
+    selectedChain,
+    bitcoinAddress,
+    cardanoAddress,
+    userAddress,
+    bitcoinAccounts,
+    isUsingConnectedWallet,
+    manualPublicKey,
+  ]);
+
+  // Auto-calculate PSBT when all fields are filled (Bitcoin only)
+  useEffect(() => {
+    const shouldCalculatePsbt = () => {
+      if (selectedChain !== "btc" && selectedChain !== "btc_testnet")
+        return false;
+      if (step !== "form") return false;
+      if (isCalculatingPsbt || unsignedTransactionData) return false;
+      if (!userAddress || !amount) return false;
+      if (!isDeposit && !withdrawAddress) return false;
+      if (Number(amount) < config.minDeposit) return false;
+      if (!userAddress.startsWith(config.addressPrefix)) return false;
+      if (!isDeposit && !withdrawAddress.startsWith(config.addressPrefix))
+        return false;
+
+      // For Bitcoin, we need either a connected wallet with public key or manual public key
+      const getBTCPubKey = (address: string, accounts: AccountType[]) => {
+        for (const account of accounts) {
+          if (account.address === address && account.publicKey) {
+            return account.publicKey;
+          }
+        }
+        return null;
+      };
+
+      const sourceAddress = userAddress; // Always use userAddress for source
+      // Only use wallet public key if it matches the current address
+      const userPubKey = isUsingConnectedWallet
+        ? getBTCPubKey(sourceAddress, bitcoinAccounts || [])
+        : null;
+
+      // Must have either a wallet public key OR a valid manual public key
+      const trimmedManualPubKey = manualPublicKey?.trim() || "";
+      const hasValidManualPubKey =
+        trimmedManualPubKey.length === 66 &&
+        /^[0-9a-fA-F]{66}$/.test(trimmedManualPubKey);
+      const hasWalletPubKey = !!userPubKey;
+
+      if (!hasWalletPubKey && !hasValidManualPubKey) return false;
+
+      return true;
+    };
+
+    if (shouldCalculatePsbt()) {
+      calculateUnsignedPsbt();
+    }
+  }, [
+    selectedChain,
+    userAddress,
+    withdrawAddress,
+    amount,
+    manualPublicKey,
+    bitcoinAccounts,
+    isDeposit,
+    config,
+    step,
+    isCalculatingPsbt,
+    unsignedTransactionData,
+  ]);
 
   // Initialize mempool.js client based on selected chain
   const getMempoolClient = () => {
@@ -179,108 +284,66 @@ export default function StakingForm({
     });
   };
 
-  const copyToClipboard = async (text: string) => {
+  const copyToClipboard = async (
+    text: string,
+    type: "address" | "psbt" = "address",
+  ) => {
     await navigator.clipboard.writeText(text);
     setCopied(true);
     addToast({
       type: "success",
       title: "Copied to Clipboard",
-      message: "Address has been copied to your clipboard",
+      message:
+        type === "psbt"
+          ? "PSBT has been copied to your clipboard"
+          : "Address has been copied to your clipboard",
     });
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const resetForm = () => {
-    // Don't reset userAddress if using connected wallet
-    if (!isUsingConnectedWallet) {
-      setUserAddress("");
-    }
-    setWithdrawAddress("");
-    setAmount("");
-    setError(null);
-    setPsbtBase64("");
-    setBroadcastResult("");
-    setTxHash("");
-    setStep("form");
-    setManualPublicKey("");
-  };
+  const handleSignInBrowser = async () => {
+    if (!unsignedTransactionData) return;
 
-  const handleChainChange = (chain: SupportedChain) => {
-    setSelectedChain(chain);
-    setUserAddress(""); // Reset address when changing chains
-    setIsUsingConnectedWallet(false);
-    setWithdrawAddress("");
-    setAmount("");
-    setError(null);
-    setPsbtBase64("");
-    setBroadcastResult("");
-    setTxHash("");
-    setStep("form");
-    setManualPublicKey("");
-
-    // Check for connected wallet on new chain after a brief delay
-    setTimeout(() => {
-      const connectedAddress = getConnectedWalletAddress();
-      if (connectedAddress) {
-        setUserAddress(connectedAddress);
-        setIsUsingConnectedWallet(true);
-      }
-    }, 100);
-  };
-
-  const handleAmountChange = (value: string) => {
-    setAmount(value);
-    onAmountChange?.(value, selectedChain);
-  };
-
-  const handleAddressChange = (value: string) => {
-    setUserAddress(value);
-    // If user manually changes address, mark as not using connected wallet
-    if (isUsingConnectedWallet && value !== getConnectedWalletAddress()) {
-      setIsUsingConnectedWallet(false);
-      addToast({
-        type: "info",
-        title: "Using Manual Address",
-        message:
-          "You're now using a manually entered address instead of your connected wallet",
-      });
-    }
-  };
-
-  const handleUseConnectedWallet = () => {
-    const connectedAddress = getConnectedWalletAddress();
-    if (connectedAddress) {
-      setUserAddress(connectedAddress);
-      setIsUsingConnectedWallet(true);
-      addToast({
-        type: "success",
-        title: "Connected Wallet Selected",
-        message: "Now using your connected wallet address",
-      });
-    }
-  };
-
-  // Track pending transaction
-  const [pendingTransactionId, setPendingTransactionId] = useState<
-    string | null
-  >(null);
-
-  // Bitcoin transaction logic using mempool.js
-  const handleBtcTransaction = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
     setLoading(true);
-
-    // Add pending transaction to dashboard
-    const transactionId = addPendingTransaction(
-      selectedChain as SupportedChain,
-      Number(amount),
-      type,
-    );
-    setPendingTransactionId(transactionId);
+    setError(null);
 
     try {
-      const sourceAddress = isDeposit ? userAddress : depositAddress;
+      const signedPsbt = await bitcoinConnector?.signPSBT(
+        unsignedTransactionData,
+      );
+      console.log("PSBT signed successfully:", signedPsbt);
+
+      // Process the signed PSBT or broadcast it
+      // For now, we'll set it to the PSBT step for manual broadcast
+      setPsbtBase64(signedPsbt?.psbt || "");
+      setStep("psbt");
+    } catch (err: any) {
+      const errorMessage =
+        err.message || "Error signing transaction in browser";
+      setError(errorMessage);
+
+      // Update transaction as failed
+      if (pendingTransactionId) {
+        updateTransactionStatus(pendingTransactionId, "failed");
+      }
+    }
+    setLoading(false);
+  };
+
+  const handleCopyUnsignedPSBT = () => {
+    if (unsignedTransactionData?.psbt) {
+      copyToClipboard(unsignedTransactionData.psbt, "psbt");
+    }
+  };
+
+  const calculateUnsignedPsbt = async () => {
+    if (isCalculatingPsbt) return;
+
+    setIsCalculatingPsbt(true);
+    setError(null);
+
+    try {
+      const sourceAddress = userAddress; // Always use userAddress for source
 
       const getBTCPubKey = (address: string, accounts: AccountType[]) => {
         for (const account of accounts) {
@@ -291,26 +354,25 @@ export default function StakingForm({
         return null;
       };
 
-      let userPubKey = getBTCPubKey(sourceAddress, bitcoinAccounts || []);
-      console.log("User Public Key:", userPubKey);
+      // Only use wallet public key if using connected wallet and it matches the address
+      let userPubKey = isUsingConnectedWallet
+        ? getBTCPubKey(sourceAddress, bitcoinAccounts || [])
+        : null;
 
-      // If we can't get the public key from the API, check for manual input
+      // If no wallet public key, use manual public key (must be validated)
       if (!userPubKey) {
-        if (!manualPublicKey) {
-          throw new Error(
-            "Unable to retrieve public key from wallet. Please enter your public key manually below.",
-          );
+        const trimmedManualPubKey = manualPublicKey?.trim() || "";
+        if (
+          trimmedManualPubKey.length !== 66 ||
+          !/^[0-9a-fA-F]{66}$/.test(trimmedManualPubKey)
+        ) {
+          console.log(trimmedManualPubKey);
+          setIsCalculatingPsbt(false);
+          return;
         }
-        // Validate manual public key format (basic validation)
-        if (!/^[0-9a-fA-F]{66}$/.test(manualPublicKey)) {
-          throw new Error(
-            "Invalid public key format. Please enter a valid 33-byte public key in hexadecimal format (66 characters).",
-          );
-        }
-        userPubKey = manualPublicKey;
+        userPubKey = trimmedManualPubKey;
       }
 
-      // Call server API to create the transaction
       const response = await fetch("/api/btc-transaction", {
         method: "POST",
         headers: {
@@ -336,29 +398,125 @@ export default function StakingForm({
       }
 
       const unsignedTransactionData = await response.json();
-
-      console.log("Transaction created successfully:", unsignedTransactionData);
-
-      // // Set the PSBT for signing
-      // setPsbtBase64(unsignedTransactionData.psbt);
-      // setStep("psbt");
-
-      const signedPsbt = await bitcoinConnector?.signPSBT(
-        unsignedTransactionData,
-      );
-
-      console.log("PSBT signed successfully:", signedPsbt);
+      console.log("Unsigned transaction calculated:", unsignedTransactionData);
+      setUnsignedTransactionData(unsignedTransactionData);
     } catch (err: any) {
-      const errorMessage =
-        err.message || `Error creating Bitcoin ${type} transaction`;
-      setError(errorMessage);
-
-      // Update transaction as failed
-      if (transactionId) {
-        updateTransactionStatus(transactionId, "failed");
-      }
+      console.error("Error calculating PSBT:", err);
+      // Don't show error for auto-calculation, just reset
+      setUnsignedTransactionData(null);
     }
-    setLoading(false);
+
+    setIsCalculatingPsbt(false);
+  };
+
+  const resetForm = () => {
+    // Don't reset userAddress if using connected wallet
+    if (!isUsingConnectedWallet) {
+      setUserAddress("");
+    }
+    setWithdrawAddress("");
+    setAmount("");
+    setError(null);
+    setPsbtBase64("");
+    setBroadcastResult("");
+    setTxHash("");
+    setUnsignedTransactionData(null);
+    setStep("form");
+    setManualPublicKey("");
+  };
+
+  const handleChainChange = (chain: SupportedChain) => {
+    setSelectedChain(chain);
+    setUserAddress(""); // Reset address when changing chains
+    setIsUsingConnectedWallet(false);
+    setWithdrawAddress("");
+    setAmount("");
+    setError(null);
+    setPsbtBase64("");
+    setBroadcastResult("");
+    setTxHash("");
+    setUnsignedTransactionData(null);
+    setIsCalculatingPsbt(false);
+    setStep("form");
+    setManualPublicKey("");
+
+    // Check for connected wallet on new chain after a brief delay
+    setTimeout(() => {
+      const connectedAddress = getConnectedWalletAddress();
+      if (connectedAddress) {
+        setUserAddress(connectedAddress);
+        setIsUsingConnectedWallet(true);
+      }
+    }, 100);
+  };
+
+  const handleAmountChange = (value: string) => {
+    setAmount(value);
+    setUnsignedTransactionData(null); // Reset PSBT when amount changes
+    onAmountChange?.(value, selectedChain);
+  };
+
+  const handleAddressChange = (value: string) => {
+    setUserAddress(value);
+    setUnsignedTransactionData(null); // Reset PSBT when address changes
+    // If user manually changes address, mark as not using connected wallet
+    if (isUsingConnectedWallet && value !== getConnectedWalletAddress()) {
+      setIsUsingConnectedWallet(false);
+      addToast({
+        type: "info",
+        title: "Using Manual Address",
+        message:
+          "You're now using a manually entered address instead of your connected wallet",
+      });
+    }
+  };
+
+  const handleWithdrawAddressChange = (value: string) => {
+    setWithdrawAddress(value);
+    setUnsignedTransactionData(null); // Reset PSBT when withdraw address changes
+  };
+
+  const handleManualPublicKeyChange = (value: string) => {
+    setManualPublicKey(value);
+    setUnsignedTransactionData(null); // Reset PSBT when public key changes
+  };
+
+  const handleUseConnectedWallet = () => {
+    const connectedAddress = getConnectedWalletAddress();
+    if (connectedAddress) {
+      setUserAddress(connectedAddress);
+      setIsUsingConnectedWallet(true);
+      addToast({
+        type: "success",
+        title: "Connected Wallet Selected",
+        message: "Now using your connected wallet address",
+      });
+    }
+  };
+
+  // Track pending transaction
+  const [pendingTransactionId, setPendingTransactionId] = useState<
+    string | null
+  >(null);
+
+  // Bitcoin transaction logic - now just handles the signing choice
+  const handleBtcTransaction = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!unsignedTransactionData) {
+      setError(
+        "Transaction not ready. Please ensure all fields are filled correctly.",
+      );
+      return;
+    }
+
+    // Add pending transaction to dashboard
+    const transactionId = addPendingTransaction(
+      selectedChain as SupportedChain,
+      Number(amount),
+      type,
+    );
+    setPendingTransactionId(transactionId);
   };
 
   // ADA transaction logic
@@ -678,7 +836,7 @@ export default function StakingForm({
                 <Input
                   type="text"
                   value={manualPublicKey}
-                  onChange={(e) => setManualPublicKey(e.target.value)}
+                  onChange={(e) => handleManualPublicKeyChange(e.target.value)}
                   placeholder="Enter your 33-byte public key in hexadecimal format (66 characters)"
                   className="font-mono text-xs"
                   maxLength={66}
@@ -711,7 +869,7 @@ export default function StakingForm({
                 <Input
                   type="text"
                   value={withdrawAddress}
-                  onChange={(e) => setWithdrawAddress(e.target.value)}
+                  onChange={(e) => handleWithdrawAddressChange(e.target.value)}
                   placeholder={`${config.addressPrefix}...`}
                   required
                 />
@@ -740,32 +898,57 @@ export default function StakingForm({
               </p>
             </div>
 
-            {/* Deposit Address Display (only for deposits) */}
-            {isDeposit && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Deposit Address</label>
-                <div className="flex gap-2">
-                  <Input
-                    type="text"
-                    value={depositAddress}
-                    readOnly
-                    className="bg-muted font-mono text-xs"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => copyToClipboard(depositAddress)}
-                  >
-                    {copied ? (
+            {/* Signing Options (Bitcoin only, when PSBT is ready) */}
+            {(selectedChain === "btc" || selectedChain === "btc_testnet") &&
+              unsignedTransactionData && (
+                <div className="space-y-4">
+                  <div className="p-4 bg-green-50 border border-green-200 rounded-md">
+                    <div className="flex items-center gap-2 text-green-700 font-medium mb-2">
                       <CheckCircle className="w-4 h-4" />
-                    ) : (
-                      <Copy className="w-4 h-4" />
-                    )}
-                  </Button>
+                      Transaction Ready
+                    </div>
+                    <p className="text-sm text-green-600 mb-4">
+                      Your unsigned transaction is ready. Choose how you'd like
+                      to sign it:
+                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <Button
+                        type="button"
+                        onClick={handleSignInBrowser}
+                        disabled={loading}
+                        className="flex items-center gap-2"
+                      >
+                        <Wallet className="w-4 h-4" />
+                        {loading ? "Signing..." : "Sign with Wallet"}
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleCopyUnsignedPSBT}
+                        className="flex items-center gap-2"
+                      >
+                        <Copy className="w-4 h-4" />
+                        {copied ? "Copied!" : "Copy Unsigned PSBT"}
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+
+            {/* PSBT Calculation Status (Bitcoin only) */}
+            {(selectedChain === "btc" || selectedChain === "btc_testnet") &&
+              isCalculatingPsbt && (
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
+                  <div className="flex items-center gap-2 text-blue-700">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700"></div>
+                    <span className="text-sm font-medium">
+                      Preparing transaction...
+                    </span>
+                  </div>
+                </div>
+              )}
 
             {/* Actions */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
