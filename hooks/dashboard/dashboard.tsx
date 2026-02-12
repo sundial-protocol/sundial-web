@@ -123,7 +123,7 @@ export interface EarningsData {
 export function generateEarningsData(
   adaValue: number,
   btcValue: number,
-  priceMap: PricesMap
+  priceMap: PricesMap,
 ): EarningsData[] {
   const today = new Date();
   const currentMonth = today.getMonth(); // 0-11
@@ -198,8 +198,8 @@ export function useDashboardData() {
     generateEarningsData(
       mockPortfolioData.staking.ADA.staked,
       mockPortfolioData.staking.BTC.staked,
-      DEFAULT_PRICES
-    )
+      DEFAULT_PRICES,
+    ),
   );
   const [transactions, setTransactions] = useState<LoggedTx[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -210,7 +210,7 @@ export function useDashboardData() {
     chain: SupportedChain,
     amount: number,
     type: "deposit" | "withdraw",
-    txHash?: string
+    txHash?: string,
   ) => {
     setPortfolioData((prev) => {
       const asset = chain.toUpperCase() as "BTC" | "ADA";
@@ -227,9 +227,12 @@ export function useDashboardData() {
       const newStaking = {
         ...prev.staking,
         [asset]: {
-          ...prev.staking[asset],
-          staked: Math.max(0, prev.staking[asset].staked + amountChange),
-          yield: getYield(prev.staking[asset].staked + amountChange), // Your yield calculation logic
+          ...(prev.staking[asset] || { staked: 0, yield: 0, positions: [] }),
+          staked: Math.max(
+            0,
+            (prev.staking[asset]?.staked || 0) + amountChange,
+          ),
+          yield: getYield((prev.staking[asset]?.staked || 0) + amountChange), // Your yield calculation logic
         },
       };
 
@@ -251,7 +254,7 @@ export function useDashboardData() {
       collateral?: { asset: string; amount: number };
       interestRate?: number;
       details?: string;
-    }
+    },
   ) => {
     const transactionId = `tx-${Date.now()}-${Math.random()
       .toString(36)
@@ -291,7 +294,7 @@ export function useDashboardData() {
   const updateTransactionStatus = (
     transactionId: string,
     status: "completed" | "failed",
-    txHash?: string
+    txHash?: string,
   ) => {
     setTransactions((prev) =>
       prev.map((tx) => {
@@ -312,7 +315,7 @@ export function useDashboardData() {
           return updatedTx;
         }
         return tx;
-      })
+      }),
     );
   };
 
@@ -327,7 +330,7 @@ export function useDashboardData() {
 
   //  Transaction helper functions for lending
   const getTransactionsByType = (
-    type: TransactionType | TransactionType[]
+    type: TransactionType | TransactionType[],
   ): LoggedTx[] => {
     const types = Array.isArray(type) ? type : [type];
     return transactions.filter((tx) => types.includes(tx.type));
@@ -335,13 +338,13 @@ export function useDashboardData() {
 
   const getTransactionsByLoanId = (loanId: string): LendingTransaction[] => {
     return transactions.filter(
-      (tx): tx is LendingTransaction => "loanId" in tx && tx.loanId === loanId
+      (tx): tx is LendingTransaction => "loanId" in tx && tx.loanId === loanId,
     );
   };
 
   const getStakingTransactions = (): StakingTransaction[] => {
     return transactions.filter((tx): tx is StakingTransaction =>
-      ["deposit", "withdraw", "stake", "unstake", "reward"].includes(tx.type)
+      ["deposit", "withdraw", "stake", "unstake", "reward"].includes(tx.type),
     );
   };
 
@@ -353,7 +356,7 @@ export function useDashboardData() {
         "loan_extended",
         "loan_refinanced",
         "loan_closed",
-      ].includes(tx.type)
+      ].includes(tx.type),
     );
   };
 
@@ -403,13 +406,13 @@ export function useDashboardData() {
 
   // Computed values for easy access
   const pendingTransactions = transactions.filter(
-    (tx) => tx.status === "pending"
+    (tx) => tx.status === "pending",
   );
   const completedTransactions = transactions.filter(
-    (tx) => tx.status === "completed"
+    (tx) => tx.status === "completed",
   );
   const failedTransactions = transactions.filter(
-    (tx) => tx.status === "failed"
+    (tx) => tx.status === "failed",
   );
 
   return {
@@ -444,7 +447,7 @@ export function usePortfolioCalculations(portfolioData: PortfolioData) {
   const adaRewards = 0;
   const btcRewards = getYield(
     convert(portfolioData.holdings.BTC, "BTC", "USD") +
-      convert(portfolioData.holdings.ADA, "ADA", "USD")
+      convert(portfolioData.holdings.ADA, "ADA", "USD"),
   );
 
   return {
@@ -514,7 +517,7 @@ export function formatPercentage(value: number, decimals = 1): string {
 
 export function formatAssetAmount(
   amount: number,
-  asset: "BTC" | "ADA"
+  asset: "BTC" | "ADA",
 ): string {
   const decimals = asset === "BTC" ? 6 : 2;
   return `${amount.toFixed(decimals)} ${asset}`;

@@ -333,6 +333,18 @@ export default function StakingForm({
   const handleCopyUnsignedPSBT = () => {
     if (unsignedTransactionData?.psbt) {
       copyToClipboard(unsignedTransactionData.psbt, "psbt");
+
+      // Add pending transaction to dashboard
+      const transactionId = addPendingTransaction(
+        selectedChain as SupportedChain,
+        Number(amount),
+        type,
+      );
+      setPendingTransactionId(transactionId);
+
+      // Set the unsigned PSBT and go to psbt step for manual signing
+      setPsbtBase64(unsignedTransactionData.psbt);
+      setStep("psbt");
     }
   };
 
@@ -898,45 +910,6 @@ export default function StakingForm({
               </p>
             </div>
 
-            {/* Signing Options (Bitcoin only, when PSBT is ready) */}
-            {(selectedChain === "btc" || selectedChain === "btc_testnet") &&
-              unsignedTransactionData && (
-                <div className="space-y-4">
-                  <div className="p-4 bg-green-50 border border-green-200 rounded-md">
-                    <div className="flex items-center gap-2 text-green-700 font-medium mb-2">
-                      <CheckCircle className="w-4 h-4" />
-                      Transaction Ready
-                    </div>
-                    <p className="text-sm text-green-600 mb-4">
-                      Your unsigned transaction is ready. Choose how you'd like
-                      to sign it:
-                    </p>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <Button
-                        type="button"
-                        onClick={handleSignInBrowser}
-                        disabled={loading}
-                        className="flex items-center gap-2"
-                      >
-                        <Wallet className="w-4 h-4" />
-                        {loading ? "Signing..." : "Sign with Wallet"}
-                      </Button>
-
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleCopyUnsignedPSBT}
-                        className="flex items-center gap-2"
-                      >
-                        <Copy className="w-4 h-4" />
-                        {copied ? "Copied!" : "Copy Unsigned PSBT"}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
             {/* PSBT Calculation Status (Bitcoin only) */}
             {(selectedChain === "btc" || selectedChain === "btc_testnet") &&
               isCalculatingPsbt && (
@@ -952,20 +925,48 @@ export default function StakingForm({
 
             {/* Actions */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Button type="submit" disabled={loading || !isFormValid()}>
-                {getButtonText()}
-              </Button>
+              {selectedChain === "btc" || selectedChain === "btc_testnet" ? (
+                <>
+                  <Button
+                    type="button"
+                    onClick={handleSignInBrowser}
+                    disabled={loading || !unsignedTransactionData}
+                    className="flex items-center gap-2"
+                  >
+                    <Wallet className="w-4 h-4" />
+                    {loading
+                      ? "Signing..."
+                      : `Sign & ${isDeposit ? "Deposit" : "Withdraw"}`}
+                  </Button>
 
-              {selectedChain === "ada" && isDeposit && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() =>
-                    window.open("https://yoroi-wallet.com", "_blank")
-                  }
-                >
-                  Get Yoroi Wallet
-                </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleCopyUnsignedPSBT}
+                    disabled={!unsignedTransactionData}
+                    className="flex items-center gap-2"
+                  >
+                    <Copy className="w-4 h-4" />
+                    {copied ? "Copied!" : "Copy Unsigned PSBT"}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button type="submit" disabled={loading || !isFormValid()}>
+                    {getButtonText()}
+                  </Button>
+                  {selectedChain === "ada" && isDeposit && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() =>
+                        window.open("https://yoroi-wallet.com", "_blank")
+                      }
+                    >
+                      Get Yoroi Wallet
+                    </Button>
+                  )}
+                </>
               )}
             </div>
 
@@ -989,11 +990,15 @@ export default function StakingForm({
                 setBroadcastResult(txid);
 
                 // Update dashboard with successful transaction
-                updateStakedAmount(
-                  selectedChain as SupportedChain,
-                  Number(amount),
-                  type,
-                );
+                try {
+                  updateStakedAmount(
+                    selectedChain as SupportedChain,
+                    Number(amount),
+                    type,
+                  );
+                } catch (error) {
+                  console.error("Error updating staked amount:", error);
+                }
 
                 // Update transaction status
                 if (pendingTransactionId) {
