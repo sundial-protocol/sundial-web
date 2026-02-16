@@ -385,19 +385,30 @@ export default function StakingForm({
         userPubKey = trimmedManualPubKey;
       }
 
-      const response = await fetch("/api/btc-transaction", {
+      const apiEndpoint = isDeposit
+        ? "/api/btc-staking"
+        : "/api/btc-withdrawal";
+      const requestBody = isDeposit
+        ? {
+            sourceAddress: sourceAddress,
+            amount: amount,
+            userPublicKey: userPubKey,
+            network: selectedChain === "btc_testnet" ? "testnet" : "bitcoin",
+          }
+        : {
+            withdrawAddress: withdrawAddress,
+            amount: amount,
+            userPublicKey: userPubKey,
+            network: selectedChain === "btc_testnet" ? "testnet" : "bitcoin",
+            // TODO: need locktime here
+          };
+
+      const response = await fetch(apiEndpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          sourceAddress: sourceAddress,
-          withdrawAddress: isDeposit ? undefined : withdrawAddress,
-          amount: amount,
-          userPublicKey: userPubKey,
-          transactionType: isDeposit ? "deposit" : "withdraw",
-          network: selectedChain === "btc_testnet" ? "testnet" : "main",
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
