@@ -11,29 +11,39 @@ import { getYield } from "@/hooks/dashboard/get-yield";
 import { usePrices } from "@/hooks/dashboard/prices";
 
 export default function WithdrawTab() {
-  const { calculations, updateStakedAmount, isLoading } = useDashboardContext();
+  const { portfolioData, calculations, updateStakedAmount, isLoading } =
+    useDashboardContext();
   const { convert } = usePrices();
   const [selectedChain, setSelectedChain] = useState<SupportedChain>("btc");
   const [amount, setAmount] = useState("");
   const config = chainConfigs[selectedChain];
 
-  const alreadyStaked = convert(
-    config.symbol === "BTC" ? calculations.btcValue : calculations.adaValue,
-    "USD",
-    config.symbol
-  );
+  // Use staked amounts for withdrawal calculations
+  // For BTC, sum both mainnet and testnet staked amounts since they're both BTC
+  const alreadyStaked =
+    config.symbol === "BTC"
+      ? portfolioData?.staking?.BTC?.staked || 0
+      : portfolioData?.staking?.ADA?.staked || 0;
+
+  console.log(`Already staked (${config.symbol}):`, alreadyStaked);
+
   const currentYield =
     convert(calculations.monthlyRewards.total, "USD", config.symbol) || 0;
 
   const handleAmountChange = (newAmount: string, chain: SupportedChain) => {
+    console.log("Amount changed:", {
+      newAmount,
+      chain,
+      previousAmount: amount,
+      previousChain: selectedChain,
+    });
     setAmount(newAmount);
-    setSelectedChain(chain);
   };
 
   const handleSuccess = (
     txHash: string,
     chain: SupportedChain,
-    amount: string
+    amount: string,
   ) => {
     console.log("Withdraw successful:", { txHash, chain, amount });
 

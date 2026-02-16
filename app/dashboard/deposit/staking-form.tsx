@@ -63,8 +63,12 @@ export default function StakingForm({
   onAmountChange,
   defaultChain = "btc",
 }: StakingFormProps) {
-  const { updateStakedAmount, addPendingTransaction, updateTransactionStatus } =
-    useDashboardContext();
+  const {
+    updateStakedAmount,
+    addPendingTransaction,
+    updateTransactionStatus,
+    transactions,
+  } = useDashboardContext();
 
   const { addToast } = useToast();
   const { walletProvider: btcWalletProvider } = useAppKitProvider("bip122");
@@ -105,6 +109,9 @@ export default function StakingForm({
 
   // ADA-specific states
   const [txHash, setTxHash] = useState("");
+
+  // Locktime for withdrawal transactions
+  const [savedLocktime, setSavedLocktime] = useState<number | null>(null);
 
   const config = chainConfigs[selectedChain];
   const isDeposit = type === "deposit";
@@ -216,6 +223,35 @@ export default function StakingForm({
     manualPublicKey,
   ]);
 
+  // Auto-populate locktime from transaction history for withdrawals
+  useEffect(() => {
+    if (!isDeposit && !savedLocktime && transactions.length > 0) {
+      const depositTransactions = transactions.filter(
+        (tx) =>
+          tx.status === "completed" &&
+          tx.type === "deposit" &&
+          tx.asset.toLowerCase() === selectedChain.toLowerCase(),
+      );
+
+      const lastDeposit = depositTransactions.sort(
+        (a, b) =>
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+      )[0];
+
+      console.log("Most recent deposit:", lastDeposit);
+
+      if (lastDeposit && (lastDeposit as any).locktime) {
+        const locktime = (lastDeposit as any).locktime;
+        setSavedLocktime(locktime);
+      } else {
+        console.log("No deposit transaction with locktime found in history");
+        if (lastDeposit) {
+          console.log("Last deposit found but no locktime:", lastDeposit);
+        }
+      }
+    }
+  }, [isDeposit, savedLocktime, transactions, selectedChain]);
+
   // Auto-calculate PSBT when all fields are filled (Bitcoin only)
   useEffect(() => {
     const shouldCalculatePsbt = () => {
@@ -229,6 +265,14 @@ export default function StakingForm({
       if (!userAddress.startsWith(config.addressPrefix)) return false;
       if (!isDeposit && !withdrawAddress.startsWith(config.addressPrefix))
         return false;
+
+      // For withdrawals, we need a saved locktime
+      if (!isDeposit && !savedLocktime) {
+        console.log(
+          "Cannot calculate withdrawal PSBT: No saved locktime available",
+        );
+        return false;
+      }
 
       // For Bitcoin, we need either a connected wallet with public key or manual public key
       const getBTCPubKey = (address: string, accounts: AccountType[]) => {
@@ -400,7 +444,7 @@ export default function StakingForm({
             amount: amount,
             userPublicKey: userPubKey,
             network: selectedChain === "btc_testnet" ? "testnet" : "bitcoin",
-            // TODO: need locktime here
+            locktime: savedLocktime,
           };
 
       const response = await fetch(apiEndpoint, {
@@ -1000,6 +1044,15 @@ export default function StakingForm({
                 console.log("Transaction found:", txid);
                 setBroadcastResult(txid);
 
+                // Save locktime for future withdrawal transactions (only for deposits)
+                if (isDeposit && unsignedTransactionData?.locktime) {
+                  setSavedLocktime(unsignedTransactionData.locktime);
+                  console.log(
+                    "Saved locktime for withdrawal:",
+                    unsignedTransactionData.locktime,
+                  );
+                }
+
                 // Update dashboard with successful transaction
                 try {
                   updateStakedAmount(
@@ -1017,6 +1070,9 @@ export default function StakingForm({
                     pendingTransactionId,
                     "completed",
                     txid,
+                    isDeposit && unsignedTransactionData?.locktime
+                      ? { locktime: unsignedTransactionData.locktime }
+                      : undefined,
                   );
                 }
 

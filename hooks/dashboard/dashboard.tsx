@@ -213,9 +213,23 @@ export function useDashboardData() {
     txHash?: string,
   ) => {
     setPortfolioData((prev) => {
-      const asset = chain.toUpperCase() as "BTC" | "ADA";
+      // Map chain to the correct asset key, handling testnet cases
+      let asset: "BTC" | "ADA";
+      if (chain === "btc" || chain === "btc_testnet") {
+        asset = "BTC";
+      } else if (chain === "ada") {
+        asset = "ADA";
+      } else {
+        console.warn(`Unknown chain: ${chain}, defaulting to BTC`);
+        asset = "BTC";
+      }
+
       const multiplier = type === "deposit" ? 1 : -1;
       const amountChange = amount * multiplier;
+
+      console.log(
+        `Dashboard update - Chain: ${chain}, Asset: ${asset}, Amount: ${amount}, Type: ${type}, Change: ${amountChange}`,
+      );
 
       // Update holdings
       const newHoldings = {
@@ -235,6 +249,13 @@ export function useDashboardData() {
           yield: getYield((prev.staking[asset]?.staked || 0) + amountChange), // Your yield calculation logic
         },
       };
+
+      console.log(`Updated staking for ${asset}:`, {
+        oldStaked: prev.staking[asset]?.staked || 0,
+        newStaked: newStaking[asset].staked,
+        oldHoldings: prev.holdings[asset],
+        newHoldings: newHoldings[asset],
+      });
 
       return {
         ...prev,
@@ -295,6 +316,7 @@ export function useDashboardData() {
     transactionId: string,
     status: "completed" | "failed",
     txHash?: string,
+    extraData?: { locktime?: number; [key: string]: any },
   ) => {
     setTransactions((prev) =>
       prev.map((tx) => {
@@ -303,12 +325,14 @@ export function useDashboardData() {
             ...tx,
             status,
             txHash: status === "completed" ? txHash : tx.txHash,
+            ...(extraData || {}), // Spread any extra data like locktime
           };
 
           console.log("Updated transaction status:", {
             transactionId,
             status,
             txHash,
+            extraData,
             previousStatus: tx.status,
           });
 
