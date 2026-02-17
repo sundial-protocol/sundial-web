@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { YIELD_PROVIDER_PUBKEY } from "@/lib/yield-provider";
 
 export interface YieldOpportunity {
   id: number;
@@ -13,6 +14,8 @@ export interface YieldOpportunity {
   totalLocked: number;
   description: string;
   provider: string;
+  locktime: number; // Unix timestamp for locktime (deposits)
+  publicKey: string; // Public key for the provider (if applicable)
 }
 
 export function useYieldOpportunities() {
@@ -25,7 +28,7 @@ export function useYieldOpportunities() {
     type?: "staking" | "lending" | "liquidity" | "alternative",
     risk?: "Low" | "Medium" | "High",
     minAPY?: number,
-    maxMinAmount?: number
+    maxMinAmount?: number,
   ) => {
     return opportunities.filter((opportunity) => {
       if (type && opportunity.type !== type) return false;
@@ -37,7 +40,7 @@ export function useYieldOpportunities() {
   };
 
   const sortOpportunities = (
-    sortBy: "apy" | "totalLocked" | "minAmount" | "name" = "apy"
+    sortBy: "apy" | "totalLocked" | "minAmount" | "name" = "apy",
   ) => {
     return [...opportunities].sort((a, b) => {
       switch (sortBy) {
@@ -77,6 +80,8 @@ const yieldOpportunities: YieldOpportunity[] = [
     totalLocked: 1250000,
     description: "Stake your Bitcoin with trusted validators and earn rewards",
     provider: "Sundial Network",
+    locktime: 1000 * 60 * 60 * 24 * 30, // 30 days in milliseconds
+    publicKey: YIELD_PROVIDER_PUBKEY, // Example public key
   },
   {
     id: 2,
@@ -89,6 +94,8 @@ const yieldOpportunities: YieldOpportunity[] = [
     totalLocked: 850000,
     description: "Stake Bitcoin and receive liquid tokens for DeFi",
     provider: "Sundial Protocol",
+    locktime: 1000 * 60 * 60 * 24 * 30, // 30 days in milliseconds
+    publicKey: YIELD_PROVIDER_PUBKEY, // Example public key
   },
   {
     id: 3,
@@ -101,6 +108,8 @@ const yieldOpportunities: YieldOpportunity[] = [
     totalLocked: 500000,
     description: "Lend Bitcoin to borrowers and earn interest",
     provider: "DeFi Lending",
+    locktime: 1000 * 60 * 60 * 24 * 30, // 30 days in milliseconds
+    publicKey: YIELD_PROVIDER_PUBKEY, // Example public key
   },
   {
     id: 4,
@@ -113,6 +122,8 @@ const yieldOpportunities: YieldOpportunity[] = [
     totalLocked: 300000,
     description: "Provide liquidity and earn trading fees",
     provider: "DEX Protocol",
+    locktime: 1000 * 60 * 60 * 24 * 30, // 30 days in milliseconds
+    publicKey: YIELD_PROVIDER_PUBKEY, // Example public key
   },
   {
     id: 5,
@@ -125,5 +136,7 @@ const yieldOpportunities: YieldOpportunity[] = [
     totalLocked: 750000,
     description: "Invest in tokenized real estate assets",
     provider: "RealFi",
+    locktime: 1000 * 60 * 60 * 24 * 30, // 30 days in milliseconds
+    publicKey: YIELD_PROVIDER_PUBKEY, // Example public key
   },
 ];

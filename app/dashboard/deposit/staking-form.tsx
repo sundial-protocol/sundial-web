@@ -68,6 +68,7 @@ export default function StakingForm({
     addPendingTransaction,
     updateTransactionStatus,
     transactions,
+    selectedYieldProvider,
   } = useDashboardContext();
 
   const { addToast } = useToast();
@@ -112,6 +113,39 @@ export default function StakingForm({
 
   // Locktime for withdrawal transactions
   const [savedLocktime, setSavedLocktime] = useState<number | null>(null);
+
+  // Initialize public key from selected yield provider if available
+  useEffect(() => {
+    if (selectedYieldProvider?.publicKey && !manualPublicKey) {
+      setManualPublicKey(selectedYieldProvider.publicKey);
+    }
+  }, [selectedYieldProvider, manualPublicKey]);
+
+  // Duration options (in days) - highlight the selected yield provider's duration
+  const durationOptions = [
+    { label: "7 Days", value: "7", description: "Short-term commitment" },
+    { label: "30 Days", value: "30", description: "Standard lock period" },
+    { label: "60 Days", value: "60", description: "Higher yield potential" },
+    { label: "90 Days", value: "90", description: "Maximum yield" },
+    { label: "180 Days", value: "180", description: "Premium lock period" },
+    { label: "365 Days", value: "365", description: "Annual commitment" },
+  ].map((option) => ({
+    ...option,
+    description:
+      selectedYieldProvider?.locktime &&
+      (selectedYieldProvider.locktime / (1000 * 60 * 60 * 24)).toString() ===
+        option.value
+        ? `${option.description} (Provider Default)`
+        : option.description,
+  }));
+
+  // Calculate locktime based on selected duration or yield provider duration
+  const calculateLocktime = (durationDays?: string) => {
+    const futureDate = new Date(
+      Date.now() + (selectedYieldProvider?.locktime ?? 1000 * 60 * 5),
+    );
+    return Math.floor(futureDate.getTime() / 1000); // Convert to Unix timestamp
+  };
 
   const config = chainConfigs[selectedChain];
   const isDeposit = type === "deposit";
@@ -317,6 +351,7 @@ export default function StakingForm({
     step,
     isCalculatingPsbt,
     unsignedTransactionData,
+    savedLocktime,
   ]);
 
   // Initialize mempool.js client based on selected chain
@@ -438,6 +473,7 @@ export default function StakingForm({
             amount: amount,
             userPublicKey: userPubKey,
             network: selectedChain === "btc_testnet" ? "testnet" : "bitcoin",
+            locktime: selectedYieldProvider?.locktime || 1000 * 60 * 5,
           }
         : {
             withdrawAddress: withdrawAddress,
@@ -899,6 +935,12 @@ export default function StakingForm({
                 <label className="text-sm font-medium">
                   Public Key
                   <span className="text-red-500 ml-1">*</span>
+                  {selectedYieldProvider?.publicKey &&
+                    manualPublicKey === selectedYieldProvider.publicKey && (
+                      <span className="ml-2 text-xs text-green-600 font-normal">
+                        (From {selectedYieldProvider.provider})
+                      </span>
+                    )}
                 </label>
                 <Input
                   type="text"

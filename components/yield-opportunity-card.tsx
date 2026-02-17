@@ -24,6 +24,7 @@ interface YieldOpportunityCardProps {
   buttonText?: string;
   buttonHref?: string;
   onButtonClick?: () => void;
+  buttonVariant?: "default" | "outline" | "secondary" | "ghost" | "link";
 }
 
 const getRiskColor = (risk: string) => {
@@ -59,6 +60,7 @@ export function YieldOpportunityCard({
   buttonText = "Start Earning",
   buttonHref = "/stake",
   onButtonClick,
+  buttonVariant = "default",
 }: YieldOpportunityCardProps) {
   return (
     <Card className="hover:shadow-lg transition-shadow">
@@ -106,11 +108,15 @@ export function YieldOpportunityCard({
         </div>
 
         {onButtonClick ? (
-          <Button className="w-full" onClick={onButtonClick}>
+          <Button
+            className="w-full"
+            variant={buttonVariant}
+            onClick={onButtonClick}
+          >
             {buttonText}
           </Button>
         ) : (
-          <Button className="w-full" asChild>
+          <Button className="w-full" variant={buttonVariant} asChild>
             <Link href={buttonHref}>{buttonText}</Link>
           </Button>
         )}

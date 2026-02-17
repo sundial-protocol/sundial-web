@@ -14,6 +14,9 @@ export async function POST(request: NextRequest) {
       amount,
       userPublicKey,
       network = "bitcoin", // "bitcoin" or "testnet"
+      locktime = TimeUtils.dateToTimestamp(
+        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      ), // 30 days from now
     } = body;
 
     // Validate required fields
@@ -40,11 +43,6 @@ export async function POST(request: NextRequest) {
     // Create BTCLocker instance
     const locker = new BTCLocker(network);
 
-    // Create deposit transaction
-    const locktime: number = TimeUtils.dateToTimestamp(
-      new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-    );
-
     // Create timelock script
     const timelockScriptInfo = await locker.createTimelockScript(
       locktime,
@@ -64,6 +62,7 @@ export async function POST(request: NextRequest) {
       escrowAmount: Math.trunc((Number(amount) * 1e8) / 4), // Convert to satoshis
       timelockAddress: timelockScriptInfo.address,
       timelockAmount: Math.trunc((Number(amount) * 3 * 1e8) / 4), // Convert to satoshis
+      changeAddress: sourceAddress, // Send change back to source address
     };
 
     console.log(stakingParams);

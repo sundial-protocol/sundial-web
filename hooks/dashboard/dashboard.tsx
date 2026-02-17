@@ -2,12 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { SupportedChain } from "@/lib/multichain";
-import usePrices, {
-  convertWithPrices,
-  DEFAULT_PRICES,
-  PricesMap,
-} from "./prices";
+import usePrices, { DEFAULT_PRICES, PricesMap } from "./prices";
 import { getYield } from "./get-yield";
+import { YieldOpportunity } from "./yield-opportunities";
 
 // Enhanced transaction types to include lending
 export type TransactionType =
@@ -204,6 +201,8 @@ export function useDashboardData() {
   const [transactions, setTransactions] = useState<LoggedTx[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedYieldProvider, setSelectedYieldProvider] =
+    useState<YieldOpportunity | null>(null);
 
   // Function to update staking amounts after successful transactions
   const updateStakedAmount = (
@@ -463,6 +462,10 @@ export function useDashboardData() {
     getStakingTransactions,
     getLendingTransactions,
     refreshData,
+
+    // Yield Provider Selection
+    selectedYieldProvider,
+    setSelectedYieldProvider,
   };
 }
 

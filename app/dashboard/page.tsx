@@ -55,7 +55,7 @@ function DashboardContent() {
   };
 
   const [activeTab, setActiveTab] = useState(() =>
-    getValidatedTab(searchParams.get("tab"))
+    getValidatedTab(searchParams.get("tab")),
   );
 
   // Update URL when tab changes
@@ -136,8 +136,8 @@ function DashboardContent() {
                   tab.disabled
                     ? "text-muted-foreground/50 cursor-not-allowed opacity-50"
                     : activeTab === tab.id
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-background/50"
                 }`}
                 title={tab.disabled ? "Coming Soon" : undefined}
               >
