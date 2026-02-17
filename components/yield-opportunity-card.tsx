@@ -17,7 +17,10 @@ import {
   Building2,
 } from "lucide-react";
 import Link from "next/link";
-import { YieldOpportunity } from "@/hooks/dashboard/yield-opportunities";
+import {
+  getLockPeriod,
+  YieldOpportunity,
+} from "@/hooks/dashboard/yield-opportunities";
 
 interface YieldOpportunityCardProps {
   opportunity: YieldOpportunity;
@@ -86,7 +89,7 @@ export function YieldOpportunityCard({
           </div>
           <div>
             <div className="text-lg font-semibold">
-              {opportunity.lockPeriod}
+              {getLockPeriod(opportunity.locktime)}
             </div>
             <div className="text-sm text-muted-foreground">Lock Period</div>
           </div>

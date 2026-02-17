@@ -39,6 +39,7 @@ import {
   EarningsData,
   generateEarningsData,
 } from "@/hooks/dashboard/dashboard";
+import { YieldOpportunity } from "@/hooks/dashboard/yield-opportunities";
 
 ChartJS.register(
   CategoryScale,
@@ -48,7 +49,7 @@ ChartJS.register(
   Title,
   ChartTooltip,
   ChartLegend,
-  Filler
+  Filler,
 );
 
 // Custom tooltip for the chart with proper USD conversion
@@ -88,12 +89,12 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export default function EarningsGraph(props: {
   adaValue: number;
   btcValue: number;
-  prices: PricesMap;
+  provider: YieldOpportunity | null;
 }) {
   const earningsData: EarningsData[] = generateEarningsData(
     props.adaValue,
     props.btcValue,
-    props.prices
+    props.provider,
   );
 
   const [timeRange, setTimeRange] = useState("12m");

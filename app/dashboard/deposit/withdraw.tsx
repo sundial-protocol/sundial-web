@@ -7,12 +7,17 @@ import { SupportedChain, chainConfigs } from "@/lib/multichain";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { getYield } from "@/hooks/dashboard/get-yield";
+import { yieldFromProvider } from "@/hooks/dashboard/yield-opportunities";
 import { usePrices } from "@/hooks/dashboard/prices";
 
 export default function WithdrawTab() {
-  const { portfolioData, calculations, updateStakedAmount, isLoading } =
-    useDashboardContext();
+  const {
+    portfolioData,
+    calculations,
+    updateStakedAmount,
+    isLoading,
+    selectedYieldProvider,
+  } = useDashboardContext();
   const { convert } = usePrices();
   const [selectedChain, setSelectedChain] = useState<SupportedChain>("btc");
   const [amount, setAmount] = useState("");
@@ -55,8 +60,11 @@ export default function WithdrawTab() {
   const amountNum = Number(amount) || 0;
   const newTotal = Math.max(alreadyStaked - amountNum, 0);
 
-  // Convert newTotal to USD before passing to getYield
-  const newYieldUSD = getYield(convert(newTotal, config.symbol, "USD")) ?? 0;
+  // Convert newTotal to USD before getting yield
+  const newYieldUSD = yieldFromProvider(
+    convert(newTotal, config.symbol, "USD") ?? 0,
+    selectedYieldProvider,
+  );
   // Then convert back
   const newYield = convert(newYieldUSD, "USD", config.symbol);
 

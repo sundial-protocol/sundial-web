@@ -7,7 +7,8 @@ import {
   StakingTxTypes,
 } from "./transactions";
 import { SupportedChain } from "@/lib/multichain";
-import { getYield } from "./get-yield";
+import { yieldFromProvider } from "./yield-opportunities";
+import { useDashboardData } from "./dashboard";
 
 export interface PortfolioData {
   holdings: {
@@ -46,12 +47,10 @@ export interface StakingPosition {
 }
 
 export function useStakingTransactions() {
-  const {
-    addTransaction,
-    updateTransactionStatus,
-    getTransactionsByType,
-    getTransactionsByAsset,
-  } = useTransactions();
+  const { addTransaction, updateTransactionStatus, getTransactionsByType } =
+    useTransactions();
+
+  const { selectedYieldProvider } = useDashboardData();
 
   const [portfolioData, setPortfolioData] = useState<PortfolioData>({
     holdings: { BTC: 0, ADA: 0 },
@@ -76,7 +75,7 @@ export function useStakingTransactions() {
     return stakingTransactions.filter(
       (tx) =>
         tx.chain?.toLowerCase() === chain.toLowerCase() ||
-        tx.asset.toLowerCase() === chain.toLowerCase()
+        tx.asset.toLowerCase() === chain.toLowerCase(),
     );
   };
 
@@ -85,7 +84,7 @@ export function useStakingTransactions() {
       chain: SupportedChain,
       amount: number,
       type: StakingTxTypes,
-      txHash?: string
+      txHash?: string,
     ): Promise<string> => {
       setIsProcessing(true);
 
@@ -107,7 +106,7 @@ export function useStakingTransactions() {
         updateStakedAmount(
           chain,
           amount,
-          type === "deposit" || type === "stake" ? "deposit" : "withdraw"
+          type === "deposit" || type === "stake" ? "deposit" : "withdraw",
         );
 
         // Update transaction status
@@ -128,7 +127,7 @@ export function useStakingTransactions() {
         setIsProcessing(false);
       }
     },
-    [addTransaction, updateTransactionStatus]
+    [addTransaction, updateTransactionStatus],
   );
 
   const updateStakedAmount = useCallback(
@@ -136,7 +135,7 @@ export function useStakingTransactions() {
       chain: SupportedChain,
       amount: number,
       type: "deposit" | "withdraw",
-      txHash?: string
+      txHash?: string,
     ) => {
       setPortfolioData((prev) => {
         const asset = chain.toUpperCase() as "BTC" | "ADA";
@@ -153,7 +152,10 @@ export function useStakingTransactions() {
           [asset]: {
             ...prev.staking[asset],
             staked: Math.max(0, prev.staking[asset].staked + amountChange),
-            yield: getYield(prev.staking[asset].staked + amountChange),
+            yield: yieldFromProvider(
+              prev.staking[asset].staked + amountChange,
+              selectedYieldProvider,
+            ),
           },
         };
 
@@ -164,7 +166,7 @@ export function useStakingTransactions() {
         };
       });
     },
-    []
+    [],
   );
 
   const getTotalStakedValue = useCallback(
@@ -177,19 +179,19 @@ export function useStakingTransactions() {
         portfolioData.staking.ADA.staked * adaPrice
       );
     },
-    [portfolioData.staking]
+    [portfolioData.staking],
   );
 
   const getStakingRewards = useCallback(
     (chain?: SupportedChain) => {
       const rewardTxs = stakingTransactions.filter(
         (tx) =>
-          tx.type === "reward" && (!chain || tx.chain === chain.toLowerCase())
+          tx.type === "reward" && (!chain || tx.chain === chain.toLowerCase()),
       );
 
       return rewardTxs.reduce((sum, tx) => sum + tx.amount, 0);
     },
-    [stakingTransactions]
+    [stakingTransactions],
   );
 
   const getStakingHistory = useCallback(
@@ -198,10 +200,10 @@ export function useStakingTransactions() {
         .filter((tx) => !chain || tx.chain === chain.toLowerCase())
         .sort(
           (a, b) =>
-            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
         );
     },
-    [stakingTransactions]
+    [stakingTransactions],
   );
 
   return {

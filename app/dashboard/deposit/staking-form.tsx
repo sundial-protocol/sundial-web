@@ -473,7 +473,7 @@ export default function StakingForm({
             amount: amount,
             userPublicKey: userPubKey,
             network: selectedChain === "btc_testnet" ? "testnet" : "bitcoin",
-            locktime: selectedYieldProvider?.locktime || 1000 * 60 * 5,
+            //locktime: selectedYieldProvider?.locktime || 1000 * 60 * 5,
           }
         : {
             withdrawAddress: withdrawAddress,

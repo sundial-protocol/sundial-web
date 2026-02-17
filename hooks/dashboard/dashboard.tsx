@@ -3,8 +3,7 @@
 import { useState, useEffect } from "react";
 import { SupportedChain } from "@/lib/multichain";
 import usePrices, { DEFAULT_PRICES, PricesMap } from "./prices";
-import { getYield } from "./get-yield";
-import { YieldOpportunity } from "./yield-opportunities";
+import { yieldFromProvider, YieldOpportunity } from "./yield-opportunities";
 
 // Enhanced transaction types to include lending
 export type TransactionType =
@@ -120,7 +119,7 @@ export interface EarningsData {
 export function generateEarningsData(
   adaValue: number,
   btcValue: number,
-  priceMap: PricesMap,
+  provider: YieldOpportunity | null,
 ): EarningsData[] {
   const today = new Date();
   const currentMonth = today.getMonth(); // 0-11
@@ -163,7 +162,7 @@ export function generateEarningsData(
         type: "current",
       });
     } else {
-      btc = btc + getYield(btc);
+      btc = btc + yieldFromProvider(btc, provider);
 
       data.push({
         month: monthName,
@@ -190,19 +189,22 @@ export function useDashboardData() {
       ADA: { staked: 0, yield: 0, positions: [] },
     },
   });
-  const calculations = usePortfolioCalculations(portfolioData);
+  const [selectedYieldProvider, setSelectedYieldProvider] =
+    useState<YieldOpportunity | null>(null);
+  const calculations = usePortfolioCalculations(
+    portfolioData,
+    selectedYieldProvider,
+  );
   const [earningsData, setEarningsData] = useState<EarningsData[]>(() =>
     generateEarningsData(
       mockPortfolioData.staking.ADA.staked,
       mockPortfolioData.staking.BTC.staked,
-      DEFAULT_PRICES,
+      selectedYieldProvider,
     ),
   );
   const [transactions, setTransactions] = useState<LoggedTx[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedYieldProvider, setSelectedYieldProvider] =
-    useState<YieldOpportunity | null>(null);
 
   // Function to update staking amounts after successful transactions
   const updateStakedAmount = (
@@ -245,7 +247,10 @@ export function useDashboardData() {
             0,
             (prev.staking[asset]?.staked || 0) + amountChange,
           ),
-          yield: getYield((prev.staking[asset]?.staked || 0) + amountChange), // Your yield calculation logic
+          yield: yieldFromProvider(
+            (prev.staking[asset]?.staked || 0) + amountChange,
+            selectedYieldProvider,
+          ),
         },
       };
 
@@ -264,7 +269,6 @@ export function useDashboardData() {
     });
   };
 
-  // Function to add pending transaction (now supports lending)
   const addPendingTransaction = (
     chain: SupportedChain | string,
     amount: number,
@@ -439,7 +443,6 @@ export function useDashboardData() {
   );
 
   return {
-    // EXISTING RETURNS (unchanged)
     portfolioData,
     earningsData,
     calculations,
@@ -447,12 +450,12 @@ export function useDashboardData() {
     error,
     isLoading,
 
-    // EXISTING Transaction-related returns (unchanged)
+    // Transaction-related return
     transactions,
     pendingTransactions,
     completedTransactions,
     failedTransactions,
-    addPendingTransaction, // Now enhanced to support lending
+    addPendingTransaction,
     updateTransactionStatus,
     removeTransaction,
 
@@ -469,12 +472,17 @@ export function useDashboardData() {
   };
 }
 
-export function usePortfolioCalculations(portfolioData: PortfolioData) {
+export function usePortfolioCalculations(
+  portfolioData: PortfolioData,
+  selectedYieldProvider?: YieldOpportunity | null,
+) {
   const { convert } = usePrices();
+
   const adaRewards = 0;
-  const btcRewards = getYield(
+  const btcRewards = yieldFromProvider(
     convert(portfolioData.holdings.BTC, "BTC", "USD") +
       convert(portfolioData.holdings.ADA, "ADA", "USD"),
+    selectedYieldProvider ?? null, // can be undefined - if so coerce to null
   );
 
   return {
@@ -510,22 +518,6 @@ export function usePortfolioCalculations(portfolioData: PortfolioData) {
         100,
     },
   };
-}
-
-//  Helper hooks for specific transaction types
-export function useStakingTransactions() {
-  const { getStakingTransactions } = useDashboardData();
-  return getStakingTransactions();
-}
-
-export function useLendingTransactions() {
-  const { getLendingTransactions } = useDashboardData();
-  return getLendingTransactions();
-}
-
-export function useTransactionsByLoan(loanId: string) {
-  const { getTransactionsByLoanId } = useDashboardData();
-  return getTransactionsByLoanId(loanId);
 }
 
 // EXISTING: Utility functions (unchanged)

@@ -5,10 +5,11 @@ import StakingForm from "./staking-form";
 import StakingSummaryCard from "./staking-summary";
 import { SupportedChain, chainConfigs } from "../../../lib/multichain";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
-import { getYield } from "@/hooks/dashboard/get-yield";
 import { usePrices } from "@/hooks/dashboard/prices";
 import { YieldOpportunityCard } from "@/components/yield-opportunity-card";
 import { useYieldOpportunities } from "@/hooks/dashboard/yield-opportunities";
+import { yieldFromProvider } from "@/hooks/dashboard/yield-opportunities";
+import { assert } from "console";
 
 export default function DepositTab() {
   const {
@@ -58,8 +59,11 @@ export default function DepositTab() {
   const amountNum = Number(amount) || 0;
   const newTotal = Math.max(alreadyStaked + amountNum, 0);
 
-  // Convert newTotal to USD before passing to getYield
-  const newYieldUSD = getYield(convert(newTotal, config.symbol, "USD")) ?? 0;
+  // Convert newTotal to USD before getting yield
+  const newYieldUSD = yieldFromProvider(
+    convert(newTotal, config.symbol, "USD") ?? 0,
+    selectedYieldProvider,
+  );
   // Then convert back
   const newYield = convert(newYieldUSD, "USD", config.symbol);
 
