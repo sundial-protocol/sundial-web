@@ -8,13 +8,19 @@ export function getLockPeriod(locktimeMs: number): string {
     return "None";
   }
 
-  const days = locktimeMs / (1000 * 60 * 60 * 24);
+  const minutes = locktimeMs / (1000 * 60);
+  const hours = minutes / 60;
+  const days = hours / 24;
 
-  if (days < 1) {
-    const hours = Math.round(locktimeMs / (1000 * 60 * 60));
-    return hours === 1 ? "1 hour" : `${hours} hours`;
+  if (minutes < 60) {
+    const roundedMinutes = Math.round(minutes);
+    return roundedMinutes === 1 ? "1 minute" : `${roundedMinutes} minutes`;
+  } else if (hours < 24) {
+    const roundedHours = Math.round(hours);
+    return roundedHours === 1 ? "1 hour" : `${roundedHours} hours`;
   } else if (days < 7) {
-    return days === 1 ? "1 day" : `${Math.round(days)} days`;
+    const roundedDays = Math.round(days);
+    return roundedDays === 1 ? "1 day" : `${roundedDays} days`;
   } else if (days < 30) {
     const weeks = Math.round(days / 7);
     return weeks === 1 ? "1 week" : `${weeks} weeks`;
@@ -112,7 +118,7 @@ const yieldOpportunities: YieldOpportunity[] = [
     minAmount: 0.01,
     payments: 12, // Number of payments per year
     publicKey: YIELD_PROVIDER_PUBKEY, // Example public key
-    locktime: 1000 * 60 * 60 * 24 * 30, // 30 days in milliseconds
+    locktime: 1000 * 60 * 5, // 5 minutes in milliseconds
   },
   {
     id: 2,

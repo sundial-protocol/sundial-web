@@ -71,7 +71,7 @@ export function YieldOpportunityCard({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {getTypeIcon(opportunity.type)}
-            <CardTitle className="text-lg">{opportunity.name}</CardTitle>
+            <CardTitle>{opportunity.name}</CardTitle>
           </div>
           <Badge className={getRiskColor(opportunity.risk)}>
             {opportunity.risk}
@@ -80,7 +80,7 @@ export function YieldOpportunityCard({
         <CardDescription>{opportunity.description}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="flex justify-between xl:px-12 transition-all">
           <div>
             <div className="text-2xl font-bold text-green-600">
               {opportunity.apy}%

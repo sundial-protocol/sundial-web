@@ -121,32 +121,6 @@ export default function StakingForm({
     }
   }, [selectedYieldProvider, manualPublicKey]);
 
-  // Duration options (in days) - highlight the selected yield provider's duration
-  const durationOptions = [
-    { label: "7 Days", value: "7", description: "Short-term commitment" },
-    { label: "30 Days", value: "30", description: "Standard lock period" },
-    { label: "60 Days", value: "60", description: "Higher yield potential" },
-    { label: "90 Days", value: "90", description: "Maximum yield" },
-    { label: "180 Days", value: "180", description: "Premium lock period" },
-    { label: "365 Days", value: "365", description: "Annual commitment" },
-  ].map((option) => ({
-    ...option,
-    description:
-      selectedYieldProvider?.locktime &&
-      (selectedYieldProvider.locktime / (1000 * 60 * 60 * 24)).toString() ===
-        option.value
-        ? `${option.description} (Provider Default)`
-        : option.description,
-  }));
-
-  // Calculate locktime based on selected duration or yield provider duration
-  const calculateLocktime = (durationDays?: string) => {
-    const futureDate = new Date(
-      Date.now() + (selectedYieldProvider?.locktime ?? 1000 * 60 * 5),
-    );
-    return Math.floor(futureDate.getTime() / 1000); // Convert to Unix timestamp
-  };
-
   const config = chainConfigs[selectedChain];
   const isDeposit = type === "deposit";
 
@@ -473,7 +447,7 @@ export default function StakingForm({
             amount: amount,
             userPublicKey: userPubKey,
             network: selectedChain === "btc_testnet" ? "testnet" : "bitcoin",
-            //locktime: selectedYieldProvider?.locktime || 1000 * 60 * 5,
+            locktime: selectedYieldProvider?.locktime || 1000 * 60 * 5,
           }
         : {
             withdrawAddress: withdrawAddress,
@@ -761,7 +735,7 @@ export default function StakingForm({
   const walletStatus = getWalletConnectionStatus();
 
   return (
-    <Card>
+    <Card className="hover:shadow-lg transition-shadow">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           {isDeposit ? (

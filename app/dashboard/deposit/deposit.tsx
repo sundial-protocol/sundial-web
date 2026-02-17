@@ -9,7 +9,6 @@ import { usePrices } from "@/hooks/dashboard/prices";
 import { YieldOpportunityCard } from "@/components/yield-opportunity-card";
 import { useYieldOpportunities } from "@/hooks/dashboard/yield-opportunities";
 import { yieldFromProvider } from "@/hooks/dashboard/yield-opportunities";
-import { assert } from "console";
 
 export default function DepositTab() {
   const {
@@ -63,6 +62,7 @@ export default function DepositTab() {
   const newYieldUSD = yieldFromProvider(
     convert(newTotal, config.symbol, "USD") ?? 0,
     selectedYieldProvider,
+    true,
   );
   // Then convert back
   const newYield = convert(newYieldUSD, "USD", config.symbol);
