@@ -77,8 +77,8 @@ export async function POST(request: NextRequest) {
       psbt: psbtBase64,
       transactionType: "deposit",
       amount: amount,
-      escrowAddress: escrowScriptInfo.address,
-      timelockAddress: timelockScriptInfo.address,
+      escrowScript: escrowScriptInfo,
+      timelockScript: timelockScriptInfo,
       locktime: locktime,
     });
   } catch (error: any) {

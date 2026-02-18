@@ -42,7 +42,7 @@ function DashboardContent() {
     { id: "deposit", label: "Deposit" },
     { id: "withdraw", label: "Withdraw" },
     { id: "lend", label: "Lend", disabled: true },
-    { id: "yield", label: "Yield", disabled: false },
+    { id: "yield", label: "Yield", disabled: true },
     { id: "strategies", label: "Strategies", disabled: true },
     { id: "history", label: "History" },
   ];

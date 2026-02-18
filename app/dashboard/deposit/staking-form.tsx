@@ -447,7 +447,8 @@ export default function StakingForm({
             amount: amount,
             userPublicKey: userPubKey,
             network: selectedChain === "btc_testnet" ? "testnet" : "bitcoin",
-            locktime: selectedYieldProvider?.locktime || 1000 * 60 * 5,
+            locktime:
+              Date.now() + (selectedYieldProvider?.locktime || 1000 * 60 * 5),
           }
         : {
             withdrawAddress: withdrawAddress,
@@ -970,14 +971,18 @@ export default function StakingForm({
               <Input
                 type="number"
                 step={1 / Math.pow(10, config.decimals)}
-                min={config.minDeposit}
+                min={selectedYieldProvider?.minAmount || config.minDeposit}
                 value={amount}
                 onChange={(e) => handleAmountChange(e.target.value)}
-                placeholder={config.minDeposit.toString()}
+                placeholder={(
+                  selectedYieldProvider?.minAmount || config.minDeposit
+                ).toString()}
                 required
               />
               <p className="text-xs text-muted-foreground">
-                Minimum amount: {config.minDeposit} {config.symbol}
+                Minimum amount:{" "}
+                {selectedYieldProvider?.minAmount || config.minDeposit}{" "}
+                {config.symbol}
               </p>
             </div>
 
