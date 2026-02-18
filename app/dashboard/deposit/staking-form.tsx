@@ -114,12 +114,8 @@ export default function StakingForm({
   // Locktime for withdrawal transactions
   const [savedLocktime, setSavedLocktime] = useState<number | null>(null);
 
-  // Initialize public key from selected yield provider if available
-  useEffect(() => {
-    if (selectedYieldProvider?.publicKey && !manualPublicKey) {
-      setManualPublicKey(selectedYieldProvider.publicKey);
-    }
-  }, [selectedYieldProvider, manualPublicKey]);
+  // State to cache user's public key across network switches
+  const [cachedUserPublicKey, setCachedUserPublicKey] = useState("");
 
   const config = chainConfigs[selectedChain];
   const isDeposit = type === "deposit";
@@ -187,11 +183,16 @@ export default function StakingForm({
       setUserAddress("");
       setIsUsingConnectedWallet(false);
     }
+  }, [selectedChain, bitcoinAddress, cardanoAddress]);
 
+  // Separate useEffect for Bitcoin public key management to prevent infinite loops
+  useEffect(() => {
     // Auto-fill public key for Bitcoin chains when wallet is connected
     if (
       (selectedChain === "btc" || selectedChain === "btc_testnet") &&
-      bitcoinAccounts
+      bitcoinAccounts &&
+      userAddress &&
+      isUsingConnectedWallet
     ) {
       const getBTCPubKey = (address: string, accounts: AccountType[]) => {
         for (const account of accounts) {
@@ -202,34 +203,25 @@ export default function StakingForm({
         return null;
       };
 
-      // Only auto-fill if the current userAddress matches a wallet address with a public key
-      if (userAddress && isUsingConnectedWallet) {
-        const walletPubKey = getBTCPubKey(userAddress, bitcoinAccounts);
-        if (
-          walletPubKey &&
-          (!manualPublicKey || manualPublicKey !== walletPubKey)
-        ) {
-          setManualPublicKey(walletPubKey);
-        }
-      } else if (!isUsingConnectedWallet && manualPublicKey) {
-        // Clear the auto-filled public key if user switches to manual address
-        const isWalletPubKey = bitcoinAccounts.some(
-          (account) => account.publicKey === manualPublicKey,
-        );
-        if (isWalletPubKey) {
-          setManualPublicKey("");
-        }
+      const walletPubKey = getBTCPubKey(userAddress, bitcoinAccounts);
+      if (walletPubKey && manualPublicKey !== walletPubKey) {
+        setManualPublicKey(walletPubKey);
+        setCachedUserPublicKey(walletPubKey);
       }
     }
-  }, [
-    selectedChain,
-    bitcoinAddress,
-    cardanoAddress,
-    userAddress,
-    bitcoinAccounts,
-    isUsingConnectedWallet,
-    manualPublicKey,
-  ]);
+  }, [userAddress, isUsingConnectedWallet, bitcoinAccounts, selectedChain]);
+
+  // Restore cached public key when switching to manual mode
+  useEffect(() => {
+    if (
+      (selectedChain === "btc" || selectedChain === "btc_testnet") &&
+      !isUsingConnectedWallet &&
+      cachedUserPublicKey &&
+      !manualPublicKey.trim()
+    ) {
+      setManualPublicKey(cachedUserPublicKey);
+    }
+  }, [isUsingConnectedWallet, selectedChain, cachedUserPublicKey]);
 
   // Auto-populate locktime from transaction history for withdrawals
   useEffect(() => {
@@ -556,6 +548,10 @@ export default function StakingForm({
 
   const handleManualPublicKeyChange = (value: string) => {
     setManualPublicKey(value);
+    // Cache the user's manually entered public key if it's valid
+    if (value.trim().length === 66 && /^[0-9a-fA-F]{66}$/.test(value.trim())) {
+      setCachedUserPublicKey(value.trim());
+    }
     setUnsignedTransactionData(null); // Reset PSBT when public key changes
   };
 
@@ -909,29 +905,39 @@ export default function StakingForm({
               <div className="space-y-2">
                 <label className="text-sm font-medium">
                   Public Key
-                  <span className="text-red-500 ml-1">*</span>
-                  {selectedYieldProvider?.publicKey &&
-                    manualPublicKey === selectedYieldProvider.publicKey && (
-                      <span className="ml-2 text-xs text-green-600 font-normal">
-                        (From {selectedYieldProvider.provider})
+                  {cachedUserPublicKey &&
+                    manualPublicKey === cachedUserPublicKey && (
+                      <span className="ml-2 text-xs text-green-600">
+                        (Cached)
                       </span>
                     )}
                 </label>
-                <Input
-                  type="text"
-                  value={manualPublicKey}
-                  onChange={(e) => handleManualPublicKeyChange(e.target.value)}
-                  placeholder="Enter your 33-byte public key in hexadecimal format (66 characters)"
-                  className="font-mono text-xs"
-                  maxLength={66}
-                />
+                <div className="relative">
+                  <Input
+                    type="text"
+                    value={manualPublicKey}
+                    onChange={(e) =>
+                      handleManualPublicKeyChange(e.target.value)
+                    }
+                    placeholder="Enter your 33-byte public key in hexadecimal format (66 characters)"
+                    className={`font-mono text-xs ${
+                      cachedUserPublicKey &&
+                      manualPublicKey === cachedUserPublicKey
+                        ? "bg-green-50 border-green-200"
+                        : ""
+                    }`}
+                    maxLength={66}
+                  />
+                  {cachedUserPublicKey &&
+                    manualPublicKey === cachedUserPublicKey && (
+                      <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-green-600" />
+                    )}
+                </div>
                 <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
                   <p className="text-yellow-800 text-xs">
                     <strong>Note:</strong> Your wallet couldn't provide the
-                    public key automatically. Please enter the public key
-                    corresponding to your Bitcoin address. You can usually find
-                    this in your wallet's advanced settings or transaction
-                    history.
+                    public key automatically. Please verify your public key
+                    above.
                   </p>
                 </div>
                 {manualPublicKey &&
