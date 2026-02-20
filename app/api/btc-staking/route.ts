@@ -52,8 +52,8 @@ export async function POST(request: NextRequest) {
     // Create escrow script
     const escrowScriptInfo = await locker.createEscrowScript(
       locktime,
-      userPublicKey,
       YIELD_PROVIDER_PUBKEY,
+      userPublicKey,
     );
 
     const stakingParams: DawnStakingParams = {

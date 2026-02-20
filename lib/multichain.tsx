@@ -4,6 +4,9 @@ import { CurrencyCode } from "@/hooks/dashboard/prices";
 
 export type SupportedChain = "btc" | "ada" | "btc_testnet" | "ada_testnet";
 
+export const BTC_CHAIN_ID_MAINNET = "000000000019d6689c085ae165831e93";
+export const BTC_CHAIN_ID_TESTNET = "000000000933ea01ad0ee984209779ba";
+
 export interface ChainConfig {
   id: SupportedChain;
   name: string;

@@ -27,7 +27,12 @@ import {
   Wallet,
   AlertCircle,
 } from "lucide-react";
-import { chainConfigs, SupportedChain } from "../../../lib/multichain";
+import {
+  BTC_CHAIN_ID_MAINNET,
+  BTC_CHAIN_ID_TESTNET,
+  chainConfigs,
+  SupportedChain,
+} from "../../../lib/multichain";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import Link from "next/link";
 import { PsbtSigning } from "@/components/btc/psbt-signing";
@@ -127,8 +132,8 @@ export default function StakingForm({
     // The caipNetwork.id is already the chain ID itself (not in CAIP format)
     const chainId = String(caipNetwork.id || "");
 
-    const isMainnet = chainId === "000000000019d6689c085ae165831e93";
-    const isTestnet = chainId === "000000000933ea01ad0ee984209779ba";
+    const isMainnet = chainId === BTC_CHAIN_ID_MAINNET;
+    const isTestnet = chainId === BTC_CHAIN_ID_TESTNET;
 
     const wrongNetwork =
       (selectedChain === "btc" && !isMainnet) ||
@@ -439,8 +444,11 @@ export default function StakingForm({
             amount: amount,
             userPublicKey: userPubKey,
             network: selectedChain === "btc_testnet" ? "testnet" : "bitcoin",
-            locktime:
-              Date.now() + (selectedYieldProvider?.locktime || 1000 * 60 * 5),
+            locktime: Math.floor(
+              (Date.now() +
+                (selectedYieldProvider?.locktime || 1000 * 60 * 5)) /
+                1000,
+            ),
           }
         : {
             withdrawAddress: withdrawAddress,

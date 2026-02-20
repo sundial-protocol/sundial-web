@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { YIELD_PROVIDER_PUBKEY } from "@/lib/yield-provider";
 
-export function getLockPeriod(locktimeMs: number): string {
-  if (locktimeMs <= 0) {
+export function getLockPeriod(locktime: number): string {
+  if (locktime <= 0) {
     return "None";
   }
 
-  const minutes = locktimeMs / (1000 * 60);
+  const minutes = locktime / 60;
   const hours = minutes / 60;
   const days = hours / 24;
 
@@ -118,7 +118,7 @@ const yieldOpportunities: YieldOpportunity[] = [
     minAmount: 0.01,
     payments: 12, // Number of payments per year
     publicKey: YIELD_PROVIDER_PUBKEY, // Example public key
-    locktime: 1000 * 60 * 5, // 5 minutes in milliseconds
+    locktime: 60 * 3, // 30 minutes in seconds
   },
   {
     id: 2,
@@ -132,7 +132,7 @@ const yieldOpportunities: YieldOpportunity[] = [
     minAmount: 0.001,
     payments: 12, // Number of payments per year
     publicKey: YIELD_PROVIDER_PUBKEY, // Example public key
-    locktime: 1000 * 60 * 60 * 24 * 30, // 30 days in milliseconds
+    locktime: 60 * 60 * 24 * 30, // 30 days in seconds
   },
   {
     id: 3,
@@ -146,7 +146,7 @@ const yieldOpportunities: YieldOpportunity[] = [
     minAmount: 0.1,
     payments: 12, // Number of payments per year (for lending)
     publicKey: YIELD_PROVIDER_PUBKEY, // Example public key
-    locktime: 1000 * 60 * 60 * 24 * 30, // 30 days in milliseconds
+    locktime: 60 * 60 * 24 * 30, // 30 days in seconds
   },
   {
     id: 4,
@@ -160,7 +160,7 @@ const yieldOpportunities: YieldOpportunity[] = [
     minAmount: 0.05,
     payments: 365, // Daily rewards
     publicKey: YIELD_PROVIDER_PUBKEY, // Example public key
-    locktime: 1000 * 60 * 60 * 24 * 30, // 30 days in milliseconds
+    locktime: 60 * 60 * 24 * 30, // 30 days in seconds
   },
   {
     id: 5,
@@ -174,7 +174,7 @@ const yieldOpportunities: YieldOpportunity[] = [
     minAmount: 0.5,
     payments: 4, // Quarterly payments
     publicKey: YIELD_PROVIDER_PUBKEY, // Example public key
-    locktime: 1000 * 60 * 60 * 24 * 30, // 30 days in milliseconds
+    locktime: 60 * 60 * 24 * 30, // 30 days in seconds
   },
 ];
 
