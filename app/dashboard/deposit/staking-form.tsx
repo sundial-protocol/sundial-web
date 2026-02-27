@@ -921,7 +921,7 @@ export default function StakingForm({
             placeholder={`${config?.addressPrefix || ""}...`}
             required
             className={
-              isUsingConnectedWallet ? "bg-green-50 border-green-200" : ""
+              isUsingConnectedWallet ? "bg-green-500/20 border-green-200" : ""
             }
           />
           {isUsingConnectedWallet && (
@@ -952,7 +952,7 @@ export default function StakingForm({
               placeholder="Enter your 33-byte public key in hexadecimal format (66 characters)"
               className={`font-mono text-xs ${
                 cachedUserPublicKey && manualPublicKey === cachedUserPublicKey
-                  ? "bg-green-50 border-green-200"
+                  ? "bg-green-500/20 border-green-200"
                   : ""
               }`}
               maxLength={66}
@@ -1147,7 +1147,7 @@ export default function StakingForm({
 
   const renderDoneStep = () => (
     <div className="space-y-4">
-      <div className="p-4 bg-green-50 border border-green-200 rounded-md">
+      <div className="p-4 bg-green-100/20 border border-green-200 rounded-md">
         <div className="flex items-center gap-2 text-green-700 font-medium mb-2">
           <CheckCircle className="w-5 h-5" />
           {getSuccessMessage()}
