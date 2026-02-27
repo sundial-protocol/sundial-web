@@ -769,6 +769,430 @@ export default function StakingForm({
 
   const walletStatus = getWalletConnectionStatus();
 
+  const isBtcChain = selectedChain === "btc" || selectedChain === "btc_testnet";
+
+  const renderWalletStatus = () => {
+    if (walletStatus.isConnected) {
+      return (
+        <Alert>
+          <Wallet className="h-4 w-4" />
+          <AlertDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-green-700 font-medium">
+                  Wallet Connected
+                </span>
+                <div className="text-sm text-muted-foreground mt-1">
+                  {walletStatus.address?.slice(0, 20)}...
+                  {walletStatus.address?.slice(-6)}
+                </div>
+              </div>
+              {!isUsingConnectedWallet && walletStatus.address && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleUseConnectedWallet}
+                >
+                  Use Connected Wallet
+                </Button>
+              )}
+            </div>
+          </AlertDescription>
+        </Alert>
+      );
+    }
+
+    if (walletStatus.wrongNetwork) {
+      return (
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-orange-700 font-medium">
+                  Wrong Network Connected
+                </span>
+                <div className="text-sm text-muted-foreground mt-1">
+                  Your wallet is connected to{" "}
+                  {selectedChain === "btc"
+                    ? "Bitcoin Testnet"
+                    : "Bitcoin Mainnet"}
+                  , but you've selected {config?.name || selectedChain}. Please
+                  switch networks in your wallet.
+                </div>
+              </div>
+              <div>
+                <ConnectButton />
+              </div>
+            </div>
+          </AlertDescription>
+        </Alert>
+      );
+    }
+
+    return (
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          <div className="flex items-center justify-between">
+            <span>
+              Connect your {config?.name || selectedChain} wallet for easier
+              transactions
+            </span>
+            <div>
+              {isBtcChain ? (
+                <ConnectButton />
+              ) : selectedChain === "ada" ? (
+                <WalletButton />
+              ) : (
+                <Button variant="outline" size="sm" disabled>
+                  Wallet not available
+                </Button>
+              )}
+            </div>
+          </div>
+        </AlertDescription>
+      </Alert>
+    );
+  };
+
+  const renderFormStep = () => (
+    <form
+      onSubmit={isBtcChain ? handleBtcTransaction : handleAdaTransaction}
+      className="space-y-6"
+    >
+      {/* Chain Selection */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Select Blockchain</label>
+        <Select value={selectedChain} onValueChange={handleChainChange}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.values(chainConfigs)
+              .filter((chain) => chain.enabled)
+              .map((chain) => (
+                <SelectItem key={chain.id} value={chain.id}>
+                  <div className="flex items-center gap-2">
+                    {chain.icon}
+                    <span>
+                      {chain.name} ({chain.symbol})
+                    </span>
+                  </div>
+                </SelectItem>
+              ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Wallet Connection Status */}
+      {renderWalletStatus()}
+
+      {/* Chain Information */}
+      <div className="p-4 bg-blue-500/20 border border-blue-800/30 rounded-md">
+        <div className="flex items-center gap-2 text-blue-700 font-medium mb-2">
+          {config?.icon}
+          {config?.name || selectedChain} {isDeposit ? "Staking" : "Withdrawal"}{" "}
+          Information
+        </div>
+        <ul className="text-sm text-blue-600 space-y-1">
+          {(config?.features || []).map((feature, index) => (
+            <li key={index}>• {feature}</li>
+          ))}
+        </ul>
+      </div>
+
+      {/* User Address */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium">
+          Your {config?.name || selectedChain} Address
+          {isUsingConnectedWallet && (
+            <span className="text-green-600 text-xs ml-2">
+              (Using Connected Wallet)
+            </span>
+          )}
+        </label>
+        <div className="relative">
+          <Input
+            type="text"
+            value={userAddress}
+            onChange={(e) => handleAddressChange(e.target.value)}
+            placeholder={`${config?.addressPrefix || ""}...`}
+            required
+            className={
+              isUsingConnectedWallet ? "bg-green-50 border-green-200" : ""
+            }
+          />
+          {isUsingConnectedWallet && (
+            <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-green-600" />
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground">
+          {isDeposit
+            ? `Your ${config?.name || selectedChain} wallet address for receiving change or rewards`
+            : `Your ${config?.name || selectedChain} wallet address (source of funds)`}
+        </p>
+      </div>
+
+      {/* Public Key Input (Bitcoin only, shown when needed) */}
+      {isBtcChain && (
+        <div className="space-y-2">
+          <label className="text-sm font-medium">
+            Public Key
+            {cachedUserPublicKey && manualPublicKey === cachedUserPublicKey && (
+              <span className="ml-2 text-xs text-green-600">(Cached)</span>
+            )}
+          </label>
+          <div className="relative">
+            <Input
+              type="text"
+              value={manualPublicKey}
+              onChange={(e) => handleManualPublicKeyChange(e.target.value)}
+              placeholder="Enter your 33-byte public key in hexadecimal format (66 characters)"
+              className={`font-mono text-xs ${
+                cachedUserPublicKey && manualPublicKey === cachedUserPublicKey
+                  ? "bg-green-50 border-green-200"
+                  : ""
+              }`}
+              maxLength={66}
+            />
+            {cachedUserPublicKey && manualPublicKey === cachedUserPublicKey && (
+              <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-green-600" />
+            )}
+          </div>
+          <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+            <p className="text-yellow-800 text-xs">
+              <strong>Note:</strong> Your wallet couldn't provide the public key
+              automatically. Please verify your public key above.
+            </p>
+          </div>
+          {manualPublicKey && !/^[0-9a-fA-F]{66}$/.test(manualPublicKey) && (
+            <p className="text-red-600 text-xs">
+              Invalid format. Public key must be exactly 66 hexadecimal
+              characters.
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Withdraw Address (only for withdrawals) */}
+      {!isDeposit && (
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Withdrawal Address</label>
+          <Input
+            type="text"
+            value={withdrawAddress}
+            onChange={(e) => handleWithdrawAddressChange(e.target.value)}
+            placeholder={`${config?.addressPrefix || ""}...`}
+            required
+          />
+          <p className="text-xs text-muted-foreground">
+            The address where you want to receive the withdrawn funds
+          </p>
+        </div>
+      )}
+
+      {/* Amount */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium">
+          Amount to {isDeposit ? "Deposit" : "Withdraw"} (
+          {config?.symbol || selectedChain})
+        </label>
+        <Input
+          type="number"
+          step={1 / Math.pow(10, config?.decimals || 8)}
+          min={selectedYieldProvider?.minAmount || config?.minDeposit || 0}
+          value={amount}
+          onChange={(e) => handleAmountChange(e.target.value)}
+          placeholder={(
+            selectedYieldProvider?.minAmount ||
+            config?.minDeposit ||
+            0
+          ).toString()}
+          required
+        />
+        <p className="text-xs text-muted-foreground">
+          Minimum amount:{" "}
+          {selectedYieldProvider?.minAmount || config?.minDeposit || 0}{" "}
+          {config?.symbol || selectedChain}
+        </p>
+      </div>
+
+      {/* PSBT Calculation Status (Bitcoin only) */}
+      {isBtcChain && isCalculatingPsbt && (
+        <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
+          <div className="flex items-center gap-2 text-blue-700">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700"></div>
+            <span className="text-sm font-medium">
+              Preparing transaction...
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {isBtcChain ? (
+          <>
+            <Button
+              type="button"
+              onClick={handleSignInBrowser}
+              disabled={loading || !unsignedTransactionData}
+              className="flex items-center gap-2"
+            >
+              <Wallet className="w-4 h-4" />
+              {loading
+                ? "Signing..."
+                : `Sign & ${isDeposit ? "Deposit" : "Withdraw"}`}
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleCopyUnsignedPSBT}
+              disabled={!unsignedTransactionData}
+              className="flex items-center gap-2"
+            >
+              <Copy className="w-4 h-4" />
+              {copied ? "Copied!" : "Copy Unsigned PSBT"}
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button type="submit" disabled={loading || !isFormValid()}>
+              {getButtonText()}
+            </Button>
+            {selectedChain === "ada" && isDeposit && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() =>
+                  window.open("https://yoroi-wallet.com", "_blank")
+                }
+              >
+                Get Yoroi Wallet
+              </Button>
+            )}
+          </>
+        )}
+      </div>
+
+      {error && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-red-600 text-sm">{error}</p>
+        </div>
+      )}
+    </form>
+  );
+
+  const renderPsbtStep = () => (
+    <PsbtSigning
+      psbtBase64={psbtBase64}
+      targetAddress={isDeposit ? depositAddress : withdrawAddress}
+      expectedAmount={Math.floor(Number(amount) * 1e8)}
+      chain={selectedChain as "btc" | "btc_testnet"}
+      onTransactionFound={(txid) => {
+        console.log("Transaction found:", txid);
+        setBroadcastResult(txid);
+
+        // Save locktime for future withdrawal transactions (only for deposits)
+        if (isDeposit && unsignedTransactionData?.locktime) {
+          setSavedLocktime(unsignedTransactionData.locktime);
+          console.log(
+            "Saved locktime for withdrawal:",
+            unsignedTransactionData.locktime,
+          );
+        }
+
+        // Update dashboard with successful transaction
+        try {
+          updateStakedAmount(
+            selectedChain as SupportedChain,
+            Number(amount),
+            type,
+          );
+        } catch (error) {
+          console.error("Error updating staked amount:", error);
+        }
+
+        // Update transaction status
+        if (pendingTransactionId) {
+          updateTransactionStatus(
+            pendingTransactionId,
+            "completed",
+            txid,
+            isDeposit && unsignedTransactionData?.locktime
+              ? { locktime: unsignedTransactionData.locktime }
+              : undefined,
+          );
+        }
+
+        setStep("done");
+        onSuccess?.(txid, selectedChain, amount);
+      }}
+      onError={(error) => {
+        console.error("Transaction watching error:", error);
+        setError(error);
+
+        // Update transaction as failed
+        if (pendingTransactionId) {
+          updateTransactionStatus(pendingTransactionId, "failed");
+        }
+      }}
+      title={`Sign ${isDeposit ? "Deposit" : "Withdrawal"} Transaction`}
+      description={`Complete your ${amount} ${config.symbol} ${type} by signing the transaction below`}
+    />
+  );
+
+  const renderDoneStep = () => (
+    <div className="space-y-4">
+      <div className="p-4 bg-green-50 border border-green-200 rounded-md">
+        <div className="flex items-center gap-2 text-green-700 font-medium mb-2">
+          <CheckCircle className="w-5 h-5" />
+          {getSuccessMessage()}
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm">Transaction Hash:</span>
+          <a
+            href={`${config?.explorerBaseUrl || "#"}${
+              config?.explorerTxSlug || ""
+            }${getCurrentTxHash()}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:text-blue-800 underline text-sm font-mono flex items-center gap-1"
+          >
+            {getCurrentTxHash().slice(0, 20)}...
+            <ExternalLink className="w-3 h-3" />
+          </a>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Button onClick={resetForm} variant="outline">
+          Make Another {isDeposit ? "Deposit" : "Withdrawal"}
+        </Button>
+        <Button asChild>
+          <Link href="/dashboard?tab=portfolio">View Portfolio</Link>
+        </Button>
+      </div>
+    </div>
+  );
+
+  const renderStepContent = () => {
+    switch (step) {
+      case "form":
+        return renderFormStep();
+      case "psbt":
+        if (isBtcChain) return renderPsbtStep();
+        return null;
+      case "done":
+        return renderDoneStep();
+      default:
+        return null;
+    }
+  };
+
   return (
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader>
@@ -782,419 +1206,7 @@ export default function StakingForm({
         </CardTitle>
         <CardDescription>{getFormDescription()}</CardDescription>
       </CardHeader>
-      <CardContent>
-        {step === "form" ? (
-          <form
-            onSubmit={
-              selectedChain === "btc" || selectedChain === "btc_testnet"
-                ? handleBtcTransaction
-                : handleAdaTransaction
-            }
-            className="space-y-6"
-          >
-            {/* Chain Selection */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Select Blockchain</label>
-              <Select value={selectedChain} onValueChange={handleChainChange}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.values(chainConfigs)
-                    .filter((chain) => chain.enabled)
-                    .map((chain) => (
-                      <SelectItem key={chain.id} value={chain.id}>
-                        <div className="flex items-center gap-2">
-                          {chain.icon}
-                          <span>
-                            {chain.name} ({chain.symbol})
-                          </span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Wallet Connection Status */}
-            {walletStatus.isConnected ? (
-              <Alert>
-                <Wallet className="h-4 w-4" />
-                <AlertDescription>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-green-700 font-medium">
-                        Wallet Connected
-                      </span>
-                      <div className="text-sm text-muted-foreground mt-1">
-                        {walletStatus.address?.slice(0, 20)}...
-                        {walletStatus.address?.slice(-6)}
-                      </div>
-                    </div>
-                    {!isUsingConnectedWallet && walletStatus.address && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={handleUseConnectedWallet}
-                      >
-                        Use Connected Wallet
-                      </Button>
-                    )}
-                  </div>
-                </AlertDescription>
-              </Alert>
-            ) : walletStatus.wrongNetwork ? (
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-orange-700 font-medium">
-                        Wrong Network Connected
-                      </span>
-                      <div className="text-sm text-muted-foreground mt-1">
-                        Your wallet is connected to{" "}
-                        {selectedChain === "btc"
-                          ? "Bitcoin Testnet"
-                          : "Bitcoin Mainnet"}
-                        , but you've selected {config?.name || selectedChain}.
-                        Please switch networks in your wallet.
-                      </div>
-                    </div>
-                    <div>
-                      <ConnectButton />
-                    </div>
-                  </div>
-                </AlertDescription>
-              </Alert>
-            ) : (
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  <div className="flex items-center justify-between">
-                    <span>
-                      Connect your {config?.name || selectedChain} wallet for
-                      easier transactions
-                    </span>
-                    <div>
-                      {selectedChain === "btc" ||
-                      selectedChain === "btc_testnet" ? (
-                        <ConnectButton />
-                      ) : selectedChain === "ada" ? (
-                        <WalletButton />
-                      ) : (
-                        <Button variant="outline" size="sm" disabled>
-                          Wallet not available
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {/* Chain Information */}
-            <div className="p-4 bg-blue-500/20 border border-blue-800/30 rounded-md">
-              <div className="flex items-center gap-2 text-blue-700 font-medium mb-2">
-                {config?.icon}
-                {config?.name || selectedChain}{" "}
-                {isDeposit ? "Staking" : "Withdrawal"} Information
-              </div>
-              <ul className="text-sm text-blue-600 space-y-1">
-                {(config?.features || []).map((feature, index) => (
-                  <li key={index}>• {feature}</li>
-                ))}
-              </ul>
-            </div>
-
-            {/* User Address */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                Your {config?.name || selectedChain} Address
-                {isUsingConnectedWallet && (
-                  <span className="text-green-600 text-xs ml-2">
-                    (Using Connected Wallet)
-                  </span>
-                )}
-              </label>
-              <div className="relative">
-                <Input
-                  type="text"
-                  value={userAddress}
-                  onChange={(e) => handleAddressChange(e.target.value)}
-                  placeholder={`${config?.addressPrefix || ""}...`}
-                  required
-                  className={
-                    isUsingConnectedWallet ? "bg-green-50 border-green-200" : ""
-                  }
-                />
-                {isUsingConnectedWallet && (
-                  <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-green-600" />
-                )}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {isDeposit
-                  ? `Your ${config?.name || selectedChain} wallet address for receiving change or rewards`
-                  : `Your ${config?.name || selectedChain} wallet address (source of funds)`}
-              </p>
-            </div>
-
-            {/* Public Key Input (Bitcoin only, shown when needed) */}
-            {(selectedChain === "btc" || selectedChain === "btc_testnet") && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  Public Key
-                  {cachedUserPublicKey &&
-                    manualPublicKey === cachedUserPublicKey && (
-                      <span className="ml-2 text-xs text-green-600">
-                        (Cached)
-                      </span>
-                    )}
-                </label>
-                <div className="relative">
-                  <Input
-                    type="text"
-                    value={manualPublicKey}
-                    onChange={(e) =>
-                      handleManualPublicKeyChange(e.target.value)
-                    }
-                    placeholder="Enter your 33-byte public key in hexadecimal format (66 characters)"
-                    className={`font-mono text-xs ${
-                      cachedUserPublicKey &&
-                      manualPublicKey === cachedUserPublicKey
-                        ? "bg-green-50 border-green-200"
-                        : ""
-                    }`}
-                    maxLength={66}
-                  />
-                  {cachedUserPublicKey &&
-                    manualPublicKey === cachedUserPublicKey && (
-                      <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-green-600" />
-                    )}
-                </div>
-                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-                  <p className="text-yellow-800 text-xs">
-                    <strong>Note:</strong> Your wallet couldn't provide the
-                    public key automatically. Please verify your public key
-                    above.
-                  </p>
-                </div>
-                {manualPublicKey &&
-                  !/^[0-9a-fA-F]{66}$/.test(manualPublicKey) && (
-                    <p className="text-red-600 text-xs">
-                      Invalid format. Public key must be exactly 66 hexadecimal
-                      characters.
-                    </p>
-                  )}
-              </div>
-            )}
-
-            {/* Withdraw Address (only for withdrawals) */}
-            {!isDeposit && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  Withdrawal Address
-                </label>
-                <Input
-                  type="text"
-                  value={withdrawAddress}
-                  onChange={(e) => handleWithdrawAddressChange(e.target.value)}
-                  placeholder={`${config?.addressPrefix || ""}...`}
-                  required
-                />
-                <p className="text-xs text-muted-foreground">
-                  The address where you want to receive the withdrawn funds
-                </p>
-              </div>
-            )}
-
-            {/* Amount */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                Amount to {isDeposit ? "Deposit" : "Withdraw"} (
-                {config?.symbol || selectedChain})
-              </label>
-              <Input
-                type="number"
-                step={1 / Math.pow(10, config?.decimals || 8)}
-                min={
-                  selectedYieldProvider?.minAmount || config?.minDeposit || 0
-                }
-                value={amount}
-                onChange={(e) => handleAmountChange(e.target.value)}
-                placeholder={(
-                  selectedYieldProvider?.minAmount ||
-                  config?.minDeposit ||
-                  0
-                ).toString()}
-                required
-              />
-              <p className="text-xs text-muted-foreground">
-                Minimum amount:{" "}
-                {selectedYieldProvider?.minAmount || config?.minDeposit || 0}{" "}
-                {config?.symbol || selectedChain}
-              </p>
-            </div>
-
-            {/* PSBT Calculation Status (Bitcoin only) */}
-            {(selectedChain === "btc" || selectedChain === "btc_testnet") &&
-              isCalculatingPsbt && (
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
-                  <div className="flex items-center gap-2 text-blue-700">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700"></div>
-                    <span className="text-sm font-medium">
-                      Preparing transaction...
-                    </span>
-                  </div>
-                </div>
-              )}
-
-            {/* Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {selectedChain === "btc" || selectedChain === "btc_testnet" ? (
-                <>
-                  <Button
-                    type="button"
-                    onClick={handleSignInBrowser}
-                    disabled={loading || !unsignedTransactionData}
-                    className="flex items-center gap-2"
-                  >
-                    <Wallet className="w-4 h-4" />
-                    {loading
-                      ? "Signing..."
-                      : `Sign & ${isDeposit ? "Deposit" : "Withdraw"}`}
-                  </Button>
-
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleCopyUnsignedPSBT}
-                    disabled={!unsignedTransactionData}
-                    className="flex items-center gap-2"
-                  >
-                    <Copy className="w-4 h-4" />
-                    {copied ? "Copied!" : "Copy Unsigned PSBT"}
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button type="submit" disabled={loading || !isFormValid()}>
-                    {getButtonText()}
-                  </Button>
-                  {selectedChain === "ada" && isDeposit && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() =>
-                        window.open("https://yoroi-wallet.com", "_blank")
-                      }
-                    >
-                      Get Yoroi Wallet
-                    </Button>
-                  )}
-                </>
-              )}
-            </div>
-
-            {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                <p className="text-red-600 text-sm">{error}</p>
-              </div>
-            )}
-          </form>
-        ) : step === "psbt" &&
-          (selectedChain === "btc" || selectedChain === "btc_testnet") ? (
-          <PsbtSigning
-            psbtBase64={psbtBase64}
-            targetAddress={isDeposit ? depositAddress : withdrawAddress}
-            expectedAmount={Math.floor(Number(amount) * 1e8)}
-            chain={selectedChain}
-            onTransactionFound={(txid) => {
-              console.log("Transaction found:", txid);
-              setBroadcastResult(txid);
-
-              // Save locktime for future withdrawal transactions (only for deposits)
-              if (isDeposit && unsignedTransactionData?.locktime) {
-                setSavedLocktime(unsignedTransactionData.locktime);
-                console.log(
-                  "Saved locktime for withdrawal:",
-                  unsignedTransactionData.locktime,
-                );
-              }
-
-              // Update dashboard with successful transaction
-              try {
-                updateStakedAmount(
-                  selectedChain as SupportedChain,
-                  Number(amount),
-                  type,
-                );
-              } catch (error) {
-                console.error("Error updating staked amount:", error);
-              }
-
-              // Update transaction status
-              if (pendingTransactionId) {
-                updateTransactionStatus(
-                  pendingTransactionId,
-                  "completed",
-                  txid,
-                  isDeposit && unsignedTransactionData?.locktime
-                    ? { locktime: unsignedTransactionData.locktime }
-                    : undefined,
-                );
-              }
-
-              setStep("done");
-              onSuccess?.(txid, selectedChain, amount);
-            }}
-            onError={(error) => {
-              console.error("Transaction watching error:", error);
-              setError(error);
-
-              // Update transaction as failed
-              if (pendingTransactionId) {
-                updateTransactionStatus(pendingTransactionId, "failed");
-              }
-            }}
-            title={`Sign ${isDeposit ? "Deposit" : "Withdrawal"} Transaction`}
-            description={`Complete your ${amount} ${config.symbol} ${type} by signing the transaction below`}
-          />
-        ) : step === "done" ? (
-          <div className="space-y-4">
-            <div className="p-4 bg-green-50 border border-green-200 rounded-md">
-              <div className="flex items-center gap-2 text-green-700 font-medium mb-2">
-                <CheckCircle className="w-5 h-5" />
-                {getSuccessMessage()}
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm">Transaction Hash:</span>
-                <a
-                  href={`${config?.explorerBaseUrl || "#"}${
-                    config?.explorerTxSlug || ""
-                  }${getCurrentTxHash()}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 underline text-sm font-mono flex items-center gap-1"
-                >
-                  {getCurrentTxHash().slice(0, 20)}...
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Button onClick={resetForm} variant="outline">
-                Make Another {isDeposit ? "Deposit" : "Withdrawal"}
-              </Button>
-              <Button asChild>
-                <Link href="/dashboard?tab=portfolio">View Portfolio</Link>
-              </Button>
-            </div>
-          </div>
-        ) : null}
-      </CardContent>
+      <CardContent>{renderStepContent()}</CardContent>
     </Card>
   );
 }
