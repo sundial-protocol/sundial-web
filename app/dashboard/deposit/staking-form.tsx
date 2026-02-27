@@ -102,8 +102,6 @@ export default function StakingForm({
   const [copied, setCopied] = useState(false);
   const [isUsingConnectedWallet, setIsUsingConnectedWallet] = useState(false);
   const [manualPublicKey, setManualPublicKey] = useState("");
-
-  // Bitcoin-specific states
   const [psbtBase64, setPsbtBase64] = useState("");
   const [broadcastResult, setBroadcastResult] = useState("");
   const [unsignedTransactionData, setUnsignedTransactionData] =
@@ -112,18 +110,32 @@ export default function StakingForm({
   const [step, setStep] = useState<"form" | "psbt" | "broadcast" | "done">(
     "form",
   );
-
-  // ADA-specific states
   const [txHash, setTxHash] = useState("");
-
-  // Locktime for withdrawal transactions
   const [savedLocktime, setSavedLocktime] = useState<number | null>(null);
-
-  // State to cache user's public key across network switches
   const [cachedUserPublicKey, setCachedUserPublicKey] = useState("");
+  const [pendingTransactionId, setPendingTransactionId] = useState<
+    string | null
+  >(null);
 
-  const config = chainConfigs[selectedChain];
+  // Ensure selectedChain is always valid - recover if somehow set to invalid value
+  const validChain = chainConfigs[selectedChain] ? selectedChain : defaultChain;
+  if (validChain !== selectedChain) {
+    console.warn(
+      `Invalid selectedChain "${selectedChain}", recovering to "${validChain}"`,
+    );
+  }
+  const config = chainConfigs[validChain];
   const isDeposit = type === "deposit";
+
+  // Recovery: if selectedChain is somehow invalid, reset to defaultChain
+  useEffect(() => {
+    if (!chainConfigs[selectedChain]) {
+      console.warn(
+        `Recovering invalid selectedChain: "${selectedChain}" -> "${defaultChain}"`,
+      );
+      setSelectedChain(defaultChain);
+    }
+  }, [selectedChain, defaultChain]);
 
   // Check if wallet is connected to wrong network
   const isWalletOnWrongNetwork = () => {
@@ -176,6 +188,24 @@ export default function StakingForm({
     const walletStatus = getWalletConnectionStatus();
     return walletStatus.address;
   };
+
+  // Auto-switch to correct network if wallet is on wrong network
+  useEffect(() => {
+    if (bitcoinAddress && caipNetwork && selectedChain) {
+      const chainId = String(caipNetwork.id || "");
+      const isMainnet = chainId === BTC_CHAIN_ID_MAINNET;
+      const isTestnet = chainId === BTC_CHAIN_ID_TESTNET;
+
+      // If wallet is on mainnet but form is set to testnet, switch to mainnet
+      if (isMainnet && selectedChain === "btc_testnet") {
+        setSelectedChain("btc");
+      }
+      // If wallet is on testnet but form is set to mainnet, switch to testnet
+      else if (isTestnet && selectedChain === "btc") {
+        setSelectedChain("btc_testnet");
+      }
+    }
+  }, [bitcoinAddress, caipNetwork]); // Removed selectedChain to prevent state initialization issues
 
   // Check for connected wallet and auto-fill address and public key
   useEffect(() => {
@@ -504,6 +534,11 @@ export default function StakingForm({
   };
 
   const handleChainChange = (chain: SupportedChain) => {
+    // Validate the chain is actually a valid config key before setting
+    if (!chainConfigs[chain]) {
+      console.warn(`handleChainChange called with invalid chain: "${chain}"`);
+      return;
+    }
     setSelectedChain(chain);
     setUserAddress(""); // Reset address when changing chains
     setIsUsingConnectedWallet(false);
@@ -575,11 +610,6 @@ export default function StakingForm({
       });
     }
   };
-
-  // Track pending transaction
-  const [pendingTransactionId, setPendingTransactionId] = useState<
-    string | null
-  >(null);
 
   // Bitcoin transaction logic - now just handles the signing choice
   const handleBtcTransaction = async (e: React.FormEvent) => {
@@ -698,8 +728,8 @@ export default function StakingForm({
   const isFormValid = () => {
     const baseValid =
       userAddress &&
-      Number(amount) >= config.minDeposit &&
-      userAddress.startsWith(config.addressPrefix);
+      Number(amount) >= (config?.minDeposit || 0) &&
+      userAddress.startsWith(config?.addressPrefix || "");
 
     if (isDeposit) {
       return baseValid;
@@ -707,7 +737,7 @@ export default function StakingForm({
       return (
         baseValid &&
         withdrawAddress &&
-        withdrawAddress.startsWith(config.addressPrefix)
+        withdrawAddress.startsWith(config?.addressPrefix || "")
       );
     }
   };
@@ -728,11 +758,11 @@ export default function StakingForm({
 
   const getButtonText = () => {
     if (loading) return "Processing";
-    return `${isDeposit ? "Deposit" : "Withdraw"} ${config.symbol}`;
+    return `${isDeposit ? "Deposit" : "Withdraw"} ${config?.symbol || selectedChain}`;
   };
 
   const getSuccessMessage = () => {
-    return `${config.name} ${
+    return `${config?.name || selectedChain} ${
       isDeposit ? "Deposit" : "Withdrawal"
     } Processed Successfully!`;
   };
@@ -753,7 +783,7 @@ export default function StakingForm({
         <CardDescription>{getFormDescription()}</CardDescription>
       </CardHeader>
       <CardContent>
-        {step === "form" && (
+        {step === "form" ? (
           <form
             onSubmit={
               selectedChain === "btc" || selectedChain === "btc_testnet"
@@ -828,8 +858,8 @@ export default function StakingForm({
                         {selectedChain === "btc"
                           ? "Bitcoin Testnet"
                           : "Bitcoin Mainnet"}
-                        , but you've selected {config.name}. Please switch
-                        networks in your wallet.
+                        , but you've selected {config?.name || selectedChain}.
+                        Please switch networks in your wallet.
                       </div>
                     </div>
                     <div>
@@ -844,7 +874,8 @@ export default function StakingForm({
                 <AlertDescription>
                   <div className="flex items-center justify-between">
                     <span>
-                      Connect your {config.name} wallet for easier transactions
+                      Connect your {config?.name || selectedChain} wallet for
+                      easier transactions
                     </span>
                     <div>
                       {selectedChain === "btc" ||
@@ -866,11 +897,12 @@ export default function StakingForm({
             {/* Chain Information */}
             <div className="p-4 bg-blue-500/20 border border-blue-800/30 rounded-md">
               <div className="flex items-center gap-2 text-blue-700 font-medium mb-2">
-                {config.icon}
-                {config.name} {isDeposit ? "Staking" : "Withdrawal"} Information
+                {config?.icon}
+                {config?.name || selectedChain}{" "}
+                {isDeposit ? "Staking" : "Withdrawal"} Information
               </div>
               <ul className="text-sm text-blue-600 space-y-1">
-                {config.features.map((feature, index) => (
+                {(config?.features || []).map((feature, index) => (
                   <li key={index}>• {feature}</li>
                 ))}
               </ul>
@@ -879,7 +911,7 @@ export default function StakingForm({
             {/* User Address */}
             <div className="space-y-2">
               <label className="text-sm font-medium">
-                Your {config.name} Address
+                Your {config?.name || selectedChain} Address
                 {isUsingConnectedWallet && (
                   <span className="text-green-600 text-xs ml-2">
                     (Using Connected Wallet)
@@ -891,7 +923,7 @@ export default function StakingForm({
                   type="text"
                   value={userAddress}
                   onChange={(e) => handleAddressChange(e.target.value)}
-                  placeholder={`${config.addressPrefix}...`}
+                  placeholder={`${config?.addressPrefix || ""}...`}
                   required
                   className={
                     isUsingConnectedWallet ? "bg-green-50 border-green-200" : ""
@@ -903,8 +935,8 @@ export default function StakingForm({
               </div>
               <p className="text-xs text-muted-foreground">
                 {isDeposit
-                  ? `Your ${config.name} wallet address for receiving change or rewards`
-                  : `Your ${config.name} wallet address (source of funds)`}
+                  ? `Your ${config?.name || selectedChain} wallet address for receiving change or rewards`
+                  : `Your ${config?.name || selectedChain} wallet address (source of funds)`}
               </p>
             </div>
 
@@ -968,7 +1000,7 @@ export default function StakingForm({
                   type="text"
                   value={withdrawAddress}
                   onChange={(e) => handleWithdrawAddressChange(e.target.value)}
-                  placeholder={`${config.addressPrefix}...`}
+                  placeholder={`${config?.addressPrefix || ""}...`}
                   required
                 />
                 <p className="text-xs text-muted-foreground">
@@ -980,23 +1012,28 @@ export default function StakingForm({
             {/* Amount */}
             <div className="space-y-2">
               <label className="text-sm font-medium">
-                Amount to {isDeposit ? "Deposit" : "Withdraw"} ({config.symbol})
+                Amount to {isDeposit ? "Deposit" : "Withdraw"} (
+                {config?.symbol || selectedChain})
               </label>
               <Input
                 type="number"
-                step={1 / Math.pow(10, config.decimals)}
-                min={selectedYieldProvider?.minAmount || config.minDeposit}
+                step={1 / Math.pow(10, config?.decimals || 8)}
+                min={
+                  selectedYieldProvider?.minAmount || config?.minDeposit || 0
+                }
                 value={amount}
                 onChange={(e) => handleAmountChange(e.target.value)}
                 placeholder={(
-                  selectedYieldProvider?.minAmount || config.minDeposit
+                  selectedYieldProvider?.minAmount ||
+                  config?.minDeposit ||
+                  0
                 ).toString()}
                 required
               />
               <p className="text-xs text-muted-foreground">
                 Minimum amount:{" "}
-                {selectedYieldProvider?.minAmount || config.minDeposit}{" "}
-                {config.symbol}
+                {selectedYieldProvider?.minAmount || config?.minDeposit || 0}{" "}
+                {config?.symbol || selectedChain}
               </p>
             </div>
 
@@ -1066,69 +1103,65 @@ export default function StakingForm({
               </div>
             )}
           </form>
-        )}
+        ) : step === "psbt" &&
+          (selectedChain === "btc" || selectedChain === "btc_testnet") ? (
+          <PsbtSigning
+            psbtBase64={psbtBase64}
+            targetAddress={isDeposit ? depositAddress : withdrawAddress}
+            expectedAmount={Math.floor(Number(amount) * 1e8)}
+            chain={selectedChain}
+            onTransactionFound={(txid) => {
+              console.log("Transaction found:", txid);
+              setBroadcastResult(txid);
 
-        {step === "psbt" &&
-          (selectedChain === "btc" || selectedChain === "btc_testnet") && (
-            <PsbtSigning
-              psbtBase64={psbtBase64}
-              targetAddress={isDeposit ? depositAddress : withdrawAddress}
-              expectedAmount={Math.floor(Number(amount) * 1e8)}
-              chain={selectedChain}
-              onTransactionFound={(txid) => {
-                console.log("Transaction found:", txid);
-                setBroadcastResult(txid);
+              // Save locktime for future withdrawal transactions (only for deposits)
+              if (isDeposit && unsignedTransactionData?.locktime) {
+                setSavedLocktime(unsignedTransactionData.locktime);
+                console.log(
+                  "Saved locktime for withdrawal:",
+                  unsignedTransactionData.locktime,
+                );
+              }
 
-                // Save locktime for future withdrawal transactions (only for deposits)
-                if (isDeposit && unsignedTransactionData?.locktime) {
-                  setSavedLocktime(unsignedTransactionData.locktime);
-                  console.log(
-                    "Saved locktime for withdrawal:",
-                    unsignedTransactionData.locktime,
-                  );
-                }
+              // Update dashboard with successful transaction
+              try {
+                updateStakedAmount(
+                  selectedChain as SupportedChain,
+                  Number(amount),
+                  type,
+                );
+              } catch (error) {
+                console.error("Error updating staked amount:", error);
+              }
 
-                // Update dashboard with successful transaction
-                try {
-                  updateStakedAmount(
-                    selectedChain as SupportedChain,
-                    Number(amount),
-                    type,
-                  );
-                } catch (error) {
-                  console.error("Error updating staked amount:", error);
-                }
+              // Update transaction status
+              if (pendingTransactionId) {
+                updateTransactionStatus(
+                  pendingTransactionId,
+                  "completed",
+                  txid,
+                  isDeposit && unsignedTransactionData?.locktime
+                    ? { locktime: unsignedTransactionData.locktime }
+                    : undefined,
+                );
+              }
 
-                // Update transaction status
-                if (pendingTransactionId) {
-                  updateTransactionStatus(
-                    pendingTransactionId,
-                    "completed",
-                    txid,
-                    isDeposit && unsignedTransactionData?.locktime
-                      ? { locktime: unsignedTransactionData.locktime }
-                      : undefined,
-                  );
-                }
+              setStep("done");
+              onSuccess?.(txid, selectedChain, amount);
+            }}
+            onError={(error) => {
+              console.error("Transaction watching error:", error);
+              setError(error);
 
-                setStep("done");
-                onSuccess?.(txid, selectedChain, amount);
-              }}
-              onError={(error) => {
-                console.error("Transaction watching error:", error);
-                setError(error);
-
-                // Update transaction as failed
-                if (pendingTransactionId) {
-                  updateTransactionStatus(pendingTransactionId, "failed");
-                }
-              }}
-              title={`Sign ${isDeposit ? "Deposit" : "Withdrawal"} Transaction`}
-              description={`Complete your ${amount} ${config.symbol} ${type} by signing the transaction below`}
-            />
-          )}
-
-        {step === "done" && (
+              // Update transaction as failed
+              if (pendingTransactionId) {
+                updateTransactionStatus(pendingTransactionId, "failed");
+              }
+            }}
+            title={`Sign ${isDeposit ? "Deposit" : "Withdrawal"} Transaction`}
+            description={`Complete your ${amount} ${config.symbol} ${type} by signing the transaction below`}
+          />
+        ) : step === "done" ? (
           <div className="space-y-4">
             <div className="p-4 bg-green-50 border border-green-200 rounded-md">
               <div className="flex items-center gap-2 text-green-700 font-medium mb-2">
@@ -1138,8 +1171,8 @@ export default function StakingForm({
               <div className="flex items-center gap-2">
                 <span className="text-sm">Transaction Hash:</span>
                 <a
-                  href={`${config.explorerBaseUrl}${
-                    config.explorerTxSlug
+                  href={`${config?.explorerBaseUrl || "#"}${
+                    config?.explorerTxSlug || ""
                   }${getCurrentTxHash()}`}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -1160,7 +1193,7 @@ export default function StakingForm({
               </Button>
             </div>
           </div>
-        )}
+        ) : null}
       </CardContent>
     </Card>
   );
