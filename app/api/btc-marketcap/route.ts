@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+import type { BtcMarketCapResponse } from "./types";
 
-export async function GET() {
+export async function GET(): Promise<NextResponse<BtcMarketCapResponse>> {
   const marketCap = await getBitcoinMarketCap();
   return NextResponse.json({ marketCap });
 }

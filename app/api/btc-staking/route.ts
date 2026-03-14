@@ -5,8 +5,11 @@ import {
   DawnStakingParams,
 } from "@sundial-protocol/btc-locker";
 import { YIELD_PROVIDER_PUBKEY } from "@/lib/yield-provider";
+import type { BtcStakingResponse } from "./types";
 
-export async function POST(request: NextRequest) {
+export async function POST(
+  request: NextRequest,
+): Promise<NextResponse<BtcStakingResponse>> {
   try {
     const body = await request.json();
     const {

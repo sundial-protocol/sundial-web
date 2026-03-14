@@ -51,6 +51,16 @@ import {
 import type { BitcoinConnector } from "@reown/appkit-adapter-bitcoin";
 import { useCardanoWallet } from "@/lib/wallet/cardano/context";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Psbt } from "bitcoinjs-lib";
+import {
+  BtcStakingResponse,
+  BtcStakingSuccessResponse,
+} from "@/app/api/btc-staking/types";
+import {
+  BtcWithdrawalResponse,
+  BtcWithdrawalSuccessResponse,
+} from "@/app/api/btc-withdrawal/types";
+import { prepareStakeForSign } from "./utils";
 
 type TransactionType = "deposit" | "withdraw";
 
@@ -104,8 +114,9 @@ export default function StakingForm({
   const [manualPublicKey, setManualPublicKey] = useState("");
   const [psbtBase64, setPsbtBase64] = useState("");
   const [broadcastResult, setBroadcastResult] = useState("");
-  const [unsignedTransactionData, setUnsignedTransactionData] =
-    useState<any>(null);
+  const [unsignedTransactionData, setUnsignedTransactionData] = useState<
+    BtcStakingSuccessResponse | BtcWithdrawalSuccessResponse | null
+  >(null);
   const [isCalculatingPsbt, setIsCalculatingPsbt] = useState(false);
   const [step, setStep] = useState<"form" | "psbt" | "broadcast" | "done">(
     "form",
@@ -383,20 +394,88 @@ export default function StakingForm({
 
   const handleSignInBrowser = async () => {
     if (!unsignedTransactionData) return;
+    const params = await prepareStakeForSign(
+      unsignedTransactionData as BtcStakingSuccessResponse,
+      userAddress,
+    );
 
     setLoading(true);
     setError(null);
 
     try {
-      const signedPsbt = await bitcoinConnector?.signPSBT(
-        unsignedTransactionData,
-      );
-      console.log("PSBT signed successfully:", signedPsbt);
+      const psbtResponse = await bitcoinConnector?.signPSBT(params);
 
-      // Process the signed PSBT or broadcast it
-      // For now, we'll set it to the PSBT step for manual broadcast
-      setPsbtBase64(signedPsbt?.psbt || "");
-      setStep("psbt");
+      let signedPsbt = Psbt.fromBase64(psbtResponse.psbt);
+      signedPsbt.finalizeAllInputs();
+      setPsbtBase64(signedPsbt.toBase64());
+
+      // Broadcast the signed transaction via API
+      const broadcastResponse = await fetch("/api/btc-broadcast", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          psbt: signedPsbt.toBase64(),
+          network: selectedChain === "btc_testnet" ? "testnet" : "bitcoin",
+        }),
+      });
+
+      if (!broadcastResponse.ok) {
+        const errorData = await broadcastResponse.json();
+        throw new Error(
+          errorData.details ||
+            errorData.error ||
+            "Failed to broadcast transaction",
+        );
+      }
+
+      const broadcastResult = await broadcastResponse.json();
+      const txid = broadcastResult.txid;
+
+      console.log("Transaction broadcast successful:", txid);
+      setBroadcastResult(txid);
+
+      // Save locktime for future withdrawal transactions (only for deposits)
+      if (isDeposit && unsignedTransactionData?.locktime) {
+        setSavedLocktime(unsignedTransactionData.locktime);
+        console.log(
+          "Saved locktime for withdrawal:",
+          unsignedTransactionData.locktime,
+        );
+      }
+
+      // Update dashboard with successful transaction
+      try {
+        updateStakedAmount(
+          selectedChain as SupportedChain,
+          Number(amount),
+          type,
+        );
+      } catch (error) {
+        console.error("Error updating staked amount:", error);
+      }
+
+      // Update transaction status
+      if (pendingTransactionId) {
+        updateTransactionStatus(
+          pendingTransactionId,
+          "completed",
+          txid,
+          isDeposit && unsignedTransactionData?.locktime
+            ? { locktime: unsignedTransactionData.locktime }
+            : undefined,
+        );
+      }
+
+      setStep("done");
+      onSuccess?.(txid, selectedChain, amount);
+
+      addToast({
+        type: "success",
+        title: "Transaction Successful",
+        message: `${amount} ${config?.symbol} ${type} completed successfully`,
+      });
     } catch (err: any) {
       const errorMessage =
         err.message || "Error signing transaction in browser";
@@ -505,9 +584,15 @@ export default function StakingForm({
         );
       }
 
-      const unsignedTransactionData = await response.json();
-      console.log("Unsigned transaction calculated:", unsignedTransactionData);
-      setUnsignedTransactionData(unsignedTransactionData);
+      const data: BtcStakingResponse | BtcWithdrawalResponse =
+        await response.json();
+      if (!("success" in data) || !data.success) {
+        throw new Error(
+          "error" in data ? data.error : "Failed to create transaction",
+        );
+      }
+      console.log("Unsigned transaction calculated:", data);
+      setUnsignedTransactionData(data);
     } catch (err: any) {
       console.error("Error calculating PSBT:", err);
       // Don't show error for auto-calculation, just reset

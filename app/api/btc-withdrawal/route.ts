@@ -5,8 +5,11 @@ import {
   DawnWithdrawalParams,
 } from "@sundial-protocol/btc-locker";
 import { YIELD_PROVIDER_PUBKEY } from "@/lib/yield-provider";
+import type { BtcWithdrawalResponse } from "./types";
 
-export async function POST(request: NextRequest) {
+export async function POST(
+  request: NextRequest,
+): Promise<NextResponse<BtcWithdrawalResponse>> {
   try {
     const body = await request.json();
     const {

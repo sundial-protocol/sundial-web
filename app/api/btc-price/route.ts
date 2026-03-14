@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import type { BtcPriceResponse, BtcPriceSessionResetResponse } from "./types";
 
 // In-memory cache with session tracking
 let priceCache: { price: number; timestamp: number } | null = null;
@@ -10,7 +11,7 @@ const BASE_CACHE_DURATION = 2 * 60 * 1000; // 2 minutes base
 const MAX_CACHE_DURATION = 60 * 60 * 1000; // 60 minutes max
 const SESSION_MULTIPLIER = 0.1; // How much session age affects cache duration
 
-export async function GET() {
+export async function GET(): Promise<NextResponse<BtcPriceResponse>> {
   const now = Date.now();
   requestCount++;
 
@@ -24,13 +25,13 @@ export async function GET() {
   const adaptiveCacheDuration = Math.min(
     BASE_CACHE_DURATION +
       sessionAgeMinutes * SESSION_MULTIPLIER * BASE_CACHE_DURATION,
-    MAX_CACHE_DURATION
+    MAX_CACHE_DURATION,
   );
 
   console.log(
     `Session: ${Math.round(sessionAgeMinutes)}min, Cache TTL: ${Math.round(
-      adaptiveCacheDuration / 1000
-    )}s, Request #${requestCount}`
+      adaptiveCacheDuration / 1000,
+    )}s, Request #${requestCount}`,
   );
 
   // Check if we have valid cached data
@@ -38,8 +39,8 @@ export async function GET() {
     const cacheAge = now - priceCache.timestamp;
     console.log(
       `Serving cached Bitcoin price: $${priceCache.price.toLocaleString()} (${Math.round(
-        cacheAge / 1000
-      )}s old)`
+        cacheAge / 1000,
+      )}s old)`,
     );
 
     return NextResponse.json({
@@ -61,7 +62,7 @@ export async function GET() {
       // Update cache
       priceCache = { price, timestamp: now };
       console.log(
-        `Fresh Bitcoin price fetched and cached: $${price.toLocaleString()}`
+        `Fresh Bitcoin price fetched and cached: $${price.toLocaleString()}`,
       );
 
       return NextResponse.json({
@@ -112,7 +113,7 @@ export async function GET() {
 
     return NextResponse.json(
       { error: "Failed to fetch price", sessionAge, requestCount },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -146,7 +147,9 @@ export async function getBitcoinPrice(): Promise<number | null> {
 }
 
 // Optional: Add session reset endpoint for testing
-export async function POST() {
+export async function POST(): Promise<
+  NextResponse<BtcPriceSessionResetResponse>
+> {
   sessionStart = Date.now();
   requestCount = 0;
   priceCache = null;
