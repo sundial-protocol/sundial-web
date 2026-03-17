@@ -4,7 +4,6 @@ import type { ApiErrorResponse } from "../types";
 export interface BtcBroadcastSuccessResponse {
   success: true;
   txid: string;
-  network: string;
   rawTransaction: string;
 }
 

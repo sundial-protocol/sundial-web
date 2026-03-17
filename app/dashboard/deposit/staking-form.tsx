@@ -56,6 +56,7 @@ import {
   BtcStakingResponse,
   BtcStakingSuccessResponse,
 } from "@/app/api/btc-staking/types";
+import { finalizePsbtSafe } from "@/lib/psbt-finalize";
 import {
   BtcWithdrawalResponse,
   BtcWithdrawalSuccessResponse,
@@ -394,31 +395,49 @@ export default function StakingForm({
 
   const handleSignInBrowser = async () => {
     if (!unsignedTransactionData) return;
-    const params = await prepareStakeForSign(
-      unsignedTransactionData as BtcStakingSuccessResponse,
-      userAddress,
-    );
+
+    const { psbt } = unsignedTransactionData as BtcStakingSuccessResponse;
 
     setLoading(true);
     setError(null);
 
     try {
-      const psbtResponse = await bitcoinConnector?.signPSBT(params);
+      // Ask wallet to sign (empty signInputs → wallet auto-finalizes)
+      const psbtResponse = await bitcoinConnector?.signPSBT({
+        psbt,
+        signInputs: [],
+      });
 
-      let signedPsbt = Psbt.fromBase64(psbtResponse.psbt);
-      signedPsbt.finalizeAllInputs();
+      if (!psbtResponse?.psbt) {
+        throw new Error("Wallet returned no PSBT data");
+      }
+
+      const signedPsbt = Psbt.fromBase64(psbtResponse.psbt);
+
+      // Finalize if the wallet didn't auto-finalize
+      const alreadyFinalized = signedPsbt.data.inputs.every(
+        (inp) =>
+          (inp.finalScriptSig && inp.finalScriptSig.length > 0) ||
+          (inp.finalScriptWitness && inp.finalScriptWitness.length > 0),
+      );
+
+      if (!alreadyFinalized) {
+        const finalized = finalizePsbtSafe(signedPsbt);
+        if (!finalized) {
+          throw new Error("Could not finalize the signed transaction.");
+        }
+      }
+
+      // Extract raw transaction and broadcast
+      const rawTx = signedPsbt.extractTransaction();
+      const txHex = rawTx.toHex();
+
       setPsbtBase64(signedPsbt.toBase64());
 
-      // Broadcast the signed transaction via API
       const broadcastResponse = await fetch("/api/btc-broadcast", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          psbt: signedPsbt.toBase64(),
-          network: selectedChain === "btc_testnet" ? "testnet" : "bitcoin",
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rawTx: txHex }),
       });
 
       if (!broadcastResponse.ok) {
@@ -433,7 +452,6 @@ export default function StakingForm({
       const broadcastResult = await broadcastResponse.json();
       const txid = broadcastResult.txid;
 
-      console.log("Transaction broadcast successful:", txid);
       setBroadcastResult(txid);
 
       // Save locktime for future withdrawal transactions (only for deposits)
@@ -470,6 +488,7 @@ export default function StakingForm({
 
       setStep("done");
       onSuccess?.(txid, selectedChain, amount);
+      setTxHash(txid);
 
       addToast({
         type: "success",
@@ -477,6 +496,7 @@ export default function StakingForm({
         message: `${amount} ${config?.symbol} ${type} completed successfully`,
       });
     } catch (err: any) {
+      console.error("Sign/broadcast error:", err?.message);
       const errorMessage =
         err.message || "Error signing transaction in browser";
       setError(errorMessage);

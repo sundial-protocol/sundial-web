@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   BTCLocker,
   TimeUtils,
-  DawnStakingParams,
+  DepositParams,
 } from "@sundial-protocol/btc-locker";
 import { YIELD_PROVIDER_PUBKEY } from "@/lib/yield-provider";
 import type { BtcStakingResponse } from "./types";
@@ -41,8 +41,6 @@ export async function POST(
       );
     }
 
-    console.log(`Creating staking transaction for ${amount} BTC`);
-
     // Create BTCLocker instance
     const locker = new BTCLocker(network);
 
@@ -59,7 +57,7 @@ export async function POST(
       userPublicKey,
     );
 
-    const stakingParams: DawnStakingParams = {
+    const stakingParams: DepositParams = {
       sourceAddress: sourceAddress,
       escrowAddress: escrowScriptInfo.address,
       escrowAmount: Math.trunc((Number(amount) * 1e8) / 4), // Convert to satoshis
@@ -68,12 +66,8 @@ export async function POST(
       changeAddress: sourceAddress, // Send change back to source address
     };
 
-    console.log(stakingParams);
-
     // Create dawn staking transaction using both scripts
-    const psbtBase64 = await locker.createDawnStakingTransaction(stakingParams);
-
-    console.log("Staking transaction created successfully");
+    const psbtBase64 = await locker.createDepositTransaction(stakingParams);
 
     return NextResponse.json({
       success: true,
