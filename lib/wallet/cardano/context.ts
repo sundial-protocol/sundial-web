@@ -64,12 +64,5 @@ export const WalletContext = createContext<WalletContextType>({
 });
 
 export function useCardanoWallet() {
-  const context = useContext(WalletContext);
-
-  if (context === undefined)
-    throw new Error(
-      "Context can only be used withing the CaradanoProvider component"
-    );
-
-  return context;
+  return useContext(WalletContext);
 }

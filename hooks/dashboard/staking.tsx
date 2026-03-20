@@ -131,12 +131,7 @@ export function useStakingTransactions() {
   );
 
   const updateStakedAmount = useCallback(
-    (
-      chain: SupportedChain,
-      amount: number,
-      type: "deposit" | "withdraw",
-      txHash?: string,
-    ) => {
+    (chain: SupportedChain, amount: number, type: "deposit" | "withdraw") => {
       setPortfolioData((prev) => {
         const asset = chain.toUpperCase() as "BTC" | "ADA";
         const multiplier = type === "deposit" ? 1 : -1;
@@ -166,7 +161,7 @@ export function useStakingTransactions() {
         };
       });
     },
-    [],
+    [selectedYieldProvider],
   );
 
   const getTotalStakedValue = useCallback(

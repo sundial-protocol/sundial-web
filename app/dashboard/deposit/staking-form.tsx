@@ -431,6 +431,13 @@ export default function StakingForm({
     setLoading(true);
     setError(null);
 
+    const transactionId = addPendingTransaction(
+      selectedChain as SupportedChain,
+      Number(amount),
+      type,
+    );
+    setPendingTransactionId(transactionId);
+
     try {
       // Ask wallet to sign (empty signInputs → wallet auto-finalizes)
       const psbtResponse = await bitcoinConnector?.signPSBT({
@@ -605,7 +612,9 @@ export default function StakingForm({
             network: selectedChain === "btc_testnet" ? "testnet" : "bitcoin",
             locktime: Math.floor(
               (Date.now() +
-                (selectedYieldProvider?.locktime || 1000 * 60 * 5)) /
+                (selectedYieldProvider?.locktime != null
+                  ? selectedYieldProvider.locktime * 1000
+                  : 1000 * 60 * 5)) /
                 1000,
             ),
           }
@@ -643,6 +652,11 @@ export default function StakingForm({
       }
       console.log("Unsigned transaction calculated:", data);
       setUnsignedTransactionData(data);
+
+      // Populate depositAddress from staking response so PsbtSigning can watch it
+      if (isDeposit && "timelockScript" in data) {
+        setDepositAddress(data.timelockScript.address);
+      }
     } catch (err: any) {
       console.error("Error calculating PSBT:", err);
       // Don't show error for auto-calculation, just reset and mark as failed
@@ -686,6 +700,7 @@ export default function StakingForm({
     setBroadcastResult("");
     setTxHash("");
     setUnsignedTransactionData(null);
+    setDepositAddress("");
     setIsCalculatingPsbt(false);
     setPsbtCalcFailed(false);
     setStep("form");
@@ -737,6 +752,7 @@ export default function StakingForm({
       setCachedUserPublicKey(value.trim());
     }
     setUnsignedTransactionData(null); // Reset PSBT when public key changes
+    setDepositAddress("");
     setPsbtCalcFailed(false);
   };
 

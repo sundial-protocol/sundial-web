@@ -52,7 +52,7 @@ export interface YieldOpportunity {
 
   // blockchain details
   publicKey: string; // Public key for the provider
-  locktime: number; // unix duration for lockup in milliseconds
+  locktime: number; // unix duration for lockup in seconds
 }
 
 export function useYieldOpportunities() {
@@ -118,7 +118,7 @@ const yieldOpportunities: YieldOpportunity[] = [
     minAmount: 0.01,
     payments: 12, // Number of payments per year
     publicKey: YIELD_PROVIDER_PUBKEY, // Example public key
-    locktime: 60 * 3, // 30 minutes in seconds
+    locktime: 60 * 3, // 3 minutes in seconds
   },
   {
     id: 2,

@@ -36,13 +36,8 @@ export default function WithdrawTab() {
     convert(calculations.monthlyRewards.total, "USD", config.symbol) || 0;
 
   const handleAmountChange = (newAmount: string, chain: SupportedChain) => {
-    console.log("Amount changed:", {
-      newAmount,
-      chain,
-      previousAmount: amount,
-      previousChain: selectedChain,
-    });
     setAmount(newAmount);
+    setSelectedChain(chain);
   };
 
   const handleSuccess = (
