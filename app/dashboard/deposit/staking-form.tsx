@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import mempoolJS from "@mempool/mempool.js";
 import {
   Card,
@@ -61,7 +61,7 @@ import {
   BtcWithdrawalResponse,
   BtcWithdrawalSuccessResponse,
 } from "@/app/api/btc-withdrawal/types";
-import { prepareStakeForSign } from "./utils";
+import { useWalletBalance } from "@/hooks/dashboard/wallet-balance";
 
 type TransactionType = "deposit" | "withdraw";
 
@@ -99,8 +99,11 @@ export default function StakingForm({
     useAppKitAccount({ namespace: "bip122" });
   const { caipNetwork } = useAppKitNetwork();
 
-  const { selectedWallet: cardanoWallet, defaultAddress: cardanoAddress } =
-    useCardanoWallet();
+  const {
+    selectedWallet: cardanoWallet,
+    defaultAddress: cardanoAddress,
+    accountBalance: cardanoBalance,
+  } = useCardanoWallet();
 
   const [selectedChain, setSelectedChain] =
     useState<SupportedChain>(defaultChain);
@@ -128,6 +131,8 @@ export default function StakingForm({
   const [pendingTransactionId, setPendingTransactionId] = useState<
     string | null
   >(null);
+  const [psbtCalcFailed, setPsbtCalcFailed] = useState(false);
+  const psbtDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Ensure selectedChain is always valid - recover if somehow set to invalid value
   const validChain = chainConfigs[selectedChain] ? selectedChain : defaultChain;
@@ -270,6 +275,18 @@ export default function StakingForm({
     }
   }, [isUsingConnectedWallet, selectedChain, cachedUserPublicKey]);
 
+  // Wallet balance (fetched via dedicated hook, stored in dashboard context)
+  const { availableBalance, isFetchingBalance } = useWalletBalance({
+    selectedChain,
+    btcAddress: userAddress,
+    cardanoBalance,
+  });
+
+  const isAmountExceedsBalance =
+    availableBalance !== null &&
+    Number(amount) > 0 &&
+    Number(amount) > availableBalance;
+
   // Auto-populate locktime from transaction history for withdrawals
   useEffect(() => {
     if (!isDeposit && !savedLocktime && transactions.length > 0) {
@@ -300,15 +317,19 @@ export default function StakingForm({
   }, [isDeposit, savedLocktime, transactions, selectedChain]);
 
   // Auto-calculate PSBT when all fields are filled (Bitcoin only)
+  // Debounced to avoid rapid-fire requests; stops retrying after a failure
+  // until the user changes an input.
   useEffect(() => {
     const shouldCalculatePsbt = () => {
       if (selectedChain !== "btc" && selectedChain !== "btc_testnet")
         return false;
       if (step !== "form") return false;
       if (isCalculatingPsbt || unsignedTransactionData) return false;
+      if (psbtCalcFailed) return false;
       if (!userAddress || !amount) return false;
       if (!isDeposit && !withdrawAddress) return false;
       if (Number(amount) < config.minDeposit) return false;
+      if (isAmountExceedsBalance) return false;
       if (!userAddress.startsWith(config.addressPrefix)) return false;
       if (!isDeposit && !withdrawAddress.startsWith(config.addressPrefix))
         return false;
@@ -350,8 +371,16 @@ export default function StakingForm({
     };
 
     if (shouldCalculatePsbt()) {
-      calculateUnsignedPsbt();
+      // Clear any pending debounce
+      if (psbtDebounceRef.current) clearTimeout(psbtDebounceRef.current);
+      psbtDebounceRef.current = setTimeout(() => {
+        calculateUnsignedPsbt();
+      }, 800);
     }
+
+    return () => {
+      if (psbtDebounceRef.current) clearTimeout(psbtDebounceRef.current);
+    };
   }, [
     selectedChain,
     userAddress,
@@ -365,6 +394,7 @@ export default function StakingForm({
     isCalculatingPsbt,
     unsignedTransactionData,
     savedLocktime,
+    psbtCalcFailed,
   ]);
 
   // Initialize mempool.js client based on selected chain
@@ -615,8 +645,10 @@ export default function StakingForm({
       setUnsignedTransactionData(data);
     } catch (err: any) {
       console.error("Error calculating PSBT:", err);
-      // Don't show error for auto-calculation, just reset
+      // Don't show error for auto-calculation, just reset and mark as failed
+      // so we don't retry until the user changes an input
       setUnsignedTransactionData(null);
+      setPsbtCalcFailed(true);
     }
 
     setIsCalculatingPsbt(false);
@@ -655,6 +687,7 @@ export default function StakingForm({
     setTxHash("");
     setUnsignedTransactionData(null);
     setIsCalculatingPsbt(false);
+    setPsbtCalcFailed(false);
     setStep("form");
     setManualPublicKey("");
 
@@ -670,13 +703,15 @@ export default function StakingForm({
 
   const handleAmountChange = (value: string) => {
     setAmount(value);
-    setUnsignedTransactionData(null); // Reset PSBT when amount changes
+    setUnsignedTransactionData(null);
+    setPsbtCalcFailed(false);
     onAmountChange?.(value, selectedChain);
   };
 
   const handleAddressChange = (value: string) => {
     setUserAddress(value);
-    setUnsignedTransactionData(null); // Reset PSBT when address changes
+    setUnsignedTransactionData(null);
+    setPsbtCalcFailed(false);
     // If user manually changes address, mark as not using connected wallet
     if (isUsingConnectedWallet && value !== getConnectedWalletAddress()) {
       setIsUsingConnectedWallet(false);
@@ -691,7 +726,8 @@ export default function StakingForm({
 
   const handleWithdrawAddressChange = (value: string) => {
     setWithdrawAddress(value);
-    setUnsignedTransactionData(null); // Reset PSBT when withdraw address changes
+    setUnsignedTransactionData(null);
+    setPsbtCalcFailed(false);
   };
 
   const handleManualPublicKeyChange = (value: string) => {
@@ -701,6 +737,7 @@ export default function StakingForm({
       setCachedUserPublicKey(value.trim());
     }
     setUnsignedTransactionData(null); // Reset PSBT when public key changes
+    setPsbtCalcFailed(false);
   };
 
   const handleUseConnectedWallet = () => {
@@ -831,10 +868,12 @@ export default function StakingForm({
   };
 
   const isFormValid = () => {
+    const numAmount = Number(amount);
     const baseValid =
       userAddress &&
-      Number(amount) >= (config?.minDeposit || 0) &&
-      userAddress.startsWith(config?.addressPrefix || "");
+      numAmount >= (config?.minDeposit || 0) &&
+      userAddress.startsWith(config?.addressPrefix || "") &&
+      !isAmountExceedsBalance;
 
     if (isDeposit) {
       return baseValid;
@@ -1100,14 +1139,35 @@ export default function StakingForm({
 
       {/* Amount */}
       <div className="space-y-2">
-        <label className="text-sm font-medium">
-          Amount to {isDeposit ? "Deposit" : "Withdraw"} (
-          {config?.symbol || selectedChain})
-        </label>
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium">
+            Amount to {isDeposit ? "Deposit" : "Withdraw"} (
+            {config?.symbol || selectedChain})
+          </label>
+          {availableBalance !== null && (
+            <span className="text-xs text-muted-foreground">
+              Available:{" "}
+              <button
+                type="button"
+                className="text-blue-600 hover:text-blue-800 font-medium underline-offset-2 hover:underline"
+                onClick={() => handleAmountChange(String(availableBalance))}
+              >
+                {availableBalance.toFixed(config?.decimals || 8)}{" "}
+                {config?.symbol || selectedChain}
+              </button>
+            </span>
+          )}
+          {isFetchingBalance && availableBalance === null && (
+            <span className="text-xs text-muted-foreground animate-pulse">
+              Fetching balance...
+            </span>
+          )}
+        </div>
         <Input
           type="number"
           step={1 / Math.pow(10, config?.decimals || 8)}
           min={selectedYieldProvider?.minAmount || config?.minDeposit || 0}
+          max={availableBalance ?? undefined}
           value={amount}
           onChange={(e) => handleAmountChange(e.target.value)}
           placeholder={(
@@ -1116,12 +1176,22 @@ export default function StakingForm({
             0
           ).toString()}
           required
+          className={isAmountExceedsBalance ? "border-red-400" : ""}
         />
-        <p className="text-xs text-muted-foreground">
-          Minimum amount:{" "}
-          {selectedYieldProvider?.minAmount || config?.minDeposit || 0}{" "}
-          {config?.symbol || selectedChain}
-        </p>
+        {isAmountExceedsBalance && (
+          <p className="text-red-600 text-xs">
+            Amount exceeds your available balance of{" "}
+            {availableBalance?.toFixed(config?.decimals || 8)}{" "}
+            {config?.symbol || selectedChain}
+          </p>
+        )}
+        {!isAmountExceedsBalance && (
+          <p className="text-xs text-muted-foreground">
+            Minimum:{" "}
+            {selectedYieldProvider?.minAmount || config?.minDeposit || 0}{" "}
+            {config?.symbol || selectedChain}
+          </p>
+        )}
       </div>
 
       {/* PSBT Calculation Status (Bitcoin only) */}
@@ -1143,7 +1213,9 @@ export default function StakingForm({
             <Button
               type="button"
               onClick={handleSignInBrowser}
-              disabled={loading || !unsignedTransactionData}
+              disabled={
+                loading || !unsignedTransactionData || isAmountExceedsBalance
+              }
               className="flex items-center gap-2"
             >
               <Wallet className="w-4 h-4" />
@@ -1156,7 +1228,7 @@ export default function StakingForm({
               type="button"
               variant="outline"
               onClick={handleCopyUnsignedPSBT}
-              disabled={!unsignedTransactionData}
+              disabled={!unsignedTransactionData || isAmountExceedsBalance}
               className="flex items-center gap-2"
             >
               <Copy className="w-4 h-4" />
@@ -1165,7 +1237,10 @@ export default function StakingForm({
           </>
         ) : (
           <>
-            <Button type="submit" disabled={loading || !isFormValid()}>
+            <Button
+              type="submit"
+              disabled={loading || !isFormValid() || isAmountExceedsBalance}
+            >
               {getButtonText()}
             </Button>
             {selectedChain === "ada" && isDeposit && (

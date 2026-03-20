@@ -181,6 +181,11 @@ export function generateEarningsData(
 }
 
 // Custom Hooks
+export type WalletBalances = {
+  BTC: number | null;
+  ADA: number | null;
+};
+
 export function useDashboardData() {
   const [portfolioData, setPortfolioData] = useState<PortfolioData>({
     holdings: { BTC: 0, ADA: 0 },
@@ -189,6 +194,14 @@ export function useDashboardData() {
       ADA: { staked: 0, yield: 0, positions: [] },
     },
   });
+  const [walletBalances, setWalletBalances] = useState<WalletBalances>({
+    BTC: null,
+    ADA: null,
+  });
+
+  const setWalletBalance = (asset: "BTC" | "ADA", balance: number | null) => {
+    setWalletBalances((prev) => ({ ...prev, [asset]: balance }));
+  };
   const [selectedYieldProvider, setSelectedYieldProvider] =
     useState<YieldOpportunity | null>(null);
   const calculations = usePortfolioCalculations(
@@ -469,6 +482,10 @@ export function useDashboardData() {
     // Yield Provider Selection
     selectedYieldProvider,
     setSelectedYieldProvider,
+
+    // Wallet balances
+    walletBalances,
+    setWalletBalance,
   };
 }
 
