@@ -7,21 +7,31 @@ import { SupportedChain, chainConfigs } from "@/lib/multichain";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { getYield } from "@/hooks/dashboard/get-yield";
+import { yieldFromProvider } from "@/hooks/dashboard/yield-opportunities";
 import { usePrices } from "@/hooks/dashboard/prices";
 
 export default function WithdrawTab() {
-  const { calculations, updateStakedAmount, isLoading } = useDashboardContext();
+  const {
+    portfolioData,
+    calculations,
+    updateStakedAmount,
+    isLoading,
+    selectedYieldProvider,
+  } = useDashboardContext();
   const { convert } = usePrices();
   const [selectedChain, setSelectedChain] = useState<SupportedChain>("btc");
   const [amount, setAmount] = useState("");
   const config = chainConfigs[selectedChain];
 
-  const alreadyStaked = convert(
-    config.symbol === "BTC" ? calculations.btcValue : calculations.adaValue,
-    "USD",
-    config.symbol
-  );
+  // Use staked amounts for withdrawal calculations
+  // For BTC, sum both mainnet and testnet staked amounts since they're both BTC
+  const alreadyStaked =
+    config.symbol === "BTC"
+      ? portfolioData?.staking?.BTC?.staked || 0
+      : portfolioData?.staking?.ADA?.staked || 0;
+
+  console.log(`Already staked (${config.symbol}):`, alreadyStaked);
+
   const currentYield =
     convert(calculations.monthlyRewards.total, "USD", config.symbol) || 0;
 
@@ -33,7 +43,7 @@ export default function WithdrawTab() {
   const handleSuccess = (
     txHash: string,
     chain: SupportedChain,
-    amount: string
+    amount: string,
   ) => {
     console.log("Withdraw successful:", { txHash, chain, amount });
 
@@ -45,8 +55,11 @@ export default function WithdrawTab() {
   const amountNum = Number(amount) || 0;
   const newTotal = Math.max(alreadyStaked - amountNum, 0);
 
-  // Convert newTotal to USD before passing to getYield
-  const newYieldUSD = getYield(convert(newTotal, config.symbol, "USD")) ?? 0;
+  // Convert newTotal to USD before getting yield
+  const newYieldUSD = yieldFromProvider(
+    convert(newTotal, config.symbol, "USD") ?? 0,
+    selectedYieldProvider,
+  );
   // Then convert back
   const newYield = convert(newYieldUSD, "USD", config.symbol);
 

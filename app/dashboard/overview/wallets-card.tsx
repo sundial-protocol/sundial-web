@@ -7,7 +7,7 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
-import { Bitcoin, Check, Coins, Copy } from "lucide-react";
+import { Bitcoin, Coins } from "lucide-react";
 import { WalletButton } from "@/lib/wallet/cardano/wallet-button";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";

@@ -9,8 +9,13 @@ import { DEFAULT_PRICES } from "@/hooks/dashboard/prices";
 import AssetAllocation from "./asset-allocation";
 
 export function PortfolioOverview() {
-  const { portfolioData, calculations, isLoading, error } =
-    useDashboardContext();
+  const {
+    portfolioData,
+    calculations,
+    isLoading,
+    error,
+    selectedYieldProvider,
+  } = useDashboardContext();
   const [btcWallet, setBtcWallet] = useState<string | null>(null);
 
   if (isLoading)
@@ -24,7 +29,7 @@ export function PortfolioOverview() {
         <EarningsGraph
           adaValue={calculations.adaValue}
           btcValue={calculations.btcValue}
-          prices={DEFAULT_PRICES}
+          provider={selectedYieldProvider}
         />
 
         {/* Wallet Connection Section */}

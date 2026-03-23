@@ -34,6 +34,7 @@ export function WalletProvider({ children }: PropsWithChildren) {
     "mintun:selected:wallet",
     ""
   );
+  const [defaultAddress, setDefaultAddress] = useState("");
   const [changeAddress, setChangeAddress] = useState("");
   const [stakeAddress, setStakeAddress] = useState("");
   const [installedExtensions, setInstalledExtensions] = useState<Array<string>>(
@@ -53,6 +54,7 @@ export function WalletProvider({ children }: PropsWithChildren) {
       setNetwork,
       setSelectedWallet,
       setLastSelectedWallet,
+      setDefaultAddress,
       setChangeAddress,
       setStakeAddress,
       setInstalledExtensions,
@@ -69,6 +71,7 @@ export function WalletProvider({ children }: PropsWithChildren) {
       setNetwork,
       setSelectedWallet,
       setLastSelectedWallet,
+      setDefaultAddress,
       setChangeAddress,
       setStakeAddress,
       setInstalledExtensions,
@@ -104,6 +107,7 @@ export function WalletProvider({ children }: PropsWithChildren) {
       network,
       selectedWallet,
       lastSelectedWallet,
+      defaultAddress,
       changeAddress,
       stakeAddress,
       installedExtensions,
@@ -122,6 +126,7 @@ export function WalletProvider({ children }: PropsWithChildren) {
       network,
       selectedWallet,
       lastSelectedWallet,
+      defaultAddress,
       changeAddress,
       stakeAddress,
       installedExtensions,

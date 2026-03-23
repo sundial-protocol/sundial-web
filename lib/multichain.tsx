@@ -4,6 +4,9 @@ import { CurrencyCode } from "@/hooks/dashboard/prices";
 
 export type SupportedChain = "btc" | "ada" | "btc_testnet" | "ada_testnet";
 
+export const BTC_CHAIN_ID_MAINNET = "000000000019d6689c085ae165831e93";
+export const BTC_CHAIN_ID_TESTNET = "000000000933ea01ad0ee984209779ba";
+
 export interface ChainConfig {
   id: SupportedChain;
   name: string;
@@ -25,7 +28,7 @@ export const chainConfigs: Record<SupportedChain, ChainConfig> = {
     symbol: "BTC",
     icon: <Bitcoin className="w-4 h-4" />,
     addressPrefix: "bc1q",
-    minDeposit: 0.001,
+    minDeposit: 0.00001,
     decimals: 8,
     explorerBaseUrl: "https://blockstream.info/",
     explorerTxSlug: "tx/",
@@ -43,7 +46,7 @@ export const chainConfigs: Record<SupportedChain, ChainConfig> = {
     symbol: "ADA",
     icon: <Coins className="w-4 h-4" />,
     addressPrefix: "addr1",
-    minDeposit: 10,
+    minDeposit: 1,
     decimals: 6,
     explorerBaseUrl: "https://cardanoscan.io/",
     explorerTxSlug: "transaction/",
@@ -78,7 +81,7 @@ export const chainConfigs: Record<SupportedChain, ChainConfig> = {
     symbol: "tADA",
     icon: <Coins className="w-4 h-4" />,
     addressPrefix: "addr_test1",
-    minDeposit: 10,
+    minDeposit: 1,
     decimals: 6,
     explorerBaseUrl: "https://preprod.cardanoscan.io/",
     explorerTxSlug: "transaction/",
