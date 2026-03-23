@@ -61,6 +61,7 @@ import {
   BtcWithdrawalResponse,
   BtcWithdrawalSuccessResponse,
 } from "@/app/api/btc-withdrawal/types";
+import type { DepositIntentSuccessResponse } from "@/app/api/deposit-intent/types";
 import { useWalletBalance } from "@/hooks/dashboard/wallet-balance";
 
 type TransactionType = "deposit" | "withdraw";
@@ -132,6 +133,7 @@ export default function StakingForm({
     string | null
   >(null);
   const [psbtCalcFailed, setPsbtCalcFailed] = useState(false);
+  const [depositIntentId, setDepositIntentId] = useState<string | null>(null);
   const psbtDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Ensure selectedChain is always valid - recover if somehow set to invalid value
@@ -657,6 +659,53 @@ export default function StakingForm({
       if (isDeposit && "timelockScript" in data) {
         setDepositAddress(data.timelockScript.address);
       }
+
+      // Register deposit intent with backend (non-blocking — don't fail the
+      // PSBT flow if the backend is unavailable or the provider isn't configured)
+      console.log("Deposit intent check:", {
+        isDeposit,
+        userPubKey: !!userPubKey,
+        provider_id: selectedYieldProvider?.provider_id,
+        program_id: selectedYieldProvider?.program_id,
+      });
+
+      if (
+        isDeposit &&
+        userPubKey &&
+        selectedYieldProvider?.provider_id &&
+        selectedYieldProvider?.program_id
+      ) {
+        const lockMs =
+          selectedYieldProvider!.locktime != null
+            ? selectedYieldProvider!.locktime * 1000
+            : 1000 * 60 * 5;
+
+        fetch("/api/deposit-intent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_beneficiary_address: sourceAddress,
+            user_pubkey_hex: userPubKey,
+            provider_id: selectedYieldProvider!.provider_id,
+            program_id: selectedYieldProvider!.program_id,
+            amount_sats: Math.round(Number(amount) * 1e8),
+            alpha_bps: 2500, // 25 % escrow allocation
+            lock_ms: lockMs,
+          }),
+        })
+          .then((res) => (res.ok ? res.json() : Promise.reject(res.statusText)))
+          .then((intent: DepositIntentSuccessResponse) => {
+            setDepositIntentId(intent.deposit_id);
+            console.log("Deposit intent registered:", intent.deposit_id);
+          })
+          .catch((err) => {
+            // Non-fatal: the user can still sign & broadcast without a backend intent
+            console.warn(
+              "Deposit intent registration failed (non-fatal):",
+              err,
+            );
+          });
+      }
     } catch (err: any) {
       console.error("Error calculating PSBT:", err);
       // Don't show error for auto-calculation, just reset and mark as failed
@@ -680,6 +729,7 @@ export default function StakingForm({
     setBroadcastResult("");
     setTxHash("");
     setUnsignedTransactionData(null);
+    setDepositIntentId(null);
     setStep("form");
     setManualPublicKey("");
   };
@@ -700,6 +750,7 @@ export default function StakingForm({
     setBroadcastResult("");
     setTxHash("");
     setUnsignedTransactionData(null);
+    setDepositIntentId(null);
     setDepositAddress("");
     setIsCalculatingPsbt(false);
     setPsbtCalcFailed(false);

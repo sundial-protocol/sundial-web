@@ -53,6 +53,10 @@ export interface YieldOpportunity {
   // blockchain details
   publicKey: string; // Public key for the provider
   locktime: number; // unix duration for lockup in seconds
+
+  // backend IDs (optional – populated when backend providers are available)
+  provider_id?: string; // UUID from btc-yield backend
+  program_id?: string; // UUID from btc-yield backend
 }
 
 export function useYieldOpportunities() {
@@ -119,6 +123,9 @@ const yieldOpportunities: YieldOpportunity[] = [
     payments: 12, // Number of payments per year
     publicKey: YIELD_PROVIDER_PUBKEY, // Example public key
     locktime: 60 * 3, // 3 minutes in seconds
+    // Mock UUIDs for testing deposit intent integration
+    provider_id: "550e8400-e29b-41d4-a716-446655440001",
+    program_id: "660e8400-e29b-41d4-a716-446655440001",
   },
   {
     id: 2,
@@ -133,6 +140,9 @@ const yieldOpportunities: YieldOpportunity[] = [
     payments: 12, // Number of payments per year
     publicKey: YIELD_PROVIDER_PUBKEY, // Example public key
     locktime: 60 * 60 * 24 * 30, // 30 days in seconds
+    // Mock UUIDs for testing deposit intent integration
+    provider_id: "550e8400-e29b-41d4-a716-446655440002",
+    program_id: "660e8400-e29b-41d4-a716-446655440002",
   },
   {
     id: 3,
