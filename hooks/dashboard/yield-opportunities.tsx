@@ -122,10 +122,10 @@ const yieldOpportunities: YieldOpportunity[] = [
     minAmount: 0.01,
     payments: 12, // Number of payments per year
     publicKey: YIELD_PROVIDER_PUBKEY, // Example public key
-    locktime: 60 * 3, // 3 minutes in seconds
+    locktime: 604800, // 7 days in seconds
     // Mock UUIDs for testing deposit intent integration
-    provider_id: "550e8400-e29b-41d4-a716-446655440001",
-    program_id: "660e8400-e29b-41d4-a716-446655440001",
+    provider_id: "45dc9946-5d5c-473e-a27c-56393a160096",
+    program_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
   },
   {
     id: 2,
@@ -141,8 +141,8 @@ const yieldOpportunities: YieldOpportunity[] = [
     publicKey: YIELD_PROVIDER_PUBKEY, // Example public key
     locktime: 60 * 60 * 24 * 30, // 30 days in seconds
     // Mock UUIDs for testing deposit intent integration
-    provider_id: "550e8400-e29b-41d4-a716-446655440002",
-    program_id: "660e8400-e29b-41d4-a716-446655440002",
+    provider_id: "45dc9946-5d5c-473e-a27c-56393a160096",
+    program_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
   },
   {
     id: 3,

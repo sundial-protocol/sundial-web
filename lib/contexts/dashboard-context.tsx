@@ -1,12 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, ReactNode } from "react";
+import { createContext, useContext, ReactNode } from "react";
 import { useDashboardData } from "@/hooks/dashboard/dashboard";
 
 type DashboardContextType = ReturnType<typeof useDashboardData>;
 
 const DashboardContext = createContext<DashboardContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export function DashboardProvider({ children }: { children: ReactNode }) {
@@ -23,7 +23,7 @@ export function useDashboardContext() {
   const context = useContext(DashboardContext);
   if (context === undefined) {
     throw new Error(
-      "useDashboardContext must be used within a DashboardProvider"
+      "useDashboardContext must be used within a DashboardProvider",
     );
   }
   return context;

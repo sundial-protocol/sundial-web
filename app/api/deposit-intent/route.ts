@@ -34,7 +34,7 @@ export async function POST(
 
     // ── Forward to Sundial backend ──
     const data = await sundialFetch<DepositIntentSuccessResponse>(
-      "/v1/deposits/intent",
+      "/v1/users/deposits/intent",
       {
         method: "POST",
         body: JSON.stringify(body),
