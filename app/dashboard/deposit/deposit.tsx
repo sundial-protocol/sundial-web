@@ -9,6 +9,7 @@ import { usePrices } from "@/hooks/dashboard/prices";
 import { YieldOpportunityCard } from "@/components/yield-opportunity-card";
 import { useYieldOpportunities } from "@/hooks/dashboard/yield-opportunities";
 import { yieldFromProvider } from "@/hooks/dashboard/yield-opportunities";
+import { DepositIntentSuccessResponse } from "@/app/api/deposit-intent/types";
 
 export default function DepositTab() {
   const {
@@ -21,6 +22,7 @@ export default function DepositTab() {
   const { opportunities } = useYieldOpportunities();
   const [selectedChain, setSelectedChain] = useState<SupportedChain>("btc");
   const [amount, setAmount] = useState("");
+  const [depositIntentId, setDepositIntentId] = useState<string | null>(null);
   const config = chainConfigs[selectedChain];
 
   // Set default yield provider if none selected
@@ -44,11 +46,46 @@ export default function DepositTab() {
   };
 
   const handleSuccess = (
-    txHash: string,
     chain: SupportedChain,
     amount: string,
+    userPubKey?: string,
+    sourceAddress?: string,
   ) => {
-    console.log("Deposit successful:", { txHash, chain, amount });
+    if (
+      userPubKey &&
+      selectedYieldProvider?.provider_id &&
+      selectedYieldProvider?.program_id
+    ) {
+      const lockMs =
+        selectedYieldProvider!.locktime != null
+          ? selectedYieldProvider!.locktime * 1000
+          : 1000 * 60 * 5;
+
+      fetch("/api/deposit-intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_beneficiary_address: sourceAddress,
+          user_pubkey_hex: userPubKey,
+          provider_id: selectedYieldProvider!.provider_id,
+          program_id: selectedYieldProvider!.program_id,
+          amount_sats: Math.round(Number(amount) * 1e8),
+          alpha_bps: 2500, // 25 % escrow allocation
+          lock_ms: lockMs,
+        }),
+      })
+        .then((res) => (res.ok ? res.json() : Promise.reject(res.statusText)))
+        .then((intent: DepositIntentSuccessResponse) => {
+          setDepositIntentId(intent.deposit_id);
+          console.log("Deposit intent registered:", intent.deposit_id);
+        })
+        .catch((err) => {
+          // Non-fatal: the user can still sign & broadcast without a backend intent
+          console.warn("Deposit intent registration failed (non-fatal):", err);
+        });
+    }
+
+    console.log("Deposit successful:", { chain, amount });
 
     // Reset form
     setAmount("");

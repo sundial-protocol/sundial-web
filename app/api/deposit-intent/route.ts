@@ -6,6 +6,10 @@ import type {
   DepositIntentSuccessResponse,
 } from "./types";
 
+// In-memory rate limit map: key = user_pubkey_hex + provider_id + program_id, value = timestamp (ms)
+const recentRequests = new Map<string, number>();
+const RATE_LIMIT_WINDOW_MS = 10_000; // 10 seconds
+
 export async function POST(
   request: NextRequest,
 ): Promise<NextResponse<DepositIntentResponse>> {
@@ -31,6 +35,21 @@ export async function POST(
         );
       }
     }
+
+    // ── Rate limiting: prevent repeated requests for same user+provider+program within window ──
+    const key = `${body.user_pubkey_hex}:${body.provider_id}:${body.program_id}`;
+    const now = Date.now();
+    const lastRequest = recentRequests.get(key);
+    if (lastRequest && now - lastRequest < RATE_LIMIT_WINDOW_MS) {
+      return NextResponse.json(
+        {
+          error:
+            "Please wait before retrying deposit intent. Try again in a few seconds.",
+        },
+        { status: 429 },
+      );
+    }
+    recentRequests.set(key, now);
 
     // ── Forward to Sundial backend ──
     const data = await sundialFetch<DepositIntentSuccessResponse>(

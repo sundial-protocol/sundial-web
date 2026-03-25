@@ -11,13 +11,8 @@ import { yieldFromProvider } from "@/hooks/dashboard/yield-opportunities";
 import { usePrices } from "@/hooks/dashboard/prices";
 
 export default function WithdrawTab() {
-  const {
-    portfolioData,
-    calculations,
-    updateStakedAmount,
-    isLoading,
-    selectedYieldProvider,
-  } = useDashboardContext();
+  const { portfolioData, calculations, isLoading, selectedYieldProvider } =
+    useDashboardContext();
   const { convert } = usePrices();
   const [selectedChain, setSelectedChain] = useState<SupportedChain>("btc");
   const [amount, setAmount] = useState("");
@@ -40,12 +35,8 @@ export default function WithdrawTab() {
     setSelectedChain(chain);
   };
 
-  const handleSuccess = (
-    txHash: string,
-    chain: SupportedChain,
-    amount: string,
-  ) => {
-    console.log("Withdraw successful:", { txHash, chain, amount });
+  const handleSuccess = (chain: SupportedChain, amount: string) => {
+    console.log("Withdraw successful:", { chain, amount });
 
     // Reset form
     setAmount("");

@@ -61,14 +61,18 @@ import {
   BtcWithdrawalResponse,
   BtcWithdrawalSuccessResponse,
 } from "@/app/api/btc-withdrawal/types";
-import type { DepositIntentSuccessResponse } from "@/app/api/deposit-intent/types";
 import { useWalletBalance } from "@/hooks/dashboard/wallet-balance";
 
 type TransactionType = "deposit" | "withdraw";
 
 interface StakingFormProps {
   type: TransactionType;
-  onSuccess?: (txHash: string, chain: SupportedChain, amount: string) => void;
+  onSuccess?: (
+    chain: SupportedChain,
+    amount: string,
+    userPubKey?: string,
+    sourceAddress?: string,
+  ) => void;
   onAmountChange?: (amount: string, chain: SupportedChain) => void;
   defaultChain?: SupportedChain;
   dashboardData?: ReturnType<typeof useDashboardContext>;
@@ -133,7 +137,6 @@ export default function StakingForm({
     string | null
   >(null);
   const [psbtCalcFailed, setPsbtCalcFailed] = useState(false);
-  const [depositIntentId, setDepositIntentId] = useState<string | null>(null);
   const psbtDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Ensure selectedChain is always valid - recover if somehow set to invalid value
@@ -526,7 +529,8 @@ export default function StakingForm({
       }
 
       setStep("done");
-      onSuccess?.(txid, selectedChain, amount);
+      onSuccess?.(selectedChain, amount, cachedUserPublicKey, userAddress);
+
       setTxHash(txid);
 
       addToast({
@@ -563,6 +567,7 @@ export default function StakingForm({
       // Set the unsigned PSBT and go to psbt step for manual signing
       setPsbtBase64(unsignedTransactionData.psbt);
       setStep("psbt");
+      onSuccess?.(selectedChain, amount, cachedUserPublicKey, userAddress);
     }
   };
 
@@ -668,44 +673,6 @@ export default function StakingForm({
         provider_id: selectedYieldProvider?.provider_id,
         program_id: selectedYieldProvider?.program_id,
       });
-
-      if (
-        isDeposit &&
-        userPubKey &&
-        selectedYieldProvider?.provider_id &&
-        selectedYieldProvider?.program_id
-      ) {
-        const lockMs =
-          selectedYieldProvider!.locktime != null
-            ? selectedYieldProvider!.locktime * 1000
-            : 1000 * 60 * 5;
-
-        fetch("/api/deposit-intent", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            user_beneficiary_address: sourceAddress,
-            user_pubkey_hex: userPubKey,
-            provider_id: selectedYieldProvider!.provider_id,
-            program_id: selectedYieldProvider!.program_id,
-            amount_sats: Math.round(Number(amount) * 1e8),
-            alpha_bps: 2500, // 25 % escrow allocation
-            lock_ms: lockMs,
-          }),
-        })
-          .then((res) => (res.ok ? res.json() : Promise.reject(res.statusText)))
-          .then((intent: DepositIntentSuccessResponse) => {
-            setDepositIntentId(intent.deposit_id);
-            console.log("Deposit intent registered:", intent.deposit_id);
-          })
-          .catch((err) => {
-            // Non-fatal: the user can still sign & broadcast without a backend intent
-            console.warn(
-              "Deposit intent registration failed (non-fatal):",
-              err,
-            );
-          });
-      }
     } catch (err: any) {
       console.error("Error calculating PSBT:", err);
       // Don't show error for auto-calculation, just reset and mark as failed
@@ -729,7 +696,6 @@ export default function StakingForm({
     setBroadcastResult("");
     setTxHash("");
     setUnsignedTransactionData(null);
-    setDepositIntentId(null);
     setStep("form");
     setManualPublicKey("");
   };
@@ -750,7 +716,6 @@ export default function StakingForm({
     setBroadcastResult("");
     setTxHash("");
     setUnsignedTransactionData(null);
-    setDepositIntentId(null);
     setDepositAddress("");
     setIsCalculatingPsbt(false);
     setPsbtCalcFailed(false);
@@ -867,7 +832,7 @@ export default function StakingForm({
       updateTransactionStatus(transactionId, "completed", hash);
 
       setStep("done");
-      onSuccess?.(hash, selectedChain, amount);
+      onSuccess?.(selectedChain, amount);
 
       addToast({
         type: "success",
@@ -880,56 +845,6 @@ export default function StakingForm({
 
       // Update transaction as failed
       updateTransactionStatus(transactionId, "failed");
-    }
-    setLoading(false);
-  };
-
-  // Broadcast Bitcoin transaction using mempool.js
-  const handleBroadcast = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-
-    try {
-      const form = e.target as HTMLFormElement;
-      const signedHex = (form.signedHex as HTMLInputElement).value.trim();
-
-      // Initialize mempool.js client for broadcasting
-      const mempool = getMempoolClient();
-
-      console.log("Broadcasting transaction");
-
-      // Broadcast transaction using mempool.js
-      const txid = await mempool.bitcoin.transactions.postTx({
-        txhex: signedHex,
-      });
-
-      // Ensure txid is a string
-      const txidStr = typeof txid === "string" ? txid : String(txid);
-
-      console.log("Transaction broadcast successfully:", txidStr);
-
-      setBroadcastResult(txidStr);
-
-      // Update dashboard with successful transaction
-      updateStakedAmount(selectedChain as SupportedChain, Number(amount), type);
-
-      // Update transaction status
-      if (pendingTransactionId) {
-        updateTransactionStatus(pendingTransactionId, "completed", txidStr);
-      }
-
-      setStep("done");
-      onSuccess?.(txidStr, selectedChain, amount);
-    } catch (err: any) {
-      console.error("Broadcast error:", err);
-      const errorMessage = err.message || "Broadcast error";
-      setError(errorMessage);
-
-      // Update transaction as failed
-      if (pendingTransactionId) {
-        updateTransactionStatus(pendingTransactionId, "failed");
-      }
     }
     setLoading(false);
   };
@@ -1333,64 +1248,65 @@ export default function StakingForm({
     </form>
   );
 
-  const renderPsbtStep = () => (
-    <PsbtSigning
-      psbtBase64={psbtBase64}
-      targetAddress={isDeposit ? depositAddress : withdrawAddress}
-      expectedAmount={Math.floor(Number(amount) * 1e8)}
-      chain={selectedChain as "btc" | "btc_testnet"}
-      onTransactionFound={(txid) => {
-        console.log("Transaction found:", txid);
-        setBroadcastResult(txid);
+  const renderPsbtStep = () => {
+    return (
+      <PsbtSigning
+        psbtBase64={psbtBase64}
+        targetAddress={isDeposit ? depositAddress : withdrawAddress}
+        expectedAmount={Math.floor(Number(amount) * 1e8)}
+        chain={selectedChain as "btc" | "btc_testnet"}
+        onTransactionFound={(txid) => {
+          console.log("Transaction found:", txid);
+          setBroadcastResult(txid);
 
-        // Save locktime for future withdrawal transactions (only for deposits)
-        if (isDeposit && unsignedTransactionData?.locktime) {
-          setSavedLocktime(unsignedTransactionData.locktime);
-          console.log(
-            "Saved locktime for withdrawal:",
-            unsignedTransactionData.locktime,
-          );
-        }
+          // Save locktime for future withdrawal transactions (only for deposits)
+          if (isDeposit && unsignedTransactionData?.locktime) {
+            setSavedLocktime(unsignedTransactionData.locktime);
+            console.log(
+              "Saved locktime for withdrawal:",
+              unsignedTransactionData.locktime,
+            );
+          }
 
-        // Update dashboard with successful transaction
-        try {
-          updateStakedAmount(
-            selectedChain as SupportedChain,
-            Number(amount),
-            type,
-          );
-        } catch (error) {
-          console.error("Error updating staked amount:", error);
-        }
+          // Update dashboard with successful transaction
+          try {
+            updateStakedAmount(
+              selectedChain as SupportedChain,
+              Number(amount),
+              type,
+            );
+          } catch (error) {
+            console.error("Error updating staked amount:", error);
+          }
 
-        // Update transaction status
-        if (pendingTransactionId) {
-          updateTransactionStatus(
-            pendingTransactionId,
-            "completed",
-            txid,
-            isDeposit && unsignedTransactionData?.locktime
-              ? { locktime: unsignedTransactionData.locktime }
-              : undefined,
-          );
-        }
+          // Update transaction status
+          if (pendingTransactionId) {
+            updateTransactionStatus(
+              pendingTransactionId,
+              "completed",
+              txid,
+              isDeposit && unsignedTransactionData?.locktime
+                ? { locktime: unsignedTransactionData.locktime }
+                : undefined,
+            );
+          }
 
-        setStep("done");
-        onSuccess?.(txid, selectedChain, amount);
-      }}
-      onError={(error) => {
-        console.error("Transaction watching error:", error);
-        setError(error);
+          setStep("done");
+        }}
+        onError={(error) => {
+          console.error("Transaction watching error:", error);
+          setError(error);
 
-        // Update transaction as failed
-        if (pendingTransactionId) {
-          updateTransactionStatus(pendingTransactionId, "failed");
-        }
-      }}
-      title={`Sign ${isDeposit ? "Deposit" : "Withdrawal"} Transaction`}
-      description={`Complete your ${amount} ${config.symbol} ${type} by signing the transaction below`}
-    />
-  );
+          // Update transaction as failed
+          if (pendingTransactionId) {
+            updateTransactionStatus(pendingTransactionId, "failed");
+          }
+        }}
+        title={`Sign ${isDeposit ? "Deposit" : "Withdrawal"} Transaction`}
+        description={`Complete your ${amount} ${config.symbol} ${type} by signing the transaction below`}
+      />
+    );
+  };
 
   const renderDoneStep = () => (
     <div className="space-y-4">
