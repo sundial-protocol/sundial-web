@@ -17,7 +17,7 @@ const CoreTeamMembers: TeamMemberType[] = [
     name: "Michael Yagi",
     role: "Developer & Ecosystem",
     image: "/team/michael.jpg",
-    link: "https://x.com/gubguub",
+    link: "https://x.com/Larserthanlife",
     description: "Founder of Ikigai Technologies",
     bio: `Michael Yagi is a technology entrepreneur and creative director focused on bridging
       advanced infrastructure with engaging user experiences. Drawing on his experience as one
