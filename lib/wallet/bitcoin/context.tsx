@@ -2,7 +2,7 @@
 
 import { bitcoinAdapter, projectId, networks } from "./config";
 import { createAppKit } from "@reown/appkit/react";
-import React, { type ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 
 if (!projectId) {
   throw new Error("Project ID is not defined");
@@ -16,24 +16,29 @@ const metadata = {
   icons: ["https://avatars.githubusercontent.com/u/179229932"],
 };
 
-// Create the modal
-export const modal = createAppKit({
-  adapters: [bitcoinAdapter],
-  projectId,
-  networks,
-  metadata,
-  themeMode: "light",
-  features: {
-    analytics: true, // Optional - defaults to your Cloud configuration
-    socials: [],
-    email: false,
-  },
-  themeVariables: {
-    "--w3m-accent": "#000000",
-  },
-});
+function initModal() {
+  return createAppKit({
+    adapters: [bitcoinAdapter],
+    projectId,
+    networks,
+    metadata,
+    themeMode: "light",
+    features: {
+      analytics: true, // Optional - defaults to your Cloud configuration
+      socials: [],
+      email: false,
+    },
+    themeVariables: {
+      "--w3m-accent": "#000000",
+    },
+  });
+}
 
 function ContextProvider({ children }: { children: ReactNode }) {
+  const modalRef = useRef<ReturnType<typeof createAppKit> | null>(null);
+  if (!modalRef.current) {
+    modalRef.current = initModal();
+  }
   return <>{children}</>;
 }
 
