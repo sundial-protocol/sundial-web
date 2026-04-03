@@ -19,7 +19,9 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StakeHero } from "./stake-hero";
 import { Section } from "@/components/ui/section";
-import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
+import SunbeamBackground, {
+  sunbeamGradient,
+} from "@/components/ui/sunbeam/sunbeam-bg";
 import MaintenanceSunset from "@/components/reusable-sections/maintenance-sunset/maintenance-sunset";
 import { Flags } from "@/lib/flags";
 
@@ -52,7 +54,7 @@ function PageContent() {
   }
 
   const [selectedValidator, setSelectedValidator] = useState(
-    validatorId ? Number.parseInt(validatorId) : null
+    validatorId ? Number.parseInt(validatorId) : null,
   );
   const [amount, setAmount] = useState("");
   const [step, setStep] = useState(1);
@@ -81,17 +83,10 @@ function PageContent() {
         beams={[
           {
             styles: {
-              content: '""',
-              position: "absolute",
-              left: "0",
               top: "150px",
-              width: "100%",
-              height: "600px", // Match the height of the triangle
-              background:
-                " linear-gradient(to bottom right, hsl(var(--primary)) 0%, hsl(var(--primary)) 40%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 80%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)",
-              clipPath: "polygon(-90% 100%, 100% 0%, 100% 66%)", // Triangle shape
-              zIndex: "-1",
-              opacity: "0.3",
+              height: "600px",
+              background: sunbeamGradient("to bottom right"),
+              clipPath: "polygon(-90% 100%, 100% 0%, 100% 66%)",
             },
           },
         ]}
@@ -202,13 +197,13 @@ function PageContent() {
                                   You are about to stake with{" "}
                                   {
                                     validators.find(
-                                      (v) => v.id === selectedValidator
+                                      (v) => v.id === selectedValidator,
                                     )?.name
                                   }
                                   . The current APY is{" "}
                                   {
                                     validators.find(
-                                      (v) => v.id === selectedValidator
+                                      (v) => v.id === selectedValidator,
                                     )?.apy
                                   }
                                   %.
@@ -238,7 +233,7 @@ function PageContent() {
                                 <span>
                                   {
                                     validators.find(
-                                      (v) => v.id === selectedValidator
+                                      (v) => v.id === selectedValidator,
                                     )?.name
                                   }
                                 </span>
@@ -252,7 +247,7 @@ function PageContent() {
                                 <span className="text-green-600">
                                   {
                                     validators.find(
-                                      (v) => v.id === selectedValidator
+                                      (v) => v.id === selectedValidator,
                                     )?.apy
                                   }
                                   %
@@ -265,7 +260,7 @@ function PageContent() {
                                 <span>
                                   {
                                     validators.find(
-                                      (v) => v.id === selectedValidator
+                                      (v) => v.id === selectedValidator,
                                     )?.commission
                                   }
                                   %

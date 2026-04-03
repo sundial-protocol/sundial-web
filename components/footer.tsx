@@ -88,7 +88,7 @@ export default function Footer() {
             <a
               href="https://maps.app.goo.gl/1krXDddHRz4xJZFd7"
               target="_blank"
-              className="text-sm text-gray-500"
+              className="text-sm text-gray-500 underline"
             >
               <p className="pt-4">SUNDIAL PROTOCOL PTE. LTD.</p>
               <p>1 NORTH BRIDGE ROAD #24-02</p>

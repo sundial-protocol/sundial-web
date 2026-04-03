@@ -1,6 +1,8 @@
 "use client";
 
-import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
+import SunbeamBackground, {
+  SUNBEAM_COLOR,
+} from "@/components/ui/sunbeam/sunbeam-bg";
 import { NewsCard } from "@/hooks/get-news";
 import { Section } from "@/components/ui/section";
 import { useEffect, useRef } from "react";
@@ -35,17 +37,10 @@ export function NewsTimeline({ newsItems }: { newsItems: NewsCard[] }) {
       beams={[
         {
           styles: {
-            content: '""',
-            position: "absolute",
-            left: "0",
             top: "150px",
-            width: "100%",
-            height: "700px", // Match the height of the triangle
-            background:
-              "linear-gradient(to bottom left, hsl(var(--primary)) 0%, hsl(var(--primary)) 20%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 70%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)",
-            clipPath: "polygon(100% 100%, 100% 0%, -90% 50%)", // Triangle shape
-            zIndex: "-1",
-            opacity: "0.3",
+            height: "700px",
+            background: `linear-gradient(to bottom left, ${SUNBEAM_COLOR} 0%, ${SUNBEAM_COLOR} 20%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 70%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)`,
+            clipPath: "polygon(100% 100%, 100% 0%, -90% 50%)",
           },
         },
       ]}
