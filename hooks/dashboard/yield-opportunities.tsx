@@ -107,7 +107,7 @@ export function useYieldOpportunities() {
   };
 }
 
-const TEST_PROVIDER_ID = "d70acddf-0ccd-4404-a493-ed21fcf2d1d6";
+const TEST_PROVIDER_ID = "c58a7871-44c5-4ad6-afda-1d9be062d620";
 
 // Mock yield opportunities data
 const yieldOpportunities: YieldOpportunity[] = [
@@ -120,7 +120,7 @@ const yieldOpportunities: YieldOpportunity[] = [
     type: "staking",
     risk: "Low",
     apy: 3.5,
-    minAmount: 0.01,
+    minAmount: 0.0001,
     payments: 12, // Number of payments per year
     publicKey: YIELD_PROVIDER_PUBKEY, // Example public key
     locktime: 604800, // 7 days in seconds

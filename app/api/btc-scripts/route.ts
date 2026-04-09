@@ -34,6 +34,7 @@ export async function POST(
     }
 
     const locker = new BTCLocker(network);
+    await locker.init();
 
     const timelockScript = await locker.createTimelockScript(
       locktime,

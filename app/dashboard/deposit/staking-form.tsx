@@ -26,6 +26,10 @@ import {
   ArrowUpRight,
   Wallet,
   AlertCircle,
+  Hash,
+  Clock,
+  TrendingUp,
+  Shield,
 } from "lucide-react";
 import {
   BTC_CHAIN_ID_MAINNET,
@@ -967,39 +971,182 @@ export default function StakingForm({
     />
   );
 
-  const renderDoneStep = () => (
-    <div className="space-y-4">
-      <div className="p-4 bg-green-100/20 border border-green-200 rounded-md">
-        <div className="flex items-center gap-2 text-green-700 font-medium mb-2">
-          <CheckCircle className="w-5 h-5" />
-          {getSuccessMessage()}
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm">Transaction Hash:</span>
-          <a
-            href={`${config?.explorerBaseUrl || "#"}${
-              config?.explorerTxSlug || ""
-            }${getCurrentTxHash()}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 underline text-sm font-mono flex items-center gap-1"
-          >
-            {getCurrentTxHash().slice(0, 20)}...
-            <ExternalLink className="w-3 h-3" />
-          </a>
-        </div>
-      </div>
+  const renderDoneStep = () => {
+    const completedTxHash = getCurrentTxHash();
+    const locktimeDays =
+      savedLocktime != null ? Math.round(savedLocktime / 86400) : null;
+    const completedAt = new Date().toLocaleString();
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Button onClick={resetForm} variant="outline">
-          Make Another {isDeposit ? "Deposit" : "Withdrawal"}
-        </Button>
-        <Button asChild>
-          <Link href="/dashboard?tab=portfolio">View Portfolio</Link>
-        </Button>
+    return (
+      <div className="space-y-4">
+        {/* Success Banner */}
+        <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+          <div className="flex items-center gap-3 text-green-600 font-semibold text-base mb-1">
+            <CheckCircle className="w-5 h-5 shrink-0" />
+            {getSuccessMessage()}
+          </div>
+          <p className="text-xs text-muted-foreground ml-8">{completedAt}</p>
+        </div>
+
+        {/* Transaction Details */}
+        <div className="border rounded-lg divide-y text-sm">
+          {/* Transaction ID */}
+          <div className="flex items-center justify-between px-4 py-3">
+            <span className="text-muted-foreground flex items-center gap-2">
+              <Hash className="w-3.5 h-3.5" />
+              Transaction ID
+            </span>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-xs">
+                {completedTxHash.slice(0, 12)}...{completedTxHash.slice(-8)}
+              </span>
+              <button
+                type="button"
+                onClick={() => copyToClipboard(completedTxHash)}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+                title="Copy transaction hash"
+              >
+                <Copy className="w-3.5 h-3.5" />
+              </button>
+              <a
+                href={`${config?.explorerBaseUrl || "#"}${
+                  config?.explorerTxSlug || ""
+                }${completedTxHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-blue-600 transition-colors"
+                title="View on block explorer"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
+          </div>
+
+          {/* Amount */}
+          <div className="flex items-center justify-between px-4 py-3">
+            <span className="text-muted-foreground">Amount</span>
+            <span className="font-semibold">
+              {Number(amount).toFixed(config?.decimals || 8)}{" "}
+              {config?.symbol || selectedChain}
+            </span>
+          </div>
+
+          {/* Network */}
+          <div className="flex items-center justify-between px-4 py-3">
+            <span className="text-muted-foreground">Network</span>
+            <span className="flex items-center gap-1.5 font-medium">
+              {config?.icon}
+              {config?.name || selectedChain}
+            </span>
+          </div>
+
+          {/* From address */}
+          {userAddress && (
+            <div className="flex items-center justify-between px-4 py-3">
+              <span className="text-muted-foreground flex items-center gap-2">
+                <ArrowUpRight className="w-3.5 h-3.5" />
+                From
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs">
+                  {userAddress.slice(0, 14)}...{userAddress.slice(-6)}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => copyToClipboard(userAddress)}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  title="Copy address"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Escrow / destination address */}
+          {isDeposit && escrowAddress && (
+            <div className="flex items-center justify-between px-4 py-3">
+              <span className="text-muted-foreground flex items-center gap-2">
+                <Shield className="w-3.5 h-3.5" />
+                Escrow Address
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs">
+                  {escrowAddress.slice(0, 14)}...{escrowAddress.slice(-6)}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => copyToClipboard(escrowAddress)}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  title="Copy escrow address"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          )}
+          {!isDeposit && withdrawAddress && (
+            <div className="flex items-center justify-between px-4 py-3">
+              <span className="text-muted-foreground flex items-center gap-2">
+                <ArrowDownLeft className="w-3.5 h-3.5" />
+                To Address
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs">
+                  {withdrawAddress.slice(0, 14)}...{withdrawAddress.slice(-6)}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => copyToClipboard(withdrawAddress)}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  title="Copy address"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Yield Provider */}
+          {isDeposit && selectedYieldProvider && (
+            <div className="flex items-center justify-between px-4 py-3">
+              <span className="text-muted-foreground flex items-center gap-2">
+                <TrendingUp className="w-3.5 h-3.5" />
+                Yield Provider
+              </span>
+              <div className="text-right">
+                <div className="font-medium">{selectedYieldProvider.name}</div>
+                <div className="text-xs text-green-600 font-semibold">
+                  {selectedYieldProvider.apy}% APY
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Lock Duration */}
+          {isDeposit && locktimeDays !== null && (
+            <div className="flex items-center justify-between px-4 py-3">
+              <span className="text-muted-foreground flex items-center gap-2">
+                <Clock className="w-3.5 h-3.5" />
+                Lock Duration
+              </span>
+              <span className="font-medium">{locktimeDays} days</span>
+            </div>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Button onClick={resetForm} variant="outline">
+            Make Another {isDeposit ? "Deposit" : "Withdrawal"}
+          </Button>
+          <Button asChild>
+            <Link href="/dashboard?tab=portfolio">View Portfolio</Link>
+          </Button>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderStepContent = () => {
     switch (step) {
