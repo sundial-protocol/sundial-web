@@ -51,18 +51,8 @@ import {
 import type { BitcoinConnector } from "@reown/appkit-adapter-bitcoin";
 import { useCardanoWallet } from "@/lib/wallet/cardano/context";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Psbt } from "bitcoinjs-lib";
-import {
-  BtcStakingResponse,
-  BtcStakingSuccessResponse,
-} from "@/app/api/btc-staking/types";
-import { finalizePsbtSafe } from "@/lib/psbt-finalize";
-import {
-  BtcWithdrawalResponse,
-  BtcWithdrawalSuccessResponse,
-} from "@/app/api/btc-withdrawal/types";
-import type { DepositIntentSuccessResponse } from "@/app/api/deposit-intent/types";
 import { useWalletBalance } from "@/hooks/dashboard/wallet-balance";
+import { useDepositFlow } from "@/hooks/dashboard/use-deposit-flow";
 
 type TransactionType = "deposit" | "withdraw";
 
@@ -86,6 +76,8 @@ export default function StakingForm({
     updateTransactionStatus,
     transactions,
     selectedYieldProvider,
+    setActiveProgram,
+    clearActiveProgram,
   } = useDashboardContext();
 
   const { addToast } = useToast();
@@ -112,29 +104,11 @@ export default function StakingForm({
   const [withdrawAddress, setWithdrawAddress] = useState("");
   const [depositAddress, setDepositAddress] = useState("");
   const [amount, setAmount] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [isUsingConnectedWallet, setIsUsingConnectedWallet] = useState(false);
   const [manualPublicKey, setManualPublicKey] = useState("");
-  const [psbtBase64, setPsbtBase64] = useState("");
-  const [broadcastResult, setBroadcastResult] = useState("");
-  const [unsignedTransactionData, setUnsignedTransactionData] = useState<
-    BtcStakingSuccessResponse | BtcWithdrawalSuccessResponse | null
-  >(null);
-  const [isCalculatingPsbt, setIsCalculatingPsbt] = useState(false);
-  const [step, setStep] = useState<"form" | "psbt" | "broadcast" | "done">(
-    "form",
-  );
-  const [txHash, setTxHash] = useState("");
   const [savedLocktime, setSavedLocktime] = useState<number | null>(null);
   const [cachedUserPublicKey, setCachedUserPublicKey] = useState("");
-  const [pendingTransactionId, setPendingTransactionId] = useState<
-    string | null
-  >(null);
-  const [psbtCalcFailed, setPsbtCalcFailed] = useState(false);
-  const [depositIntentId, setDepositIntentId] = useState<string | null>(null);
-  const psbtDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Ensure selectedChain is always valid - recover if somehow set to invalid value
   const validChain = chainConfigs[selectedChain] ? selectedChain : defaultChain;
@@ -284,6 +258,51 @@ export default function StakingForm({
     cardanoBalance,
   });
 
+  const depositFlow = useDepositFlow({
+    selectedChain,
+    userAddress,
+    withdrawAddress,
+    amount,
+    manualPublicKey,
+    isUsingConnectedWallet,
+    bitcoinAccounts,
+    bitcoinConnector,
+    isDeposit,
+    savedLocktime,
+    selectedYieldProvider,
+    setDepositAddress,
+    setSavedLocktime,
+    setActiveProgram,
+    clearActiveProgram,
+    addPendingTransaction,
+    updateTransactionStatus,
+    updateStakedAmount,
+    onSuccess,
+  });
+
+  const {
+    step,
+    setStep,
+    unsignedTransactionData,
+    psbtBase64,
+    broadcastResult,
+    txHash,
+    escrowAddress,
+    isCalculatingPsbt,
+    psbtCalcFailed,
+    loading,
+    error,
+    setError,
+    calculateUnsignedPsbt,
+    schedulePsbtCalc,
+    cancelPsbtCalc,
+    handleSignInBrowser,
+    handleCopyUnsignedPSBT,
+    handleTransactionFound,
+    resetFlow,
+    resetPsbtCalc,
+  } = depositFlow;
+
   const isAmountExceedsBalance =
     availableBalance !== null &&
     Number(amount) > 0 &&
@@ -318,71 +337,43 @@ export default function StakingForm({
     }
   }, [isDeposit, savedLocktime, transactions, selectedChain]);
 
-  // Auto-calculate PSBT when all fields are filled (Bitcoin only)
-  // Debounced to avoid rapid-fire requests; stops retrying after a failure
-  // until the user changes an input.
+  // Auto-calculate PSBT when all fields are filled (Bitcoin only).
+  // Delegates debouncing and the actual fetch to useDepositFlow.
   useEffect(() => {
-    const shouldCalculatePsbt = () => {
+    const shouldCalculate = () => {
+      // Deposits are prepared on demand when user clicks sign/copy
+      if (isDeposit) return false;
       if (selectedChain !== "btc" && selectedChain !== "btc_testnet")
         return false;
       if (step !== "form") return false;
       if (isCalculatingPsbt || unsignedTransactionData) return false;
       if (psbtCalcFailed) return false;
       if (!userAddress || !amount) return false;
-      if (!isDeposit && !withdrawAddress) return false;
+      if (!withdrawAddress) return false;
       if (Number(amount) < config.minDeposit) return false;
       if (isAmountExceedsBalance) return false;
       if (!userAddress.startsWith(config.addressPrefix)) return false;
-      if (!isDeposit && !withdrawAddress.startsWith(config.addressPrefix))
-        return false;
+      if (!withdrawAddress.startsWith(config.addressPrefix)) return false;
+      if (!savedLocktime) return false;
 
-      // For withdrawals, we need a saved locktime
-      if (!isDeposit && !savedLocktime) {
-        console.log(
-          "Cannot calculate withdrawal PSBT: No saved locktime available",
+      const trimmed = manualPublicKey?.trim() || "";
+      const hasManualKey =
+        trimmed.length === 66 && /^[0-9a-fA-F]{66}$/.test(trimmed);
+      const hasWalletKey =
+        isUsingConnectedWallet &&
+        (bitcoinAccounts || []).some(
+          (a) => a.address === userAddress && a.publicKey,
         );
-        return false;
-      }
-
-      // For Bitcoin, we need either a connected wallet with public key or manual public key
-      const getBTCPubKey = (address: string, accounts: AccountType[]) => {
-        for (const account of accounts) {
-          if (account.address === address && account.publicKey) {
-            return account.publicKey;
-          }
-        }
-        return null;
-      };
-
-      const sourceAddress = userAddress; // Always use userAddress for source
-      // Only use wallet public key if it matches the current address
-      const userPubKey = isUsingConnectedWallet
-        ? getBTCPubKey(sourceAddress, bitcoinAccounts || [])
-        : null;
-
-      // Must have either a wallet public key OR a valid manual public key
-      const trimmedManualPubKey = manualPublicKey?.trim() || "";
-      const hasValidManualPubKey =
-        trimmedManualPubKey.length === 66 &&
-        /^[0-9a-fA-F]{66}$/.test(trimmedManualPubKey);
-      const hasWalletPubKey = !!userPubKey;
-
-      if (!hasWalletPubKey && !hasValidManualPubKey) return false;
+      if (!hasManualKey && !hasWalletKey) return false;
 
       return true;
     };
 
-    if (shouldCalculatePsbt()) {
-      // Clear any pending debounce
-      if (psbtDebounceRef.current) clearTimeout(psbtDebounceRef.current);
-      psbtDebounceRef.current = setTimeout(() => {
-        calculateUnsignedPsbt();
-      }, 800);
+    if (shouldCalculate()) {
+      schedulePsbtCalc();
     }
 
-    return () => {
-      if (psbtDebounceRef.current) clearTimeout(psbtDebounceRef.current);
-    };
+    return cancelPsbtCalc;
   }, [
     selectedChain,
     userAddress,
@@ -397,16 +388,11 @@ export default function StakingForm({
     unsignedTransactionData,
     savedLocktime,
     psbtCalcFailed,
+    selectedYieldProvider,
+    isUsingConnectedWallet,
+    schedulePsbtCalc,
+    cancelPsbtCalc,
   ]);
-
-  // Initialize mempool.js client based on selected chain
-  const getMempoolClient = () => {
-    const isTestnet = selectedChain === "btc_testnet";
-    return mempoolJS({
-      hostname: isTestnet ? "mempool.space" : "mempool.space",
-      network: isTestnet ? "testnet" : "main",
-    });
-  };
 
   const copyToClipboard = async (
     text: string,
@@ -425,313 +411,17 @@ export default function StakingForm({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleSignInBrowser = async () => {
-    if (!unsignedTransactionData) return;
-
-    const { psbt } = unsignedTransactionData as BtcStakingSuccessResponse;
-
-    setLoading(true);
-    setError(null);
-
-    const transactionId = addPendingTransaction(
-      selectedChain as SupportedChain,
-      Number(amount),
-      type,
-    );
-    setPendingTransactionId(transactionId);
-
-    try {
-      // Ask wallet to sign (empty signInputs → wallet auto-finalizes)
-      const psbtResponse = await bitcoinConnector?.signPSBT({
-        psbt,
-        signInputs: [],
-      });
-
-      if (!psbtResponse?.psbt) {
-        throw new Error("Wallet returned no PSBT data");
-      }
-
-      const signedPsbt = Psbt.fromBase64(psbtResponse.psbt);
-
-      // Finalize if the wallet didn't auto-finalize
-      const alreadyFinalized = signedPsbt.data.inputs.every(
-        (inp) =>
-          (inp.finalScriptSig && inp.finalScriptSig.length > 0) ||
-          (inp.finalScriptWitness && inp.finalScriptWitness.length > 0),
-      );
-
-      if (!alreadyFinalized) {
-        const finalized = finalizePsbtSafe(signedPsbt);
-        if (!finalized) {
-          throw new Error("Could not finalize the signed transaction.");
-        }
-      }
-
-      // Extract raw transaction and broadcast
-      const rawTx = signedPsbt.extractTransaction();
-      const txHex = rawTx.toHex();
-
-      setPsbtBase64(signedPsbt.toBase64());
-
-      const broadcastResponse = await fetch("/api/btc-broadcast", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rawTx: txHex }),
-      });
-
-      if (!broadcastResponse.ok) {
-        const errorData = await broadcastResponse.json();
-        throw new Error(
-          errorData.details ||
-            errorData.error ||
-            "Failed to broadcast transaction",
-        );
-      }
-
-      const broadcastResult = await broadcastResponse.json();
-      const txid = broadcastResult.txid;
-
-      setBroadcastResult(txid);
-
-      // Save locktime for future withdrawal transactions (only for deposits)
-      if (isDeposit && unsignedTransactionData?.locktime) {
-        setSavedLocktime(unsignedTransactionData.locktime);
-        console.log(
-          "Saved locktime for withdrawal:",
-          unsignedTransactionData.locktime,
-        );
-      }
-
-      // Update dashboard with successful transaction
-      try {
-        updateStakedAmount(
-          selectedChain as SupportedChain,
-          Number(amount),
-          type,
-        );
-      } catch (error) {
-        console.error("Error updating staked amount:", error);
-      }
-
-      // Update transaction status
-      if (pendingTransactionId) {
-        updateTransactionStatus(
-          pendingTransactionId,
-          "completed",
-          txid,
-          isDeposit && unsignedTransactionData?.locktime
-            ? { locktime: unsignedTransactionData.locktime }
-            : undefined,
-        );
-      }
-
-      setStep("done");
-      onSuccess?.(txid, selectedChain, amount);
-      setTxHash(txid);
-
-      addToast({
-        type: "success",
-        title: "Transaction Successful",
-        message: `${amount} ${config?.symbol} ${type} completed successfully`,
-      });
-    } catch (err: any) {
-      console.error("Sign/broadcast error:", err?.message);
-      const errorMessage =
-        err.message || "Error signing transaction in browser";
-      setError(errorMessage);
-
-      // Update transaction as failed
-      if (pendingTransactionId) {
-        updateTransactionStatus(pendingTransactionId, "failed");
-      }
-    }
-    setLoading(false);
-  };
-
-  const handleCopyUnsignedPSBT = () => {
-    if (unsignedTransactionData?.psbt) {
-      copyToClipboard(unsignedTransactionData.psbt, "psbt");
-
-      // Add pending transaction to dashboard
-      const transactionId = addPendingTransaction(
-        selectedChain as SupportedChain,
-        Number(amount),
-        type,
-      );
-      setPendingTransactionId(transactionId);
-
-      // Set the unsigned PSBT and go to psbt step for manual signing
-      setPsbtBase64(unsignedTransactionData.psbt);
-      setStep("psbt");
-    }
-  };
-
-  const calculateUnsignedPsbt = async () => {
-    if (isCalculatingPsbt) return;
-
-    setIsCalculatingPsbt(true);
-    setError(null);
-
-    try {
-      const sourceAddress = userAddress; // Always use userAddress for source
-
-      const getBTCPubKey = (address: string, accounts: AccountType[]) => {
-        for (const account of accounts) {
-          if (account.address === address && account.publicKey) {
-            return account.publicKey;
-          }
-        }
-        return null;
-      };
-
-      // Only use wallet public key if using connected wallet and it matches the address
-      let userPubKey = isUsingConnectedWallet
-        ? getBTCPubKey(sourceAddress, bitcoinAccounts || [])
-        : null;
-
-      // If no wallet public key, use manual public key (must be validated)
-      if (!userPubKey) {
-        const trimmedManualPubKey = manualPublicKey?.trim() || "";
-        if (
-          trimmedManualPubKey.length !== 66 ||
-          !/^[0-9a-fA-F]{66}$/.test(trimmedManualPubKey)
-        ) {
-          console.log(trimmedManualPubKey);
-          setIsCalculatingPsbt(false);
-          return;
-        }
-        userPubKey = trimmedManualPubKey;
-      }
-
-      const apiEndpoint = isDeposit
-        ? "/api/btc-staking"
-        : "/api/btc-withdrawal";
-      const requestBody = isDeposit
-        ? {
-            sourceAddress: sourceAddress,
-            amount: amount,
-            userPublicKey: userPubKey,
-            network: selectedChain === "btc_testnet" ? "testnet" : "bitcoin",
-            locktime: Math.floor(
-              (Date.now() +
-                (selectedYieldProvider?.locktime != null
-                  ? selectedYieldProvider.locktime * 1000
-                  : 1000 * 60 * 5)) /
-                1000,
-            ),
-          }
-        : {
-            withdrawAddress: withdrawAddress,
-            amount: amount,
-            userPublicKey: userPubKey,
-            network: selectedChain === "btc_testnet" ? "testnet" : "bitcoin",
-            locktime: savedLocktime,
-          };
-
-      const response = await fetch(apiEndpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.details ||
-            errorData.error ||
-            "Failed to create transaction",
-        );
-      }
-
-      const data: BtcStakingResponse | BtcWithdrawalResponse =
-        await response.json();
-      if (!("success" in data) || !data.success) {
-        throw new Error(
-          "error" in data ? data.error : "Failed to create transaction",
-        );
-      }
-      console.log("Unsigned transaction calculated:", data);
-      setUnsignedTransactionData(data);
-
-      // Populate depositAddress from staking response so PsbtSigning can watch it
-      if (isDeposit && "timelockScript" in data) {
-        setDepositAddress(data.timelockScript.address);
-      }
-
-      // Register deposit intent with backend (non-blocking — don't fail the
-      // PSBT flow if the backend is unavailable or the provider isn't configured)
-      console.log("Deposit intent check:", {
-        isDeposit,
-        userPubKey: !!userPubKey,
-        provider_id: selectedYieldProvider?.provider_id,
-        program_id: selectedYieldProvider?.program_id,
-      });
-
-      if (
-        isDeposit &&
-        userPubKey &&
-        selectedYieldProvider?.provider_id &&
-        selectedYieldProvider?.program_id
-      ) {
-        const lockMs =
-          selectedYieldProvider!.locktime != null
-            ? selectedYieldProvider!.locktime * 1000
-            : 1000 * 60 * 5;
-
-        fetch("/api/deposit-intent", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            user_beneficiary_address: sourceAddress,
-            user_pubkey_hex: userPubKey,
-            provider_id: selectedYieldProvider!.provider_id,
-            program_id: selectedYieldProvider!.program_id,
-            amount_sats: Math.round(Number(amount) * 1e8),
-            alpha_bps: 2500, // 25 % escrow allocation
-            lock_ms: lockMs,
-          }),
-        })
-          .then((res) => (res.ok ? res.json() : Promise.reject(res.statusText)))
-          .then((intent: DepositIntentSuccessResponse) => {
-            setDepositIntentId(intent.deposit_id);
-            console.log("Deposit intent registered:", intent.deposit_id);
-          })
-          .catch((err) => {
-            // Non-fatal: the user can still sign & broadcast without a backend intent
-            console.warn(
-              "Deposit intent registration failed (non-fatal):",
-              err,
-            );
-          });
-      }
-    } catch (err: any) {
-      console.error("Error calculating PSBT:", err);
-      // Don't show error for auto-calculation, just reset and mark as failed
-      // so we don't retry until the user changes an input
-      setUnsignedTransactionData(null);
-      setPsbtCalcFailed(true);
-    }
-
-    setIsCalculatingPsbt(false);
+  const wrappedHandleCopyUnsignedPSBT = async () => {
+    const psbt = await handleCopyUnsignedPSBT();
+    if (psbt) copyToClipboard(psbt, "psbt");
   };
 
   const resetForm = () => {
-    // Don't reset userAddress if using connected wallet
-    if (!isUsingConnectedWallet) {
-      setUserAddress("");
-    }
+    if (!isUsingConnectedWallet) setUserAddress("");
     setWithdrawAddress("");
     setAmount("");
-    setError(null);
-    setPsbtBase64("");
-    setBroadcastResult("");
-    setTxHash("");
-    setUnsignedTransactionData(null);
-    setDepositIntentId(null);
-    setStep("form");
     setManualPublicKey("");
+    resetFlow();
   };
 
   const handleChainChange = (chain: SupportedChain) => {
@@ -741,21 +431,13 @@ export default function StakingForm({
       return;
     }
     setSelectedChain(chain);
-    setUserAddress(""); // Reset address when changing chains
+    setUserAddress("");
     setIsUsingConnectedWallet(false);
     setWithdrawAddress("");
     setAmount("");
-    setError(null);
-    setPsbtBase64("");
-    setBroadcastResult("");
-    setTxHash("");
-    setUnsignedTransactionData(null);
-    setDepositIntentId(null);
     setDepositAddress("");
-    setIsCalculatingPsbt(false);
-    setPsbtCalcFailed(false);
-    setStep("form");
     setManualPublicKey("");
+    resetFlow();
 
     // Check for connected wallet on new chain after a brief delay
     setTimeout(() => {
@@ -769,16 +451,13 @@ export default function StakingForm({
 
   const handleAmountChange = (value: string) => {
     setAmount(value);
-    setUnsignedTransactionData(null);
-    setPsbtCalcFailed(false);
+    resetPsbtCalc();
     onAmountChange?.(value, selectedChain);
   };
 
   const handleAddressChange = (value: string) => {
     setUserAddress(value);
-    setUnsignedTransactionData(null);
-    setPsbtCalcFailed(false);
-    // If user manually changes address, mark as not using connected wallet
+    resetPsbtCalc();
     if (isUsingConnectedWallet && value !== getConnectedWalletAddress()) {
       setIsUsingConnectedWallet(false);
       addToast({
@@ -792,19 +471,16 @@ export default function StakingForm({
 
   const handleWithdrawAddressChange = (value: string) => {
     setWithdrawAddress(value);
-    setUnsignedTransactionData(null);
-    setPsbtCalcFailed(false);
+    resetPsbtCalc();
   };
 
   const handleManualPublicKeyChange = (value: string) => {
     setManualPublicKey(value);
-    // Cache the user's manually entered public key if it's valid
     if (value.trim().length === 66 && /^[0-9a-fA-F]{66}$/.test(value.trim())) {
       setCachedUserPublicKey(value.trim());
     }
-    setUnsignedTransactionData(null); // Reset PSBT when public key changes
     setDepositAddress("");
-    setPsbtCalcFailed(false);
+    resetPsbtCalc();
   };
 
   const handleUseConnectedWallet = () => {
@@ -820,31 +496,20 @@ export default function StakingForm({
     }
   };
 
-  // Bitcoin transaction logic - now just handles the signing choice
+  // Bitcoin form submission — actual signing is handled by the buttons below
   const handleBtcTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!unsignedTransactionData) {
       setError(
         "Transaction not ready. Please ensure all fields are filled correctly.",
       );
-      return;
     }
-
-    // Add pending transaction to dashboard
-    const transactionId = addPendingTransaction(
-      selectedChain as SupportedChain,
-      Number(amount),
-      type,
-    );
-    setPendingTransactionId(transactionId);
   };
 
   // ADA transaction logic
   const handleAdaTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setLoading(true);
 
     // Add pending transaction to dashboard
     const transactionId = addPendingTransaction(
@@ -852,13 +517,11 @@ export default function StakingForm({
       Number(amount),
       type,
     );
-    setPendingTransactionId(transactionId);
 
     try {
       // Placeholder for Cardano transaction logic
       await new Promise((resolve) => setTimeout(resolve, 2000));
       const hash = `cardano_${type}_${Date.now()}`;
-      setTxHash(hash);
 
       // Update dashboard with successful transaction
       updateStakedAmount(selectedChain as SupportedChain, Number(amount), type);
@@ -881,57 +544,6 @@ export default function StakingForm({
       // Update transaction as failed
       updateTransactionStatus(transactionId, "failed");
     }
-    setLoading(false);
-  };
-
-  // Broadcast Bitcoin transaction using mempool.js
-  const handleBroadcast = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-
-    try {
-      const form = e.target as HTMLFormElement;
-      const signedHex = (form.signedHex as HTMLInputElement).value.trim();
-
-      // Initialize mempool.js client for broadcasting
-      const mempool = getMempoolClient();
-
-      console.log("Broadcasting transaction");
-
-      // Broadcast transaction using mempool.js
-      const txid = await mempool.bitcoin.transactions.postTx({
-        txhex: signedHex,
-      });
-
-      // Ensure txid is a string
-      const txidStr = typeof txid === "string" ? txid : String(txid);
-
-      console.log("Transaction broadcast successfully:", txidStr);
-
-      setBroadcastResult(txidStr);
-
-      // Update dashboard with successful transaction
-      updateStakedAmount(selectedChain as SupportedChain, Number(amount), type);
-
-      // Update transaction status
-      if (pendingTransactionId) {
-        updateTransactionStatus(pendingTransactionId, "completed", txidStr);
-      }
-
-      setStep("done");
-      onSuccess?.(txidStr, selectedChain, amount);
-    } catch (err: any) {
-      console.error("Broadcast error:", err);
-      const errorMessage = err.message || "Broadcast error";
-      setError(errorMessage);
-
-      // Update transaction as failed
-      if (pendingTransactionId) {
-        updateTransactionStatus(pendingTransactionId, "failed");
-      }
-    }
-    setLoading(false);
   };
 
   const isFormValid = () => {
@@ -953,9 +565,7 @@ export default function StakingForm({
     }
   };
 
-  const getCurrentTxHash = () => {
-    return selectedChain === "btc" ? broadcastResult : txHash;
-  };
+  const getCurrentTxHash = () => txHash || broadcastResult;
 
   const getFormTitle = () => {
     return isDeposit ? "Deposit to Portfolio" : "Withdraw from Portfolio";
@@ -1261,8 +871,8 @@ export default function StakingForm({
         )}
       </div>
 
-      {/* PSBT Calculation Status (Bitcoin only) */}
-      {isBtcChain && isCalculatingPsbt && (
+      {/* PSBT Calculation Status (Bitcoin withdrawals only) */}
+      {isBtcChain && !isDeposit && isCalculatingPsbt && (
         <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
           <div className="flex items-center gap-2 text-blue-700">
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700"></div>
@@ -1281,21 +891,29 @@ export default function StakingForm({
               type="button"
               onClick={handleSignInBrowser}
               disabled={
-                loading || !unsignedTransactionData || isAmountExceedsBalance
+                loading ||
+                (isDeposit ? !isFormValid() : !unsignedTransactionData) ||
+                isAmountExceedsBalance
               }
               className="flex items-center gap-2"
             >
               <Wallet className="w-4 h-4" />
               {loading
-                ? "Signing..."
+                ? isDeposit
+                  ? "Preparing..."
+                  : "Signing..."
                 : `Sign & ${isDeposit ? "Deposit" : "Withdraw"}`}
             </Button>
 
             <Button
               type="button"
               variant="outline"
-              onClick={handleCopyUnsignedPSBT}
-              disabled={!unsignedTransactionData || isAmountExceedsBalance}
+              onClick={wrappedHandleCopyUnsignedPSBT}
+              disabled={
+                loading ||
+                (isDeposit ? !isFormValid() : !unsignedTransactionData) ||
+                isAmountExceedsBalance
+              }
               className="flex items-center gap-2"
             >
               <Copy className="w-4 h-4" />
@@ -1336,56 +954,13 @@ export default function StakingForm({
   const renderPsbtStep = () => (
     <PsbtSigning
       psbtBase64={psbtBase64}
-      targetAddress={isDeposit ? depositAddress : withdrawAddress}
+      targetAddress={isDeposit ? escrowAddress : withdrawAddress}
       expectedAmount={Math.floor(Number(amount) * 1e8)}
       chain={selectedChain as "btc" | "btc_testnet"}
-      onTransactionFound={(txid) => {
-        console.log("Transaction found:", txid);
-        setBroadcastResult(txid);
-
-        // Save locktime for future withdrawal transactions (only for deposits)
-        if (isDeposit && unsignedTransactionData?.locktime) {
-          setSavedLocktime(unsignedTransactionData.locktime);
-          console.log(
-            "Saved locktime for withdrawal:",
-            unsignedTransactionData.locktime,
-          );
-        }
-
-        // Update dashboard with successful transaction
-        try {
-          updateStakedAmount(
-            selectedChain as SupportedChain,
-            Number(amount),
-            type,
-          );
-        } catch (error) {
-          console.error("Error updating staked amount:", error);
-        }
-
-        // Update transaction status
-        if (pendingTransactionId) {
-          updateTransactionStatus(
-            pendingTransactionId,
-            "completed",
-            txid,
-            isDeposit && unsignedTransactionData?.locktime
-              ? { locktime: unsignedTransactionData.locktime }
-              : undefined,
-          );
-        }
-
-        setStep("done");
-        onSuccess?.(txid, selectedChain, amount);
-      }}
-      onError={(error) => {
-        console.error("Transaction watching error:", error);
-        setError(error);
-
-        // Update transaction as failed
-        if (pendingTransactionId) {
-          updateTransactionStatus(pendingTransactionId, "failed");
-        }
+      onTransactionFound={handleTransactionFound}
+      onError={(err) => {
+        console.error("Transaction watching error:", err);
+        setError(err);
       }}
       title={`Sign ${isDeposit ? "Deposit" : "Withdrawal"} Transaction`}
       description={`Complete your ${amount} ${config.symbol} ${type} by signing the transaction below`}

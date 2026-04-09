@@ -54,9 +54,8 @@ export interface YieldOpportunity {
   publicKey: string; // Public key for the provider
   locktime: number; // unix duration for lockup in seconds
 
-  // backend IDs (optional – populated when backend providers are available)
+  // backend ID (optional – populated when backend providers are available)
   provider_id?: string; // UUID from btc-yield backend
-  program_id?: string; // UUID from btc-yield backend
 }
 
 export function useYieldOpportunities() {
@@ -108,6 +107,8 @@ export function useYieldOpportunities() {
   };
 }
 
+const TEST_PROVIDER_ID = "d70acddf-0ccd-4404-a493-ed21fcf2d1d6";
+
 // Mock yield opportunities data
 const yieldOpportunities: YieldOpportunity[] = [
   {
@@ -123,9 +124,7 @@ const yieldOpportunities: YieldOpportunity[] = [
     payments: 12, // Number of payments per year
     publicKey: YIELD_PROVIDER_PUBKEY, // Example public key
     locktime: 604800, // 7 days in seconds
-    // Mock UUIDs for testing deposit intent integration
-    provider_id: "45dc9946-5d5c-473e-a27c-56393a160096",
-    program_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    provider_id: TEST_PROVIDER_ID,
   },
   {
     id: 2,
@@ -140,9 +139,7 @@ const yieldOpportunities: YieldOpportunity[] = [
     payments: 12, // Number of payments per year
     publicKey: YIELD_PROVIDER_PUBKEY, // Example public key
     locktime: 60 * 60 * 24 * 30, // 30 days in seconds
-    // Mock UUIDs for testing deposit intent integration
-    provider_id: "45dc9946-5d5c-473e-a27c-56393a160096",
-    program_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    provider_id: TEST_PROVIDER_ID,
   },
   {
     id: 3,

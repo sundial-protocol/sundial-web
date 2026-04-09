@@ -62,6 +62,15 @@ export interface LendingTransaction extends LoggedTx {
 
 export type RiskEval = "Zero" | "Low" | "Medium" | "High";
 
+export interface ActiveProgram {
+  program_id: string;
+  provider_id: string;
+  name?: string;
+  expected_yield_bps?: number;
+  min_lock_ms?: number;
+  program_vault_address?: string;
+}
+
 // Types
 export interface PortfolioData {
   // Core Holdings (source of truth)
@@ -204,6 +213,11 @@ export function useDashboardData() {
   };
   const [selectedYieldProvider, setSelectedYieldProvider] =
     useState<YieldOpportunity | null>(null);
+  const [activeProgram, setActiveProgram] = useState<ActiveProgram | null>(
+    null,
+  );
+
+  const clearActiveProgram = () => setActiveProgram(null);
   const calculations = usePortfolioCalculations(
     portfolioData,
     selectedYieldProvider,
@@ -482,6 +496,11 @@ export function useDashboardData() {
     // Yield Provider Selection
     selectedYieldProvider,
     setSelectedYieldProvider,
+
+    // Active Program (ephemeral per-deposit, lives alongside selectedYieldProvider)
+    activeProgram,
+    setActiveProgram,
+    clearActiveProgram,
 
     // Wallet balances
     walletBalances,
