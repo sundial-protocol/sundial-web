@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { YIELD_PROVIDER_PUBKEY } from "@/lib/yield-provider";
+import type { ServerProvider } from "@/app/api/providers/types";
 
 export function getLockPeriod(locktime: number): string {
   if (locktime <= 0) {
@@ -59,10 +60,29 @@ export interface YieldOpportunity {
 }
 
 export function useYieldOpportunities() {
-  const [opportunities, setOpportunities] =
-    useState<YieldOpportunity[]>(yieldOpportunities);
-  const [isLoading, setIsLoading] = useState(false);
+  const [opportunities, setOpportunities] = useState<YieldOpportunity[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchOpportunities() {
+      try {
+        setIsLoading(true);
+        const res = await fetch("/api/providers");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const providers: ServerProvider[] = await res.json();
+        setOpportunities(mapProvidersToOpportunities(providers));
+      } catch (err: any) {
+        console.error("Failed to fetch yield opportunities:", err);
+        setError(err.message ?? "Failed to load opportunities");
+        // Fall back to static mock data so the UI remains usable
+        setOpportunities(fallbackOpportunities);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchOpportunities();
+  }, []);
 
   const filterOpportunities = (
     type?: "staking" | "lending" | "liquidity" | "alternative",
@@ -107,10 +127,82 @@ export function useYieldOpportunities() {
   };
 }
 
-const TEST_PROVIDER_ID = "c58a7871-44c5-4ad6-afda-1d9be062d620";
+const TEST_PROVIDER_ID = "392fbb9d-55e7-4d54-ac2e-3f4ac32be37e";
+
+// ---------------------------------------------------------------------------
+// Server → YieldOpportunity mapping
+// ---------------------------------------------------------------------------
+
+/**
+ * Map the GET /v1/providers response to the local YieldOpportunity shape.
+ *
+ * Fields that are not returned by the server are noted with MOCKED and listed
+ * in the hook file comment below.
+ */
+function mapProvidersToOpportunities(
+  providers: ServerProvider[],
+): YieldOpportunity[] {
+  const opportunities: YieldOpportunity[] = [];
+  let index = 1;
+
+  for (const provider of providers) {
+    for (const program of provider.programs) {
+      opportunities.push({
+        // ── From server ──────────────────────────────────────────────────────
+        id: index++,
+        name: provider.name,
+        description: program.description ?? "",
+        provider: provider.name,
+        apy: program.expected_yield_bps / 100, // bps → percentage
+        locktime: program.min_lock_ms / 1000, // ms → seconds
+        provider_id: provider.provider_id,
+
+        // ── MOCKED – not currently returned by GET /v1/providers ─────────────
+        // See the comment block at the bottom of this file for full details.
+        totalLocked: 0,
+        type: "staking",
+        risk: "Low",
+        minAmount: 0.0001,
+        payments: 12,
+        publicKey: YIELD_PROVIDER_PUBKEY,
+      });
+    }
+  }
+
+  return opportunities;
+}
+
+// ---------------------------------------------------------------------------
+// Fallback mock data (used when the server is unreachable)
+// ---------------------------------------------------------------------------
+
+/*
+ * Fields that remain mocked even when live data is available:
+ *
+ *   - totalLocked  : total BTC locked in the program.
+ *                    The server does not currently aggregate this per program.
+ *   - type         : staking | lending | liquidity | alternative.
+ *                    The server has no category field. All live programs default
+ *                    to "staking".  Add a category to the program schema if
+ *                    other types are needed in the UI filter.
+ *   - risk         : Low | Medium | High.
+ *                    Not in the server schema.  Could be derived from program
+ *                    metadata or a separate lookup table.
+ *   - minAmount    : minimum deposit in BTC.
+ *                    The server tracks min_lock_ms (time), not a minimum amount.
+ *                    Consider adding min_amount_sats to the program schema.
+ *   - payments     : number of yield payments per year.
+ *                    Not in the server schema.  Relevant for the yield projection
+ *                    maths; consider adding a payment_frequency field.
+ *   - publicKey    : provider public key used to build PSBTs.
+ *                    GET /v1/providers returns program_vault_address (an address),
+ *                    not a raw public key.  The key is stored server-side as
+ *                    provider_pubkey_hex; exposing it in the providers response
+ *                    would allow the client to build PSBTs without a separate call.
+ */
 
 // Mock yield opportunities data
-const yieldOpportunities: YieldOpportunity[] = [
+const fallbackOpportunities: YieldOpportunity[] = [
   {
     id: 1,
     name: "Bitcoin Staking",
