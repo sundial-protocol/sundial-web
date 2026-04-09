@@ -182,7 +182,7 @@ export function useDepositFlow({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           provider_id: selectedYieldProvider.provider_id,
-          name: selectedYieldProvider.name,
+          name: selectedYieldProvider.name + "-" + Date.now().toLocaleString(), // Ensure unique name for testing
           description: selectedYieldProvider.description,
           expected_yield_bps: Math.round(selectedYieldProvider.apy * 100),
           min_lock_ms: locktime * 1000,
