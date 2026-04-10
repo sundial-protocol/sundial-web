@@ -129,11 +129,11 @@ export default function Navbar() {
           )}
 
           <NavLink
-            href="/technology"
+            href="/solution"
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
-            <FileCode2 className={navIconCn} />
-            {drawerOpen && <span className="text-sm">Technology</span>}
+            <BadgeCheck className={navIconCn} />
+            {drawerOpen && <span className="text-sm">Solution</span>}
           </NavLink>
           <NavLink
             href="/"

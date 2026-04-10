@@ -1,9 +1,10 @@
 import { HeroSection } from "@/components/ui/hero-section";
 import Image from "next/image";
 import { L2Architecture } from "./l2-architecture";
-import CoreTech from "./core-tech";
 import Partners from "@/components/reusable-sections/partners";
-import SecurityComparison from "./security-comparison";
+import { EnterpriseSolutions } from "../solutions/enterprise-solutions";
+import DawnTestnet from "./dawn-testnet";
+import UseCases from "../solutions/use-cases";
 
 export default function Home() {
   return (
@@ -30,9 +31,10 @@ export default function Home() {
         </section>
       </HeroSection>
 
+      <EnterpriseSolutions />
+      <DawnTestnet />
       <L2Architecture />
-      <CoreTech />
-      <SecurityComparison />
+      <UseCases />
       <Partners classes="py-8 w-3/4 mx-auto" />
     </div>
   );
