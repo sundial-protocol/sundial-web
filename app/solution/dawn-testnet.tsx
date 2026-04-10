@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Bitcoin, Lock, Coins } from "lucide-react";
 import { Section } from "@/components/ui/section";
+import { Flags } from "@/lib/flags";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 
 const highlights = [
@@ -55,7 +56,7 @@ export default function DawnTestnet() {
             <div className="mx-auto max-w-2xl text-center lg:mx-0 lg:text-left">
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
                 <span className="h-2 w-2 rounded-full bg-primary" />
-                New Release
+                {Flags.DISABLE_DASHBOARD ? "Upcoming" : "New"} Release
               </div>
               <div className="mt-6 space-y-4">
                 <p className="text-sm font-semibold uppercase tracking-[0.3em] text-foreground/60">
@@ -74,9 +75,14 @@ export default function DawnTestnet() {
               <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center sm:items-center lg:justify-start">
                 <Link
                   href="/dashboard"
-                  className="inline-flex h-12 items-center justify-center rounded-full bg-foreground px-8 text-base font-medium text-background transition-colors hover:bg-foreground/80"
+                  className={`inline-flex h-12 items-center justify-center rounded-full bg-foreground px-8 text-base font-medium text-background text-center whitespace-nowrap transition-colors${
+                    Flags.DISABLE_DASHBOARD
+                      ? " opacity-50 pointer-events-none cursor-not-allowed grayscale"
+                      : " hover:bg-foreground/80"
+                  }`}
+                  aria-disabled={Flags.DISABLE_DASHBOARD}
                 >
-                  Testnet
+                  {Flags.DISABLE_DASHBOARD ? "Coming Soon" : "Testnet"}
                 </Link>
                 <p className="text-sm text-foreground/60">
                   Live preview of the Bitcoin yield experience
