@@ -3,18 +3,9 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Section } from "@/components/ui/section";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
-
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import {
-  Building,
-  CloudLightning,
-  LockKeyholeIcon,
-  LucideALargeSmall,
-  LucideAlarmCheck,
-  Shield,
-} from "lucide-react";
-import Link from "next/link";
+import { Building2, LockKeyholeIcon, PiggyBank } from "lucide-react";
 
 type StepProps = {
   icon?: React.ComponentType<{ className?: string }>;
@@ -33,8 +24,35 @@ function Step({
   bulletPoints,
   backgroundImage,
 }: StepProps) {
+  const [scrollY, setScrollY] = useState(0);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (cardRef.current) {
+        const rect = cardRef.current.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        const cardCenter = rect.top + rect.height / 2;
+        const distanceFromCenter = Math.abs(windowHeight / 2 - cardCenter);
+        const maxDistance = windowHeight;
+        const scrollFactor = 1 - Math.min(distanceFromCenter / maxDistance, 1);
+        setScrollY(scrollFactor);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll(); // Initial call
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scale = 1 + scrollY * 0.5;
+
   return (
-    <Card className="rounded-lg overflow-hidden border-foreground shadow-xl shadow-black/50 relative">
+    <Card
+      ref={cardRef}
+      className="rounded-lg overflow-hidden border-foreground shadow-xl relative bg-black/30 "
+    >
       <Image
         src={backgroundImage}
         alt=""
@@ -42,11 +60,13 @@ function Step({
         width={600}
         height={1000}
         style={{
+          transform: `scale(${scale})`,
+          transition: "transform 0.1s ease-out",
           filter: "brightness(0.6)", // 40% darker
         }}
       />
 
-      <CardHeader className="flex flex-row items-center justify-left p-4 bg-black/40 bg-blur-none relative z-10">
+      <CardHeader className="flex flex-row items-center justify-left p-4 bg-blur-none relative z-10">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/30">
           {Icon && <Icon className="h-6 w-6 text-white" />}
           {image && (
@@ -61,8 +81,8 @@ function Step({
         </div>
         <h3 className="text-xl text-white font-bold pl-8">{title}</h3>
       </CardHeader>
-      <CardContent className="bg-transparent flex items-center justify-center p-0 bg-black/20 text-white font-semibold text-md relative z-10">
-        <div className="p-6 text-left min-h-[250px] w-full">
+      <CardContent className="bg-transparent flex items-center justify-center p-0 text-white font-semibold text-md relative z-10">
+        <div className="p-6 text-left min-h-[350px] bg-black/20 w-full h-full">
           <p className="mb-4">{description}</p>
           {bulletPoints && bulletPoints.length > 0 && (
             <ul className="space-y-2">
@@ -80,7 +100,7 @@ function Step({
   );
 }
 
-export default function CoreTech() {
+export default function UseCases() {
   return (
     <SunbeamBackground
       beams={[
@@ -101,65 +121,52 @@ export default function CoreTech() {
         },
       ]}
     >
-      <Section className="rounded-md w-4/5 px-8 mx-auto py-12 bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl">
-        {" "}
-        <div className="flex flex-col items-center justify-center space-y-4 text-center">
-          <div className="space-y-2">
-            <h2 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
-              Core Technology Features
-            </h2>
-            <p className="mx-auto max-w-[700px] text-foreground/90 md:text-xl">
-              Purpose-built for institutional Bitcoin infrastructure
-            </p>
-          </div>
-        </div>
+      <Section className="rounded-md w-4/5 px-8 mx-auto py-12 mb-24 bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl">
         <div className="mx-auto grid grid-cols-1 gap-8 xl:grid-cols-3 mt-12 md:px-24">
           <Step
             icon={LockKeyholeIcon}
-            title="UTXO Architecture"
-            description="Inherits Bitcoin's battle-tested security model with deterministic execution and no shared state vulnerabilities."
-            backgroundImage="/stock-images/nodes.jpg"
+            title="Non-Custodial Bitcoin Yield"
+            description="Generate sustainable returns on Bitcoin holdings without sacrificing custody or security"
+            bulletPoints={[
+              "100% Non-Custodial",
+              "2-5% Sustainable APY",
+              "0% bridge risk",
+              "$100M+ BTC Committed",
+            ]}
+            backgroundImage="/stock-images/notepad.jpg"
           />
           <Step
-            icon={Shield}
-            title="Fraud Proofs"
-            description="Optimistic rollup design with efficient on-chain verification ensures invalid transactions never finalize."
-            backgroundImage="/stock-images/explaining.jpg"
+            icon={PiggyBank}
+            title="Corporate Treasury Solutions"
+            description="Following the MicroStrategy playbook? Put your Bitcoin reserves to work with institutional-grade infrastructure designed for corporate treasuries. Generate yield while maintaining full custody and compliance."
+            bulletPoints={[
+              "SOC-2 Compliant",
+              "24/7 Monitoring",
+              "Multisig Security",
+              "Real-time Reporting",
+            ]}
+            backgroundImage="/stock-images/building.jpg"
           />
           <Step
-            icon={CloudLightning}
-            title="High Throughput"
-            description="Process thousands of transactions per second while maintaining sub-second confirmation times."
-            backgroundImage="/stock-images/timelapse.jpg"
-          />
-        </div>
-        <div className="mx-auto grid grid-cols-1 gap-8 xl:grid-cols-3 mt-12 md:px-24">
-          <Step
-            icon={Building}
-            title="ZK Bridges"
-            description="Zero-knowledge proofs enable trustless asset transfers without introducing custodial risk."
-            backgroundImage="/stock-images/bridge.jpg"
-          />
-          <Step
-            icon={LucideALargeSmall}
-            title="Babel Fees"
-            description="Pay transaction fees in BTC, ADA, or any supported asset - no need to hold multiple tokens."
-            backgroundImage="/stock-images/meeting.jpg"
-          />
-          <Step
-            icon={LucideAlarmCheck}
-            title="Full Auditability"
-            description="Complete transaction history and state transitions verifiable on-chain for regulatory compliance."
-            backgroundImage="/stock-images/laptop.jpg"
+            icon={Building2}
+            title="Enterprise SDK"
+            description="Seamlessly integrate Bitcoin yield generation into your existing infrastructure. Our white-label SDK provides everything needed for custodians, exchanges, and financial platforms to offer Bitcoin staking services."
+            bulletPoints={[
+              "Low Latency",
+              "99.99% Uptime SLA",
+              "REST & WSS APIs",
+              "24/7 Support",
+            ]}
+            backgroundImage="/stock-images/workers.jpg"
           />
         </div>
         <div className="flex justify-center mt-12">
-          <Link
+          {/* <Link
             href="/resources"
             className="inline-flex items-center justify-center rounded-full bg-foreground text-background h-12 px-8 text-base font-medium transition-colors hover:bg-background/20 border hover:border-foreground hover:text-foreground"
           >
             Learn More
-          </Link>
+          </Link> */}
         </div>
       </Section>
     </SunbeamBackground>

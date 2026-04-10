@@ -122,7 +122,7 @@ export function EnterpriseSolutions() {
         },
       ]}
     >
-      <Section className="flex flex-col items-center justify-center pt-24">
+      <Section className="flex flex-col items-center justify-center pt-2">
         <div className="grid grid-cols-1 lg:grid-cols-2 container px-24 md:px-36 z-10">
           <div className="grid w-full auto-rows-min gap-4 col-span-2 grid-cols-2 md:mb-24 lg:grid-cols-6 lg:gap-3 md:max-h-[500px] grid-rows-none max-h-none">
             {features.map((feature, i) => (
