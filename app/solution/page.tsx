@@ -2,9 +2,9 @@ import { HeroSection } from "@/components/ui/hero-section";
 import Image from "next/image";
 import { L2Architecture } from "./l2-architecture";
 import Partners from "@/components/reusable-sections/partners";
-import { EnterpriseSolutions } from "../solutions/enterprise-solutions";
+import { EnterpriseSolutions } from "./enterprise-solutions";
 import DawnTestnet from "./dawn-testnet";
-import UseCases from "../solutions/use-cases";
+import UseCases from "./use-cases";
 
 export default function Home() {
   return (
