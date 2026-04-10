@@ -100,7 +100,7 @@ export default function DawnTestnet() {
                     className="rounded-sm border border-white/10 bg-secondary/90 p-4 shadow-sm"
                   >
                     <div className="flex items-start gap-4">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10">
                         <Icon className="h-4 w-4 text-primary" />
                       </div>
                       <div>

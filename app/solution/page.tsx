@@ -35,7 +35,7 @@ export default function Home() {
       <DawnTestnet />
       <L2Architecture />
       <UseCases />
-      <Partners classes="py-8 w-3/4 mx-auto" />
+      {/* <Partners classes="py-8 w-3/4 mx-auto" /> */}
     </div>
   );
 }
