@@ -48,6 +48,12 @@ export default function Team() {
   };
 
   const handleMemberSelect = (member: TeamMemberType) => {
+    // If the card links to another team, switch to it
+    if (member.teamLink) {
+      handleTeamSelect(member.teamLink as TeamName);
+      return;
+    }
+
     // Desktop behavior - move to position 0
     if (isClient && window.innerWidth >= 1024) {
       const memberIndex = members
