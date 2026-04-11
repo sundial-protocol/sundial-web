@@ -13,6 +13,7 @@ import Deposit from "./deposit/deposit";
 import WithdrawTab from "./deposit/withdraw";
 import { Section } from "@/components/ui/section";
 import LendingTab from "./lending/lending";
+import { DepositsTab } from "./deposits/deposits-tab";
 import { ConfirmationProvider } from "@/components/ui/confirmation";
 import DemoDisclaimer from "./demo-disclaimer";
 import { PriceProvider } from "@/lib/contexts/price-context";
@@ -39,8 +40,10 @@ function DashboardContent() {
 
   const tabs = [
     { id: "portfolio", label: "Portfolio" },
+
     { id: "deposit", label: "Deposit" },
     { id: "withdraw", label: "Withdraw" },
+    { id: "deposits", label: "My Deposits" },
     { id: "lend", label: "Lend", disabled: true },
     { id: "yield", label: "Yield", disabled: true },
     { id: "strategies", label: "Strategies", disabled: true },
@@ -101,6 +104,13 @@ function DashboardContent() {
     switch (activeTab) {
       case "portfolio":
         return <PortfolioOverview />;
+      case "deposits":
+        return (
+          <DepositsTab
+            onNavigateDeposit={() => handleTabChange("deposit")}
+            onNavigateWithdraw={() => handleTabChange("withdraw")}
+          />
+        );
       case "deposit":
         return <Deposit />;
       case "withdraw":
