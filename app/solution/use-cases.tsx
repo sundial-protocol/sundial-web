@@ -116,7 +116,7 @@ export default function UseCases() {
         },
       ]}
     >
-      <Section className="rounded-md w-4/5 px-8 mx-auto py-12 bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl">
+      <Section className="rounded-md w-4/5 px-8 mx-auto py-12 mb-24 bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl">
         <div className="mx-auto grid grid-cols-1 gap-8 xl:grid-cols-3 mt-12 md:px-24">
           <Step
             icon={LockKeyholeIcon}

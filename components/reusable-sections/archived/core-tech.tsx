@@ -6,7 +6,6 @@ import SunbeamBackground, {
   sunbeamGradient,
 } from "@/components/ui/sunbeam/sunbeam-bg";
 
-import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import {
   Building,
