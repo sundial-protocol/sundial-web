@@ -71,7 +71,11 @@ export function useYieldOpportunities() {
         const res = await fetch("/api/providers");
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const providers: ServerProvider[] = await res.json();
-        setOpportunities(mapProvidersToOpportunities(providers));
+        const mapped = Array.isArray(providers)
+          ? mapProvidersToOpportunities(providers)
+          : [];
+        // Fall back to mock data if the server returned nothing usable
+        setOpportunities(mapped.length > 0 ? mapped : fallbackOpportunities);
       } catch (err: any) {
         console.error("Failed to fetch yield opportunities:", err);
         setError(err.message ?? "Failed to load opportunities");
@@ -127,7 +131,7 @@ export function useYieldOpportunities() {
   };
 }
 
-const TEST_PROVIDER_ID = "392fbb9d-55e7-4d54-ac2e-3f4ac32be37e";
+const TEST_PROVIDER_ID = "8efe4835-126d-477b-9266-ece47a663cf1";
 
 // ---------------------------------------------------------------------------
 // Server → YieldOpportunity mapping
@@ -146,19 +150,39 @@ function mapProvidersToOpportunities(
   let index = 1;
 
   for (const provider of providers) {
-    for (const program of provider.programs) {
+    if (provider.programs.length > 0) {
+      for (const program of provider.programs) {
+        opportunities.push({
+          // ── From server ────────────────────────────────────────────────────
+          id: index++,
+          name: provider.name,
+          description: program.description ?? "",
+          provider: provider.name,
+          apy: program.expected_yield_bps / 100, // bps → percentage
+          locktime: program.min_lock_ms / 1000, // ms → seconds
+          provider_id: provider.provider_id,
+
+          // ── MOCKED – not currently returned by GET /v1/providers ───────────
+          // See the comment block at the bottom of this file for full details.
+          totalLocked: 0,
+          type: "staking",
+          risk: "Low",
+          minAmount: 0.0001,
+          payments: 12,
+          publicKey: YIELD_PROVIDER_PUBKEY,
+        });
+      }
+    } else {
+      // Provider exists but has no active programs yet — create a default
+      // opportunity so the real provider_id is available for new deposits.
       opportunities.push({
-        // ── From server ──────────────────────────────────────────────────────
         id: index++,
         name: provider.name,
-        description: program.description ?? "",
+        description: "",
         provider: provider.name,
-        apy: program.expected_yield_bps / 100, // bps → percentage
-        locktime: program.min_lock_ms / 1000, // ms → seconds
+        apy: 3.5, // TODO: System will default to this unless the first program is created manually. We need to move this field to the provider.
+        locktime: 30 * 24 * 60 * 60, // 30-day default in seconds
         provider_id: provider.provider_id,
-
-        // ── MOCKED – not currently returned by GET /v1/providers ─────────────
-        // See the comment block at the bottom of this file for full details.
         totalLocked: 0,
         type: "staking",
         risk: "Low",

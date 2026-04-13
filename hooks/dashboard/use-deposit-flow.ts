@@ -187,6 +187,8 @@ export function useDepositFlow({
           expected_yield_bps: Math.round(selectedYieldProvider.apy * 100),
           min_lock_ms: locktime * 1000,
           program_vault_address: scripts.escrowScript.address,
+          escrow_script: scripts.escrowScript.redeemScript,
+          timelock_script: scripts.timelockScript.redeemScript,
         }),
       });
 

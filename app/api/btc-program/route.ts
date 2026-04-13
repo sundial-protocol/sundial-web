@@ -19,6 +19,8 @@ export async function POST(
       "name",
       "expected_yield_bps",
       "min_lock_ms",
+      "escrow_script",
+      "timelock_script",
     ];
 
     for (const field of required) {
@@ -47,6 +49,8 @@ export async function POST(
             body.provider_pubkey_hex ??
             process.env.PROVIDER_PUBKEY_HEX ??
             YIELD_PROVIDER_PUBKEY,
+          escrow_script: body.escrow_script,
+          timelock_script: body.timelock_script,
         }),
       },
     );
