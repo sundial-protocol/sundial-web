@@ -249,12 +249,12 @@ function DepositCard({ deposit, onDeposit, onWithdraw }: DepositCardProps) {
                 View Withdrawal
               </Button>
             )}
-          <Button size="sm" variant="ghost" asChild>
+          <Button size="sm" variant="ghost" asChild disabled={!deposit.tx_hash}>
             <a
-              href={`https://mempool.space/tx/${deposit.deposit_id}`}
+              href={deposit.tx_hash ? `https://mempool.space/tx/${deposit.tx_hash}` : "#"}
               target="_blank"
               rel="noopener noreferrer"
-              title="View on explorer"
+              title={deposit.tx_hash ? "View on explorer" : "Transaction not yet confirmed"}
             >
               <ExternalLink className="h-3.5 w-3.5" />
             </a>

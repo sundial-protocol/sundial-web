@@ -23,6 +23,8 @@ export interface UserDeposit {
   due_at: string | null;
   /** ISO 8601 creation timestamp */
   created_at: string;
+  /** On-chain transaction ID (reversed hex) – null until the indexer records it */
+  tx_hash: string | null;
 }
 
 /** Full deposit lifecycle as defined by the Sundial backend. */

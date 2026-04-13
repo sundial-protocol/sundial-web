@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useAppKitAccount } from "@reown/appkit/react";
 import { SupportedChain } from "@/lib/multichain";
 import usePrices, { DEFAULT_PRICES, PricesMap } from "./prices";
 import { yieldFromProvider, YieldOpportunity } from "./yield-opportunities";
+import { useUserDeposits } from "./use-user-deposits";
 
 // Enhanced transaction types to include lending
 export type TransactionType =
@@ -196,288 +198,208 @@ export type WalletBalances = {
 };
 
 export function useDashboardData() {
-  const [portfolioData, setPortfolioData] = useState<PortfolioData>({
-    holdings: { BTC: 0, ADA: 0 },
-    staking: {
-      BTC: { staked: 0, yield: 0, positions: [] },
-      ADA: { staked: 0, yield: 0, positions: [] },
-    },
-  });
+  // ── Wallet address (drives server fetch) ────────────────────────────────
+  const { address: btcAddress } = useAppKitAccount({ namespace: "bip122" });
+
+  // ── Server-derived portfolio data ────────────────────────────────────────
+  const {
+    deposits,
+    portfolioData,
+    serverTransactions,
+    activeLocktime,
+    isLoading,
+    error,
+    refetch,
+  } = useUserDeposits(btcAddress);
+
+  // ── Local optimistic pending/failed transactions (shown until server confirms) ─
+  const [pendingTxs, setPendingTxs] = useState<LoggedTx[]>([]);
+
+  // Merge: show pending/failed local txs on top of server-sourced history
+  const transactions: LoggedTx[] = [
+    ...pendingTxs.filter((tx) => tx.status !== "completed"),
+    ...serverTransactions,
+  ];
+
+  // ── Wallet balances ──────────────────────────────────────────────────────
   const [walletBalances, setWalletBalances] = useState<WalletBalances>({
     BTC: null,
     ADA: null,
   });
-
   const setWalletBalance = (asset: "BTC" | "ADA", balance: number | null) => {
     setWalletBalances((prev) => ({ ...prev, [asset]: balance }));
   };
+
+  // ── Yield provider & active program ─────────────────────────────────────
   const [selectedYieldProvider, setSelectedYieldProvider] =
     useState<YieldOpportunity | null>(null);
-  const [activeProgram, setActiveProgram] = useState<ActiveProgram | null>(
-    null,
-  );
-
+  const [activeProgram, setActiveProgram] = useState<ActiveProgram | null>(null);
   const clearActiveProgram = () => setActiveProgram(null);
-  const calculations = usePortfolioCalculations(
-    portfolioData,
-    selectedYieldProvider,
+
+  // ── Derived calculations ─────────────────────────────────────────────────
+  const calculations = usePortfolioCalculations(portfolioData, selectedYieldProvider);
+
+  // ── updateStakedAmount: triggers a server refetch instead of local mutation ─
+  const updateStakedAmount = useCallback(
+    (
+      _chain: SupportedChain,
+      _amount: number,
+      _type: "deposit" | "withdraw",
+      _txHash?: string,
+    ) => {
+      // Schedule a refetch after a short delay to give the indexer time to pick
+      // up the broadcast. The PSBT signing step already updated the optimistic
+      // pending tx; the server response will replace it once it propagates.
+      setTimeout(refetch, 3000);
+    },
+    [refetch],
   );
-  const [earningsData, setEarningsData] = useState<EarningsData[]>(() =>
-    generateEarningsData(
-      mockPortfolioData.staking.ADA.staked,
-      mockPortfolioData.staking.BTC.staked,
-      selectedYieldProvider,
-    ),
+
+  // ── Refresh (exposed to consumers, e.g. for pull-to-refresh) ────────────
+  const refreshData = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
+  // ── addPendingTransaction: optimistic UI during signing ─────────────────
+  const addPendingTransaction = useCallback(
+    (
+      chain: SupportedChain | string,
+      amount: number,
+      type: TransactionType,
+      extraData?: {
+        loanId?: string;
+        collateral?: { asset: string; amount: number };
+        interestRate?: number;
+        details?: string;
+      },
+    ): string => {
+      const transactionId = `tx-${Date.now()}-${Math.random()
+        .toString(36)
+        .substr(2, 9)}`;
+
+      const newTx: LoggedTx = {
+        id: transactionId,
+        type,
+        asset: chain.toLowerCase(),
+        amount,
+        timestamp: new Date(),
+        status: "pending",
+        ...(extraData?.loanId && { loanId: extraData.loanId }),
+        ...(extraData?.collateral && { collateral: extraData.collateral }),
+        ...(extraData?.interestRate && { interestRate: extraData.interestRate }),
+        ...(extraData?.details && { details: extraData.details }),
+      };
+
+      setPendingTxs((prev) => [newTx, ...prev]);
+      return transactionId;
+    },
+    [],
   );
-  const [transactions, setTransactions] = useState<LoggedTx[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  // Function to update staking amounts after successful transactions
-  const updateStakedAmount = (
-    chain: SupportedChain,
-    amount: number,
-    type: "deposit" | "withdraw",
-    txHash?: string,
-  ) => {
-    setPortfolioData((prev) => {
-      // Map chain to the correct asset key, handling testnet cases
-      let asset: "BTC" | "ADA";
-      if (chain === "btc" || chain === "btc_testnet") {
-        asset = "BTC";
-      } else if (chain === "ada") {
-        asset = "ADA";
-      } else {
-        console.warn(`Unknown chain: ${chain}, defaulting to BTC`);
-        asset = "BTC";
-      }
-
-      const multiplier = type === "deposit" ? 1 : -1;
-      const amountChange = amount * multiplier;
-
-      console.log(
-        `Dashboard update - Chain: ${chain}, Asset: ${asset}, Amount: ${amount}, Type: ${type}, Change: ${amountChange}`,
+  // ── updateTransactionStatus: updates local pending tx + triggers refetch on success ─
+  const updateTransactionStatus = useCallback(
+    (
+      transactionId: string,
+      status: "completed" | "failed",
+      txHash?: string,
+      extraData?: { locktime?: number; [key: string]: any },
+    ) => {
+      setPendingTxs((prev) =>
+        prev.map((tx) =>
+          tx.id === transactionId
+            ? {
+                ...tx,
+                status,
+                txHash: status === "completed" ? txHash : tx.txHash,
+                ...(extraData || {}),
+              }
+            : tx,
+        ),
       );
 
-      // Update holdings
-      const newHoldings = {
-        ...prev.holdings,
-        [asset]: Math.max(0, prev.holdings[asset] + amountChange),
-      };
-
-      // Update staking
-      const newStaking = {
-        ...prev.staking,
-        [asset]: {
-          ...(prev.staking[asset] || { staked: 0, yield: 0, positions: [] }),
-          staked: Math.max(
-            0,
-            (prev.staking[asset]?.staked || 0) + amountChange,
-          ),
-          yield: yieldFromProvider(
-            (prev.staking[asset]?.staked || 0) + amountChange,
-            selectedYieldProvider,
-          ),
-        },
-      };
-
-      console.log(`Updated staking for ${asset}:`, {
-        oldStaked: prev.staking[asset]?.staked || 0,
-        newStaked: newStaking[asset].staked,
-        oldHoldings: prev.holdings[asset],
-        newHoldings: newHoldings[asset],
-      });
-
-      return {
-        ...prev,
-        holdings: newHoldings,
-        staking: newStaking,
-      };
-    });
-  };
-
-  const addPendingTransaction = (
-    chain: SupportedChain | string,
-    amount: number,
-    type: TransactionType,
-    extraData?: {
-      loanId?: string;
-      collateral?: { asset: string; amount: number };
-      interestRate?: number;
-      details?: string;
+      // On success, schedule a refetch so the server deposit replaces the local pending tx
+      if (status === "completed") {
+        setTimeout(refetch, 3000);
+      }
     },
-  ) => {
-    const transactionId = `tx-${Date.now()}-${Math.random()
-      .toString(36)
-      .substr(2, 9)}`;
+    [refetch],
+  );
 
-    // Calculate USD value
-    let usdValue = amount;
-    const chainLower = chain.toLowerCase();
-    if (chainLower === "btc") {
-      usdValue = amount * 52000;
-    } else if (chainLower === "ada") {
-      usdValue = amount * 0.35;
-    }
+  const removeTransaction = useCallback((transactionId: string) => {
+    setPendingTxs((prev) => prev.filter((tx) => tx.id !== transactionId));
+  }, []);
 
-    const newTx: LoggedTx = {
-      id: transactionId,
-      type,
-      asset: chainLower,
-      amount,
-      timestamp: new Date(),
-      status: "pending",
-      usdValue,
-      // Add lending-specific fields if provided
-      ...(extraData?.loanId && { loanId: extraData.loanId }),
-      ...(extraData?.collateral && { collateral: extraData.collateral }),
-      ...(extraData?.interestRate && { interestRate: extraData.interestRate }),
-      ...(extraData?.details && { details: extraData.details }),
-    };
+  // ── Transaction helper functions ─────────────────────────────────────────
+  const getTransactionsByType = useCallback(
+    (type: TransactionType | TransactionType[]): LoggedTx[] => {
+      const types = Array.isArray(type) ? type : [type];
+      return transactions.filter((tx) => types.includes(tx.type));
+    },
+    [transactions],
+  );
 
-    setTransactions((prev) => [newTx, ...prev]);
+  const getTransactionsByLoanId = useCallback(
+    (loanId: string): LendingTransaction[] =>
+      transactions.filter(
+        (tx): tx is LendingTransaction =>
+          "loanId" in tx && tx.loanId === loanId,
+      ),
+    [transactions],
+  );
 
-    console.log("Added pending transaction:", newTx);
-    return transactionId;
-  };
+  const getStakingTransactions = useCallback(
+    (): StakingTransaction[] =>
+      transactions.filter((tx): tx is StakingTransaction =>
+        ["deposit", "withdraw", "stake", "unstake", "reward"].includes(tx.type),
+      ),
+    [transactions],
+  );
 
-  // Function to update transaction status
-  const updateTransactionStatus = (
-    transactionId: string,
-    status: "completed" | "failed",
-    txHash?: string,
-    extraData?: { locktime?: number; [key: string]: any },
-  ) => {
-    setTransactions((prev) =>
-      prev.map((tx) => {
-        if (tx.id === transactionId) {
-          const updatedTx = {
-            ...tx,
-            status,
-            txHash: status === "completed" ? txHash : tx.txHash,
-            ...(extraData || {}), // Spread any extra data like locktime
-          };
+  const getLendingTransactions = useCallback(
+    (): LendingTransaction[] =>
+      transactions.filter((tx): tx is LendingTransaction =>
+        [
+          "loan_created",
+          "loan_payment",
+          "loan_extended",
+          "loan_refinanced",
+          "loan_closed",
+        ].includes(tx.type),
+      ),
+    [transactions],
+  );
 
-          console.log("Updated transaction status:", {
-            transactionId,
-            status,
-            txHash,
-            extraData,
-            previousStatus: tx.status,
-          });
-
-          return updatedTx;
-        }
-        return tx;
-      }),
-    );
-  };
-
-  // Function to remove a transaction (for cleanup)
-  const removeTransaction = (transactionId: string) => {
-    setTransactions((prev) => {
-      const filtered = prev.filter((tx) => tx.id !== transactionId);
-      console.log("Removed transaction:", transactionId);
-      return filtered;
-    });
-  };
-
-  //  Transaction helper functions for lending
-  const getTransactionsByType = (
-    type: TransactionType | TransactionType[],
-  ): LoggedTx[] => {
-    const types = Array.isArray(type) ? type : [type];
-    return transactions.filter((tx) => types.includes(tx.type));
-  };
-
-  const getTransactionsByLoanId = (loanId: string): LendingTransaction[] => {
-    return transactions.filter(
-      (tx): tx is LendingTransaction => "loanId" in tx && tx.loanId === loanId,
-    );
-  };
-
-  const getStakingTransactions = (): StakingTransaction[] => {
-    return transactions.filter((tx): tx is StakingTransaction =>
-      ["deposit", "withdraw", "stake", "unstake", "reward"].includes(tx.type),
-    );
-  };
-
-  const getLendingTransactions = (): LendingTransaction[] => {
-    return transactions.filter((tx): tx is LendingTransaction =>
-      [
-        "loan_created",
-        "loan_payment",
-        "loan_extended",
-        "loan_refinanced",
-        "loan_closed",
-      ].includes(tx.type),
-    );
-  };
-
-  //  Refresh function to simulate data fetching
-  const refreshData = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // In a real app, you'd fetch fresh data here
-      console.log("📊 Dashboard data refreshed");
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to refresh data";
-      setError(errorMessage);
-      console.error("Failed to refresh dashboard data:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Clean up old failed transactions (optional)
+  // Clean up old failed/completed pending txs after 10 minutes
   useEffect(() => {
     const cleanup = setInterval(() => {
       const now = new Date();
-      setTransactions((prev) => {
-        const filtered = prev.filter((tx) => {
-          const isOld = now.getTime() - tx.timestamp.getTime() > 10 * 60 * 1000; // 10 minutes
-          const shouldRemove = isOld && tx.status === "failed";
-
-          if (shouldRemove) {
-            console.log("Cleaning up old failed transaction:", tx.id);
-          }
-
-          return !shouldRemove;
-        });
-
-        return filtered;
-      });
-    }, 60000); // Check every minute
-
+      setPendingTxs((prev) =>
+        prev.filter((tx) => {
+          const ageMs = now.getTime() - tx.timestamp.getTime();
+          return !(ageMs > 10 * 60 * 1000 && tx.status !== "pending");
+        }),
+      );
+    }, 60_000);
     return () => clearInterval(cleanup);
   }, []);
 
-  // Computed values for easy access
-  const pendingTransactions = transactions.filter(
-    (tx) => tx.status === "pending",
-  );
-  const completedTransactions = transactions.filter(
-    (tx) => tx.status === "completed",
-  );
-  const failedTransactions = transactions.filter(
-    (tx) => tx.status === "failed",
-  );
+  // Computed slices
+  const pendingTransactions = transactions.filter((tx) => tx.status === "pending");
+  const completedTransactions = transactions.filter((tx) => tx.status === "completed");
+  const failedTransactions = transactions.filter((tx) => tx.status === "failed");
 
   return {
+    // Server-derived portfolio
     portfolioData,
-    earningsData,
+    deposits,
+    activeLocktime,
     calculations,
-    updateStakedAmount,
-    error,
     isLoading,
+    error,
+    refreshData,
+    updateStakedAmount,
 
-    // Transaction-related return
+    // Transactions (server history + local pending overlay)
     transactions,
     pendingTransactions,
     completedTransactions,
@@ -485,19 +407,14 @@ export function useDashboardData() {
     addPendingTransaction,
     updateTransactionStatus,
     removeTransaction,
-
-    //  Lending-specific helper functions
     getTransactionsByType,
     getTransactionsByLoanId,
     getStakingTransactions,
     getLendingTransactions,
-    refreshData,
 
-    // Yield Provider Selection
+    // Yield provider & active program
     selectedYieldProvider,
     setSelectedYieldProvider,
-
-    // Active Program (ephemeral per-deposit, lives alongside selectedYieldProvider)
     activeProgram,
     setActiveProgram,
     clearActiveProgram,

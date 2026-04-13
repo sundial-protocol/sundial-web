@@ -14,7 +14,6 @@ export default function WithdrawTab() {
   const {
     portfolioData,
     calculations,
-    updateStakedAmount,
     isLoading,
     selectedYieldProvider,
   } = useDashboardContext();
@@ -67,19 +66,20 @@ export default function WithdrawTab() {
     return <div className="p-6 text-center">Loading staking data...</div>;
   }
 
-  if (alreadyStaked === 0) {
-    return (
-      <div className="p-6 text-center">
-        <h2 className="text-2xl font-bold mb-4">No Active Stakes</h2>
-        <p className="text-muted-foreground mb-6">
-          You don't have any staked assets to withdraw.
-        </p>
-        <Button asChild>
-          <Link href="/dashboard?tab=deposit">Start Staking</Link>
-        </Button>
-      </div>
-    );
-  }
+  // TODO: set alreadyStaked with real staked amounts from server.
+  //if (alreadyStaked === 0) {
+  //  return (
+  //    <div className="p-6 text-center">
+  //      <h2 className="text-2xl font-bold mb-4">No Active Stakes</h2>
+  //      <p className="text-muted-foreground mb-6">
+  //        You don't have any staked assets to withdraw.
+  //      </p>
+  //      <Button asChild>
+  //        <Link href="/dashboard?tab=deposit">Start Staking</Link>
+  //      </Button>
+  //    </div>
+  //  );
+  //}
 
   return (
     <div className="mx-auto p-6">

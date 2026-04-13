@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { YIELD_PROVIDER_PUBKEY } from "@/lib/yield-provider";
+import { YIELD_PROVIDER_PUBKEY, TEST_PROVIDER_ID } from "@/lib/yield-provider";
 import type { ServerProvider } from "@/app/api/providers/types";
 
 export function getLockPeriod(locktime: number): string {
@@ -130,8 +130,6 @@ export function useYieldOpportunities() {
     sortOpportunities,
   };
 }
-
-const TEST_PROVIDER_ID = "8efe4835-126d-477b-9266-ece47a663cf1";
 
 // ---------------------------------------------------------------------------
 // Server → YieldOpportunity mapping

@@ -79,6 +79,7 @@ export default function StakingForm({
     addPendingTransaction,
     updateTransactionStatus,
     transactions,
+    activeLocktime,
     selectedYieldProvider,
     setActiveProgram,
     clearActiveProgram,
@@ -297,7 +298,6 @@ export default function StakingForm({
     loading,
     error,
     setError,
-    calculateUnsignedPsbt,
     schedulePsbtCalc,
     cancelPsbtCalc,
     handleSignInBrowser,
@@ -312,34 +312,13 @@ export default function StakingForm({
     Number(amount) > 0 &&
     Number(amount) > availableBalance;
 
-  // Auto-populate locktime from transaction history for withdrawals
+  // Auto-populate locktime for withdrawals from the server's active deposit data.
+  // activeLocktime is derived from the most recent active deposit's lock_ms field.
   useEffect(() => {
-    if (!isDeposit && !savedLocktime && transactions.length > 0) {
-      const depositTransactions = transactions.filter(
-        (tx) =>
-          tx.status === "completed" &&
-          tx.type === "deposit" &&
-          tx.asset.toLowerCase() === selectedChain.toLowerCase(),
-      );
-
-      const lastDeposit = depositTransactions.sort(
-        (a, b) =>
-          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
-      )[0];
-
-      console.log("Most recent deposit:", lastDeposit);
-
-      if (lastDeposit && (lastDeposit as any).locktime) {
-        const locktime = (lastDeposit as any).locktime;
-        setSavedLocktime(locktime);
-      } else {
-        console.log("No deposit transaction with locktime found in history");
-        if (lastDeposit) {
-          console.log("Last deposit found but no locktime:", lastDeposit);
-        }
-      }
+    if (!isDeposit && !savedLocktime && activeLocktime) {
+      setSavedLocktime(activeLocktime);
     }
-  }, [isDeposit, savedLocktime, transactions, selectedChain]);
+  }, [isDeposit, savedLocktime, activeLocktime]);
 
   // Auto-calculate PSBT when all fields are filled (Bitcoin only).
   // Delegates debouncing and the actual fetch to useDepositFlow.
@@ -358,7 +337,7 @@ export default function StakingForm({
       if (isAmountExceedsBalance) return false;
       if (!userAddress.startsWith(config.addressPrefix)) return false;
       if (!withdrawAddress.startsWith(config.addressPrefix)) return false;
-      if (!savedLocktime) return false;
+      // Note: locktime is resolved from the server deposit if savedLocktime is not yet available
 
       const trimmed = manualPublicKey?.trim() || "";
       const hasManualKey =
