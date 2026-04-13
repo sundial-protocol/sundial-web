@@ -4,17 +4,7 @@ import { Section } from "@/components/ui/section";
 import SunbeamBackground, {
   sunbeamGradient,
 } from "@/components/ui/sunbeam/sunbeam-bg";
-import {
-  FastForward,
-  LockKeyhole,
-  Shield,
-  SearchCheck,
-  Bitcoin,
-  Link2,
-  Link,
-  Sun,
-  Wrench,
-} from "lucide-react";
+import { Bitcoin, Link, Sun, Wrench } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 export function FeatureCard({

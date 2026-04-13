@@ -4,15 +4,7 @@ import { Section } from "@/components/ui/section";
 import SunbeamBackground, {
   sunbeamGradient,
 } from "@/components/ui/sunbeam/sunbeam-bg";
-import {
-  BadgeDollarSign,
-  Bitcoin,
-  ChartBar,
-  Link,
-  PiggyBank,
-  Sun,
-  Wrench,
-} from "lucide-react";
+import { BadgeDollarSign, ChartBar, PiggyBank, Wrench } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 export function FeatureCard({

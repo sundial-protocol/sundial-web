@@ -6,14 +6,7 @@ import { cn } from "@/lib/utils";
 import { Flags } from "@/lib/flags";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
-import {
-  BadgeCheck,
-  HomeIcon,
-  FileCode2,
-  Building,
-  Folder,
-  Bitcoin,
-} from "lucide-react";
+import { BadgeCheck, HomeIcon, Building, Folder, Bitcoin } from "lucide-react";
 import Image from "next/image";
 
 function NavLink({
@@ -150,11 +143,11 @@ export default function Navbar() {
           </NavLink>
 
           <NavLink
-            href="/solution"
+            href="/solutions"
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
             <BadgeCheck className={navIconCn} />
-            {drawerOpen && <span className="text-sm">Solution</span>}
+            {drawerOpen && <span className="text-sm">Solutions</span>}
           </NavLink>
           <NavLink
             href="/"

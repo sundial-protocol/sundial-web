@@ -33,16 +33,11 @@ export default function DawnTestnet() {
       beams={[
         {
           styles: {
-            content: '""',
-            position: "absolute",
-            left: "0",
-            top: "-150px",
-            width: "100%",
+            top: "-250px",
             height: "900px",
             background:
               "linear-gradient(to bottom right, hsl(var(--primary)) 0%, hsl(var(--primary)) 32%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 82%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)",
-            clipPath: "polygon(0 0, 100% 0, 100% 62%, 18% 100%)",
-            zIndex: "-1",
+            clipPath: "polygon(-100% 0%, 100% 10%, 100% 62%, 0% 100%)",
             opacity: "0.18",
           },
         },
