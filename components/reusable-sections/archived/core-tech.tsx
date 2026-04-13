@@ -2,9 +2,10 @@
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Section } from "@/components/ui/section";
-import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
+import SunbeamBackground, {
+  sunbeamGradient,
+} from "@/components/ui/sunbeam/sunbeam-bg";
 
-import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import {
   Building,
@@ -86,17 +87,10 @@ export default function CoreTech() {
       beams={[
         {
           styles: {
-            content: '""',
-            position: "absolute",
-            left: "0",
             top: "-300px",
-            width: "100%",
             height: "1200px",
-            background:
-              "linear-gradient(to bottom, hsl(var(--primary)) 0%, hsl(var(--primary)) 40%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 80%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)",
+            background: sunbeamGradient("to bottom"),
             clipPath: "polygon(190% 100%, 0% 0%, 0% 35%)",
-            zIndex: "-1",
-            opacity: "0.3",
           },
         },
       ]}

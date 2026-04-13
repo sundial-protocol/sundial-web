@@ -17,7 +17,7 @@ const CoreTeamMembers: TeamMemberType[] = [
     name: "Michael Yagi",
     role: "Developer & Ecosystem",
     image: "/team/michael.jpg",
-    link: "https://x.com/gubguub",
+    link: "https://x.com/Larserthanlife",
     description: "Founder of Ikigai Technologies",
     bio: `Michael Yagi is a technology entrepreneur and creative director focused on bridging
       advanced infrastructure with engaging user experiences. Drawing on his experience as one
@@ -51,14 +51,6 @@ const CoreTeamMembers: TeamMemberType[] = [
     bio: `Vic Genin is a blockchain architect and data technology expert with experience building scalable, secure systems. He has held senior technical roles at Binance, Cere Network, and GameStop, leading projects in cross-chain interoperability and decentralized infrastructure. Vic combines deep technical expertise with a track record of delivering complex blockchain and gaming projects.`,
   },
   {
-    name: "Phil Disarro",
-    role: "Senior Developer",
-    image: "/team/phil.png",
-    link: "https://x.com/phil_uplc",
-    description: "Founder of Anastasia Labs",
-    bio: `Phil Disarro is the Founder and CEO of Anastasia Labs, a research and development firm focused on secure and scalable blockchain infrastructure. He has deep expertise in compiler design, programming language theory, and smart contract security, and has contributed extensively to the Cardano ecosystem.`,
-  },
-  {
     name: "Lewis Harding",
     role: "Institutional Lead",
     image: "/team/lewis.jpg",
@@ -71,6 +63,18 @@ const CoreTeamMembers: TeamMemberType[] = [
       generating $5M+ revenue through
       strategic partner engagement with
       Global 2000 enterprises.`,
+  },
+  {
+    name: "Appold Team",
+    role: "Operations & Project Management",
+    image: "/team/appold-logo.svg",
+    link: "https://www.linkedin.com/company/appold/",
+    bio: `Appold is a specialist technology and advisory company focused on the blockchain industry, which incorporates digital
+      assets, blockchain technology, decentralised finance (DeFi), and asset tokenisation. Appold provides end-to-end
+      advisory solutions on digital transformation, blockchain integration, audit, market screening, analysis, and risk
+      management.`,
+    needsInversion: true,
+    teamLink: "Appold",
   },
 ];
 
@@ -127,6 +131,14 @@ const AppoldTeamMembers: TeamMemberType[] = [
       of Parliament for the Minister of State for Food, Farming and Fisheries. Before beginning work, Andy
       completed his undergraduate degree at the London School of Economics and Political Science and
       his master’s degree at the University of Cambridge.`,
+  },
+  {
+    name: "Core Team",
+    role: "Back to Core Team",
+    image: "",
+    link: "",
+    bio: "Meet the core Sundial Protocol team.",
+    teamLink: "Core",
   },
 ];
 

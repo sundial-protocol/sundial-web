@@ -6,14 +6,7 @@ import { cn } from "@/lib/utils";
 import { Flags } from "@/lib/flags";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
-import {
-  BadgeCheck,
-  HomeIcon,
-  FileCode2,
-  Building,
-  Folder,
-  Bitcoin,
-} from "lucide-react";
+import { BadgeCheck, HomeIcon, Building, Folder, Bitcoin } from "lucide-react";
 import Image from "next/image";
 
 function NavLink({
@@ -34,7 +27,7 @@ function NavLink({
       className={cn(
         "flex flex-col hover:text-primary rounded-full p-2 items-center justify-center pointer-events-auto",
         isActive ? "text-primary font-bold" : "text-muted-foreground",
-        classes
+        classes,
       )}
     >
       {children}
@@ -68,7 +61,7 @@ export default function Navbar() {
         drawerOpen
           ? "bg-primary-foreground/70 h-24"
           : "bg-transparent pointer-events-none",
-        pathname == "/roadmap" && "pointer-events-none"
+        pathname == "/roadmap" && "pointer-events-none",
       )}
       style={{
         // Ensure the navbar stays at the top regardless of scroll
@@ -107,33 +100,58 @@ export default function Navbar() {
             `grid grid-cols-5 justify-center gap-6 rounded-full p-2 transition-all duration-300`,
             drawerOpen
               ? "bg-transparent gap-10 mt-0"
-              : "bg-primary-foreground/70 backdrop-blur-md"
+              : "bg-primary-foreground/70 backdrop-blur-md",
           )}
         >
-          {Flags.DISABLE_DASHBOARD ? (
-            <NavLink
-              href="/solutions"
-              classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
-            >
-              <BadgeCheck className={navIconCn} />
-              {drawerOpen && <span className="text-sm">Solutions</span>}
-            </NavLink>
-          ) : (
-            <NavLink
-              href="/dashboard"
-              classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
-            >
-              <Bitcoin className={navIconCn} />
-              {drawerOpen && <span className="text-sm">Dashboard</span>}
-            </NavLink>
-          )}
+          <NavLink
+            href="/dashboard"
+            classes={cn(
+              drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70",
+              Flags.DISABLE_DASHBOARD &&
+                "opacity-70 pointer-events-none cursor-not-allowed",
+            )}
+          >
+            <span className="relative">
+              <Bitcoin
+                className={cn(
+                  navIconCn,
+                  Flags.DISABLE_DASHBOARD && "text-muted-foreground grayscale",
+                )}
+              />
+              {Flags.DISABLE_DASHBOARD && (
+                <span
+                  className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                  aria-hidden="true"
+                >
+                  <span
+                    className="block w-full h-[2px] rotate-45 rounded-full"
+                    style={{ backgroundColor: "#ef4444" }}
+                  />
+                </span>
+              )}
+            </span>
+            {drawerOpen && (
+              <span className={cn("text-sm", !Flags.DISABLE_DASHBOARD && "")}>
+                {Flags.DISABLE_DASHBOARD ? (
+                  <span className="flex items-center gap-1">
+                    <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
+                    <span className="text-sm font-semibold tracking-wide text-red-500">
+                      Coming Soon
+                    </span>
+                  </span>
+                ) : (
+                  "Dashboard"
+                )}
+              </span>
+            )}
+          </NavLink>
 
           <NavLink
-            href="/technology"
+            href="/solutions"
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
-            <FileCode2 className={navIconCn} />
-            {drawerOpen && <span className="text-sm">Technology</span>}
+            <BadgeCheck className={navIconCn} />
+            {drawerOpen && <span className="text-sm">Solutions</span>}
           </NavLink>
           <NavLink
             href="/"
@@ -164,7 +182,7 @@ export default function Navbar() {
           }}
           className={cn(
             `h-12 w-12 hover:h-14 hover:w-14 transition-all duration-300 absolute pointer-events-auto cursor-pointer`,
-            drawerOpen && "mt-24"
+            drawerOpen && "mt-24",
           )}
         >
           <Image

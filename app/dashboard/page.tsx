@@ -1,7 +1,9 @@
 "use client";
 
 import { Suspense } from "react";
-import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
+import SunbeamBackground, {
+  sunbeamGradient,
+} from "@/components/ui/sunbeam/sunbeam-bg";
 import { DashboardProvider } from "@/lib/contexts/dashboard-context";
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -179,17 +181,10 @@ export default function DashboardPage() {
       beams={[
         {
           styles: {
-            content: '""',
-            position: "absolute",
-            left: "0",
             top: "300px",
-            width: "100%",
             height: "1200px",
-            background:
-              "linear-gradient(to bottom, hsl(var(--primary)) 0%, hsl(var(--primary)) 40%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 80%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)",
+            background: sunbeamGradient("to bottom"),
             clipPath: "polygon(190% 100%, 0% 0%, 0% 35%)",
-            zIndex: "-1",
-            opacity: "0.3",
           },
         },
       ]}

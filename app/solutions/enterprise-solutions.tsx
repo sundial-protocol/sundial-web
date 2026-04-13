@@ -1,16 +1,10 @@
 "use client";
 
 import { Section } from "@/components/ui/section";
-import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
-import {
-  BadgeDollarSign,
-  Bitcoin,
-  ChartBar,
-  Link,
-  PiggyBank,
-  Sun,
-  Wrench,
-} from "lucide-react";
+import SunbeamBackground, {
+  sunbeamGradient,
+} from "@/components/ui/sunbeam/sunbeam-bg";
+import { BadgeDollarSign, ChartBar, PiggyBank, Wrench } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 export function FeatureCard({
@@ -36,7 +30,7 @@ export function FeatureCard({
           setTimeout(() => setIsVisible(true), index * 150); // Stagger animations
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     if (cardRef.current) {
@@ -107,22 +101,15 @@ export function EnterpriseSolutions() {
       beams={[
         {
           styles: {
-            content: '""',
-            position: "absolute",
-            left: "0",
             top: "0px",
-            width: "100%",
             height: "600px",
-            background:
-              "linear-gradient(to bottom right, hsl(var(--primary)) 0%, hsl(var(--primary)) 40%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 80%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)",
+            background: sunbeamGradient("to bottom right"),
             clipPath: "polygon(-90% 100%, 100% 0%, 100% 66%)",
-            zIndex: "-1",
-            opacity: "0.3",
           },
         },
       ]}
     >
-      <Section className="flex flex-col items-center justify-center pt-24">
+      <Section className="flex flex-col items-center justify-center pt-2">
         <div className="grid grid-cols-1 lg:grid-cols-2 container px-24 md:px-36 z-10">
           <div className="grid w-full auto-rows-min gap-4 col-span-2 grid-cols-2 md:mb-24 lg:grid-cols-6 lg:gap-3 md:max-h-[500px] grid-rows-none max-h-none">
             {features.map((feature, i) => (

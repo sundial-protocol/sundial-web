@@ -1,4 +1,4 @@
-import { ExternalLink, Link } from "lucide-react";
+import { ExternalLink, ArrowLeft } from "lucide-react";
 import Image from "next/image";
 
 export type TeamMemberType = {
@@ -9,6 +9,8 @@ export type TeamMemberType = {
   description?: string;
   bio?: string;
   needsInversion?: boolean;
+  /** If set, clicking this card switches to the named team instead of showing member detail */
+  teamLink?: string;
 };
 
 export function TeamMember({
@@ -18,19 +20,26 @@ export function TeamMember({
   link,
   description,
   needsInversion,
+  teamLink,
 }: TeamMemberType) {
   return (
     <div className="flex flex-col items-center text-center p-6 bg-primary-foreground/20 backdrop-blur-sm rounded-xs shadow-sm hover:shadow-primary/60 transition-shadow btn-effect-shine h-80 justify-between">
       <div className="flex flex-col items-center">
-        <Image
-          src={image}
-          alt={name}
-          height={100}
-          width={100}
-          className={`w-36 h-36 rounded-full mb-4 object-cover ${
-            needsInversion ? "dark:invert dark:brightness-50" : ""
-          }`}
-        />
+        {teamLink && !image ? (
+          <div className="w-36 h-36 rounded-full mb-4 flex items-center justify-center bg-primary/10 border-2 border-primary/20">
+            <ArrowLeft className="w-12 h-12 text-primary" />
+          </div>
+        ) : (
+          <Image
+            src={image}
+            alt={name}
+            height={100}
+            width={100}
+            className={`w-36 h-36 rounded-full mb-4 object-cover ${
+              needsInversion ? "dark:invert dark:brightness-50" : ""
+            }`}
+          />
+        )}
         <h2 className="text-2xl font-bold text-primary mb-2">
           {link ? (
             <a

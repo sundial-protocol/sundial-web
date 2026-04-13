@@ -1,18 +1,10 @@
 "use client";
 
 import { Section } from "@/components/ui/section";
-import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
-import {
-  FastForward,
-  LockKeyhole,
-  Shield,
-  SearchCheck,
-  Bitcoin,
-  Link2,
-  Link,
-  Sun,
-  Wrench,
-} from "lucide-react";
+import SunbeamBackground, {
+  sunbeamGradient,
+} from "@/components/ui/sunbeam/sunbeam-bg";
+import { Bitcoin, Link, Sun, Wrench } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 export function FeatureCard({
@@ -38,7 +30,7 @@ export function FeatureCard({
           setTimeout(() => setIsVisible(true), index * 150); // Stagger animations
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     if (cardRef.current) {
@@ -109,17 +101,10 @@ export function L2Architecture() {
       beams={[
         {
           styles: {
-            content: '""',
-            position: "absolute",
-            left: "0",
             top: "0px",
-            width: "100%",
             height: "600px",
-            background:
-              "linear-gradient(to bottom right, hsl(var(--primary)) 0%, hsl(var(--primary)) 40%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 80%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)",
+            background: sunbeamGradient("to bottom right"),
             clipPath: "polygon(-90% 100%, 100% 0%, 100% 66%)",
-            zIndex: "-1",
-            opacity: "0.3",
           },
         },
       ]}

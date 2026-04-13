@@ -1,10 +1,8 @@
-"use client";
-
 import { HeroSection } from "@/components/ui/hero-section";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { LucideArrowRight } from "lucide-react";
 import FeaturedPartner from "@/components/reusable-sections/featured-partner";
+import { SmallPlanet, ImagePlanet } from "./orbit-planets";
 // import Image from "next/image";
 
 function OrbitTrace({ size, color }: { size: number; color?: string }) {
@@ -23,94 +21,6 @@ function OrbitTrace({ size, color }: { size: number; color?: string }) {
       strokeWidth="2"
       opacity={0.6}
       z={-50}
-    />
-  );
-}
-
-type SmallPlanetProps = {
-  angle: number;
-  radius: number;
-  color: string;
-  speed?: number;
-};
-
-function SmallPlanet({ angle, radius, color, speed = 1 }: SmallPlanetProps) {
-  const [currentAngle, setCurrentAngle] = useState(angle);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    const interval = setInterval(() => {
-      setCurrentAngle((prev) => (prev + speed * 0.1) % 360);
-    }, 50);
-
-    return () => clearInterval(interval);
-  }, [speed]);
-
-  // Don't render until mounted on client
-  if (!mounted) return null;
-
-  // Center of the ellipse
-  const cx = 170;
-  const cy = 250 + radius / 7;
-  // Ellipse radii
-  const rx = radius;
-  const ry = radius * Math.cos((75 * Math.PI) / 180); // squash y-radius by cos(75deg)
-  // Convert angle to radians
-  const rad = (currentAngle * Math.PI) / 180;
-  // Calculate position on the visually rotated ellipse
-  const x = cx + rx * Math.cos(rad);
-  const y = cy + ry * Math.sin(rad);
-  return <circle cx={x} cy={y} r={y * 0.05} fill={color} />;
-}
-
-function ImagePlanet({
-  angle,
-  radius,
-  speed = 1,
-  imageUrl,
-  size = 70,
-}: {
-  angle: number;
-  radius: number;
-  speed?: number;
-  imageUrl: string;
-  size?: number;
-}) {
-  const [currentAngle, setCurrentAngle] = useState(angle);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    const interval = setInterval(() => {
-      setCurrentAngle((prev) => (prev + speed * 0.1) % 360);
-    }, 50);
-
-    return () => clearInterval(interval);
-  }, [speed]);
-
-  if (!mounted) return null;
-
-  // Center of the ellipse
-  const cx = 170;
-  const cy = 250 + radius / 7;
-  const rx = radius;
-  const ry = radius * Math.cos((75 * Math.PI) / 180);
-  const rad = (currentAngle * Math.PI) / 180;
-  const x = cx + rx * Math.cos(rad);
-  const y = cy + ry * Math.sin(rad);
-
-  // Dynamically update size based on y
-  const dynamicSize = size + (y - 300) * 0.2;
-
-  return (
-    <image
-      href={imageUrl}
-      x={x - dynamicSize / 2}
-      y={y - dynamicSize / 2}
-      width={dynamicSize}
-      height={dynamicSize}
-      style={{ filter: "url(#planet-glow)" }}
     />
   );
 }
