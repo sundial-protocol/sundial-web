@@ -35,8 +35,8 @@ export default function StakingSummaryCard({
     yieldDiff > 0
       ? "text-green-600"
       : yieldDiff < 0
-      ? "text-red-600"
-      : "text-gray-500";
+        ? "text-red-600"
+        : "text-gray-500";
 
   const chartLabels =
     type === "deposit"
@@ -46,7 +46,7 @@ export default function StakingSummaryCard({
     type === "deposit" ? ["#fbbf24", "#34d399"] : ["#fbbf24", "#f87171"];
 
   return (
-    <Card>
+    <Card className="hover:shadow-lg transition-shadow">
       <CardHeader>
         <CardTitle>Staking Summary</CardTitle>
         <CardDescription>

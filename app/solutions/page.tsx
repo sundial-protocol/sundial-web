@@ -1,7 +1,8 @@
 import { HeroSection } from "@/components/ui/hero-section";
 import Image from "next/image";
-import Partners from "@/components/reusable-sections/partners";
+import { L2Architecture } from "./l2-architecture";
 import { EnterpriseSolutions } from "./enterprise-solutions";
+import DawnTestnet from "./dawn-testnet";
 import UseCases from "./use-cases";
 
 export default function Home() {
@@ -18,20 +19,22 @@ export default function Home() {
               height={500}
             />
             <h1 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">
-              Enterprise Bitcoin Solutions
+              Built on Bitcoin's Ledger Model
             </h1>
             <p className="text-lg md:text-xl text-foreground/80">
-              Unlock the full potential of Bitcoin holdings with
-              institutional-grade infrastructure designed for yield generation,
-              treasury management, and seamless integration
+              Sundial leverages a UTXO architecture to deliver
+              institutional-grade security, deterministic execution, and
+              fraud-proof protection for Bitcoin yield generation
             </p>
           </div>
         </section>
       </HeroSection>
 
       <EnterpriseSolutions />
+      <DawnTestnet />
+      <L2Architecture />
       <UseCases />
-      <Partners classes="py-8 w-3/4 mx-auto" />
+      {/* <Partners classes="py-8 w-3/4 mx-auto" /> */}
     </div>
   );
 }

@@ -1,29 +1,5 @@
-"use client";
-
-import { useTheme } from "next-themes";
 import Link from "next/link";
-
-interface SocialIconProps {
-  href: string;
-  alt: string;
-  src: string;
-}
-
-function SocialIcon({ href, alt, src }: SocialIconProps) {
-  let isDark = useTheme().theme === "dark";
-  let hoverFilter = isDark ? "hover:invert" : "hover:invert-0";
-
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`transition-colors invert-[30%] ${hoverFilter}`}
-    >
-      <img src={src} alt={alt} className="w-5 h-5" />
-    </a>
-  );
-}
+import { SocialIcon } from "./footer-social-icon";
 
 interface FooterLinkProps {
   href: string;
@@ -88,7 +64,7 @@ export default function Footer() {
             <a
               href="https://maps.app.goo.gl/1krXDddHRz4xJZFd7"
               target="_blank"
-              className="text-sm text-gray-500"
+              className="text-sm text-gray-500 underline"
             >
               <p className="pt-4">SUNDIAL PROTOCOL PTE. LTD.</p>
               <p>1 NORTH BRIDGE ROAD #24-02</p>

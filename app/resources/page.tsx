@@ -2,7 +2,9 @@ import Link from "next/link";
 import { ArrowRight, Book, FileText, Sunrise } from "lucide-react";
 import { Section } from "@/components/ui/section";
 import { HeroSection } from "@/components/ui/hero-section";
-import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
+import SunbeamBackground, {
+  sunbeamGradient,
+} from "@/components/ui/sunbeam/sunbeam-bg";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Image from "next/image";
 import { getNews } from "@/hooks/get-news";
@@ -81,17 +83,10 @@ export default async function DocsPage() {
         beams={[
           {
             styles: {
-              content: '""',
-              position: "absolute",
-              left: "0",
               top: "0px",
-              width: "100%",
               height: "600px",
-              background:
-                "linear-gradient(to bottom left, rgba(255, 183, 11, 0.9) 0%, rgba(255, 183, 11, 0.9) 40%, rgba(0, 0, 0, 0) 80%, rgba(0, 0, 0, 0) 100%)",
+              background: sunbeamGradient("to bottom left"),
               clipPath: "polygon(190% 100%, 0% 0%, 0% 66%)",
-              zIndex: "-1",
-              opacity: "0.3",
             },
           },
         ]}

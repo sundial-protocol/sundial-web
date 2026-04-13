@@ -2,12 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { SupportedChain } from "@/lib/multichain";
-import usePrices, {
-  convertWithPrices,
-  DEFAULT_PRICES,
-  PricesMap,
-} from "./prices";
-import { getYield } from "./get-yield";
+import usePrices, { DEFAULT_PRICES, PricesMap } from "./prices";
+import { yieldFromProvider, YieldOpportunity } from "./yield-opportunities";
 
 // Enhanced transaction types to include lending
 export type TransactionType =
@@ -123,7 +119,7 @@ export interface EarningsData {
 export function generateEarningsData(
   adaValue: number,
   btcValue: number,
-  priceMap: PricesMap
+  provider: YieldOpportunity | null,
 ): EarningsData[] {
   const today = new Date();
   const currentMonth = today.getMonth(); // 0-11
@@ -166,7 +162,7 @@ export function generateEarningsData(
         type: "current",
       });
     } else {
-      btc = btc + getYield(btc);
+      btc = btc + yieldFromProvider(btc, provider);
 
       data.push({
         month: monthName,
@@ -185,6 +181,11 @@ export function generateEarningsData(
 }
 
 // Custom Hooks
+export type WalletBalances = {
+  BTC: number | null;
+  ADA: number | null;
+};
+
 export function useDashboardData() {
   const [portfolioData, setPortfolioData] = useState<PortfolioData>({
     holdings: { BTC: 0, ADA: 0 },
@@ -193,13 +194,26 @@ export function useDashboardData() {
       ADA: { staked: 0, yield: 0, positions: [] },
     },
   });
-  const calculations = usePortfolioCalculations(portfolioData);
+  const [walletBalances, setWalletBalances] = useState<WalletBalances>({
+    BTC: null,
+    ADA: null,
+  });
+
+  const setWalletBalance = (asset: "BTC" | "ADA", balance: number | null) => {
+    setWalletBalances((prev) => ({ ...prev, [asset]: balance }));
+  };
+  const [selectedYieldProvider, setSelectedYieldProvider] =
+    useState<YieldOpportunity | null>(null);
+  const calculations = usePortfolioCalculations(
+    portfolioData,
+    selectedYieldProvider,
+  );
   const [earningsData, setEarningsData] = useState<EarningsData[]>(() =>
     generateEarningsData(
       mockPortfolioData.staking.ADA.staked,
       mockPortfolioData.staking.BTC.staked,
-      DEFAULT_PRICES
-    )
+      selectedYieldProvider,
+    ),
   );
   const [transactions, setTransactions] = useState<LoggedTx[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -210,12 +224,26 @@ export function useDashboardData() {
     chain: SupportedChain,
     amount: number,
     type: "deposit" | "withdraw",
-    txHash?: string
+    txHash?: string,
   ) => {
     setPortfolioData((prev) => {
-      const asset = chain.toUpperCase() as "BTC" | "ADA";
+      // Map chain to the correct asset key, handling testnet cases
+      let asset: "BTC" | "ADA";
+      if (chain === "btc" || chain === "btc_testnet") {
+        asset = "BTC";
+      } else if (chain === "ada") {
+        asset = "ADA";
+      } else {
+        console.warn(`Unknown chain: ${chain}, defaulting to BTC`);
+        asset = "BTC";
+      }
+
       const multiplier = type === "deposit" ? 1 : -1;
       const amountChange = amount * multiplier;
+
+      console.log(
+        `Dashboard update - Chain: ${chain}, Asset: ${asset}, Amount: ${amount}, Type: ${type}, Change: ${amountChange}`,
+      );
 
       // Update holdings
       const newHoldings = {
@@ -227,11 +255,24 @@ export function useDashboardData() {
       const newStaking = {
         ...prev.staking,
         [asset]: {
-          ...prev.staking[asset],
-          staked: Math.max(0, prev.staking[asset].staked + amountChange),
-          yield: getYield(prev.staking[asset].staked + amountChange), // Your yield calculation logic
+          ...(prev.staking[asset] || { staked: 0, yield: 0, positions: [] }),
+          staked: Math.max(
+            0,
+            (prev.staking[asset]?.staked || 0) + amountChange,
+          ),
+          yield: yieldFromProvider(
+            (prev.staking[asset]?.staked || 0) + amountChange,
+            selectedYieldProvider,
+          ),
         },
       };
+
+      console.log(`Updated staking for ${asset}:`, {
+        oldStaked: prev.staking[asset]?.staked || 0,
+        newStaked: newStaking[asset].staked,
+        oldHoldings: prev.holdings[asset],
+        newHoldings: newHoldings[asset],
+      });
 
       return {
         ...prev,
@@ -241,7 +282,6 @@ export function useDashboardData() {
     });
   };
 
-  // Function to add pending transaction (now supports lending)
   const addPendingTransaction = (
     chain: SupportedChain | string,
     amount: number,
@@ -251,7 +291,7 @@ export function useDashboardData() {
       collateral?: { asset: string; amount: number };
       interestRate?: number;
       details?: string;
-    }
+    },
   ) => {
     const transactionId = `tx-${Date.now()}-${Math.random()
       .toString(36)
@@ -291,7 +331,8 @@ export function useDashboardData() {
   const updateTransactionStatus = (
     transactionId: string,
     status: "completed" | "failed",
-    txHash?: string
+    txHash?: string,
+    extraData?: { locktime?: number; [key: string]: any },
   ) => {
     setTransactions((prev) =>
       prev.map((tx) => {
@@ -300,19 +341,21 @@ export function useDashboardData() {
             ...tx,
             status,
             txHash: status === "completed" ? txHash : tx.txHash,
+            ...(extraData || {}), // Spread any extra data like locktime
           };
 
           console.log("Updated transaction status:", {
             transactionId,
             status,
             txHash,
+            extraData,
             previousStatus: tx.status,
           });
 
           return updatedTx;
         }
         return tx;
-      })
+      }),
     );
   };
 
@@ -327,7 +370,7 @@ export function useDashboardData() {
 
   //  Transaction helper functions for lending
   const getTransactionsByType = (
-    type: TransactionType | TransactionType[]
+    type: TransactionType | TransactionType[],
   ): LoggedTx[] => {
     const types = Array.isArray(type) ? type : [type];
     return transactions.filter((tx) => types.includes(tx.type));
@@ -335,13 +378,13 @@ export function useDashboardData() {
 
   const getTransactionsByLoanId = (loanId: string): LendingTransaction[] => {
     return transactions.filter(
-      (tx): tx is LendingTransaction => "loanId" in tx && tx.loanId === loanId
+      (tx): tx is LendingTransaction => "loanId" in tx && tx.loanId === loanId,
     );
   };
 
   const getStakingTransactions = (): StakingTransaction[] => {
     return transactions.filter((tx): tx is StakingTransaction =>
-      ["deposit", "withdraw", "stake", "unstake", "reward"].includes(tx.type)
+      ["deposit", "withdraw", "stake", "unstake", "reward"].includes(tx.type),
     );
   };
 
@@ -353,7 +396,7 @@ export function useDashboardData() {
         "loan_extended",
         "loan_refinanced",
         "loan_closed",
-      ].includes(tx.type)
+      ].includes(tx.type),
     );
   };
 
@@ -403,17 +446,16 @@ export function useDashboardData() {
 
   // Computed values for easy access
   const pendingTransactions = transactions.filter(
-    (tx) => tx.status === "pending"
+    (tx) => tx.status === "pending",
   );
   const completedTransactions = transactions.filter(
-    (tx) => tx.status === "completed"
+    (tx) => tx.status === "completed",
   );
   const failedTransactions = transactions.filter(
-    (tx) => tx.status === "failed"
+    (tx) => tx.status === "failed",
   );
 
   return {
-    // EXISTING RETURNS (unchanged)
     portfolioData,
     earningsData,
     calculations,
@@ -421,12 +463,12 @@ export function useDashboardData() {
     error,
     isLoading,
 
-    // EXISTING Transaction-related returns (unchanged)
+    // Transaction-related return
     transactions,
     pendingTransactions,
     completedTransactions,
     failedTransactions,
-    addPendingTransaction, // Now enhanced to support lending
+    addPendingTransaction,
     updateTransactionStatus,
     removeTransaction,
 
@@ -436,15 +478,28 @@ export function useDashboardData() {
     getStakingTransactions,
     getLendingTransactions,
     refreshData,
+
+    // Yield Provider Selection
+    selectedYieldProvider,
+    setSelectedYieldProvider,
+
+    // Wallet balances
+    walletBalances,
+    setWalletBalance,
   };
 }
 
-export function usePortfolioCalculations(portfolioData: PortfolioData) {
+export function usePortfolioCalculations(
+  portfolioData: PortfolioData,
+  selectedYieldProvider?: YieldOpportunity | null,
+) {
   const { convert } = usePrices();
+
   const adaRewards = 0;
-  const btcRewards = getYield(
+  const btcRewards = yieldFromProvider(
     convert(portfolioData.holdings.BTC, "BTC", "USD") +
-      convert(portfolioData.holdings.ADA, "ADA", "USD")
+      convert(portfolioData.holdings.ADA, "ADA", "USD"),
+    selectedYieldProvider ?? null, // can be undefined - if so coerce to null
   );
 
   return {
@@ -482,22 +537,6 @@ export function usePortfolioCalculations(portfolioData: PortfolioData) {
   };
 }
 
-//  Helper hooks for specific transaction types
-export function useStakingTransactions() {
-  const { getStakingTransactions } = useDashboardData();
-  return getStakingTransactions();
-}
-
-export function useLendingTransactions() {
-  const { getLendingTransactions } = useDashboardData();
-  return getLendingTransactions();
-}
-
-export function useTransactionsByLoan(loanId: string) {
-  const { getTransactionsByLoanId } = useDashboardData();
-  return getTransactionsByLoanId(loanId);
-}
-
 // EXISTING: Utility functions (unchanged)
 export function formatCurrency(amount: number, currency = "USD"): string {
   return new Intl.NumberFormat("en-US", {
@@ -514,7 +553,7 @@ export function formatPercentage(value: number, decimals = 1): string {
 
 export function formatAssetAmount(
   amount: number,
-  asset: "BTC" | "ADA"
+  asset: "BTC" | "ADA",
 ): string {
   const decimals = asset === "BTC" ? 6 : 2;
   return `${amount.toFixed(decimals)} ${asset}`;

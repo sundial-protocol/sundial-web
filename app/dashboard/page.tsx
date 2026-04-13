@@ -1,7 +1,9 @@
 "use client";
 
 import { Suspense } from "react";
-import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
+import SunbeamBackground, {
+  sunbeamGradient,
+} from "@/components/ui/sunbeam/sunbeam-bg";
 import { DashboardProvider } from "@/lib/contexts/dashboard-context";
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -37,19 +39,26 @@ function DashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Get tab from URL params, default to "portfolio"
-  const tabFromUrl = searchParams.get("tab") || "portfolio";
-  const [activeTab, setActiveTab] = useState(tabFromUrl);
-
   const tabs = [
     { id: "portfolio", label: "Portfolio" },
     { id: "deposit", label: "Deposit" },
     { id: "withdraw", label: "Withdraw" },
-    { id: "lend", label: "Lend" },
-    { id: "yield", label: "Yield", disabled: false },
-    { id: "strategies", label: "Strategies", disabled: false },
+    { id: "lend", label: "Lend", disabled: true },
+    { id: "yield", label: "Yield", disabled: true },
+    { id: "strategies", label: "Strategies", disabled: true },
     { id: "history", label: "History" },
   ];
+
+  // Validate tab from URL params before setting initial state
+  const getValidatedTab = (urlTab: string | null) => {
+    if (!urlTab) return "portfolio";
+    const validTab = tabs.find((tab) => tab.id === urlTab && !tab.disabled);
+    return validTab ? urlTab : "portfolio";
+  };
+
+  const [activeTab, setActiveTab] = useState(() =>
+    getValidatedTab(searchParams.get("tab")),
+  );
 
   // Update URL when tab changes
   const handleTabChange = (tabId: string) => {
@@ -64,14 +73,16 @@ function DashboardContent() {
   // Sync state with URL on initial load and when URL changes
   useEffect(() => {
     const urlTab = searchParams.get("tab");
-    if (urlTab && urlTab !== activeTab) {
-      // Validate that the tab exists and is not disabled
-      const validTab = tabs.find((tab) => tab.id === urlTab && !tab.disabled);
-      if (validTab) {
-        setActiveTab(urlTab);
-      } else {
-        // If invalid tab, redirect to portfolio
-        handleTabChange("portfolio");
+    const validatedTab = getValidatedTab(urlTab);
+
+    if (validatedTab !== activeTab) {
+      setActiveTab(validatedTab);
+
+      // If we had to change the tab due to validation, update the URL
+      if (urlTab !== validatedTab) {
+        const params = new URLSearchParams(searchParams);
+        params.set("tab", validatedTab);
+        router.replace(`/dashboard?${params.toString()}`, { scroll: false });
       }
     }
   }, [searchParams]);
@@ -127,8 +138,8 @@ function DashboardContent() {
                   tab.disabled
                     ? "text-muted-foreground/50 cursor-not-allowed opacity-50"
                     : activeTab === tab.id
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-background/50"
                 }`}
                 title={tab.disabled ? "Coming Soon" : undefined}
               >
@@ -160,17 +171,10 @@ export default function DashboardPage() {
       beams={[
         {
           styles: {
-            content: '""',
-            position: "absolute",
-            left: "0",
             top: "300px",
-            width: "100%",
             height: "1200px",
-            background:
-              "linear-gradient(to bottom, hsl(var(--primary)) 0%, hsl(var(--primary)) 40%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 80%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)",
+            background: sunbeamGradient("to bottom"),
             clipPath: "polygon(190% 100%, 0% 0%, 0% 35%)",
-            zIndex: "-1",
-            opacity: "0.3",
           },
         },
       ]}

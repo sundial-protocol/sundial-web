@@ -5,13 +5,16 @@ import PortfolioSummary from "./summary";
 import QuickActions from "./quick-actions";
 import WalletsCard from "./wallets-card";
 import EarningsGraph from "./earnings-graph";
-import { DEFAULT_PRICES } from "@/hooks/dashboard/prices";
 import AssetAllocation from "./asset-allocation";
 
 export function PortfolioOverview() {
-  const { portfolioData, calculations, isLoading, error } =
-    useDashboardContext();
-  const [btcWallet, setBtcWallet] = useState<string | null>(null);
+  const {
+    portfolioData,
+    calculations,
+    isLoading,
+    error,
+    selectedYieldProvider,
+  } = useDashboardContext();
 
   if (isLoading)
     return <div className="p-4 text-center">Loading dashboard...</div>;
@@ -24,11 +27,11 @@ export function PortfolioOverview() {
         <EarningsGraph
           adaValue={calculations.adaValue}
           btcValue={calculations.btcValue}
-          prices={DEFAULT_PRICES}
+          provider={selectedYieldProvider}
         />
 
         {/* Wallet Connection Section */}
-        <WalletsCard btcWallet={btcWallet} setBtcWallet={setBtcWallet} />
+        <WalletsCard />
 
         {/* Updated Portfolio Summary with USD values */}
         <PortfolioSummary

@@ -66,7 +66,7 @@ export function TransactionWatcher({
         if (prev <= 1) {
           setWatchingStatus("timeout");
           onError(
-            "Transaction watching timed out. Please try again or broadcast manually."
+            "Transaction watching timed out. Please try again or broadcast manually.",
           );
           return 0;
         }
@@ -116,13 +116,13 @@ export function TransactionWatcher({
   const getStatusColor = () => {
     switch (watchingStatus) {
       case "watching":
-        return "border-blue-200 bg-blue-50";
+        return "border-blue-200 bg-blue-500/20";
       case "found":
-        return "border-green-200 bg-green-50";
+        return "border-green-200 bg-green-500/20";
       case "timeout":
-        return "border-red-200 bg-red-50";
+        return "border-red-200 bg-red-500/20";
       default:
-        return "border-gray-200 bg-gray-50";
+        return "border-gray-200 bg-gray-50/40";
     }
   };
 

@@ -1,24 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import StakingForm from "./staking-form";
 import StakingSummaryCard from "./staking-summary";
 import { SupportedChain, chainConfigs } from "../../../lib/multichain";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
-import { getYield } from "@/hooks/dashboard/get-yield";
 import { usePrices } from "@/hooks/dashboard/prices";
+import { YieldOpportunityCard } from "@/components/yield-opportunity-card";
+import { useYieldOpportunities } from "@/hooks/dashboard/yield-opportunities";
+import { yieldFromProvider } from "@/hooks/dashboard/yield-opportunities";
 
 export default function DepositTab() {
-  const { calculations, updateStakedAmount, isLoading } = useDashboardContext();
+  const {
+    calculations,
+    isLoading,
+    selectedYieldProvider,
+    setSelectedYieldProvider,
+  } = useDashboardContext();
   const { convert } = usePrices();
+  const { opportunities } = useYieldOpportunities();
   const [selectedChain, setSelectedChain] = useState<SupportedChain>("btc");
   const [amount, setAmount] = useState("");
   const config = chainConfigs[selectedChain];
 
+  // Set default yield provider if none selected
+  useEffect(() => {
+    if (!selectedYieldProvider && opportunities.length > 0) {
+      setSelectedYieldProvider(opportunities[0]);
+    }
+  }, [selectedYieldProvider, opportunities, setSelectedYieldProvider]);
+
   const alreadyStaked = convert(
     config.symbol === "BTC" ? calculations.btcValue : calculations.adaValue,
     "USD",
-    config.symbol
+    config.symbol,
   );
   const currentYield =
     convert(calculations.monthlyRewards.total, "USD", config.symbol) || 0;
@@ -31,7 +46,7 @@ export default function DepositTab() {
   const handleSuccess = (
     txHash: string,
     chain: SupportedChain,
-    amount: string
+    amount: string,
   ) => {
     console.log("Deposit successful:", { txHash, chain, amount });
 
@@ -43,8 +58,12 @@ export default function DepositTab() {
   const amountNum = Number(amount) || 0;
   const newTotal = Math.max(alreadyStaked + amountNum, 0);
 
-  // Convert newTotal to USD before passing to getYield
-  const newYieldUSD = getYield(convert(newTotal, config.symbol, "USD")) ?? 0;
+  // Convert newTotal to USD before getting yield
+  const newYieldUSD = yieldFromProvider(
+    convert(newTotal, config.symbol, "USD") ?? 0,
+    selectedYieldProvider,
+    true,
+  );
   // Then convert back
   const newYield = convert(newYieldUSD, "USD", config.symbol);
 
@@ -67,7 +86,19 @@ export default function DepositTab() {
           defaultChain="btc"
         />
 
-        <div className="flex flex-col gap-6">
+        <div className="grid grid-cols-1 gap-6">
+          {selectedYieldProvider && (
+            <YieldOpportunityCard
+              opportunity={selectedYieldProvider}
+              buttonText="Selected Strategy"
+              onButtonClick={() => {
+                // Optional: Navigate to yield catalog or show selection modal
+                console.log("Navigate to yield provider selection");
+              }}
+              buttonVariant="secondary"
+            />
+          )}
+
           <StakingSummaryCard
             alreadyStaked={alreadyStaked}
             amount={amountNum}

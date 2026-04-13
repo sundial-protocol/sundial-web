@@ -7,35 +7,12 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
-import { Bitcoin, Check, Coins, Copy } from "lucide-react";
+import { Bitcoin, Coins } from "lucide-react";
 import { WalletButton } from "@/lib/wallet/cardano/wallet-button";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import { ConnectButton } from "@/lib/wallet/bitcoin/btcbutton";
 
-export type WalletsCardProps = {
-  btcWallet: string | null;
-  setBtcWallet: (address: string | null) => void;
-};
-
-const formatAddress = (address: string, length = 20) => {
-  if (!address) return "";
-  if (address.length <= length) return address;
-  return `${address.slice(0, length)}...${address.slice(-6)}`;
-};
-
-export default function WalletsCard({
-  btcWallet,
-  setBtcWallet,
-}: WalletsCardProps) {
-  function handleCopy(addr: string) {
-    navigator.clipboard.writeText(addr);
-    setCopied(addr);
-    setTimeout(() => setCopied(null), 1200);
-  }
-
-  const [copied, setCopied] = useState<string | null>(null);
-
+export default function WalletsCard() {
   return (
     <Card className="col-span-2 md:col-span-1">
       <CardHeader>
@@ -62,7 +39,7 @@ export default function WalletsCard({
               <span className="font-semibold">Other</span>
             </div>
             <WalletButton />
-            <Button variant="outline" onClick={() => setBtcWallet(null)}>
+            <Button variant="outline" disabled>
               Connect Dogecoin Wallet
             </Button>
           </div>
