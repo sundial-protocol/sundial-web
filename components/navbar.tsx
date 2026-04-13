@@ -108,7 +108,7 @@ export default function Navbar() {
             classes={cn(
               drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70",
               Flags.DISABLE_DASHBOARD &&
-                "opacity-50 pointer-events-none cursor-not-allowed",
+                "opacity-70 pointer-events-none cursor-not-allowed",
             )}
           >
             <span className="relative">
@@ -131,13 +131,17 @@ export default function Navbar() {
               )}
             </span>
             {drawerOpen && (
-              <span
-                className={cn(
-                  "text-sm",
-                  Flags.DISABLE_DASHBOARD && "text-muted-foreground",
+              <span className={cn("text-sm", !Flags.DISABLE_DASHBOARD && "")}>
+                {Flags.DISABLE_DASHBOARD ? (
+                  <span className="flex items-center gap-1">
+                    <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
+                    <span className="text-sm font-semibold tracking-wide text-red-500">
+                      Coming Soon
+                    </span>
+                  </span>
+                ) : (
+                  "Dashboard"
                 )}
-              >
-                {Flags.DISABLE_DASHBOARD ? "Coming Soon" : "Dashboard"}
               </span>
             )}
           </NavLink>
