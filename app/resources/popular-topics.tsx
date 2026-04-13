@@ -1,6 +1,8 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Section } from "@/components/ui/section";
-import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
+import SunbeamBackground, {
+  sunbeamGradient,
+} from "@/components/ui/sunbeam/sunbeam-bg";
 import { ArrowRight, Book, Sun } from "lucide-react";
 import Link from "next/link";
 
@@ -35,17 +37,10 @@ export default function PopularTopics() {
       beams={[
         {
           styles: {
-            content: '""',
-            position: "absolute",
-            left: "0",
             top: "150px",
-            width: "100%",
             height: "600px",
-            background:
-              "linear-gradient(to bottom right, rgba(255, 183, 11, 0.9) 0%, rgba(255, 183, 11, 0.9) 40%, rgba(0, 0, 0, 0) 80%, rgba(0, 0, 0, 0) 100%)",
+            background: sunbeamGradient("to bottom right"),
             clipPath: "polygon(-90% 100%, 100% 0%, 100% 66%)",
-            zIndex: "-1",
-            opacity: "0.3",
           },
         },
       ]}

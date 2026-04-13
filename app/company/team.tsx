@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { Section } from "@/components/ui/section";
-import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
+import SunbeamBackground, {
+  sunbeamGradient,
+} from "@/components/ui/sunbeam/sunbeam-bg";
 import { TeamMember, TeamMemberType } from "./team-member";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Users } from "lucide-react";
@@ -15,7 +17,7 @@ export default function Team() {
   const [members, setMembers] = useState<TeamMemberType[] | null>(People.Core);
   const [selectedTeam, setSelectedTeam] = useState<TeamName>("Core");
   const [selectedMember, setSelectedMember] = useState<TeamMemberType | null>(
-    null
+    null,
   );
   const [showMemberDetail, setShowMemberDetail] = useState(false);
   const [isClient, setIsClient] = useState(false);
@@ -46,6 +48,12 @@ export default function Team() {
   };
 
   const handleMemberSelect = (member: TeamMemberType) => {
+    // If the card links to another team, switch to it
+    if (member.teamLink) {
+      handleTeamSelect(member.teamLink as TeamName);
+      return;
+    }
+
     // Desktop behavior - move to position 0
     if (isClient && window.innerWidth >= 1024) {
       const memberIndex = members
@@ -107,17 +115,10 @@ export default function Team() {
       beams={[
         {
           styles: {
-            content: '""',
-            position: "absolute",
-            left: "0",
             top: "-300px",
-            width: "100%",
-            height: "1600px",
-            background:
-              "linear-gradient(to top left, hsl(var(--primary)) 0%, hsl(var(--primary)) 40%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 80%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)",
+            height: "2600px",
+            background: sunbeamGradient("to top left"),
             clipPath: "polygon(190% 100%, 0% 0%, 0% 35%)",
-            zIndex: "-1",
-            opacity: "0.3",
           },
         },
       ]}

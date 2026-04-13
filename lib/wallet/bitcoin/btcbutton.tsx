@@ -29,10 +29,10 @@ export const ConnectButton = () => {
     setIsClient(true);
   }, []);
 
-  const formatAddress = (addr: string) => {
-    if (!addr) return "";
-    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
-  };
+  // const formatAddress = (addr: string) => {
+  //   if (!addr) return "";
+  //   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+  // };
 
   const handleDisconnect = async () => {
     try {
