@@ -224,7 +224,7 @@ function mapProvidersToOpportunities(
  */
 
 // Mock yield opportunities data
-const fallbackOpportunities: YieldOpportunity[] = [
+export const fallbackOpportunities: YieldOpportunity[] = [
   {
     id: 1,
     name: "Bitcoin Staking",

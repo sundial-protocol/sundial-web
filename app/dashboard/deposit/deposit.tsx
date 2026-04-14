@@ -1,34 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import StakingForm from "./staking-form";
 import StakingSummaryCard from "./staking-summary";
 import { SupportedChain, chainConfigs } from "../../../lib/multichain";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import { usePrices } from "@/hooks/dashboard/prices";
 import { YieldOpportunityCard } from "@/components/yield-opportunity-card";
-import { useYieldOpportunities } from "@/hooks/dashboard/yield-opportunities";
 import { yieldFromProvider } from "@/hooks/dashboard/yield-opportunities";
 
 export default function DepositTab() {
-  const {
-    calculations,
-    isLoading,
-    selectedYieldProvider,
-    setSelectedYieldProvider,
-  } = useDashboardContext();
+  const { calculations, isLoading, selectedYieldProvider } =
+    useDashboardContext();
   const { convert } = usePrices();
-  const { opportunities } = useYieldOpportunities();
   const [selectedChain, setSelectedChain] = useState<SupportedChain>("btc");
   const [amount, setAmount] = useState("");
   const config = chainConfigs[selectedChain];
-
-  // Set default yield provider if none selected
-  useEffect(() => {
-    if (!selectedYieldProvider && opportunities.length > 0) {
-      setSelectedYieldProvider(opportunities[0]);
-    }
-  }, [selectedYieldProvider, opportunities, setSelectedYieldProvider]);
 
   const alreadyStaked = convert(
     config.symbol === "BTC" ? calculations.btcValue : calculations.adaValue,

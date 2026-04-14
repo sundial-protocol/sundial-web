@@ -136,8 +136,14 @@ export function useDepositFlow({
    * (error state is set).
    */
   const prepareDeposit = async (): Promise<string | null> => {
-    if (!selectedYieldProvider?.provider_id) {
+    if (!selectedYieldProvider) {
       setError("No yield provider selected");
+      return null;
+    }
+    if (!selectedYieldProvider.provider_id) {
+      setError(
+        "Selected yield provider has no ID — check NEXT_PUBLIC_TEST_PROVIDER_ID in .env.local",
+      );
       return null;
     }
 

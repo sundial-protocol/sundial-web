@@ -3,8 +3,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { SupportedChain } from "@/lib/multichain";
-import usePrices, { DEFAULT_PRICES, PricesMap } from "./prices";
-import { yieldFromProvider, YieldOpportunity } from "./yield-opportunities";
+import usePrices from "./prices";
+import {
+  yieldFromProvider,
+  YieldOpportunity,
+  useYieldOpportunities,
+  fallbackOpportunities,
+} from "./yield-opportunities";
 import { useUserDeposits } from "./use-user-deposits";
 
 // Enhanced transaction types to include lending
@@ -232,12 +237,28 @@ export function useDashboardData() {
 
   // ── Yield provider & active program ─────────────────────────────────────
   const [selectedYieldProvider, setSelectedYieldProvider] =
-    useState<YieldOpportunity | null>(null);
-  const [activeProgram, setActiveProgram] = useState<ActiveProgram | null>(null);
+    useState<YieldOpportunity | null>(fallbackOpportunities[0]);
+  const { opportunities } = useYieldOpportunities();
+
+  // Replace the fallback with the real first provider once live data arrives
+  useEffect(() => {
+    if (opportunities.length > 0) {
+      setSelectedYieldProvider((prev) =>
+        prev?.provider_id ? prev : opportunities[0],
+      );
+    }
+  }, [opportunities]);
+
+  const [activeProgram, setActiveProgram] = useState<ActiveProgram | null>(
+    null,
+  );
   const clearActiveProgram = () => setActiveProgram(null);
 
   // ── Derived calculations ─────────────────────────────────────────────────
-  const calculations = usePortfolioCalculations(portfolioData, selectedYieldProvider);
+  const calculations = usePortfolioCalculations(
+    portfolioData,
+    selectedYieldProvider,
+  );
 
   // ── updateStakedAmount: triggers a server refetch instead of local mutation ─
   const updateStakedAmount = useCallback(
@@ -286,7 +307,9 @@ export function useDashboardData() {
         status: "pending",
         ...(extraData?.loanId && { loanId: extraData.loanId }),
         ...(extraData?.collateral && { collateral: extraData.collateral }),
-        ...(extraData?.interestRate && { interestRate: extraData.interestRate }),
+        ...(extraData?.interestRate && {
+          interestRate: extraData.interestRate,
+        }),
         ...(extraData?.details && { details: extraData.details }),
       };
 
@@ -384,9 +407,15 @@ export function useDashboardData() {
   }, []);
 
   // Computed slices
-  const pendingTransactions = transactions.filter((tx) => tx.status === "pending");
-  const completedTransactions = transactions.filter((tx) => tx.status === "completed");
-  const failedTransactions = transactions.filter((tx) => tx.status === "failed");
+  const pendingTransactions = transactions.filter(
+    (tx) => tx.status === "pending",
+  );
+  const completedTransactions = transactions.filter(
+    (tx) => tx.status === "completed",
+  );
+  const failedTransactions = transactions.filter(
+    (tx) => tx.status === "failed",
+  );
 
   return {
     // Server-derived portfolio
