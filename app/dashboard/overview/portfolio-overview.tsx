@@ -34,7 +34,7 @@ export function PortfolioOverview() {
         <WalletsCard />
 
         {/* Updated Portfolio Summary with USD values */}
-        <PortfolioSummary
+        {/*<PortfolioSummary
           data={{
             ...portfolioData,
             // Override with USD converted values
@@ -42,12 +42,11 @@ export function PortfolioOverview() {
             btcValue: calculations.btcValue,
             adaValue: calculations.adaValue,
           }}
-        />
+        />*/}
+        <QuickActions />
 
         <AssetAllocation />
       </div>
-
-      <QuickActions />
     </div>
   );
 }

@@ -75,7 +75,7 @@ export default function WithdrawTab() {
           You don't have any staked assets to withdraw.
         </p>
         <Button asChild>
-          <Link href="/dashboard?tab=deposit">Start Staking</Link>
+          <Link href="/dashboard?tab=stake">Start Staking</Link>
         </Button>
       </div>
     );

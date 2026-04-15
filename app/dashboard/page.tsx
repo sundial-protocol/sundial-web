@@ -41,7 +41,7 @@ function DashboardContent() {
 
   const tabs = [
     { id: "portfolio", label: "Portfolio" },
-    { id: "deposit", label: "Deposit" },
+    { id: "stake", label: "Stake" },
     { id: "withdraw", label: "Withdraw" },
     { id: "lend", label: "Lend", disabled: true },
     { id: "yield", label: "Yield", disabled: true },
@@ -103,7 +103,7 @@ function DashboardContent() {
     switch (activeTab) {
       case "portfolio":
         return <PortfolioOverview />;
-      case "deposit":
+      case "stake":
         return <Deposit />;
       case "withdraw":
         return <WithdrawTab />;
