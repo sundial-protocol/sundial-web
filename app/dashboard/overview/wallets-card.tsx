@@ -27,18 +27,32 @@ export default function WalletsCard() {
           <div className="flex-1 border rounded p-4 flex flex-col gap-3">
             <div className="flex items-center gap-2 mb-2">
               <Bitcoin className="w-5 h-5 text-yellow-500" />
-              <span className="font-semibold">Bitcoin</span>
+              <div className="flex flex-col">
+                <span className="font-semibold">Bitcoin</span>
+                <span className="text-xs italic text-muted-foreground">
+                  Testnet3
+                </span>
+              </div>
             </div>
             <ConnectButton />
           </div>
 
           {/* Other */}
           <div className="flex-1 border rounded p-4 flex flex-col gap-3">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2">
               <Coins className="w-5 h-5 text-blue-500" />
-              <span className="font-semibold">Other</span>
+              <div className="flex flex-col">
+                <span className="font-semibold">Other Chains</span>
+                <span className="text-xs italic text-muted-foreground">
+                  Coming soon
+                </span>
+              </div>
             </div>
-            <WalletButton />
+
+            {/*<WalletButton />*/}
+            <Button variant="outline" disabled>
+              Connect Cardano Wallet
+            </Button>
             <Button variant="outline" disabled>
               Connect Dogecoin Wallet
             </Button>

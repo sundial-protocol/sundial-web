@@ -10,25 +10,22 @@ import Link from "next/link";
 
 export default function QuickActions() {
   return (
-    <Card>
+    <Card className="col-span-2">
       <CardHeader>
         <CardTitle>Quick Actions</CardTitle>
         <CardDescription>
           Common actions to manage your portfolio
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-wrap gap-4">
+      <CardContent className="flex flex-col gap-4">
         <Button asChild>
-          <Link href="/stake">Stake Bitcoin</Link>
+          <Link href="/dashboard?tab=stake">Stake Bitcoin</Link>
         </Button>
         <Button variant="outline" asChild>
-          <Link href="/dashboard?tab=yield">Find Yield</Link>
+          <Link href="/dashboard?tab=deposits">My Deposits</Link>
         </Button>
         <Button variant="outline" asChild>
-          <Link href="/dashboard?tab=strategies">View Strategies</Link>
-        </Button>
-        <Button variant="outline" asChild>
-          <Link href="/dashboard?tab=history">View History</Link>
+          <Link href="/dashboard?tab=history">View Transactions</Link>
         </Button>
       </CardContent>
     </Card>

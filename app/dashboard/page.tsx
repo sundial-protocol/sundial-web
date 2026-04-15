@@ -43,7 +43,7 @@ function DashboardContent() {
   const tabs = [
     { id: "portfolio", label: "Portfolio" },
 
-    { id: "deposit", label: "Deposit" },
+    { id: "stake", label: "Stake" },
     { id: "withdraw", label: "Withdraw" },
     { id: "deposits", label: "My Deposits" },
     { id: "lend", label: "Lend", disabled: true },
@@ -109,11 +109,11 @@ function DashboardContent() {
       case "deposits":
         return (
           <DepositsTab
-            onNavigateDeposit={() => handleTabChange("deposit")}
+            onNavigateDeposit={() => handleTabChange("stake")}
             onNavigateWithdraw={() => handleTabChange("withdraw")}
           />
         );
-      case "deposit":
+      case "stake":
         return <Deposit />;
       case "withdraw":
         return <WithdrawTab />;
