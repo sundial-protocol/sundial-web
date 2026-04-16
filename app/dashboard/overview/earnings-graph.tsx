@@ -99,7 +99,7 @@ export default function EarningsGraph(props: {
 
   const [timeRange, setTimeRange] = useState("12m");
   return (
-    <div className="col-span-3 md:col-span-4">
+    <div className="col-span-5 xs:col-span-3 md:col-span-4">
       {/* Graph of past and future earnings */}
       <Card>
         <CardHeader>

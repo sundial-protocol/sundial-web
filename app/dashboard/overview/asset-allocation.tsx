@@ -92,7 +92,7 @@ export default function AssetAllocation() {
   ].filter((allocation) => allocation.amount > 0); // Only show non-zero allocations
 
   return (
-    <Card className="col-span-3">
+    <Card className="col-span-5 xs:col-span-3">
       <CardHeader>
         <CardTitle>Asset Allocation</CardTitle>
         <CardDescription>
@@ -146,7 +146,7 @@ export default function AssetAllocation() {
                 <div className="text-sm font-medium">
                   {formatAmount(
                     allocation.amount,
-                    allocation.symbol === "BTC" ? 4 : 2
+                    allocation.symbol === "BTC" ? 4 : 2,
                   )}{" "}
                   {allocation.symbol}({allocation.percentage.toFixed(1)}%)
                 </div>
@@ -192,7 +192,7 @@ export default function AssetAllocation() {
                     allocations
                       .filter((a) => a.type === "staked")
                       .reduce((sum, a) => sum + a.value, 0),
-                    0
+                    0,
                   )}
                 </div>
                 <div className="text-muted-foreground">Earning Yield</div>
@@ -204,7 +204,7 @@ export default function AssetAllocation() {
                     allocations
                       .filter((a) => a.type === "unstaked")
                       .reduce((sum, a) => sum + a.value, 0),
-                    0
+                    0,
                   )}
                 </div>
                 <div className="text-muted-foreground">Idle Holdings</div>

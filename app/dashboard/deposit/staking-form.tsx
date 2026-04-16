@@ -474,7 +474,10 @@ export default function StakingForm({
       const broadcastResponse = await fetch("/api/btc-broadcast", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rawTx: txHex }),
+        body: JSON.stringify({
+          rawTx: txHex,
+          network: selectedChain === "btc_testnet" ? "testnet" : "bitcoin",
+        }),
       });
 
       if (!broadcastResponse.ok) {

@@ -10,7 +10,7 @@ import Link from "next/link";
 
 export default function QuickActions() {
   return (
-    <Card className="col-span-2">
+    <Card className="col-span-3 xs:col-span-2">
       <CardHeader>
         <CardTitle>Quick Actions</CardTitle>
         <CardDescription>
