@@ -104,7 +104,7 @@ export default function RootLayout({
         className={cn(
           roboto.variable,
           galanoGrotesque.variable,
-          "overflow-visible"
+          "overflow-x-hidden",
         )}
       >
         <WalletProvider>

@@ -92,7 +92,7 @@ export default function AssetAllocation() {
   ].filter((allocation) => allocation.amount > 0); // Only show non-zero allocations
 
   return (
-    <Card className="col-span-5 xs:col-span-3">
+    <Card className="col-span-5 sm:col-span-3">
       <CardHeader>
         <CardTitle>Asset Allocation</CardTitle>
         <CardDescription>

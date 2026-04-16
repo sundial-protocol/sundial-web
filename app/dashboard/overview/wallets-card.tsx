@@ -14,7 +14,7 @@ import { ConnectButton } from "@/lib/wallet/bitcoin/btcbutton";
 
 export default function WalletsCard() {
   return (
-    <Card className="col-span-2 md:col-span-1">
+    <Card className="col-span-5 sm:col-span-1">
       <CardHeader>
         <CardTitle>Wallets</CardTitle>
         <CardDescription>
