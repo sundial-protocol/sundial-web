@@ -89,7 +89,7 @@ export default function WithdrawTab() {
           type="withdraw"
           onSuccess={handleSuccess}
           onAmountChange={handleAmountChange}
-          defaultChain="btc"
+          defaultChain="btc_testnet"
         />
 
         {/* Right: Staking/Yield Summary */}
