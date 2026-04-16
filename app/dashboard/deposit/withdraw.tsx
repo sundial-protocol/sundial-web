@@ -67,15 +67,17 @@ export default function WithdrawTab() {
     return <div className="p-6 text-center">Loading staking data...</div>;
   }
 
-  if (alreadyStaked === 0) {
+  if (true) {
+    // force this for now
     return (
       <div className="p-6 text-center">
-        <h2 className="text-2xl font-bold mb-4">No Active Stakes</h2>
+        <h2 className="text-2xl font-bold mb-4">No Unlocked Stakes</h2>
         <p className="text-muted-foreground mb-6">
-          You don't have any staked assets to withdraw.
+          Once your stake has passed its lock period, you'll be able to withdraw
+          your rewards here.
         </p>
         <Button asChild>
-          <Link href="/dashboard?tab=stake">Start Staking</Link>
+          <Link href="/dashboard?tab=stake">Keep Staking</Link>
         </Button>
       </div>
     );
