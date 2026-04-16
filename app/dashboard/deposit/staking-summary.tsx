@@ -93,7 +93,7 @@ export default function StakingSummaryCard({
           </div>
         </div>
         {/* Numeric summary */}
-        <div className="space-y-4">
+        <div className="space-y-4 text-sm">
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">
               Already Staked
