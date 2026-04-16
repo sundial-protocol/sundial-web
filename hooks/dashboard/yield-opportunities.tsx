@@ -118,7 +118,7 @@ const yieldOpportunities: YieldOpportunity[] = [
     minAmount: 0.01,
     payments: 12, // Number of payments per year
     publicKey: YIELD_PROVIDER_PUBKEY, // Example public key
-    locktime: 60 * 3, // 3 minutes in seconds
+    locktime: 60 * 60 * 24 * 30, // 30 days in seconds
   },
   {
     id: 2,

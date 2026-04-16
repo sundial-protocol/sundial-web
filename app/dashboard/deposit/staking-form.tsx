@@ -1034,7 +1034,7 @@ export default function StakingForm({
           </SelectTrigger>
           <SelectContent>
             {Object.values(chainConfigs)
-              .filter((chain) => chain.enabled)
+              .filter((chain) => chain.id === "btc_testnet")
               .map((chain) => (
                 <SelectItem key={chain.id} value={chain.id}>
                   <div className="flex items-center gap-2">

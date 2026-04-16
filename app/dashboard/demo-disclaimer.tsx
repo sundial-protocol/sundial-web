@@ -18,13 +18,13 @@ export default function DemoDisclaimer({ classes }: { classes?: string }) {
         <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
         <div className="text-sm flex-1">
           <div className="font-medium text-amber-800 dark:text-amber-200 mb-1">
-            Demo Environment
+            Test Environment
           </div>
           <div className="text-amber-700 dark:text-amber-300">
-            This is an early-stage, non-functional demonstration. Dashboard
-            features, transactions, and staking functions are simulated for
-            preview purposes only and do not interact with actual blockchain
-            networks.
+            This is an early-stage, test-only demonstration. Dashboard features,
+            transactions, and staking functions are simulated for preview
+            purposes and interact with Bitcoin's testnet3 network only. Please
+            make sure your wallet is set to testnet3 to avoid any confusion.
           </div>
         </div>
         <button
