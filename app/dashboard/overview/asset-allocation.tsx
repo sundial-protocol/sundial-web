@@ -12,7 +12,7 @@ import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 
 export default function AssetAllocation() {
   const { convert } = usePrices();
-  const { portfolioData } = useDashboardContext();
+  const { portfolioData, selectedYieldProvider } = useDashboardContext();
 
   // Calculate staked vs unstaked for BTC
   const totalBTC = portfolioData.holdings.BTC || 0;
@@ -40,7 +40,7 @@ export default function AssetAllocation() {
         totalPortfolioValue > 0
           ? (convert(stakedBTC, "BTC", "USD") / totalPortfolioValue) * 100
           : 0,
-      apy: portfolioData.staking.BTC.yield || 7.2,
+      apy: selectedYieldProvider?.apy ?? 3.5,
       risk: "Low",
       color: "bg-orange-500",
     },
@@ -70,7 +70,7 @@ export default function AssetAllocation() {
         totalPortfolioValue > 0
           ? (convert(stakedADA, "ADA", "USD") / totalPortfolioValue) * 100
           : 0,
-      apy: portfolioData.staking.ADA.yield || 5.5,
+      apy: selectedYieldProvider?.apy ?? 3.5,
       risk: "Low",
       color: "bg-blue-500",
     },

@@ -515,16 +515,14 @@ export default function StakingForm({
       }
 
       // Update transaction status
-      if (pendingTransactionId) {
-        updateTransactionStatus(
-          pendingTransactionId,
-          "completed",
-          txid,
-          isDeposit && unsignedTransactionData?.locktime
-            ? { locktime: unsignedTransactionData.locktime }
-            : undefined,
-        );
-      }
+      updateTransactionStatus(
+        transactionId,
+        "completed",
+        txid,
+        isDeposit && unsignedTransactionData?.locktime
+          ? { locktime: unsignedTransactionData.locktime }
+          : undefined,
+      );
 
       setStep("done");
       onSuccess?.(txid, selectedChain, amount);
@@ -542,9 +540,7 @@ export default function StakingForm({
       setError(errorMessage);
 
       // Update transaction as failed
-      if (pendingTransactionId) {
-        updateTransactionStatus(pendingTransactionId, "failed");
-      }
+      updateTransactionStatus(transactionId, "failed");
     }
     setLoading(false);
   };
@@ -1285,64 +1281,67 @@ export default function StakingForm({
     </form>
   );
 
-  const renderPsbtStep = () => (
-    <PsbtSigning
-      psbtBase64={psbtBase64}
-      targetAddress={isDeposit ? depositAddress : withdrawAddress}
-      expectedAmount={Math.floor(Number(amount) * 1e8)}
-      chain={selectedChain as "btc" | "btc_testnet"}
-      onTransactionFound={(txid) => {
-        console.log("Transaction found:", txid);
-        setBroadcastResult(txid);
+  const renderPsbtStep = () => {
+    const capturedPendingId = pendingTransactionId;
+    return (
+      <PsbtSigning
+        psbtBase64={psbtBase64}
+        targetAddress={isDeposit ? depositAddress : withdrawAddress}
+        expectedAmount={Math.floor(Number(amount) * 1e8)}
+        chain={selectedChain as "btc" | "btc_testnet"}
+        onTransactionFound={(txid) => {
+          console.log("Transaction found:", txid);
+          setBroadcastResult(txid);
 
-        // Save locktime for future withdrawal transactions (only for deposits)
-        if (isDeposit && unsignedTransactionData?.locktime) {
-          setSavedLocktime(unsignedTransactionData.locktime);
-          console.log(
-            "Saved locktime for withdrawal:",
-            unsignedTransactionData.locktime,
-          );
-        }
+          // Save locktime for future withdrawal transactions (only for deposits)
+          if (isDeposit && unsignedTransactionData?.locktime) {
+            setSavedLocktime(unsignedTransactionData.locktime);
+            console.log(
+              "Saved locktime for withdrawal:",
+              unsignedTransactionData.locktime,
+            );
+          }
 
-        // Update dashboard with successful transaction
-        try {
-          updateStakedAmount(
-            selectedChain as SupportedChain,
-            Number(amount),
-            type,
-          );
-        } catch (error) {
-          console.error("Error updating staked amount:", error);
-        }
+          // Update dashboard with successful transaction
+          try {
+            updateStakedAmount(
+              selectedChain as SupportedChain,
+              Number(amount),
+              type,
+            );
+          } catch (error) {
+            console.error("Error updating staked amount:", error);
+          }
 
-        // Update transaction status
-        if (pendingTransactionId) {
-          updateTransactionStatus(
-            pendingTransactionId,
-            "completed",
-            txid,
-            isDeposit && unsignedTransactionData?.locktime
-              ? { locktime: unsignedTransactionData.locktime }
-              : undefined,
-          );
-        }
+          // Update transaction status using captured id (avoids stale closure)
+          if (capturedPendingId) {
+            updateTransactionStatus(
+              capturedPendingId,
+              "completed",
+              txid,
+              isDeposit && unsignedTransactionData?.locktime
+                ? { locktime: unsignedTransactionData.locktime }
+                : undefined,
+            );
+          }
 
-        setStep("done");
-        onSuccess?.(txid, selectedChain, amount);
-      }}
-      onError={(error) => {
-        console.error("Transaction watching error:", error);
-        setError(error);
+          setStep("done");
+          onSuccess?.(txid, selectedChain, amount);
+        }}
+        onError={(error) => {
+          console.error("Transaction watching error:", error);
+          setError(error);
 
-        // Update transaction as failed
-        if (pendingTransactionId) {
-          updateTransactionStatus(pendingTransactionId, "failed");
-        }
-      }}
-      title={`Sign ${isDeposit ? "Deposit" : "Withdrawal"} Transaction`}
-      description={`Complete your ${amount} ${config.symbol} ${type} by signing the transaction below`}
-    />
-  );
+          // Update transaction as failed
+          if (capturedPendingId) {
+            updateTransactionStatus(capturedPendingId, "failed");
+          }
+        }}
+        title={`Sign ${isDeposit ? "Deposit" : "Withdrawal"} Transaction`}
+        description={`Complete your ${amount} ${config.symbol} ${type} by signing the transaction below`}
+      />
+    );
+  };
 
   const renderDoneStep = () => (
     <div className="space-y-4">

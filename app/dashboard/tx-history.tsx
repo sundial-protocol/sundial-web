@@ -456,8 +456,7 @@ export function TransactionHistory() {
                       {/* Transaction hash */}
                       <div className="flex items-center gap-2">
                         <span className="font-mono text-xs">
-                          {!transaction.txHash ||
-                          transaction.status === "pending"
+                          {!transaction.txHash
                             ? "Transaction pending..."
                             : `${transaction.txHash.slice(0, 16)}...`}
                         </span>
