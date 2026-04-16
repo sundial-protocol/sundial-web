@@ -172,7 +172,7 @@ export default function DashboardPage() {
         {
           styles: {
             top: "300px",
-            height: "1200px",
+            height: "700px",
             background: sunbeamGradient("to bottom"),
             clipPath: "polygon(190% 100%, 0% 0%, 0% 35%)",
           },
