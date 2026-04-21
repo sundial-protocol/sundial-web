@@ -5,10 +5,10 @@ export const isLocal = process.env.NEXT_PUBLIC_VERCEL_ENV === "development";
 export const isProd = !isDev;
 
 export const Flags = {
-  DISABLE_DASHBOARD: isProd,
+  DISABLE_DASHBOARD: false,
   DISABLE_STAKE_PAGE: isProd,
   DISABLE_VALIDATORS_PAGE: isProd,
   DISABLE_STAKING_PAGE: isProd,
   DISABLE_VALIDATOR_PAGES: isProd,
-  DISABLE_TESTNET: isProd,
+  DISABLE_TESTNET: false,
 };

@@ -12,7 +12,7 @@ import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 
 export default function AssetAllocation() {
   const { convert } = usePrices();
-  const { portfolioData } = useDashboardContext();
+  const { portfolioData, selectedYieldProvider } = useDashboardContext();
 
   // Calculate staked vs unstaked for BTC
   const totalBTC = portfolioData.holdings.BTC || 0;
@@ -40,7 +40,7 @@ export default function AssetAllocation() {
         totalPortfolioValue > 0
           ? (convert(stakedBTC, "BTC", "USD") / totalPortfolioValue) * 100
           : 0,
-      apy: portfolioData.staking.BTC.yield || 7.2,
+      apy: selectedYieldProvider?.apy ?? 3.5,
       risk: "Low",
       color: "bg-orange-500",
     },
@@ -70,7 +70,7 @@ export default function AssetAllocation() {
         totalPortfolioValue > 0
           ? (convert(stakedADA, "ADA", "USD") / totalPortfolioValue) * 100
           : 0,
-      apy: portfolioData.staking.ADA.yield || 5.5,
+      apy: selectedYieldProvider?.apy ?? 3.5,
       risk: "Low",
       color: "bg-blue-500",
     },
@@ -92,7 +92,7 @@ export default function AssetAllocation() {
   ].filter((allocation) => allocation.amount > 0); // Only show non-zero allocations
 
   return (
-    <Card className="col-span-3">
+    <Card className="col-span-5 sm:col-span-3">
       <CardHeader>
         <CardTitle>Asset Allocation</CardTitle>
         <CardDescription>
@@ -146,7 +146,7 @@ export default function AssetAllocation() {
                 <div className="text-sm font-medium">
                   {formatAmount(
                     allocation.amount,
-                    allocation.symbol === "BTC" ? 4 : 2
+                    allocation.symbol === "BTC" ? 4 : 2,
                   )}{" "}
                   {allocation.symbol}({allocation.percentage.toFixed(1)}%)
                 </div>
@@ -192,7 +192,7 @@ export default function AssetAllocation() {
                     allocations
                       .filter((a) => a.type === "staked")
                       .reduce((sum, a) => sum + a.value, 0),
-                    0
+                    0,
                   )}
                 </div>
                 <div className="text-muted-foreground">Earning Yield</div>
@@ -204,7 +204,7 @@ export default function AssetAllocation() {
                     allocations
                       .filter((a) => a.type === "unstaked")
                       .reduce((sum, a) => sum + a.value, 0),
-                    0
+                    0,
                   )}
                 </div>
                 <div className="text-muted-foreground">Idle Holdings</div>

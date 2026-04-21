@@ -237,8 +237,8 @@ export const fallbackOpportunities: YieldOpportunity[] = [
     minAmount: 0.0001,
     payments: 12, // Number of payments per year
     publicKey: YIELD_PROVIDER_PUBKEY, // Example public key
-    locktime: 604800, // 7 days in seconds
     provider_id: TEST_PROVIDER_ID,
+    locktime: 60 * 60 * 24 * 30, // 30 days in seconds
   },
   {
     id: 2,

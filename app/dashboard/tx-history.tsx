@@ -140,7 +140,7 @@ export function TransactionHistory() {
 
   // Sort transactions by timestamp (newest first)
   const sortedTransactions = [...transactions].sort(
-    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
   );
 
   const filteredTransactions = sortedTransactions.filter((tx) => {
@@ -222,22 +222,22 @@ export function TransactionHistory() {
     staking: transactions.filter(
       (tx) =>
         getTransactionCategory(tx.type) === "staking" &&
-        tx.status === "completed"
+        tx.status === "completed",
     ).length,
     lending: transactions.filter(
       (tx) =>
         getTransactionCategory(tx.type) === "lending" &&
-        tx.status === "completed"
+        tx.status === "completed",
     ).length,
     portfolio: transactions.filter(
       (tx) =>
         getTransactionCategory(tx.type) === "portfolio" &&
-        tx.status === "completed"
+        tx.status === "completed",
     ).length,
     earnings: transactions.filter(
       (tx) =>
         getTransactionCategory(tx.type) === "earnings" &&
-        tx.status === "completed"
+        tx.status === "completed",
     ).length,
   };
 
@@ -397,9 +397,9 @@ export function TransactionHistory() {
                           getTransactionCategory(transaction.type) === "lending"
                             ? "bg-purple-50 text-purple-700"
                             : getTransactionCategory(transaction.type) ===
-                              "staking"
-                            ? "bg-blue-50 text-blue-700"
-                            : "bg-gray-50 text-gray-700"
+                                "staking"
+                              ? "bg-blue-50 text-blue-700"
+                              : "bg-gray-50 text-gray-700"
                         }`}
                       >
                         {getTransactionCategory(transaction.type)}
@@ -456,8 +456,7 @@ export function TransactionHistory() {
                       {/* Transaction hash */}
                       <div className="flex items-center gap-2">
                         <span className="font-mono text-xs">
-                          {!transaction.txHash ||
-                          transaction.status === "pending"
+                          {!transaction.txHash
                             ? "Transaction pending..."
                             : `${transaction.txHash.slice(0, 16)}...`}
                         </span>
@@ -466,7 +465,7 @@ export function TransactionHistory() {
                             <a
                               href={getExplorerUrl(
                                 transaction.asset,
-                                transaction.txHash
+                                transaction.txHash,
                               )}
                               target="_blank"
                               rel="noopener noreferrer"
@@ -521,19 +520,19 @@ export function TransactionHistory() {
                   <Button
                     variant="outline"
                     onClick={() =>
-                      (window.location.href = "/dashboard?tab=deposit")
+                      (window.location.href = "/dashboard?tab=stake")
                     }
                   >
                     Make your first deposit
                   </Button>
-                  <Button
+                  {/*<Button
                     variant="outline"
                     onClick={() =>
                       (window.location.href = "/dashboard?tab=lending")
                     }
                   >
                     Create a loan
-                  </Button>
+                  </Button>*/}
                 </div>
               )}
             </div>

@@ -39,7 +39,10 @@ import {
   EarningsData,
   generateEarningsData,
 } from "@/hooks/dashboard/dashboard";
-import { YieldOpportunity } from "@/hooks/dashboard/yield-opportunities";
+import {
+  YieldOpportunity,
+  yieldFromProvider,
+} from "@/hooks/dashboard/yield-opportunities";
 
 ChartJS.register(
   CategoryScale,
@@ -98,8 +101,43 @@ export default function EarningsGraph(props: {
   );
 
   const [timeRange, setTimeRange] = useState("12m");
+
+  const monthCount = timeRange === "6m" ? 6 : timeRange === "24m" ? 24 : 12;
+  // generateEarningsData always produces 13 points centred on today.
+  // For shorter ranges keep only the last N points; for longer ones pad with
+  // extra projected months beyond what the generator produces.
+  const visibleData = (() => {
+    if (monthCount <= earningsData.length) {
+      return earningsData.slice(-monthCount);
+    }
+    // Build extra projected months beyond the existing data
+    const extra: EarningsData[] = [];
+    const last = earningsData[earningsData.length - 1];
+    let btc = last?.btcProjected ?? 0;
+    for (let i = 1; i <= monthCount - earningsData.length; i++) {
+      const date = new Date();
+      date.setMonth(date.getMonth() + 7 + i);
+      const monthName = date.toLocaleDateString("en-US", {
+        month: "short",
+        year: "numeric",
+      });
+      btc = btc + yieldFromProvider(btc, props.provider);
+      extra.push({
+        month: monthName,
+        btcEarnings: null,
+        adaEarnings: null,
+        total: null,
+        btcProjected: btc,
+        adaProjected: props.adaValue,
+        totalProjected: btc + props.adaValue,
+        type: "projected",
+      });
+    }
+    return [...earningsData, ...extra];
+  })();
+
   return (
-    <div className="col-span-3 md:col-span-4">
+    <div className="col-span-5 xs:col-span-3 md:col-span-4">
       {/* Graph of past and future earnings */}
       <Card>
         <CardHeader>
@@ -127,7 +165,7 @@ export default function EarningsGraph(props: {
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
-                data={earningsData}
+                data={visibleData}
                 margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
@@ -236,7 +274,12 @@ export default function EarningsGraph(props: {
           <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t">
             <div className="text-center">
               <div className="text-lg font-bold text-orange-600">
-                ${formatAmount(earningsData[7]?.btcProjected || 0, 0)}
+                $
+                {formatAmount(
+                  visibleData.find((d) => d.type === "projected")
+                    ?.btcProjected || 0,
+                  0,
+                )}
               </div>
               <div className="text-xs text-muted-foreground">
                 BTC (Projected - This Month)
@@ -244,7 +287,12 @@ export default function EarningsGraph(props: {
             </div>
             <div className="text-center">
               <div className="text-lg font-bold text-blue-600">
-                ${formatAmount(earningsData[7]?.adaProjected || 0, 0)}
+                $
+                {formatAmount(
+                  visibleData.find((d) => d.type === "projected")
+                    ?.adaProjected || 0,
+                  0,
+                )}
               </div>
               <div className="text-xs text-muted-foreground">
                 Other Assets (Projected - This Month)
@@ -252,7 +300,12 @@ export default function EarningsGraph(props: {
             </div>
             <div className="text-center">
               <div className="text-lg font-bold">
-                ${formatAmount(earningsData[7]?.totalProjected || 0, 0)}
+                $
+                {formatAmount(
+                  visibleData.find((d) => d.type === "projected")
+                    ?.totalProjected || 0,
+                  0,
+                )}
               </div>
               <div className="text-xs text-muted-foreground">
                 Total USD (Projected - This Month)

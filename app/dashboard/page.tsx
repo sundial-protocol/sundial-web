@@ -42,13 +42,12 @@ function DashboardContent() {
 
   const tabs = [
     { id: "portfolio", label: "Portfolio" },
-
     { id: "stake", label: "Stake" },
     { id: "withdraw", label: "Withdraw" },
     { id: "deposits", label: "My Deposits" },
     { id: "lend", label: "Lend", disabled: true },
-    { id: "yield", label: "Yield", disabled: true },
-    { id: "strategies", label: "Strategies", disabled: true },
+    //{ id: "yield", label: "Yield", disabled: true },
+    //{ id: "strategies", label: "Strategies", disabled: true },
     { id: "history", label: "History" },
   ];
 
@@ -117,12 +116,12 @@ function DashboardContent() {
         return <Deposit />;
       case "withdraw":
         return <WithdrawTab />;
-      case "yield":
-        return <YieldCatalog />;
-      case "lend":
-        return <LendingTab />;
-      case "strategies":
-        return <PrebuiltStrategies />;
+      //case "yield":
+      //  return <YieldCatalog />;
+      //case "lend":
+      //  return <LendingTab />;
+      //case "strategies":
+      //  return <PrebuiltStrategies />;
       case "history":
         return <TransactionHistory />;
       default:
@@ -138,13 +137,13 @@ function DashboardContent() {
 
         {/* Tab Navigation */}
         <div className="mb-8">
-          <div className="flex space-x-1 bg-muted p-1 rounded-lg">
+          <div className="flex space-x-1 bg-muted p-1 rounded-lg overflow-x-auto scrollbar-none">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => !tab.disabled && handleTabChange(tab.id)}
                 disabled={tab.disabled}
-                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors ${
+                className={`flex-1 min-w-fit flex items-center justify-center gap-2 px-3 py-2 rounded-md transition-colors ${
                   tab.disabled
                     ? "text-muted-foreground/50 cursor-not-allowed opacity-50"
                     : activeTab === tab.id
@@ -182,7 +181,7 @@ export default function DashboardPage() {
         {
           styles: {
             top: "300px",
-            height: "1200px",
+            height: "700px",
             background: sunbeamGradient("to bottom"),
             clipPath: "polygon(190% 100%, 0% 0%, 0% 35%)",
           },

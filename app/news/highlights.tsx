@@ -55,8 +55,8 @@ export default async function NewsHighlights() {
     "ascent-partnership",
     "appold-partnership",
     "btc-vegas-2025",
-    "sundial-attends-t2049-t4is",
     "financial-dashboard",
+    "Consensus-and-Liquidity",
   ];
 
   return (

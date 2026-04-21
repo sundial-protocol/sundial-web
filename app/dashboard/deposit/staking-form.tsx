@@ -72,7 +72,7 @@ export default function StakingForm({
   type,
   onSuccess,
   onAmountChange,
-  defaultChain = "btc",
+  defaultChain = "btc_testnet",
 }: StakingFormProps) {
   const {
     updateStakedAmount,
@@ -639,7 +639,7 @@ export default function StakingForm({
       <Alert>
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-center justify-between">
             <span>
               Connect your {config?.name || selectedChain} wallet for easier
               transactions
@@ -675,7 +675,7 @@ export default function StakingForm({
           </SelectTrigger>
           <SelectContent>
             {Object.values(chainConfigs)
-              .filter((chain) => chain.enabled)
+              .filter((chain) => chain.id === "btc_testnet")
               .map((chain) => (
                 <SelectItem key={chain.id} value={chain.id}>
                   <div className="flex items-center gap-2">

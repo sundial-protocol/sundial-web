@@ -11,12 +11,8 @@ import { yieldFromProvider } from "@/hooks/dashboard/yield-opportunities";
 import { usePrices } from "@/hooks/dashboard/prices";
 
 export default function WithdrawTab() {
-  const {
-    portfolioData,
-    calculations,
-    isLoading,
-    selectedYieldProvider,
-  } = useDashboardContext();
+  const { portfolioData, calculations, isLoading, selectedYieldProvider } =
+    useDashboardContext();
   const { convert } = usePrices();
   const [selectedChain, setSelectedChain] = useState<SupportedChain>("btc");
   const [amount, setAmount] = useState("");
@@ -66,16 +62,17 @@ export default function WithdrawTab() {
     return <div className="p-6 text-center">Loading staking data...</div>;
   }
 
-  // TODO: set alreadyStaked with real staked amounts from server.
-  //if (alreadyStaked === 0) {
+  //if (true) {
+  //  // TODO: Check if there are any unlocked stakes available for withdrawal. If not, show this message instead of the form.
   //  return (
   //    <div className="p-6 text-center">
-  //      <h2 className="text-2xl font-bold mb-4">No Active Stakes</h2>
+  //      <h2 className="text-2xl font-bold mb-4">No Unlocked Stakes</h2>
   //      <p className="text-muted-foreground mb-6">
-  //        You don't have any staked assets to withdraw.
+  //        Once your stake has passed its lock period, you'll be able to withdraw
+  //        your rewards here.
   //      </p>
   //      <Button asChild>
-  //        <Link href="/dashboard?tab=deposit">Start Staking</Link>
+  //        <Link href="/dashboard?tab=stake">Keep Staking</Link>
   //      </Button>
   //    </div>
   //  );
@@ -89,7 +86,7 @@ export default function WithdrawTab() {
           type="withdraw"
           onSuccess={handleSuccess}
           onAmountChange={handleAmountChange}
-          defaultChain="btc"
+          defaultChain="btc_testnet"
         />
 
         {/* Right: Staking/Yield Summary */}

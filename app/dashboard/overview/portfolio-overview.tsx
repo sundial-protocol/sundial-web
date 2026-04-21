@@ -43,7 +43,9 @@ export function PortfolioOverview() {
             adaValue: calculations.adaValue,
           }}
         />*/}
-        <QuickActions />
+        <div className="hidden md:contents">
+          <QuickActions />
+        </div>
 
         <AssetAllocation />
       </div>

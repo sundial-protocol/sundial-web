@@ -37,8 +37,18 @@ function NavLink({
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
-  const [drawerOpen, setDrawerOpen] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+
+  // Open drawer by default on desktop, keep closed on mobile
+  useEffect(() => {
+    const checkDesktop = () => {
+      if (window.innerWidth >= 768) {
+        setDrawerOpen(true);
+      }
+    };
+    checkDesktop();
+  }, []);
   const pathname = usePathname();
 
   // Track scroll position to maintain navbar position
@@ -99,7 +109,7 @@ export default function Navbar() {
           className={cn(
             `grid grid-cols-5 justify-center gap-6 rounded-full p-2 transition-all duration-300`,
             drawerOpen
-              ? "bg-transparent gap-10 mt-0"
+              ? "bg-transparent gap-4 md:gap-10 mt-0"
               : "bg-primary-foreground/70 backdrop-blur-md",
           )}
         >
@@ -131,11 +141,16 @@ export default function Navbar() {
               )}
             </span>
             {drawerOpen && (
-              <span className={cn("text-sm", !Flags.DISABLE_DASHBOARD && "")}>
+              <span
+                className={cn(
+                  "text-xs md:text-sm",
+                  !Flags.DISABLE_DASHBOARD && "",
+                )}
+              >
                 {Flags.DISABLE_DASHBOARD ? (
                   <span className="flex items-center gap-1">
                     <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
-                    <span className="text-sm font-semibold tracking-wide text-red-500">
+                    <span className="text-xs md:text-sm font-semibold tracking-wide text-red-500">
                       Coming Soon
                     </span>
                   </span>
@@ -151,28 +166,32 @@ export default function Navbar() {
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
             <BadgeCheck className={navIconCn} />
-            {drawerOpen && <span className="text-sm">Solutions</span>}
+            {drawerOpen && (
+              <span className="text-xs md:text-sm">Solutions</span>
+            )}
           </NavLink>
           <NavLink
             href="/"
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
             <HomeIcon className={navIconCn} />
-            {drawerOpen && <span className="text-sm">Home</span>}
+            {drawerOpen && <span className="text-xs md:text-sm">Home</span>}
           </NavLink>
           <NavLink
             href="/company"
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
             <Building className={navIconCn} />
-            {drawerOpen && <span className="text-sm">Company</span>}
+            {drawerOpen && <span className="text-xs md:text-sm">Company</span>}
           </NavLink>
           <NavLink
             href="/resources"
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
             <Folder className={navIconCn} />
-            {drawerOpen && <span className="text-sm">Resources</span>}
+            {drawerOpen && (
+              <span className="text-xs md:text-sm">Resources</span>
+            )}
           </NavLink>
         </nav>
 

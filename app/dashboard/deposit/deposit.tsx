@@ -70,7 +70,7 @@ export default function DepositTab() {
           type="deposit"
           onSuccess={handleSuccess}
           onAmountChange={handleAmountChange}
-          defaultChain="btc"
+          defaultChain="btc_testnet"
         />
 
         <div className="grid grid-cols-1 gap-6">

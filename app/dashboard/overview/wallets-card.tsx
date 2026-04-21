@@ -8,15 +8,15 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Bitcoin, Coins } from "lucide-react";
-import { WalletButton } from "@/lib/wallet/cardano/wallet-button";
+//import { WalletButton } from "@/lib/wallet/cardano/wallet-button";
 import { Button } from "@/components/ui/button";
 import { ConnectButton } from "@/lib/wallet/bitcoin/btcbutton";
 
 export default function WalletsCard() {
   return (
-    <Card className="col-span-2 md:col-span-1">
+    <Card className="col-span-5 sm:col-span-1">
       <CardHeader>
-        <CardTitle>Wallet Connections</CardTitle>
+        <CardTitle>Wallets</CardTitle>
         <CardDescription>
           View and connect wallets from different ecosystems
         </CardDescription>
@@ -51,10 +51,10 @@ export default function WalletsCard() {
 
             {/*<WalletButton />*/}
             <Button variant="outline" disabled>
-              Connect Cardano Wallet
+              Cardano
             </Button>
             <Button variant="outline" disabled>
-              Connect Dogecoin Wallet
+              Dogecoin
             </Button>
           </div>
         </div>

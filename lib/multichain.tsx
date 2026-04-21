@@ -30,7 +30,7 @@ export const chainConfigs: Record<SupportedChain, ChainConfig> = {
     addressPrefix: "bc1q",
     minDeposit: 0.00001,
     decimals: 8,
-    explorerBaseUrl: "https://blockstream.info/",
+    explorerBaseUrl: "https://mempool.space/",
     explorerTxSlug: "tx/",
     features: [
       "Native Bitcoin staking",

@@ -3,13 +3,23 @@ import { Psbt } from "bitcoinjs-lib";
 import type { BtcBroadcastResponse } from "./types";
 import { finalizePsbtSafe } from "@/lib/psbt-finalize";
 import { bitcoinApi } from "@/lib/bitcoin-api";
+import { BitcoinAPI, NETWORKS } from "@sundial-protocol/btc-locker";
 
 export async function POST(
   request: NextRequest,
 ): Promise<NextResponse<BtcBroadcastResponse>> {
   try {
     const body = await request.json();
-    const { psbt, rawTx } = body;
+    const { psbt, rawTx, network } = body;
+
+    // Use a network-specific API so testnet PSBTs broadcast to testnet
+    // and mainnet PSBTs broadcast to mainnet, regardless of deployment env.
+    const api =
+      network === "testnet"
+        ? new BitcoinAPI(NETWORKS.testnet)
+        : network === "bitcoin"
+          ? new BitcoinAPI(NETWORKS.bitcoin)
+          : bitcoinApi; // fallback to env-based default
 
     if (!psbt && !rawTx) {
       return NextResponse.json(
@@ -64,7 +74,7 @@ export async function POST(
     // Broadcast using the shared BitcoinAPI client
     let txid: string;
     try {
-      const result = await bitcoinApi.broadcastTransaction(txHex);
+      const result = await api.broadcastTransaction(txHex);
       txid = result.txid;
     } catch (broadcastError: any) {
       return NextResponse.json(
