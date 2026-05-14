@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Section } from "@/components/ui/section";
 import { pdfjs, Document, Page } from "react-pdf";
 import "react-pdf/dist/esm/Page/TextLayer.css";
@@ -11,6 +11,20 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/b
 
 export default function AuditReport() {
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [pageWidth, setPageWidth] = useState(500);
+
+  useEffect(() => {
+    const update = () => {
+      if (containerRef.current) {
+        setPageWidth(Math.min(containerRef.current.clientWidth, 500));
+      }
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    if (containerRef.current) observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   const scrollToPage = (pageNumber: number) => {
     const pageElement = pageRefs.current[pageNumber - 1];
@@ -22,7 +36,10 @@ export default function AuditReport() {
   return (
     <Section>
       <NavDrawer scrollCallback={scrollToPage} />
-      <div className="flex flex-col items-center justify-center">
+      <div
+        ref={containerRef}
+        className="flex flex-col items-center justify-center w-full"
+      >
         <Document
           file="/hacken-audit-report.pdf"
           loading="Loading document..."
@@ -36,7 +53,7 @@ export default function AuditReport() {
               }}
               className="mb-8"
             >
-              <Page pageNumber={i + 1} width={500} />
+              <Page pageNumber={i + 1} width={pageWidth} />
             </div>
           ))}
         </Document>
