@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Book, FileText, Sunrise } from "lucide-react";
+import { ArrowRight, Book, FileText, ShieldCheck } from "lucide-react";
 import { Section } from "@/components/ui/section";
 import { HeroSection } from "@/components/ui/hero-section";
 import SunbeamBackground, {
@@ -108,10 +108,10 @@ export default async function DocsPage() {
             />
 
             <PageLink
-              icon={Sunrise}
-              href="/resources/roadmap"
-              title="Roadmap"
-              description="View our development roadmap and upcoming features."
+              icon={ShieldCheck}
+              href="/resources/audit"
+              title="Security Audit"
+              description="Read the code review and security analysis report from Hacken."
             />
           </div>
         </Section>
