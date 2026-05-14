@@ -55,7 +55,7 @@ const CoreTeamMembers: TeamMemberType[] = [
     role: "Institutional Lead",
     image: "/team/lewis.jpg",
     link: "https://www.linkedin.com/in/lewis-harding/",
-    bio: `Lewis Harding is a usiness development strategist with
+    bio: `Lewis Harding is a business development strategist with
       15+ years driving partner ecosystems
       and strategic alliances across ASEAN
       markets. He has led cross-functional teams
