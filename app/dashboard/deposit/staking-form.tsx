@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import mempoolJS from "@mempool/mempool.js";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,

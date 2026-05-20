@@ -41,7 +41,7 @@
     "@reown/appkit": "^1.8.14",
     "@reown/appkit-adapter-bitcoin": "^1.8.14",
     "@sundial-protocol/ada-locker": "1.0.0",
-    "@sundial-protocol/btc-locker": "^2.0.2",
+    "@sundial-protocol/btc-locker": "^2.0.5",
     "@tailwindcss/typography": "^0.5.16",
     "autoprefixer": "^10.4.20",
     "bech32": "^2.0.0",

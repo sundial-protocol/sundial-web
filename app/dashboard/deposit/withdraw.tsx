@@ -11,7 +11,7 @@ import { yieldFromProvider } from "@/hooks/dashboard/yield-opportunities";
 import { usePrices } from "@/hooks/dashboard/prices";
 
 export default function WithdrawTab() {
-  const { portfolioData, calculations, isLoading, selectedYieldProvider } =
+  const { portfolioData, calculations, selectedYieldProvider } =
     useDashboardContext();
   const { convert } = usePrices();
   const [selectedChain, setSelectedChain] = useState<SupportedChain>("btc");
@@ -57,10 +57,6 @@ export default function WithdrawTab() {
   );
   // Then convert back
   const newYield = convert(newYieldUSD, "USD", config.symbol);
-
-  if (isLoading) {
-    return <div className="p-6 text-center">Loading staking data...</div>;
-  }
 
   //if (true) {
   //  // TODO: Check if there are any unlocked stakes available for withdrawal. If not, show this message instead of the form.

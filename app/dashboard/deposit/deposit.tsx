@@ -10,8 +10,7 @@ import { YieldOpportunityCard } from "@/components/yield-opportunity-card";
 import { yieldFromProvider } from "@/hooks/dashboard/yield-opportunities";
 
 export default function DepositTab() {
-  const { calculations, isLoading, selectedYieldProvider } =
-    useDashboardContext();
+  const { calculations, selectedYieldProvider } = useDashboardContext();
   const { convert } = usePrices();
   const [selectedChain, setSelectedChain] = useState<SupportedChain>("btc");
   const [amount, setAmount] = useState("");
@@ -53,10 +52,6 @@ export default function DepositTab() {
   );
   // Then convert back
   const newYield = convert(newYieldUSD, "USD", config.symbol);
-
-  if (isLoading) {
-    return <div className="p-6 text-center">Loading staking data...</div>;
-  }
 
   return (
     <div className="mx-auto p-6">

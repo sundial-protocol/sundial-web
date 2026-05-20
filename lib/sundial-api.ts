@@ -5,14 +5,14 @@
  * correctly across Next.js server restarts without caching a stale value.
  *
  * Local dev:  SUNDIAL_API_URL=http://localhost:8080  (Docker Compose)
- * Production: SUNDIAL_API_URL=https://api.sundialprotocol.com  (AWS)
+ * Production: SUNDIAL_API_URL=https://api.testnet.sundialprotocol.com  (AWS)
  */
 
 function getBaseUrl(): string {
   const url = process.env.SUNDIAL_API_URL;
   if (!url) {
     throw new Error(
-      "SUNDIAL_API_URL is not set. Add it to .env.local (e.g. http://localhost:8080)",
+      "SUNDIAL_API_URL is not set. Add it to .env (e.g. https://api.testnet.sundialprotocol.com) or set it in your .",
     );
   }
   // Strip trailing slash for consistent path joining
