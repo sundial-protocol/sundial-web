@@ -66,6 +66,8 @@
   padding: 250px 0;
   transition: all 1s;
   overflow-x: scroll;
+  overflow-y: hidden;
+  scrollbar-width: none; /* Firefox */
 }
 
 .timeline ol li {

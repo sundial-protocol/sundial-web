@@ -100,13 +100,7 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="canonical" href="https://sundialprotocol.com"></link>
       </head>
-      <body
-        className={cn(
-          roboto.variable,
-          galanoGrotesque.variable,
-          "overflow-x-hidden",
-        )}
-      >
+      <body className={cn(roboto.variable, galanoGrotesque.variable)}>
         <WalletProvider>
           <CustomThemeProvider>
             <ToastProvider>
