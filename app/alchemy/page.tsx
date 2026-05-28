@@ -3,6 +3,7 @@ import { Section } from "@/components/ui/section";
 import Link from "next/link";
 import {
   BookOpen,
+  Code2,
   Cpu,
   TrendingUp,
   MessageCircleQuestion,
@@ -53,6 +54,14 @@ const subpages = [
     description:
       "DRep resources, Cardano strategic case, milestone structure, and how to participate in the vote.",
     color: "text-purple-400",
+  },
+  {
+    href: "/alchemy/technical-implementation",
+    icon: Code2,
+    title: "Technical Implementation",
+    description:
+      "How Charms' zkVM-based programmable asset protocol powers FIRE and ICE natively on Cardano.",
+    color: "text-cyan-400",
   },
 ];
 
