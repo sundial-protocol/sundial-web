@@ -1,5 +1,6 @@
 import { HeroSection } from "@/components/ui/hero-section";
 import { Section } from "@/components/ui/section";
+import Image from "next/image";
 import Link from "next/link";
 import {
   BookOpen,
@@ -13,6 +14,7 @@ import {
   Snowflake,
 } from "lucide-react";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
+import AlchemyLogoStrip from "./alchemy-logo-strip";
 
 const subpages = [
   {
@@ -20,15 +22,15 @@ const subpages = [
     icon: BookOpen,
     title: "The Proposal",
     description:
-      "Read the full Cardano treasury proposal — funding structure, milestones, and accountability.",
+      "Read the full Cardano treasury proposal - funding structure, milestones, and accountability.",
     color: "text-primary",
   },
   {
     href: "/alchemy/visualizer",
     icon: Cpu,
-    title: "System Visualizer",
+    title: "Simulator",
     description:
-      "Interactive simulator: move sliders to see how the reserve, FIRE, and ICE respond to market changes.",
+      "Interactive visualizer: move sliders to see how the reserve, FIRE, and ICE respond to market changes.",
     color: "text-orange-400",
   },
   {
@@ -88,12 +90,17 @@ export default function AlchemyPage() {
               <span className="h-2 w-2 rounded-full bg-primary" />
               Cardano Treasury Proposal
             </div>
-            <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter">
-              Alchemy
-            </h1>
+            <Image
+              src="/alchemy/Alchemy.png"
+              alt="Alchemy"
+              width={651}
+              height={291}
+              priority
+              className="h-auto w-full sm:w-5/6 md:w-4/5 lg:w-3/4 object-contain"
+            />
             <p className="text-lg md:text-xl text-foreground/70 max-w-2xl">
               Bitcoin reserve infrastructure for Cardano. Two complementary
-              assets — FIRE and ICE — backed by a shared BTC reserve, built with
+              assets - FIRE and ICE - backed by a shared BTC reserve, built with
               Charms.
             </p>
             <div className="flex flex-col sm:flex-row items-center gap-3">
@@ -114,6 +121,11 @@ export default function AlchemyPage() {
         </HeroSection>
       </SunbeamBackground>
 
+      {/* Partners */}
+      <Section className="max-w-5xl mx-auto px-4 w-full pb-8">
+        <AlchemyLogoStrip />
+      </Section>
+
       {/* FIRE / ICE explainer cards */}
       <Section className="max-w-5xl mx-auto px-4 w-full">
         <div className="grid md:grid-cols-2 gap-5">
@@ -132,7 +144,7 @@ export default function AlchemyPage() {
             </div>
             <p className="text-sm text-foreground/70 leading-relaxed">
               The junior reserve-growth asset. FIRE absorbs downside first and
-              captures residual upside after ICE liabilities are met —
+              captures residual upside after ICE liabilities are met -
               higher-beta BTC exposure without margin calls or liquidation
               mechanics.
             </p>
@@ -142,7 +154,7 @@ export default function AlchemyPage() {
             <ul className="space-y-1.5 text-sm text-foreground/60">
               <li className="flex items-center gap-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-orange-400 shrink-0" />
-                Junior claim — absorbs volatility first
+                Junior claim - absorbs volatility first
               </li>
               <li className="flex items-center gap-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-orange-400 shrink-0" />
@@ -175,7 +187,7 @@ export default function AlchemyPage() {
             <p className="text-sm text-foreground/70 leading-relaxed">
               The senior BTC-backed claim. ICE is a lower-volatility,
               USD-denominated asset with formulaic growth funded by the reserve
-              structure. Not short Bitcoin — the senior claim in the reserve.
+              structure. Not short Bitcoin - the senior claim in the reserve.
             </p>
             <div className="rounded-lg bg-background/50 border border-sky-500/10 px-4 py-3 font-mono text-sm text-sky-300">
               r = (V·P) / L &nbsp;&nbsp;|&nbsp;&nbsp; Target: 4.0×
@@ -183,7 +195,7 @@ export default function AlchemyPage() {
             <ul className="space-y-1.5 text-sm text-foreground/60">
               <li className="flex items-center gap-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-sky-400 shrink-0" />
-                Senior claim — protected from downside first
+                Senior claim - protected from downside first
               </li>
               <li className="flex items-center gap-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-sky-400 shrink-0" />
@@ -229,7 +241,7 @@ export default function AlchemyPage() {
       </Section>
 
       {/* Subpage navigation */}
-      <Section className="max-w-5xl mx-auto px-4 w-full">
+      <Section className="max-w-5xl mx-auto px-4 pb-24 w-full">
         <div className="mb-8">
           <p className="text-xs font-semibold uppercase tracking-widest text-foreground/40 mb-2">
             Explore
@@ -266,20 +278,6 @@ export default function AlchemyPage() {
               </Link>
             );
           })}
-        </div>
-      </Section>
-
-      {/* Partners */}
-      <Section className="max-w-5xl mx-auto px-4 w-full pb-24">
-        <div className="rounded-xl border border-white/10 bg-secondary/40 px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-foreground/50 uppercase tracking-widest font-medium">
-            Built with
-          </p>
-          <div className="flex items-center gap-8 text-foreground">
-            <span className="text-lg font-bold">Sundial Protocol</span>
-            <span className="text-foreground/30 text-xl">×</span>
-            <span className="text-lg font-bold">Charms</span>
-          </div>
         </div>
       </Section>
     </div>

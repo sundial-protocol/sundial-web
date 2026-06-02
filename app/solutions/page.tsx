@@ -31,9 +31,10 @@ export default function Home() {
         </section>
       </HeroSection>
 
-      <EnterpriseSolutions />
-      <DawnTestnet />
+      {/*<EnterpriseSolutions />*/}
       <AlchemyWidget />
+      <DawnTestnet />
+
       <L2Architecture />
       <UseCases />
       {/* <Partners classes="py-8 w-3/4 mx-auto" /> */}
