@@ -1,0 +1,18 @@
+export const C = {
+  bgDeep: "#06101E",
+  bg: "#0A1628",
+  card: "#152846",
+  cardEdge: "#1F3A66",
+  charms: "#3FB8FF",
+  fire: "#FF6A1A",
+  ice: "#5BC0EB",
+  btc: "#F7931A",
+  white: "#FFFFFF",
+  text: "#E6EEF7",
+  muted: "#A8B5C8",
+  dim: "#6B7A92",
+  healthy: "#5BD08A",
+  buffer: "#F0C75A",
+  locked: "#F0974A",
+  frozen: "#F08080",
+};
