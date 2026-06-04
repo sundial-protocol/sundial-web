@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alchemy — How It Works</title>
+<style>
+  :root {
+    --bg: #0A1628;
+    --bg-deep: #06101E;
+    --card: #152846;
+    --card-edge: #1F3A66;
+    --charms: #3FB8FF;
+    --fire: #FF6A1A;
+    --fire-deep: #C8350A;
+    --ice: #5BC0EB;
+    --ice-deep: #1F6FA8;
+    --btc: #F7931A;
+    --white: #FFFFFF;
+    --text: #E6EEF7;
+    --muted: #A8B5C8;
+    --dim: #6B7A92;
+    --healthy: #5BD08A;
+    --buffer: #F0C75A;
+    --locked: #F0974A;
+    --frozen: #F08080;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg-deep); }
+  body {
+    color: var(--text);
+    font-family: 'Calibri', 'Segoe UI', system-ui, sans-serif;
+    line-height: 1.5;
+    padding: 10px 24px 40px;
+  }
+  .container { max-width: 1100px; margin: 0 auto; }
+  h1, h2, h3 {
+    font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+    font-weight: bold;
+  }
+
+  /* Header */
+  .header { text-align: center; margin-bottom: 50px; }
+  .header h1 {
+    font-size: 64px;
+    color: var(--white);
+    letter-spacing: 8px;
+    margin-bottom: 8px;
+  }
+  .header .tagline {
+    font-style: italic;
+    color: var(--charms);
+    font-size: 22px;
+  }
+  .header .sub {
+    color: var(--muted);
+    font-size: 14px;
+    margin-top: 16px;
+    letter-spacing: 1px;
+  }
+
+  /* Section card */
+  .section {
+    background: var(--card);
+    border: 1px solid var(--card-edge);
+    border-left: 4px solid var(--charms);
+    border-radius: 8px;
+    padding: 32px;
+    margin-bottom: 28px;
+  }
+  .section .eyebrow {
+    color: var(--charms);
+    font-family: 'Trebuchet MS', sans-serif;
+    font-weight: bold;
+    font-size: 11px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .section h2 {
+    color: var(--white);
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+  .section .lede {
+    color: var(--muted);
+    font-size: 15px;
+  }
+
+  /* Charms diagram (top) */
+  .charms-section {
+    background: linear-gradient(180deg, var(--bg) 0%, #04080F 100%);
+    border-left-color: var(--btc);
+    padding: 24px;
+    text-align: center;
+  }
+  .charms-section svg { width: 100%; max-width: 920px; height: auto; }
+
+  /* Vault gauge (live visualization in simulator) */
+  .vault-viz {
+    background: var(--bg-deep);
+    border: 1px solid var(--card-edge);
+    border-radius: 8px;
+    padding: 12px 8px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .vault-viz svg { width: 100%; height: auto; max-width: 240px; }
+  .vault-viz rect, .vault-viz line { transition: all 0.25s ease; }
+  .vault-viz text { transition: opacity 0.25s ease, y 0.25s ease; }
+
+  /* Math */
+  .formulas {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 22px;
+  }
+  .formula {
+    background: var(--bg-deep);
+    border: 1px solid var(--card-edge);
+    border-radius: 8px;
+    padding: 22px 18px;
+    text-align: center;
+  }
+  .formula .eqn {
+    font-family: Cambria, Georgia, serif;
+    font-size: 22px;
+    color: var(--white);
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+  }
+  .formula .eqn .var { color: var(--charms); font-style: italic; }
+  .formula .eqn .var.fire { color: var(--fire); }
+  .formula .eqn .var.ice  { color: var(--ice);  }
+  .formula .eqn .var.btc  { color: var(--btc);  }
+  .formula .lbl {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  .punchline {
+    margin-top: 24px;
+    padding: 18px 22px;
+    background: var(--bg-deep);
+    border-left: 3px solid var(--charms);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .punchline em { color: var(--charms); font-style: italic; }
+
+  /* Simulator */
+  .sim {
+    display: grid;
+    grid-template-columns: 280px 220px 1fr;
+    gap: 24px;
+    margin-top: 22px;
+    align-items: start;
+  }
+  @media (max-width: 1000px) {
+    .sim { grid-template-columns: 1fr 220px; }
+    .vault-viz { grid-column: 2; grid-row: 1 / span 2; }
+  }
+  @media (max-width: 800px) {
+    .sim { grid-template-columns: 1fr; }
+    .vault-viz { grid-column: auto; grid-row: auto; }
+    .formulas { grid-template-columns: 1fr; }
+  }
+
+  .controls .slider-group { margin-bottom: 22px; }
+  .controls label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+  .controls label .val {
+    color: var(--white);
+    font-family: 'Trebuchet MS', sans-serif;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+    text-transform: none;
+  }
+  .controls input[type="range"] {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    background: var(--bg-deep);
+    border-radius: 3px;
+    outline: none;
+    border: 1px solid var(--card-edge);
+  }
+  .controls input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--charms);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 2px var(--charms);
+  }
+  .controls input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: var(--charms);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid var(--bg);
+  }
+
+  .readouts {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .readout {
+    background: var(--bg-deep);
+    border: 1px solid var(--card-edge);
+    border-radius: 8px;
+    padding: 18px;
+  }
+  .readout.fire   { border-left: 3px solid var(--fire); }
+  .readout.ice    { border-left: 3px solid var(--ice); }
+  .readout.btc    { border-left: 3px solid var(--btc); }
+  .readout.charms { border-left: 3px solid var(--charms); }
+  .readout .lbl {
+    color: var(--muted);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  .readout .num {
+    color: var(--white);
+    font-size: 28px;
+    font-weight: bold;
+    margin-top: 6px;
+    font-family: 'Trebuchet MS', sans-serif;
+    letter-spacing: 0.5px;
+  }
+  .readout .num.fire { color: var(--fire); }
+  .readout .num.ice  { color: var(--ice); }
+  .readout .num.btc  { color: var(--btc); }
+  .readout .sub { color: var(--dim); font-size: 11px; margin-top: 4px; }
+
+  /* Capital stack */
+  .stack-row {
+    margin-top: 20px;
+    padding: 18px;
+    background: var(--bg-deep);
+    border-radius: 8px;
+    border: 1px solid var(--card-edge);
+  }
+  .stack-row .stack-lbl {
+    color: var(--muted);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+  .stack-bar {
+    display: flex;
+    height: 46px;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .stack-bar div {
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    color: var(--bg-deep);
+    font-weight: bold;
+    font-family: 'Trebuchet MS', sans-serif;
+    font-size: 13px;
+    transition: width 0.25s ease;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .stack-bar .ice-block { background: var(--ice); justify-content: flex-start; }
+  .stack-bar .fire-block { background: var(--fire); justify-content: flex-start; }
+  .stack-bar .underwater { background: #4A1A1A; color: var(--frozen); justify-content: center; width: 100% !important; }
+
+  /* Zone */
+  .zone {
+    margin-top: 18px;
+    padding: 14px 16px;
+    background: var(--bg-deep);
+    border-radius: 8px;
+    border-left: 4px solid var(--healthy);
+    transition: border-left-color 0.25s ease;
+  }
+  .zone .zone-eyebrow {
+    color: var(--muted);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  .zone .zone-name {
+    color: var(--white);
+    font-size: 18px;
+    font-weight: bold;
+    font-family: 'Trebuchet MS', sans-serif;
+    margin-top: 4px;
+  }
+  .zone .zone-desc {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  /* Thermometer */
+  .therm-wrap {
+    margin-top: 24px;
+    padding: 20px 22px 18px;
+    background: var(--bg-deep);
+    border-radius: 8px;
+    border: 1px solid var(--card-edge);
+  }
+  .therm-bar {
+    position: relative;
+    height: 52px;
+    margin-top: 36px;
+  }
+  .therm-track {
+    display: flex;
+    height: 52px;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .therm-bar .seg {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1.2;
+    padding: 0 6px;
+    font-family: 'Trebuchet MS', sans-serif;
+  }
+  .therm-bar .seg-frozen  { background: #7A1F1F; }
+  .therm-bar .seg-locked  { background: #8A4A1A; }
+  .therm-bar .seg-buffer  { background: #8A6A1A; }
+  .therm-bar .seg-healthy { background: #1F6B3A; }
+  .marker {
+    position: absolute;
+    top: -10px;
+    bottom: -10px;
+    width: 3px;
+    margin-left: -1.5px;
+    background: var(--white);
+    box-shadow: 0 0 6px rgba(255,255,255,0.6);
+    transition: left 0.25s ease;
+    z-index: 2;
+  }
+  .marker-tag {
+    position: absolute;
+    top: -36px;
+    background: var(--white);
+    color: var(--bg-deep);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-family: 'Trebuchet MS', sans-serif;
+    font-weight: bold;
+    font-size: 13px;
+    transform: translateX(-50%);
+    transition: left 0.25s ease;
+    white-space: nowrap;
+    z-index: 3;
+  }
+  .marker-tag::after {
+    content: "";
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid var(--white);
+  }
+  .therm-ticks {
+    display: flex;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 8px;
+    font-family: 'Trebuchet MS', sans-serif;
+    padding: 0 2px;
+  }
+
+  /* Scenarios */
+  .scenarios {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 22px;
+  }
+  @media (max-width: 800px) {
+    .scenarios { grid-template-columns: 1fr; }
+  }
+  .scenario {
+    background: var(--bg-deep);
+    border: 1px solid var(--card-edge);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .scenario .delta {
+    font-family: 'Trebuchet MS', sans-serif;
+    font-weight: bold;
+    color: var(--btc);
+    font-size: 18px;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--card-edge);
+  }
+  .scenario .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 9px;
+  }
+  .scenario .row .lbl { color: var(--muted); font-size: 12px; }
+  .scenario .row .v {
+    font-family: 'Trebuchet MS', sans-serif;
+    font-weight: bold;
+    font-size: 17px;
+    color: var(--white);
+  }
+  .scenario .row .v.fire { color: var(--fire); }
+  .scenario .row .v.ice  { color: var(--ice); }
+
+  .footer {
+    text-align: center;
+    color: var(--dim);
+    font-size: 11px;
+    margin-top: 50px;
+    letter-spacing: 5px;
+    font-family: 'Trebuchet MS', sans-serif;
+  }
+  .footer .diamond {
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--charms);
+    transform: rotate(45deg);
+    margin: 0 12px;
+    vertical-align: middle;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>ALCHEMY</h1>
+    <div class="tagline">Two charms. One Bitcoin.</div>
+    <div class="sub">THE MATHEMATICS OF STABILITY AND LEVERAGE ON BITCOIN</div>
+  </div>
+
+  <!-- The Two Charms -->
+  <div class="section charms-section">
+    <svg viewBox="0 0 920 470" xmlns="http://www.w3.org/2000/svg" aria-label="The Two Charms diagram">
+      <defs>
+        <linearGradient id="fireGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FFCB7A"/>
+          <stop offset="55%" stop-color="#FF6A1A"/>
+          <stop offset="100%" stop-color="#C8350A"/>
+        </linearGradient>
+        <linearGradient id="iceGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#E0F4FF"/>
+          <stop offset="55%" stop-color="#5BC0EB"/>
+          <stop offset="100%" stop-color="#1F6FA8"/>
+        </linearGradient>
+        <radialGradient id="btcGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#FFD27A"/>
+          <stop offset="55%" stop-color="#F7931A"/>
+          <stop offset="100%" stop-color="#7A4A0A"/>
+        </radialGradient>
+        <radialGradient id="btcAura" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#F7931A" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#F7931A" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="fireHalo" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#FF6A1A" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#FF6A1A" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="iceHalo" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#5BC0EB" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#5BC0EB" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+
+      <!-- Tagline -->
+      <text x="460" y="42" font-family="Trebuchet MS, sans-serif" font-size="22" fill="#FFFFFF"
+            text-anchor="middle" font-weight="bold" letter-spacing="3">
+        Ignite your Bitcoin. Or freeze it.
+      </text>
+      <text x="460" y="68" font-family="Calibri, sans-serif" font-size="13" fill="#A8B5C8"
+            text-anchor="middle" font-style="italic" letter-spacing="1">
+        Two ancient charms. One shared Bitcoin reserve.
+      </text>
+
+      <!-- Background sparkles -->
+      <g fill="#FFFFFF" opacity="0.5">
+        <circle cx="100" cy="120" r="1.2"/>
+        <circle cx="850" cy="100" r="1"/>
+        <circle cx="180" cy="380" r="1"/>
+        <circle cx="780" cy="360" r="1.2"/>
+        <circle cx="450" cy="110" r="0.9"/>
+        <circle cx="60" cy="230" r="1"/>
+        <circle cx="880" cy="250" r="1"/>
+        <circle cx="380" cy="420" r="0.9"/>
+        <circle cx="560" cy="420" r="1.1"/>
+      </g>
+
+      <!-- Magical threads from BTC to each charm (dashed paths) -->
+      <path d="M 410,250 Q 350,205 290,225"
+            stroke="#FF6A1A" stroke-width="2.5" fill="none"
+            stroke-dasharray="5 5" stroke-linecap="round" opacity="0.75"/>
+      <path d="M 510,250 Q 570,205 630,225"
+            stroke="#5BC0EB" stroke-width="2.5" fill="none"
+            stroke-dasharray="5 5" stroke-linecap="round" opacity="0.75"/>
+
+      <!-- LEFT: Ignite Charm -->
+      <g transform="translate(220,250)">
+        <!-- Glow halo -->
+        <circle r="130" fill="url(#fireHalo)"/>
+        <!-- Outer rune ring -->
+        <circle r="100" fill="none" stroke="#FF6A1A" stroke-width="1.5" opacity="0.55"/>
+        <!-- Runic marks at 8 cardinal/intercardinal positions on outer ring -->
+        <g fill="#FF6A1A" opacity="0.85">
+          <circle cx="0" cy="-100" r="2.5"/>
+          <circle cx="71" cy="-71" r="2"/>
+          <circle cx="100" cy="0" r="2.5"/>
+          <circle cx="71" cy="71" r="2"/>
+          <circle cx="0" cy="100" r="2.5"/>
+          <circle cx="-71" cy="71" r="2"/>
+          <circle cx="-100" cy="0" r="2.5"/>
+          <circle cx="-71" cy="-71" r="2"/>
+        </g>
+        <!-- FIRE logo -->
+        <image href="/icons/fire.jpg" x="-85" y="-85" width="170" height="170"/>
+        <!-- Action label -->
+        <text y="125" font-family="Trebuchet MS, sans-serif" font-size="11" fill="#A8B5C8"
+              text-anchor="middle" letter-spacing="5">THE IGNITE CHARM</text>
+        <text y="151" font-family="Trebuchet MS, sans-serif" font-size="26" fill="#FF6A1A"
+              text-anchor="middle" font-weight="bold" letter-spacing="4">→ FIRE</text>
+        <text y="175" font-family="Calibri, sans-serif" font-size="12" fill="#A8B5C8"
+              text-anchor="middle" font-style="italic">Volatile · captures BTC's swings</text>
+      </g>
+
+      <!-- RIGHT: Freeze Charm -->
+      <g transform="translate(700,250)">
+        <!-- Glow halo -->
+        <circle r="130" fill="url(#iceHalo)"/>
+        <!-- Outer rune ring -->
+        <circle r="100" fill="none" stroke="#5BC0EB" stroke-width="1.5" opacity="0.55"/>
+        <!-- Runic marks (small triangles) on outer ring -->
+        <g fill="#5BC0EB" opacity="0.85">
+          <polygon points="0,-103 -3,-96 3,-96"/>
+          <polygon points="71,-71 67,-65 75,-65"/>
+          <polygon points="103,0 96,-3 96,3"/>
+          <polygon points="71,71 65,67 65,75"/>
+          <polygon points="0,103 3,96 -3,96"/>
+          <polygon points="-71,71 -75,65 -67,65"/>
+          <polygon points="-103,0 -96,3 -96,-3"/>
+          <polygon points="-71,-71 -65,-67 -65,-75"/>
+        </g>
+        <!-- ICE logo -->
+        <image href="/icons/ice.jpg" x="-85" y="-85" width="170" height="170"/>
+        <!-- Action label -->
+        <text y="125" font-family="Trebuchet MS, sans-serif" font-size="11" fill="#A8B5C8"
+              text-anchor="middle" letter-spacing="5">THE FREEZE CHARM</text>
+        <text y="151" font-family="Trebuchet MS, sans-serif" font-size="26" fill="#5BC0EB"
+              text-anchor="middle" font-weight="bold" letter-spacing="4">→ ICE</text>
+        <text y="175" font-family="Calibri, sans-serif" font-size="12" fill="#A8B5C8"
+              text-anchor="middle" font-style="italic">Stable · locked at a fixed dollar weight</text>
+      </g>
+
+      <!-- CENTER: Bitcoin -->
+      <g transform="translate(460,250)">
+        <!-- Aura -->
+        <circle r="90" fill="url(#btcAura)"/>
+        <!-- Bitcoin logo -->
+        <image href="/icons/btc.jpg" x="-58" y="-58" width="116" height="116"/>
+        <!-- Label -->
+        <text y="92" font-family="Trebuchet MS, sans-serif" font-size="11" fill="#F7931A"
+              text-anchor="middle" font-weight="bold" letter-spacing="5">YOUR BITCOIN</text>
+      </g>
+
+      <!-- Footer caption -->
+      <text x="460" y="442" font-family="Calibri, sans-serif" font-size="13" fill="#A8B5C8"
+            text-anchor="middle" font-style="italic">
+        Cast a charm. Choose how your Bitcoin behaves.
+      </text>
+    </svg>
+  </div>
+
+  <!-- The mathematics -->
+  <div class="section">
+    <div class="eyebrow">The Mathematics</div>
+    <h2>Three equations describe the entire system.</h2>
+    <div class="lede">L = total ICE liability (USD), V = vault BTC, P = BTC price, N<sub>fire</sub> = FIRE supply.</div>
+
+    <div class="formulas">
+      <div class="formula">
+        <div class="eqn"><span class="var">r</span> = (<span class="var btc">V·P</span>) / <span class="var ice">L</span></div>
+        <div class="lbl"><strong>Reserve ratio</strong><br>vault value &divide; ICE liability</div>
+      </div>
+      <div class="formula">
+        <div class="eqn"><span class="var ice">ICE</span> = $<span class="var">F</span></div>
+        <div class="lbl"><strong>ICE redemption</strong><br>fixed face value, paid in BTC at the spot price</div>
+      </div>
+      <div class="formula">
+        <div class="eqn"><span class="var fire">FIRE</span> = (<span class="var btc">V·P</span> &minus; <span class="var ice">L</span>) / <span class="var">N<sub>fire</sub></span></div>
+        <div class="lbl"><strong>FIRE per token</strong><br>residual vault value, split across FIRE supply</div>
+      </div>
+    </div>
+
+    <div class="punchline">
+      <strong>L stays constant in dollars while V·P moves with the market.</strong> So FIRE absorbs <em>all</em> the volatility of the vault, and a small percentage move in BTC produces a larger percentage move in FIRE — that's where the leverage comes from. Where the chaos goes, ICE stays still.
+    </div>
+  </div>
+
+  <!-- Live Simulator -->
+  <div class="section">
+    <div class="eyebrow">Live Simulator</div>
+    <h2>Move the sliders. Watch the system respond.</h2>
+    <div class="lede">Each ICE bond redeems for its USD face value at mint (minimum $100). FIRE tokens share whatever the vault holds beyond the ICE liability — change the supply to see dilution.</div>
+
+    <div class="sim">
+      <div class="controls">
+        <div class="slider-group">
+          <label><span>BTC price</span><span class="val" id="btc-price-val">$100,000</span></label>
+          <input type="range" id="btc-price" min="20000" max="300000" step="1000" value="100000">
+        </div>
+        <div class="slider-group">
+          <label><span>BTC in vault</span><span class="val" id="vault-btc-val">10 BTC</span></label>
+          <input type="range" id="vault-btc" min="1" max="50" step="0.5" value="10">
+        </div>
+        <div class="slider-group">
+          <label><span>ICE outstanding</span><span class="val" id="ice-val">$200,000</span></label>
+          <input type="range" id="ice-out" min="0" max="2000000" step="10000" value="200000">
+        </div>
+        <div class="slider-group">
+          <label><span>FIRE outstanding</span><span class="val" id="fire-supply-val">1.0M tokens</span></label>
+          <input type="range" id="fire-out" min="100000" max="10000000" step="50000" value="1000000">
+        </div>
+
+        <div class="zone" id="zone-display">
+          <div class="zone-eyebrow">Current zone</div>
+          <div class="zone-name" id="zone-name">Healthy</div>
+          <div class="zone-desc" id="zone-desc">FIRE redeemable · ICE mintable · dividends claimable.</div>
+        </div>
+      </div>
+
+      <div class="vault-viz">
+        <svg viewBox="0 0 220 440" xmlns="http://www.w3.org/2000/svg" aria-label="Vault gauge">
+          <defs>
+            <linearGradient id="vgFire" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#FFB347"/>
+              <stop offset="100%" stop-color="#C8350A"/>
+            </linearGradient>
+            <linearGradient id="vgIce" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#A6DBF5"/>
+              <stop offset="100%" stop-color="#1F6FA8"/>
+            </linearGradient>
+            <linearGradient id="vgGlass" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%"   stop-color="#152846" stop-opacity="0.6"/>
+              <stop offset="50%"  stop-color="#0A1628" stop-opacity="0.2"/>
+              <stop offset="100%" stop-color="#152846" stop-opacity="0.6"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Title -->
+          <text x="110" y="20" text-anchor="middle" font-family="Trebuchet MS, sans-serif"
+                font-size="10" fill="#A8B5C8" letter-spacing="3">THE VAULT</text>
+          <text x="110" y="42" text-anchor="middle" font-family="Trebuchet MS, sans-serif"
+                font-size="22" fill="#F7931A" font-weight="bold" id="vg-vault-total">$1.00M</text>
+
+          <!-- Y-axis tick labels -->
+          <g font-family="Trebuchet MS, sans-serif" font-size="9" fill="#6B7A92">
+            <text x="183" y="65"  text-anchor="start">$4M</text>
+            <text x="183" y="148" text-anchor="start">$3M</text>
+            <text x="183" y="231" text-anchor="start">$2M</text>
+            <text x="183" y="313" text-anchor="start">$1M</text>
+            <text x="183" y="397" text-anchor="start">$0</text>
+          </g>
+          <!-- Tick lines -->
+          <g stroke="#1F3A66" stroke-width="1" opacity="0.5">
+            <line x1="172" y1="62"  x2="180" y2="62"/>
+            <line x1="172" y1="145" x2="180" y2="145"/>
+            <line x1="172" y1="227" x2="180" y2="227"/>
+            <line x1="172" y1="310" x2="180" y2="310"/>
+            <line x1="172" y1="393" x2="180" y2="393"/>
+          </g>
+
+          <!-- Flask body -->
+          <rect x="50" y="60" width="120" height="335" rx="12"
+                fill="#0A1628" stroke="#1F3A66" stroke-width="2"/>
+          <!-- Glass highlight overlay -->
+          <rect x="52" y="62" width="116" height="331" rx="11" fill="url(#vgGlass)" opacity="0.5"/>
+          <!-- Rim -->
+          <rect x="42" y="56" width="136" height="9" rx="3" fill="#1F3A66" stroke="#3FB8FF" stroke-width="1"/>
+
+          <!-- Liquid: ICE band (bottom of flask). y/height set by JS. -->
+          <rect id="vg-ice" x="52" y="376.5" width="116" height="16.5" fill="url(#vgIce)"/>
+          <!-- Liquid: FIRE band (above ICE). y/height set by JS. -->
+          <rect id="vg-fire" x="52" y="310.4" width="116" height="66.1" fill="url(#vgFire)"/>
+
+          <!-- ICE claim line: dashed marker at $L (visible even when liquid is below) -->
+          <line id="vg-ice-line" x1="46" x2="174" y1="376.5" y2="376.5"
+                stroke="#5BC0EB" stroke-width="1.4" stroke-dasharray="4 3" opacity="0.85"/>
+          <text id="vg-ice-tag" x="36" y="380" text-anchor="end"
+                font-family="Trebuchet MS, sans-serif" font-size="9" fill="#5BC0EB">L</text>
+
+          <!-- Vault level marker: at top of liquid -->
+          <line id="vg-vault-line" x1="42" x2="178" y1="310.4" y2="310.4"
+                stroke="#F7931A" stroke-width="2"/>
+          <polygon id="vg-vault-arrow" points="38,310.4 44,306.9 44,313.9"
+                   fill="#F7931A"/>
+
+          <!-- Band labels (overlaid). y/opacity set by JS. -->
+          <text id="vg-fire-label" x="110" y="345" text-anchor="middle"
+                font-family="Trebuchet MS, sans-serif" font-size="10" fill="#0A1628"
+                font-weight="bold">FIRE $800K</text>
+          <text id="vg-ice-label" x="110" y="388" text-anchor="middle"
+                font-family="Trebuchet MS, sans-serif" font-size="10" fill="#0A1628"
+                font-weight="bold">ICE $200K</text>
+
+          <!-- Footer legend -->
+          <g font-family="Trebuchet MS, sans-serif" font-size="9" letter-spacing="1">
+            <rect x="22" y="412" width="10" height="10" fill="url(#vgFire)"/>
+            <text x="36" y="421" fill="#A8B5C8">FIRE pool</text>
+            <rect x="100" y="412" width="10" height="10" fill="url(#vgIce)"/>
+            <text x="114" y="421" fill="#A8B5C8">ICE liability</text>
+          </g>
+        </svg>
+      </div>
+
+      <div>
+        <div class="readouts">
+          <div class="readout btc">
+            <div class="lbl">Vault value</div>
+            <div class="num btc" id="vault-val">$1.00M</div>
+            <div class="sub" id="vault-sub">10 BTC × $100,000</div>
+          </div>
+          <div class="readout charms">
+            <div class="lbl">Reserve ratio</div>
+            <div class="num" id="ratio-val">5.00×</div>
+            <div class="sub">Vault &divide; ICE liability</div>
+          </div>
+          <div class="readout charms">
+            <div class="lbl">FIRE pool (USD)</div>
+            <div class="num" id="fire-pool-val">$800K</div>
+            <div class="sub">Vault value beyond ICE liability</div>
+          </div>
+          <div class="readout fire">
+            <div class="lbl">FIRE per token</div>
+            <div class="num fire" id="fire-each">$0.80</div>
+            <div class="sub" id="fire-sub">$800K pool &divide; 1M tokens</div>
+          </div>
+        </div>
+
+        <div class="stack-row">
+          <div class="stack-lbl">Capital stack (proportions)</div>
+          <div class="stack-bar" id="stack-bar">
+            <div class="ice-block" id="ice-block">ICE 20%</div>
+            <div class="fire-block" id="fire-block">FIRE 80%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reserve ratio thermometer -->
+  <div class="section">
+    <div class="eyebrow">The Strength of the Magic</div>
+    <h2>Three thresholds govern what's possible.</h2>
+    <div class="lede">As the reserve ratio crosses each line, the protocol shifts what's allowed.</div>
+
+    <div class="therm-wrap">
+      <div class="therm-bar" id="therm-bar">
+        <div class="therm-track">
+          <div class="seg seg-frozen"  style="flex: 0 0 25%;">&lt; 1×<br><span style="opacity:.85">Dividends Frozen</span></div>
+          <div class="seg seg-locked"  style="flex: 0 0 25%;">1× – 2×<br><span style="opacity:.85">Bonds Locked</span></div>
+          <div class="seg seg-buffer"  style="flex: 0 0 25%;">2× – 4×<br><span style="opacity:.85">Buffer</span></div>
+          <div class="seg seg-healthy" style="flex: 0 0 25%;">&gt; 4×<br><span style="opacity:.85">Healthy</span></div>
+        </div>
+        <div class="marker"     id="therm-marker"     style="left:80%;"></div>
+        <div class="marker-tag" id="therm-marker-tag" style="left:80%;">5.00×</div>
+      </div>
+      <div class="therm-ticks">
+        <span>0×</span><span>1×</span><span>2×</span><span>4×</span><span>8×+</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scenarios -->
+  <div class="section">
+    <div class="eyebrow">Scenarios</div>
+    <h2>What happens when BTC moves from here.</h2>
+    <div class="lede">Holding the vault and ICE outstanding constant; only BTC's price changes.</div>
+    <div class="scenarios" id="scenarios"></div>
+  </div>
+
+  <div class="footer">ALCHEMY <span class="diamond"></span> BY CHARMS</div>
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const elPrice = $('btc-price');
+  const elVault = $('vault-btc');
+  const elIce   = $('ice-out');
+  const elFire  = $('fire-out');
+
+  function fmtTokens(n) {
+    if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M tokens';
+    return Math.round(n / 1_000) + 'K tokens';
+  }
+
+  function fmtUsd(n) {
+    const a = Math.abs(n);
+    if (a >= 1_000_000) return (n < 0 ? '-' : '') + '$' + (a / 1_000_000).toFixed(2) + 'M';
+    if (a >= 10_000)    return (n < 0 ? '-' : '') + '$' + Math.round(a / 1_000) + 'K';
+    if (a >= 1_000)     return (n < 0 ? '-' : '') + '$' + (a / 1_000).toFixed(1) + 'K';
+    return (n < 0 ? '-' : '') + '$' + a.toFixed(2);
+  }
+  function fmt2(n) {
+    return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function fmtPct(n) {
+    if (!isFinite(n)) return '—';
+    const sign = n > 0 ? '+' : '';
+    return sign + n.toFixed(0) + '%';
+  }
+
+  // Map a reserve ratio to a horizontal % position on the thermometer bar.
+  // Bar segments are 25% each: <1, 1-2, 2-4, >4. Above 4× we taper toward 100% at 8×.
+  function ratioToPct(r) {
+    if (!isFinite(r)) return 99;
+    if (r <= 0) return 0;
+    if (r < 1) return (r / 1) * 25;
+    if (r < 2) return 25 + (r - 1) * 25;
+    if (r < 4) return 50 + (r - 2) / 2 * 25;
+    return Math.min(75 + (r - 4) / 4 * 25, 99);
+  }
+
+  function update() {
+    const P = +elPrice.value;
+    const V = +elVault.value;
+    const L = +elIce.value;
+    const N_FIRE = +elFire.value;
+    const vaultUsd = V * P;
+    const ratio = L > 0 ? vaultUsd / L : Infinity;
+    const firePool = vaultUsd - L;
+    const firePer = firePool / N_FIRE;
+
+    // Slider labels
+    $('btc-price-val').textContent     = '$' + P.toLocaleString();
+    $('vault-btc-val').textContent     = (V % 1 === 0 ? V : V.toFixed(1)) + ' BTC';
+    $('ice-val').textContent           = fmtUsd(L);
+    $('fire-supply-val').textContent   = fmtTokens(N_FIRE);
+
+    // Readouts
+    $('vault-val').textContent = fmtUsd(vaultUsd);
+    $('vault-sub').textContent = (V % 1 === 0 ? V : V.toFixed(1)) + ' BTC × $' + P.toLocaleString();
+    $('ratio-val').textContent = isFinite(ratio) ? ratio.toFixed(2) + '×' : '∞';
+    $('fire-pool-val').textContent = firePool >= 0 ? fmtUsd(firePool) : '—';
+    $('fire-each').textContent = firePer >= 0 ? '$' + fmt2(firePer) : '—';
+    $('fire-sub').textContent  = firePool >= 0
+      ? fmtUsd(firePool) + ' pool ÷ ' + fmtTokens(N_FIRE)
+      : 'Vault below ICE liability — FIRE wiped';
+
+    // Zone
+    let zoneName, zoneDesc, zoneColor;
+    if (!isFinite(ratio) || ratio >= 4)      { zoneName = 'Healthy';            zoneDesc = 'FIRE redeemable · ICE mintable · dividends claimable.'; zoneColor = 'var(--healthy)'; }
+    else if (ratio >= 2)                     { zoneName = 'Buffer';             zoneDesc = 'New ICE minting paused · FIRE redemption paused · dividends keep flowing.'; zoneColor = 'var(--buffer)'; }
+    else if (ratio >= 1)                     { zoneName = 'Bonds Locked';       zoneDesc = 'Bond redemption paused · ICE dividends still claimable.'; zoneColor = 'var(--locked)'; }
+    else                                     { zoneName = 'Dividends Frozen';   zoneDesc = 'Dividends accrue for ICE holders but cannot be claimed until the vault returns above 1×.'; zoneColor = 'var(--frozen)'; }
+    $('zone-name').textContent = zoneName;
+    $('zone-desc').textContent = zoneDesc;
+    $('zone-display').style.borderLeftColor = zoneColor;
+
+    // Capital stack
+    const sb = $('stack-bar');
+    if (firePool > 0 && L > 0) {
+      const total = firePool + L;
+      const icePct = (L / total) * 100;
+      const firePct = (firePool / total) * 100;
+      sb.innerHTML = '';
+      const i = document.createElement('div'); i.className = 'ice-block';  i.style.width = icePct + '%';  i.textContent = 'ICE ' + Math.round(icePct) + '%';
+      const f = document.createElement('div'); f.className = 'fire-block'; f.style.width = firePct + '%'; f.textContent = 'FIRE ' + Math.round(firePct) + '%';
+      sb.appendChild(i); sb.appendChild(f);
+    } else if (firePool <= 0 && L > 0) {
+      sb.innerHTML = '<div class="underwater" style="width:100%;">Vault under ICE liability — FIRE underwater</div>';
+    } else {
+      sb.innerHTML = '<div class="fire-block" style="width:100%; justify-content:center;">FIRE 100% (no ICE issued)</div>';
+    }
+
+    // Thermometer marker
+    const pct = ratioToPct(ratio);
+    $('therm-marker').style.left = pct + '%';
+    const tag = $('therm-marker-tag');
+    tag.style.left = pct + '%';
+    tag.textContent = isFinite(ratio) ? ratio.toFixed(2) + '×' : '∞';
+
+    // Vault gauge — map dollar values to flask y-coordinates
+    const VG_MAX = 4_000_000;     // $4M = full flask height
+    const VG_TOP = 62;            // y of inside top of flask
+    const VG_BOT = 393;           // y of inside bottom of flask
+    const VG_H   = VG_BOT - VG_TOP; // 331
+    const $$ = sel => document.getElementById(sel);
+    const dollarsToHeight = d => Math.max(0, Math.min(d, VG_MAX)) / VG_MAX * VG_H;
+    const dollarsToY      = d => VG_BOT - dollarsToHeight(d);
+
+    // ICE band: from bottom up, capped by what the vault can actually cover
+    const iceCovered = Math.max(0, Math.min(L, vaultUsd));
+    const iceH = dollarsToHeight(iceCovered);
+    const iceY = VG_BOT - iceH;
+    // FIRE band: above ICE (only when firePool positive)
+    const fireH = dollarsToHeight(Math.max(0, firePool));
+    const fireY = iceY - fireH;
+
+    $$('vg-ice').setAttribute('y', iceY);
+    $$('vg-ice').setAttribute('height', iceH);
+    $$('vg-fire').setAttribute('y', fireY);
+    $$('vg-fire').setAttribute('height', fireH);
+
+    // ICE claim line (dashed) at $L — independent of vault fill
+    const claimY = dollarsToY(L);
+    $$('vg-ice-line').setAttribute('y1', claimY);
+    $$('vg-ice-line').setAttribute('y2', claimY);
+    $$('vg-ice-tag').setAttribute('y', claimY + 3);
+
+    // Vault level marker at top of liquid (V·P)
+    const vaultY = dollarsToY(vaultUsd);
+    $$('vg-vault-line').setAttribute('y1', vaultY);
+    $$('vg-vault-line').setAttribute('y2', vaultY);
+    $$('vg-vault-arrow').setAttribute('points',
+      `38,${vaultY} 44,${vaultY - 3.5} 44,${vaultY + 3.5}`);
+
+    // Vault total readout
+    $$('vg-vault-total').textContent = fmtUsd(vaultUsd);
+
+    // Band labels — center vertically in band, hide if band too short
+    const fireLabel = $$('vg-fire-label');
+    fireLabel.textContent = 'FIRE ' + fmtUsd(Math.max(0, firePool));
+    fireLabel.setAttribute('y', fireY + fireH / 2 + 4);
+    fireLabel.style.opacity = fireH > 16 ? 1 : 0;
+
+    const iceLabel = $$('vg-ice-label');
+    iceLabel.textContent = 'ICE ' + fmtUsd(L);
+    iceLabel.setAttribute('y', iceY + iceH / 2 + 4);
+    iceLabel.style.opacity = iceH > 16 ? 1 : 0;
+
+    // Scenarios
+    const scenarios = [
+      { delta: -0.50, label: 'BTC −50%' },
+      { delta:  0.00, label: 'BTC unchanged' },
+      { delta: +1.00, label: 'BTC +100%' }
+    ];
+    const sEl = $('scenarios');
+    sEl.innerHTML = '';
+    scenarios.forEach(sc => {
+      const newP = P * (1 + sc.delta);
+      const newVault = V * newP;
+      const newFirePool = newVault - L;
+      const newFirePer = newFirePool / N_FIRE;
+      const newRatio = L > 0 ? newVault / L : Infinity;
+      const fireDeltaPct = firePer > 0 ? ((newFirePer - firePer) / firePer) * 100 : 0;
+      const div = document.createElement('div');
+      div.className = 'scenario';
+      div.innerHTML = `
+        <div class="delta">${sc.label}</div>
+        <div class="row"><span class="lbl">FIRE per token</span><span class="v fire">${newFirePer >= 0 ? '$' + fmt2(newFirePer) : '$0.00'}</span></div>
+        <div class="row"><span class="lbl">FIRE % move</span><span class="v fire">${sc.delta === 0 ? '0%' : (newFirePer < 0 ? '−100%' : fmtPct(fireDeltaPct))}</span></div>
+        <div class="row"><span class="lbl">FIRE pool</span><span class="v">${fmtUsd(Math.max(0, newFirePool))}</span></div>
+        <div class="row"><span class="lbl">Reserve ratio</span><span class="v">${isFinite(newRatio) ? newRatio.toFixed(2) + '×' : '∞'}</span></div>
+      `;
+      sEl.appendChild(div);
+    });
+  }
+
+  [elPrice, elVault, elIce, elFire].forEach(el => el.addEventListener('input', update));
+  update();
+</script>
+</body>
+</html>
+

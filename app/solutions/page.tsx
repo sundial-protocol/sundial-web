@@ -4,6 +4,7 @@ import { L2Architecture } from "./l2-architecture";
 import { EnterpriseSolutions } from "./enterprise-solutions";
 import DawnTestnet from "./dawn-testnet";
 import UseCases from "./use-cases";
+import AlchemyWidget from "./alchemy-widget";
 
 export default function Home() {
   return (
@@ -30,8 +31,10 @@ export default function Home() {
         </section>
       </HeroSection>
 
-      <EnterpriseSolutions />
+      {/*<EnterpriseSolutions />*/}
+      <AlchemyWidget />
       <DawnTestnet />
+
       <L2Architecture />
       <UseCases />
       {/* <Partners classes="py-8 w-3/4 mx-auto" /> */}
