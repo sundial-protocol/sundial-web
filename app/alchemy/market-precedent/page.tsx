@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { ArrowLeft, ExternalLink, TrendingUp } from "lucide-react";
-import { Section } from "@/components/ui/section";
 import InteractiveGradientBackground from "@/components/ui/interactive-gradient-bg";
 import { AlchemyTable } from "@/components/ui/alchemy-table";
 
@@ -14,18 +13,18 @@ const precedents = [
     name: "Strategy STRC",
     tagline: "BTC-backed senior preferred shares",
     body: [
-      "Strategy's STRC is a perpetual preferred equity instrument paying an 8% annual dividend and backed by Strategy's Bitcoin balance sheet — the largest corporate BTC holder. STRC trades on NASDAQ and has raised hundreds of millions in investor capital, demonstrating that structured, senior-priority BTC exposure has deep institutional demand.",
-      "The important precedent is not Strategy's corporate model itself. It is what investors revealed: they want more than passive spot exposure. They want senior claims, yield-oriented BTC reserve products, and structured ways to participate in Bitcoin balance-sheet growth — and they will pay a significant premium for them.",
+      "Strategy's STRC is a perpetual preferred equity instrument paying an 11.5% adjustable annual dividend and backed by Strategy's Bitcoin balance sheet - the largest corporate BTC holder. STRC trades on NASDAQ and has raised over $10 billion, demonstrating that structured, senior-priority BTC exposure has deep institutional demand.",
+      "The important precedent is not Strategy's corporate model itself. It is what investors revealed: they want more than passive spot exposure. They want senior claims, yield-oriented BTC reserve products, and structured ways to participate in Bitcoin balance-sheet growth - and they will pay a significant premium for them.",
       "Tokenized and yield-routed STRC products have since begun moving through DeFi venues such as Ondo, Saturn/Apyx, and Pendle, showing that markets are not only buying BTC-linked preferred instruments in brokerage accounts, but also decomposing, tokenizing, and trading their yield on-chain.",
     ],
     stats: [
       { label: "Structure", value: "Senior preferred shares" },
       { label: "Chain", value: "Traditional markets (NASDAQ)" },
-      { label: "BTC-linked", value: "Yes — BTC balance-sheet" },
+      { label: "BTC-linked", value: "Yes - BTC balance-sheet" },
       { label: "On-chain", value: "Partial (via Ondo/Pendle)" },
     ],
     relevance:
-      "Alchemy's ICE directly mirrors the senior-claim structure of STRC — a lower-volatility, priority-return vehicle backed by a BTC reserve — but built natively on-chain with deterministic reserve mechanics and Cardano DeFi interoperability.",
+      "Alchemy's ICE directly mirrors the senior-claim structure of STRC - a lower-volatility, priority-return vehicle backed by a BTC reserve - but built natively on-chain with deterministic reserve mechanics and Cardano DeFi interoperability.",
   },
   {
     id: "pendle",
@@ -34,19 +33,20 @@ const precedents = [
     badgeColor: "border-sky-500/20 bg-sky-500/10 text-sky-400",
     label: "DeFi Yield Infrastructure",
     name: "Pendle Finance",
-    tagline: "On-chain yield decomposition into principal and yield tokens",
+    tagline: "Entirely new markets emerge around financial primitives",
     body: [
-      "Pendle splits yield-bearing assets into two tradeable tokens: PT (principal token, fixed-rate senior claim) and YT (yield token, variable-upside junior claim). This senior/junior decomposition is structurally analogous to ICE and FIRE. Pendle has processed billions in volume across STRC, stETH, USDC, and other yield assets.",
-      "Pendle's growth validates two key market behaviors: users will adopt transparent on-chain yield decomposition products, and the senior/junior split of a single underlying asset is a product structure with genuine DeFi demand. The routing of tokenized STRC through Pendle specifically shows the market moving toward programmable, composable BTC-linked structured finance.",
+      "Pendle transforms yield-bearing assets into separate principal (PT) and yield (YT) claims, creating new financial primitives from existing assets such as stETH, USDe, and tokenized treasury products. By 2025, Pendle had grown to over $4B TVL and facilitated billions of dollars in trading volume across these markets.",
+      "Pendle's success demonstrates that once a yield-bearing asset is decomposed into distinct risk and return profiles, entirely new economic activity emerges around those components. Fixed-yield markets, yield speculation, leveraged positions, collateralized lending, and structured products all developed around PT and YT tokens despite not existing in the underlying assets themselves.",
+      "The recent integration of tokenized Strategy products further reinforces this trend. Rather than simply holding STRC exposure, users gained new ways to trade duration, speculate on yield, access leverage, and construct custom risk profiles. The result was not merely another venue for STRC, but an expanded financial ecosystem built on top of it.",
     ],
     stats: [
       { label: "Structure", value: "PT (senior) + YT (junior)" },
       { label: "Chain", value: "Ethereum (primary)" },
       { label: "BTC-linked", value: "Indirect (via tokenized STRC)" },
-      { label: "On-chain", value: "Yes — fully composable" },
+      { label: "On-chain", value: "Yes - fully composable" },
     ],
     relevance:
-      "Pendle proves the senior/junior token split is a viable DeFi product and confirms that structured BTC-linked yield is moving on-chain. Alchemy takes this structure and builds it as a first-class Cardano-native primitive from day one rather than retrofitting it.",
+      "Alchemy applies the same principle directly to Bitcoin reserves. FIRE and ICE are designed as foundational financial primitives rather than end-user products alone. Just as Pendle transformed yield-bearing assets into broader financial ecosystems, FIRE and ICE can support secondary markets, collateralized lending, structured products, and new forms of Bitcoin-native fixed-income and reserve-equity exposure throughout the ecosystem.",
   },
   {
     id: "djed",
@@ -57,17 +57,17 @@ const precedents = [
     name: "Djed",
     tagline: "Algorithmic reserve-backed stablecoin on Cardano",
     body: [
-      "Djed launched on Cardano with reserve ratios exceeding 400% and attracted over 27 million ADA in reserve backing within its first day. It surpassed $10M TVL in the first 24 hours — demonstrating that Cardano users will adopt visibly overcollateralized reserve systems and that the reserve-ratio model is legible and trusted by the Cardano community.",
+      "Djed launched on Cardano with reserve ratios exceeding 400% and attracted over 27 million ADA in reserve backing within its first day. It surpassed $10M TVL in the first 24 hours - demonstrating that Cardano users will adopt visibly overcollateralized reserve systems and that the reserve-ratio model is legible and trusted by the Cardano community.",
       "Djed's architecture uses a seigniorage-style reserve with two complementary tokens: DJED (the stable senior claim) and SHEN (the reserve-equity token that absorbs volatility and captures upside). This dual-token reserve structure is the closest existing Cardano precedent to Alchemy's FIRE/ICE model.",
     ],
     stats: [
       { label: "Structure", value: "Dual-token reserve (DJED + SHEN)" },
       { label: "Chain", value: "Cardano (native)" },
-      { label: "BTC-linked", value: "No — ADA-backed" },
-      { label: "On-chain", value: "Yes — Cardano-native" },
+      { label: "BTC-linked", value: "No - ADA-backed" },
+      { label: "On-chain", value: "Yes - Cardano-native" },
     ],
     relevance:
-      "Djed is the strongest Cardano-specific proof point: users here already understand and adopt dual-token reserve systems. Alchemy replaces ADA with BTC as the reserve asset and substitutes FIRE/ICE for SHEN/DJED — bringing Bitcoin-native capital into the same proven reserve-ratio framework.",
+      "Djed is the strongest Cardano-specific proof point: users here already understand and adopt dual-token reserve systems. Alchemy replaces ADA with BTC as the reserve asset and substitutes FIRE/ICE for SHEN/DJED - bringing Bitcoin-native capital into the same proven reserve-ratio framework.",
   },
 ];
 
@@ -105,7 +105,7 @@ const comparison = [
     product: "Djed / SHEN",
     network: "Cardano",
     structure: "Reserve dual-token",
-    btcLinked: "No (ADA)",
+    btcLinked: "No",
     onChain: "Yes",
     composable: "Partial",
   },
@@ -127,7 +127,7 @@ const comparison = [
   },
   {
     product: "Alchemy FIRE/ICE",
-    network: "Cardano",
+    network: "Bitcoin & Cardano",
     structure: "BTC reserve senior/junior",
     btcLinked: "Yes",
     onChain: "Yes",
@@ -299,13 +299,13 @@ export default function MarketPrecedentPage() {
               transparent BTC reserve, a senior/junior split that markets
               understand, Cardano-native composability for wallets and DEXs, and
               always-on public reporting. FIRE and ICE are not analogies to
-              these products — they are the on-chain, auditable, Cardano-native
+              these products - they are the on-chain, auditable, Cardano-native
               version of a product category that public markets have already
               validated.
             </p>
           </div>
           <Link
-            href="/alchemy/proposal"
+            href="https://medium.com/@SundialProtocol/sundial-x-charms-proposal-building-the-first-bitcoin-treasury-protocol-for-cardano-e437c964c3b6"
             className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-2.5 text-sm font-medium text-background hover:bg-foreground/80 transition-colors"
           >
             <ExternalLink className="h-4 w-4" />

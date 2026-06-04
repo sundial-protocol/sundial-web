@@ -25,7 +25,7 @@ export default function Home() {
             <p className="text-lg md:text-xl text-foreground/80">
               Sundial leverages a UTXO architecture to deliver
               institutional-grade security, deterministic execution, and
-              fraud-proof protection for Bitcoin yield generation
+              fraud-proof protection for Bitcoin yield
             </p>
           </div>
         </section>

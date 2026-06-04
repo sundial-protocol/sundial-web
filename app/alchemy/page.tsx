@@ -18,11 +18,11 @@ import InteractiveGradientBackground from "@/components/ui/interactive-gradient-
 
 const subpages = [
   {
-    href: "/alchemy/proposal",
+    href: "https://medium.com/@SundialProtocol/sundial-x-charms-proposal-building-the-first-bitcoin-treasury-protocol-for-cardano-e437c964c3b6",
     icon: BookOpen,
     title: "The Proposal",
     description:
-      "Read the full Cardano treasury proposal - funding structure, milestones, and accountability.",
+      "Read the draft Cardano treasury proposal - funding structure, milestones, and accountability.",
     color: "text-primary",
   },
   {
@@ -114,11 +114,6 @@ export default function AlchemyPage() {
             </div>
           </div>
         </HeroSection>
-
-        {/* Partners */}
-        <Section className="max-w-5xl mx-auto px-4 w-full pb-8">
-          <AlchemyLogoStrip />
-        </Section>
 
         {/* FIRE / ICE explainer cards */}
         <Section className="max-w-5xl mx-auto px-4 w-full">
@@ -236,7 +231,7 @@ export default function AlchemyPage() {
         </Section>
 
         {/* Subpage navigation */}
-        <Section className="max-w-5xl mx-auto px-4 pb-24 w-full">
+        <Section className="max-w-5xl mx-auto px-4 w-full">
           <div className="mb-8">
             <p className="text-xs font-semibold uppercase tracking-widest text-foreground/60 mb-2">
               Explore
@@ -274,6 +269,11 @@ export default function AlchemyPage() {
               );
             })}
           </div>
+        </Section>
+
+        {/* Partners */}
+        <Section className="max-w-5xl mx-auto px-4 w-full pb-24">
+          <AlchemyLogoStrip />
         </Section>
       </div>
     </InteractiveGradientBackground>
