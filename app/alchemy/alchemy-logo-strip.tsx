@@ -32,9 +32,9 @@ export default function AlchemyLogoStrip({
 
   return (
     <div
-      className={`rounded-xl border border-white/10 bg-secondary/50 px-5 py-4 ${className}`}
+      className={`rounded-xl border border-foreground/15 bg-background/85 backdrop-blur-sm px-5 py-4 ${className}`}
     >
-      <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/45 mb-3 text-center">
+      <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/60 mb-3 text-center">
         Built By
       </p>
       <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 md:gap-14">

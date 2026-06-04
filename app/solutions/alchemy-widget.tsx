@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { Flame, Snowflake, Shield } from "lucide-react";
 import { Section } from "@/components/ui/section";
-import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 
 const highlights = [
   {
@@ -35,20 +34,6 @@ const highlights = [
 
 export default function AlchemyWidget() {
   return (
-    //<SunbeamBackground
-    //  beams={[
-    //    {
-    //      styles: {
-    //        top: "-250px",
-    //        height: "900px",
-    //        background:
-    //          "linear-gradient(to bottom left, hsl(var(--primary)) 0%, hsl(var(--primary)) 32%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 82%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)",
-    //        clipPath: "polygon(100% 0%, 0% 10%, 0% 62%, 100% 100%)",
-    //        opacity: "0.18",
-    //      },
-    //    },
-    //  ]}
-    //>
     <Section className="w-full max-w-6xl mx-auto pt-60 lg:pt-6 pb-8 lg:pr-24">
       <div className="relative overflow-hidden rounded-[18px] border border-white/10 bg-white/5 px-3 py-4 shadow-2xl backdrop-blur-xl sm:px-4 sm:py-5 md:rounded-[28px] md:px-10 md:py-10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,196,57,0.18),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.08),transparent_25%)] pointer-events-none" />
@@ -64,11 +49,20 @@ export default function AlchemyWidget() {
                 Sundial × Charms
               </p>
               <Image
-                src="/alchemy/Alchemy.png"
+                src="/alchemy/v2-gold.png"
                 alt="Alchemy"
-                width={651}
-                height={291}
-                className="mx-auto h-auto w-4/5 sm:w-3/4 lg:mx-0 object-contain"
+                width={1050}
+                height={350}
+                priority
+                className="hidden dark:block h-auto w-full object-contain"
+              />
+              <Image
+                src="/alchemy/v2-normal.png"
+                alt="Alchemy"
+                width={1050}
+                height={350}
+                priority
+                className="block dark:hidden h-auto w-full object-contain"
               />
               <p className="mx-auto max-w-xl text-base text-foreground/80 md:text-xl lg:mx-0">
                 BTC-backed reserve assets for Cardano. FIRE and ICE - a
@@ -86,7 +80,7 @@ export default function AlchemyWidget() {
               </Link>
               <Link
                 href="/alchemy/proposal"
-                className="inline-flex h-12 items-center justify-center rounded-full border border-white/20 bg-white/5 px-8 text-base font-medium text-foreground text-center whitespace-nowrap hover:bg-white/10 transition-colors"
+                className="inline-flex h-12 items-center justify-center rounded-full border border-foreground/20 bg-white/5 px-8 text-base font-medium text-foreground text-center whitespace-nowrap hover:bg-white/10 transition-colors"
               >
                 Read Proposal
               </Link>
@@ -124,6 +118,5 @@ export default function AlchemyWidget() {
         </div>
       </div>
     </Section>
-    //</SunbeamBackground>
   );
 }

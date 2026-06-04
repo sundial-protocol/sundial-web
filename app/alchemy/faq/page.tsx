@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft, ChevronDown, MessageCircleQuestion } from "lucide-react";
+import InteractiveGradientBackground from "@/components/ui/interactive-gradient-bg";
 
 type FAQItem = { q: string; a: string };
 
@@ -71,84 +72,88 @@ const faqGroups: { title: string; items: FAQItem[] }[] = [
 
 export default function AlchemyFAQ() {
   return (
-    <div className="container mx-auto pt-36 pb-24 px-4 max-w-3xl">
-      <div className="mb-4">
-        <Link
-          href="/alchemy"
-          className="inline-flex items-center gap-1.5 text-xs text-foreground/50 hover:text-foreground transition-colors mb-6"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Back to Alchemy
-        </Link>
-      </div>
-
-      {/* Hero */}
-      <div className="mb-12">
-        <div className="inline-flex items-center gap-2 rounded-full border border-green-500/20 bg-green-500/5 px-4 py-1.5 text-sm font-medium text-green-400 mb-5">
-          <MessageCircleQuestion className="h-4 w-4" />
-          Common Questions
+    <InteractiveGradientBackground>
+      <div className="container mx-auto pt-36 pb-24 px-4 max-w-3xl">
+        <div className="mb-4">
+          <Link
+            href="/alchemy"
+            className="inline-flex items-center gap-1.5 text-xs text-foreground/70 hover:text-foreground transition-colors mb-6"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to Alchemy
+          </Link>
         </div>
-        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
-          FAQ
-        </h1>
-        <p className="text-lg text-foreground/70 leading-relaxed">
-          Answers to common questions about FIRE, ICE, the reserve system, risk,
-          and the Cardano treasury proposal.
-        </p>
-      </div>
 
-      {/* FAQ groups */}
-      <div className="space-y-12">
-        {faqGroups.map((group) => (
-          <div key={group.title}>
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-foreground/40 mb-3 pb-3 border-b border-white/10">
-              {group.title}
-            </h2>
-            <div>
-              {group.items.map((item) => (
-                <details
-                  key={item.q}
-                  className="border-b border-white/10 group"
-                >
-                  <summary className="flex items-start justify-between py-4 cursor-pointer font-medium list-none [&::-webkit-details-marker]:hidden gap-4">
-                    <span className="text-foreground leading-snug">
-                      {item.q}
-                    </span>
-                    <ChevronDown className="h-5 w-5 shrink-0 text-foreground/40 transition-transform group-open:rotate-180 mt-0.5" />
-                  </summary>
-                  <div className="pb-5 pr-9 text-sm text-foreground/70 leading-relaxed">
-                    {item.a}
-                  </div>
-                </details>
-              ))}
-            </div>
+        {/* Hero */}
+        <div className="mb-12">
+          <div className="inline-flex items-center gap-2 rounded-full border border-green-500/20 bg-green-500/25 px-4 py-1.5 text-sm font-medium text-green-400 mb-5">
+            <MessageCircleQuestion className="h-4 w-4" />
+            Common Questions
           </div>
-        ))}
-      </div>
-
-      {/* CTA */}
-      <div className="mt-14 rounded-xl border border-white/10 bg-secondary/50 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <p className="font-semibold text-foreground">Still have questions?</p>
-          <p className="text-sm text-foreground/60 mt-1">
-            Read the full proposal or try the interactive visualizer.
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
+            FAQ
+          </h1>
+          <p className="text-lg text-foreground/90 leading-relaxed">
+            Answers to common questions about FIRE, ICE, the reserve system,
+            risk, and the Cardano treasury proposal.
           </p>
         </div>
-        <div className="flex gap-3 shrink-0">
-          <Link
-            href="/alchemy/proposal"
-            className="inline-flex h-9 items-center justify-center rounded-full bg-foreground px-5 text-sm font-medium text-background hover:bg-foreground/80 transition-colors"
-          >
-            Read Proposal
-          </Link>
-          <Link
-            href="/alchemy/visualizer"
-            className="inline-flex h-9 items-center justify-center rounded-full border border-white/20 bg-white/5 px-5 text-sm font-medium text-foreground hover:bg-white/10 transition-colors"
-          >
-            Visualizer
-          </Link>
+
+        {/* FAQ groups */}
+        <div className="space-y-12 rounded-2xl border border-foreground/10 bg-background/90 backdrop-blur-sm px-6 py-8">
+          {faqGroups.map((group) => (
+            <div key={group.title}>
+              <h2 className="text-sm font-semibold uppercase tracking-widest text-foreground/60 mb-3 pb-3 border-b border-foreground/15">
+                {group.title}
+              </h2>
+              <div>
+                {group.items.map((item) => (
+                  <details
+                    key={item.q}
+                    className="border-b border-foreground/15 group"
+                  >
+                    <summary className="flex items-start justify-between py-4 cursor-pointer font-medium list-none [&::-webkit-details-marker]:hidden gap-4">
+                      <span className="text-foreground leading-snug">
+                        {item.q}
+                      </span>
+                      <ChevronDown className="h-5 w-5 shrink-0 text-foreground/60 transition-transform group-open:rotate-180 mt-0.5" />
+                    </summary>
+                    <div className="pb-5 pr-9 text-sm text-foreground/85 leading-relaxed">
+                      {item.a}
+                    </div>
+                  </details>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <div className="mt-14 rounded-xl border border-foreground/15 bg-background/85 backdrop-blur-sm p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <p className="font-semibold text-foreground">
+              Still have questions?
+            </p>
+            <p className="text-sm text-foreground/85 mt-1">
+              Read the full proposal or try the interactive visualizer.
+            </p>
+          </div>
+          <div className="flex gap-3 shrink-0">
+            <Link
+              href="/alchemy/proposal"
+              className="inline-flex h-9 items-center justify-center rounded-full bg-foreground px-5 text-sm font-medium text-background hover:bg-foreground/80 transition-colors"
+            >
+              Read Proposal
+            </Link>
+            <Link
+              href="/alchemy/visualizer"
+              className="inline-flex h-9 items-center justify-center rounded-full border border-foreground/25 bg-foreground/8 px-5 text-sm font-medium text-foreground hover:bg-foreground/15 transition-colors"
+            >
+              Visualizer
+            </Link>
+          </div>
         </div>
       </div>
-    </div>
+    </InteractiveGradientBackground>
   );
 }

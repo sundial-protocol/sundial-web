@@ -56,18 +56,9 @@ export default function NavDrawer({
               <div className="text-foreground mb-2">
                 <ol className="space-y-2 py-6">
                   <ToCLink pageNumber={1} text="At a Glance" />
-                  <ToCLink pageNumber={1} text="Executive Summary" />
-                  <ToCLink pageNumber={2} text="What Cardano Gets" />
-                  <ToCLink pageNumber={3} text="Why Cardano Needs This Now" />
-                  <ToCLink pageNumber={3} text="What Alchemy Does" />
                   <ToCLink pageNumber={4} text="How It Works" />
-                  <ToCLink pageNumber={5} text="Reserve Ratio Safety Zones" />
-                  <ToCLink pageNumber={5} text="Product & Deployment Plan" />
                   <ToCLink pageNumber={6} text="Go-to-Market" />
-                  <ToCLink pageNumber={6} text="Requested Funding" />
-                  <ToCLink pageNumber={7} text="Launch Liquidity" />
                   <ToCLink pageNumber={8} text="Delivery Budget" />
-                  <ToCLink pageNumber={10} text="Milestone Structure" />
                   <ToCLink pageNumber={11} text="Technical Partners" />
                   <ToCLink pageNumber={14} text="Market Precedent" />
                   <ToCLink

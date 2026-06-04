@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { ArrowLeft, ExternalLink, TrendingUp } from "lucide-react";
 import { Section } from "@/components/ui/section";
+import InteractiveGradientBackground from "@/components/ui/interactive-gradient-bg";
+import { AlchemyTable } from "@/components/ui/alchemy-table";
 
 const precedents = [
   {
     id: "strc",
-    color: "border-orange-500/20 bg-orange-500/5",
+    color: "border-orange-500/40 bg-background/90 backdrop-blur-sm",
     accentColor: "text-orange-400",
     badgeColor: "border-orange-500/20 bg-orange-500/10 text-orange-400",
     label: "Public Equity Markets",
@@ -27,7 +29,7 @@ const precedents = [
   },
   {
     id: "pendle",
-    color: "border-sky-500/20 bg-sky-500/5",
+    color: "border-sky-500/40 bg-background/90 backdrop-blur-sm",
     accentColor: "text-sky-400",
     badgeColor: "border-sky-500/20 bg-sky-500/10 text-sky-400",
     label: "DeFi Yield Infrastructure",
@@ -48,7 +50,7 @@ const precedents = [
   },
   {
     id: "djed",
-    color: "border-primary/20 bg-primary/5",
+    color: "border-primary/40 bg-background/90 backdrop-blur-sm",
     accentColor: "text-primary",
     badgeColor: "border-primary/20 bg-primary/10 text-primary",
     label: "Cardano Reserve System",
@@ -136,205 +138,181 @@ const comparison = [
 
 export default function MarketPrecedentPage() {
   return (
-    <div className="container mx-auto pt-36 pb-24 px-4 max-w-4xl">
-      <div className="mb-4">
-        <Link
-          href="/alchemy"
-          className="inline-flex items-center gap-1.5 text-xs text-foreground/50 hover:text-foreground transition-colors mb-6"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Back to Alchemy
-        </Link>
-      </div>
-
-      {/* Hero */}
-      <div className="mb-14">
-        <div className="inline-flex items-center gap-2 rounded-full border border-sky-500/20 bg-sky-500/5 px-4 py-1.5 text-sm font-medium text-sky-400 mb-5">
-          <TrendingUp className="h-4 w-4" />
-          The Demand Already Exists
-        </div>
-        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
-          Market Precedent
-        </h1>
-        <p className="text-lg text-foreground/70 max-w-2xl leading-relaxed">
-          Alchemy does not need to prove that BTC-backed structured products can
-          work. Public-market and DeFi precedents already confirm the demand.
-          The proposal brings that proven product logic into transparent,
-          on-chain, Cardano-native infrastructure.
-        </p>
-      </div>
-
-      {/* Deep-dive precedents */}
-      <div className="space-y-10 mb-16">
-        {precedents.map((p) => (
-          <div
-            key={p.id}
-            className={`rounded-2xl border ${p.color} p-6 md:p-8`}
+    <InteractiveGradientBackground>
+      <div className="container mx-auto pt-36 pb-24 px-4 max-w-4xl">
+        <div className="mb-4">
+          <Link
+            href="/alchemy"
+            className="inline-flex items-center gap-1.5 text-xs text-foreground/70 hover:text-foreground transition-colors mb-6"
           >
-            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-5">
-              <div>
-                <span
-                  className={`inline-flex items-center rounded-full border px-3 py-0.5 text-xs font-medium mb-3 ${p.badgeColor}`}
-                >
-                  {p.label}
-                </span>
-                <h2 className={`text-2xl font-bold ${p.accentColor}`}>
-                  {p.name}
-                </h2>
-                <p className="text-sm text-foreground/60 mt-1">{p.tagline}</p>
-              </div>
-              <div className="shrink-0 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
-                {p.stats.map((s) => (
-                  <div key={s.label}>
-                    <div className="text-xs text-foreground/40 uppercase tracking-widest">
-                      {s.label}
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to Alchemy
+          </Link>
+        </div>
+
+        {/* Hero */}
+        <div className="mb-14">
+          <div className="inline-flex items-center gap-2 rounded-full border border-sky-500/20 bg-sky-500/25 px-4 py-1.5 text-sm font-medium text-sky-400 mb-5">
+            <TrendingUp className="h-4 w-4" />
+            The Demand Already Exists
+          </div>
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
+            Market Precedent
+          </h1>
+          <p className="text-lg text-foreground/85 max-w-2xl leading-relaxed">
+            Alchemy does not need to prove that BTC-backed structured products
+            can work. Public-market and DeFi precedents already confirm the
+            demand. The proposal brings that proven product logic into
+            transparent, on-chain, Cardano-native infrastructure.
+          </p>
+        </div>
+
+        {/* Deep-dive precedents */}
+        <div className="space-y-10 mb-16">
+          {precedents.map((p) => (
+            <div
+              key={p.id}
+              className={`rounded-2xl border ${p.color} p-6 md:p-8`}
+            >
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-5">
+                <div>
+                  <span
+                    className={`inline-flex items-center rounded-full border px-3 py-0.5 text-xs font-medium mb-3 ${p.badgeColor}`}
+                  >
+                    {p.label}
+                  </span>
+                  <h2 className={`text-2xl font-bold ${p.accentColor}`}>
+                    {p.name}
+                  </h2>
+                  <p className="text-sm text-foreground/75 mt-1">{p.tagline}</p>
+                </div>
+                <div className="shrink-0 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                  {p.stats.map((s) => (
+                    <div key={s.label}>
+                      <div className="text-xs text-foreground/60 uppercase tracking-widest">
+                        {s.label}
+                      </div>
+                      <div className="font-medium text-foreground">
+                        {s.value}
+                      </div>
                     </div>
-                    <div className="font-medium text-foreground">{s.value}</div>
-                  </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-3 mb-5">
+                {p.body.map((para, i) => (
+                  <p
+                    key={i}
+                    className="text-sm text-foreground/85 leading-relaxed"
+                  >
+                    {para}
+                  </p>
                 ))}
               </div>
-            </div>
 
-            <div className="space-y-3 mb-5">
-              {p.body.map((para, i) => (
-                <p
-                  key={i}
-                  className="text-sm text-foreground/75 leading-relaxed"
-                >
-                  {para}
+              <div className={`rounded-lg border ${p.color} p-4`}>
+                <p className="text-xs font-semibold uppercase tracking-widest text-foreground/60 mb-1">
+                  Relevance to Alchemy
                 </p>
-              ))}
-            </div>
-
-            <div className={`rounded-lg border ${p.color} p-4`}>
-              <p className="text-xs font-semibold uppercase tracking-widest text-foreground/40 mb-1">
-                Relevance to Alchemy
-              </p>
-              <p className="text-sm text-foreground/80 leading-relaxed">
-                {p.relevance}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Broader precedents */}
-      <div className="mb-16">
-        <h2 className="text-2xl font-bold tracking-tight mb-4">
-          Broader Reserve System Adoption
-        </h2>
-        <div className="grid sm:grid-cols-2 gap-4">
-          {broader.map((b) => (
-            <div
-              key={b.name}
-              className="rounded-xl border border-white/10 bg-secondary/50 p-5"
-            >
-              <h3 className="font-semibold text-foreground mb-2">{b.name}</h3>
-              <p className="text-sm text-foreground/65 leading-relaxed">
-                {b.description}
-              </p>
+                <p className="text-sm text-foreground/90 leading-relaxed">
+                  {p.relevance}
+                </p>
+              </div>
             </div>
           ))}
         </div>
-      </div>
 
-      {/* Comparison table */}
-      <div className="mb-16">
-        <h2 className="text-2xl font-bold tracking-tight mb-6">
-          Product Comparison
-        </h2>
-        <div className="overflow-x-auto rounded-xl border border-white/10">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-white/10 bg-secondary/60">
-                <th className="text-left px-4 py-3 font-medium text-foreground/60">
-                  Product
-                </th>
-                <th className="text-left px-4 py-3 font-medium text-foreground/60">
-                  Network
-                </th>
-                <th className="text-left px-4 py-3 font-medium text-foreground/60">
-                  Structure
-                </th>
-                <th className="text-center px-4 py-3 font-medium text-foreground/60">
-                  BTC-linked
-                </th>
-                <th className="text-center px-4 py-3 font-medium text-foreground/60">
-                  On-chain
-                </th>
-                <th className="text-center px-4 py-3 font-medium text-foreground/60">
-                  Composable
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {comparison.map((row) => (
-                <tr
-                  key={row.product}
-                  className={`border-b border-white/5 ${
-                    row.highlight
-                      ? "bg-primary/5 border-primary/20"
-                      : "hover:bg-secondary/40"
-                  } transition-colors`}
-                >
-                  <td
-                    className={`px-4 py-3 font-medium ${
-                      row.highlight ? "text-primary" : "text-foreground"
-                    }`}
-                  >
-                    {row.product}
-                  </td>
-                  <td className="px-4 py-3 text-foreground/70">
-                    {row.network}
-                  </td>
-                  <td className="px-4 py-3 text-foreground/70">
-                    {row.structure}
-                  </td>
-                  <td className="px-4 py-3 text-center text-foreground/70">
-                    {row.btcLinked}
-                  </td>
-                  <td className="px-4 py-3 text-center text-foreground/70">
-                    {row.onChain}
-                  </td>
-                  <td className="px-4 py-3 text-center text-foreground/70">
-                    {row.composable}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {/* Broader precedents */}
+        <div className="mb-16">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">
+            Broader Reserve System Adoption
+          </h2>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {broader.map((b) => (
+              <div
+                key={b.name}
+                className="rounded-xl border border-foreground/15 bg-background/85 backdrop-blur-sm p-5"
+              >
+                <h3 className="font-semibold text-foreground mb-2">{b.name}</h3>
+                <p className="text-sm text-foreground/80 leading-relaxed">
+                  {b.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Comparison table */}
+        <div className="mb-16">
+          <h2 className="text-2xl font-bold tracking-tight mb-6">
+            Product Comparison
+          </h2>
+          <AlchemyTable
+            columns={[
+              { label: "Product" },
+              { label: "Network" },
+              { label: "Structure" },
+              { label: "BTC-linked", align: "center" },
+              { label: "On-chain", align: "center" },
+              { label: "Composable", align: "center" },
+            ]}
+            rows={comparison.map((row) => ({
+              key: row.product,
+              highlight: row.highlight,
+              cells: [
+                row.product,
+                row.network,
+                row.structure,
+                row.btcLinked,
+                row.onChain,
+                row.composable,
+              ],
+              cellClassNames: [
+                row.highlight
+                  ? "font-medium text-primary"
+                  : "font-medium text-foreground",
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+              ],
+            }))}
+          />
+        </div>
+
+        {/* Why Alchemy is different */}
+        <div className="rounded-2xl border border-primary/30 bg-background/90 backdrop-blur-sm p-6 md:p-8">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">
+            Why Alchemy Is Different
+          </h2>
+          <div className="space-y-3 mb-6">
+            <p className="text-sm text-foreground/90 leading-relaxed">
+              Every precedent above proved something important about what
+              investors want. But each one is either off-chain, on the wrong
+              chain, not BTC-backed, or requires bridging and wrapping to
+              participate.
+            </p>
+            <p className="text-sm text-foreground/90 leading-relaxed">
+              Alchemy combines all the right properties in one system: a
+              transparent BTC reserve, a senior/junior split that markets
+              understand, Cardano-native composability for wallets and DEXs, and
+              always-on public reporting. FIRE and ICE are not analogies to
+              these products — they are the on-chain, auditable, Cardano-native
+              version of a product category that public markets have already
+              validated.
+            </p>
+          </div>
+          <Link
+            href="/alchemy/proposal"
+            className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-2.5 text-sm font-medium text-background hover:bg-foreground/80 transition-colors"
+          >
+            <ExternalLink className="h-4 w-4" />
+            Read the Full Proposal
+          </Link>
         </div>
       </div>
-
-      {/* Why Alchemy is different */}
-      <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6 md:p-8">
-        <h2 className="text-2xl font-bold tracking-tight mb-4">
-          Why Alchemy Is Different
-        </h2>
-        <div className="space-y-3 mb-6">
-          <p className="text-sm text-foreground/75 leading-relaxed">
-            Every precedent above proved something important about what
-            investors want. But each one is either off-chain, on the wrong
-            chain, not BTC-backed, or requires bridging and wrapping to
-            participate.
-          </p>
-          <p className="text-sm text-foreground/75 leading-relaxed">
-            Alchemy combines all the right properties in one system: a
-            transparent BTC reserve, a senior/junior split that markets
-            understand, Cardano-native composability for wallets and DEXs, and
-            always-on public reporting. FIRE and ICE are not analogies to these
-            products — they are the on-chain, auditable, Cardano-native version
-            of a product category that public markets have already validated.
-          </p>
-        </div>
-        <Link
-          href="/alchemy/proposal"
-          className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-2.5 text-sm font-medium text-background hover:bg-foreground/80 transition-colors"
-        >
-          <ExternalLink className="h-4 w-4" />
-          Read the Full Proposal
-        </Link>
-      </div>
-    </div>
+    </InteractiveGradientBackground>
   );
 }
