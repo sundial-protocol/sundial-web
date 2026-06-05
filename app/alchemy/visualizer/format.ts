@@ -28,8 +28,7 @@ export function fmtPct(n: number) {
 export function ratioToPct(r: number) {
   if (!isFinite(r)) return 99;
   if (r <= 0) return 0;
-  if (r < 1) return (r / 1) * 25;
-  if (r < 2) return 25 + (r - 1) * 25;
-  if (r < 4) return 50 + ((r - 2) / 2) * 25;
-  return Math.min(75 + ((r - 4) / 4) * 25, 99);
+  if (r < 2) return (r / 2) * 33;
+  if (r < 4) return 33 + ((r - 2) / 2) * 33;
+  return Math.min(66 + ((r - 4) / 4) * 33, 99);
 }

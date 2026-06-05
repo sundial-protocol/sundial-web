@@ -80,14 +80,14 @@ const alchemySteps = [
   {
     step: "1",
     title: "FIRE and ICE as Charms Tokens",
-    body: "FIRE (BTC+) and ICE (BTC\u2212) are implemented as Charms tokens, derived from Bitcoin-native app contracts. Once beamed trustlessly to Cardano, they are standard Cardano Native Tokens, compatible with every Cardano wallet and DEX from day one.",
+    body: "FIRE (BTC+) and ICE (BTC\u2212) are implemented as Charms tokens, derived from Bitcoin-native app contracts. Once beamed to Cardano, they are standard Cardano Native Tokens, compatible with every Cardano wallet and DEX from day one.",
     colorClasses: "border-orange-500/30 bg-orange-500/25",
     accentClass: "text-orange-400",
   },
   {
     step: "2",
     title: "Reserve Rules as App Contracts",
-    body: "The minting and redemption logic for FIRE and ICE is encoded as Charms app contracts (Rust). The contract checks: Is the reserve ratio above 4.0\u00d7 before minting ICE? Is it above 4.0\u00d7 before minting FIRE? Is the reserve zone allowing redemption? These rules cannot be bypassed \u2014 they are enforced by the ZK proof.",
+    body: "The minting and redemption logic for FIRE and ICE is encoded as Charms app contracts (Rust). The contract checks: Is the reserve ratio above 4.0\u00d7 before minting ICE? Is it above 4.0\u00d7 before minting FIRE? Is the reserve zone allowing redemption? These rules cannot be bypassed - they are enforced by the ZK proof.",
     colorClasses: "border-green-500/30 bg-green-500/25",
     accentClass: "text-green-400",
   },
@@ -101,7 +101,7 @@ const alchemySteps = [
   {
     step: "4",
     title: "Cardano-Native, No Bridges",
-    body: 'FIRE and ICE are created on Cardano as CNTs through the Charms beaming mechanism \u2014 without bridging BTC to Cardano. The BTC stays on Bitcoin; the token logic runs on Cardano. This is "chain agnostic" in the Charms sense: purely user-run software, no trusted third parties, no wrapped assets.',
+    body: 'FIRE and ICE are created on Cardano as CNTs through the Charms beaming mechanism. The BTC stays on Bitcoin; the token logic runs on Cardano. This is "chain agnostic" in the Charms sense, and it\'s purely user-run software.',
     colorClasses: "border-sky-500/30 bg-sky-500/25",
     accentClass: "text-sky-400",
   },

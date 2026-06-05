@@ -25,22 +25,18 @@ export function VisualizerContent() {
   let zoneName: string, zoneDesc: string, zoneColor: string;
   if (!isFinite(ratio) || ratio >= 4) {
     zoneName = "Healthy";
-    zoneDesc = "FIRE redeemable · ICE mintable · dividends claimable.";
+    zoneDesc = "FIRE redeemable · ICE mintable · ICE appreciation active.";
     zoneColor = C.healthy;
   } else if (ratio >= 2) {
     zoneName = "Buffer";
     zoneDesc =
-      "New ICE minting paused · FIRE redemption paused · dividends keep flowing.";
+      "New ICE minting paused · FIRE redemption paused · ICE appreciation continues.";
     zoneColor = C.buffer;
-  } else if (ratio >= 1) {
-    zoneName = "Bonds Locked";
-    zoneDesc = "Bond redemption paused · ICE dividends still claimable.";
-    zoneColor = C.locked;
   } else {
-    zoneName = "Dividends Frozen";
+    zoneName = "Locked";
     zoneDesc =
-      "Dividends accrue for ICE holders but cannot be claimed until the vault returns above 1×.";
-    zoneColor = C.frozen;
+      "Below 2× · all minting and redemption paused · ICE appreciation continues.";
+    zoneColor = C.locked;
   }
 
   const thermPct = ratioToPct(ratio);
@@ -268,9 +264,9 @@ export function VisualizerContent() {
           <div style={eyebrow}>Live Simulator</div>
           <h2 style={h2s}>Move the sliders. Watch the system respond.</h2>
           <div style={lede}>
-            Each ICE bond redeems for its USD face value at mint (minimum $100).
-            FIRE tokens share whatever the vault holds beyond the ICE liability
-            — change the supply to see dilution.
+            Each ICE token redeems for its USD face value at mint (minimum
+            $100). FIRE tokens share whatever the vault holds beyond the ICE
+            liability — change the supply to see dilution.
           </div>
 
           <div
@@ -638,15 +634,14 @@ export function VisualizerContent() {
                 }}
               >
                 {[
-                  { lines: ["< 1×", "Dividends Frozen"], bg: "#7A1F1F" },
-                  { lines: ["1× – 2×", "Bonds Locked"], bg: "#8A4A1A" },
+                  { lines: ["< 2×", "Locked"], bg: "#8A4A1A" },
                   { lines: ["2× – 4×", "Buffer"], bg: "#8A6A1A" },
                   { lines: ["> 4×", "Healthy"], bg: "#1F6B3A" },
                 ].map((s, i) => (
                   <div
                     key={i}
                     style={{
-                      flex: "0 0 25%",
+                      flex: "0 0 33.333%",
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
@@ -726,7 +721,6 @@ export function VisualizerContent() {
               }}
             >
               <span>0×</span>
-              <span>1×</span>
               <span>2×</span>
               <span>4×</span>
               <span>8×+</span>

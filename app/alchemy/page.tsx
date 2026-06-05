@@ -181,7 +181,7 @@ export default function AlchemyPage() {
                 reserve.
               </p>
               <div className="rounded-lg bg-background/80 border border-sky-500/30 px-4 py-3 font-mono text-sm text-sky-600 dark:text-sky-300">
-                r = (V·P) / L &nbsp;&nbsp;|&nbsp;&nbsp; Target: 4.0×
+                r = (V·P) / L
               </div>
               <ul className="space-y-1.5 text-sm text-foreground/80">
                 <li className="flex items-center gap-2">
@@ -199,6 +199,10 @@ export default function AlchemyPage() {
                 <li className="flex items-center gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-sky-400 shrink-0" />
                   Redeemable above 2.0× reserve ratio
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-sky-400 shrink-0" />
+                  Mintable above 4.0× reserve ratio
                 </li>
               </ul>
             </div>
