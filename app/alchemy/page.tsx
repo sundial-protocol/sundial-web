@@ -74,7 +74,7 @@ export default function AlchemyPage() {
       <div className="flex flex-col min-h-screen">
         <HeroSection classes="pb-0">
           <div className="flex flex-col items-center text-center gap-6 max-w-3xl mx-auto pt-36">
-            <div className="inline-flex items-center gap-2 rounded-full border border-green-300/30 bg-green-300/10 px-4 py-1.5 text-sm font-medium text-foreground">
+            <div className="inline-flex items-center gap-2 rounded-full border border-green-300/30 bg-background/40 backdrop-blur-sm px-4 py-1.5 text-sm font-medium text-foreground">
               <span className="h-2 w-2 rounded-full bg-green-300" />
               Cardano Treasury Proposal
             </div>
@@ -208,18 +208,21 @@ export default function AlchemyPage() {
         {/* Stats strip */}
         <Section className="max-w-5xl mx-auto px-4 w-full">
           <div className="rounded-xl border border-foreground/15 bg-background/85 backdrop-blur-sm px-6 py-5">
-            <div className="grid grid-cols-3 gap-6 text-center">
-              <div>
-                <div className="text-3xl font-bold text-foreground">4.0×</div>
-                <div className="text-xs text-foreground/70 mt-1 uppercase tracking-widest">
-                  Target Reserve
-                </div>
-              </div>
+            <div className="grid grid-cols-3 text-center items-center">
               <div>
                 <div className="text-3xl font-bold text-foreground">$2.0M</div>
                 <div className="text-xs text-foreground/70 mt-1 uppercase tracking-widest">
                   Requested Funding
                 </div>
+              </div>
+              <div className="flex items-center justify-center">
+                <Image
+                  src="/alchemy/v2-badge.png"
+                  alt="Alchemy"
+                  width={160}
+                  height={160}
+                  className="h-auto w-16 object-contain"
+                />
               </div>
               <div>
                 <div className="text-3xl font-bold text-foreground">9.3M</div>

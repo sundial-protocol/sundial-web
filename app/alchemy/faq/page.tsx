@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { ArrowLeft, ChevronDown, MessageCircleQuestion } from "lucide-react";
 import InteractiveGradientBackground from "@/components/ui/interactive-gradient-bg";
+import React from "react";
 
-type FAQItem = { q: string; a: string };
+type FAQItem = { q: string; a: React.ReactNode };
 
 const faqGroups: { title: string; items: FAQItem[] }[] = [
   {
@@ -10,15 +11,60 @@ const faqGroups: { title: string; items: FAQItem[] }[] = [
     items: [
       {
         q: "What is Alchemy?",
-        a: "Alchemy is a Cardano-native Bitcoin treasury and liquidity system. It creates two reserve-backed assets — FIRE (BTC+) and ICE (BTC−) — from a shared Bitcoin reserve using the Charms protocol and Sundial's BTC platform. The system is being proposed for Cardano treasury funding to launch initial liquidity.",
+        a: "Alchemy is a Cardano-native Bitcoin treasury and liquidity system. It creates two reserve-backed assets - FIRE (BTC+) and ICE (BTC−) - from a shared Bitcoin reserve using the Charms protocol and Sundial's BTC platform. The system is being proposed for Cardano treasury funding to launch initial liquidity.",
       },
       {
         q: "What is FIRE (BTC+)?",
-        a: "FIRE is the junior reserve-growth asset. It absorbs downside first and captures residual upside after ICE liabilities are met — providing higher-beta BTC exposure without margin calls or liquidation mechanics. Its price is calculated as (V·P − L) / N_fire, where V is vault BTC, P is BTC price, L is total ICE liabilities, and N_fire is FIRE token supply.",
+        a: (
+          <>
+            FIRE is the junior reserve-growth asset. It absorbs downside first
+            and captures residual upside after ICE liabilities are met —
+            providing higher-beta BTC exposure without margin calls or
+            liquidation mechanics. Its price is:
+            <div className="my-3 rounded-lg border border-foreground/10 bg-foreground/5 px-4 py-3 text-center font-mono text-sm text-foreground">
+              P<sub>FIRE</sub> = (V · P<sub>BTC</sub> &minus; L) / N
+              <sub>FIRE</sub>
+            </div>
+            where{" "}
+            <code className="rounded bg-foreground/8 px-1 py-0.5 font-mono text-xs">
+              V
+            </code>{" "}
+            is vault BTC,{" "}
+            <code className="rounded bg-foreground/8 px-1 py-0.5 font-mono text-xs">
+              P<sub>BTC</sub>
+            </code>{" "}
+            is BTC price,{" "}
+            <code className="rounded bg-foreground/8 px-1 py-0.5 font-mono text-xs">
+              L
+            </code>{" "}
+            is total ICE liabilities, and{" "}
+            <code className="rounded bg-foreground/8 px-1 py-0.5 font-mono text-xs">
+              N<sub>FIRE</sub>
+            </code>{" "}
+            is FIRE token supply.
+          </>
+        ),
       },
       {
         q: "What is ICE (BTC−)?",
-        a: "ICE is the senior BTC-backed claim. It is a lower-volatility, USD-denominated asset with formulaic growth funded by the reserve structure. ICE has priority redemption over FIRE in the shared vault.",
+        a: (
+          <>
+            ICE is the senior BTC-backed claim. It is a lower-volatility,
+            USD-denominated asset with priority redemption over FIRE in the
+            shared vault. Each ICE token redeems at a fixed face value:
+            <div className="my-3 rounded-lg border border-foreground/10 bg-foreground/5 px-4 py-3 text-center font-mono text-sm text-foreground">
+              P<sub>ICE</sub> = F
+            </div>
+            where{" "}
+            <code className="rounded bg-foreground/8 px-1 py-0.5 font-mono text-xs">
+              F
+            </code>{" "}
+            is the fixed USD face value per ICE token, settled in BTC at the
+            prevailing spot price. F grows over time through reserve yield and
+            appreciation, but does not capture BTC upside beyond the fixed
+            redemption value.
+          </>
+        ),
       },
       {
         q: 'Is ICE "short Bitcoin"?',
@@ -31,7 +77,18 @@ const faqGroups: { title: string; items: FAQItem[] }[] = [
     items: [
       {
         q: "What is the reserve ratio and why does it matter?",
-        a: "The reserve ratio (r = V·P / L) measures total BTC vault value against outstanding ICE liabilities. A 4.0× ratio means the vault holds four dollars of BTC for every dollar of ICE liability. This overcollateralization protects ICE holders and gives FIRE room to capture upside. The 4.0× target was chosen based on stress-test scenarios.",
+        a: (
+          <>
+            The reserve ratio measures total BTC vault value against outstanding
+            ICE liabilities:
+            <div className="my-3 rounded-lg border border-foreground/10 bg-foreground/5 px-4 py-3 text-center font-mono text-sm text-foreground">
+              r = V · P<sub>BTC</sub> / L
+            </div>
+            A 4.0&times; ratio means the vault holds four dollars of BTC for
+            every dollar of ICE liability. This overcollateralization protects
+            ICE holders and gives FIRE room to capture upside.
+          </>
+        ),
       },
       {
         q: "What are the three reserve safety zones?",
@@ -39,7 +96,7 @@ const faqGroups: { title: string; items: FAQItem[] }[] = [
       },
       {
         q: "What happens if BTC price falls sharply?",
-        a: "FIRE absorbs the downside first — its value falls proportionally as the vault's residual value above ICE liabilities decreases. ICE is more protected because it holds the senior claim. If the reserve ratio falls below 2.0×, the system automatically activates redemption and minting constraints to prevent further stress. The reserve can only recover through BTC price appreciation or new vault inflows.",
+        a: "FIRE absorbs the downside first - its value falls proportionally as the vault's residual value above ICE liabilities decreases. ICE is more protected because it holds the senior claim. If the reserve ratio falls below 2.0×, the system automatically activates redemption and minting constraints to prevent further stress. The reserve can only recover through BTC price appreciation or new vault inflows.",
       },
       {
         q: "Can FIRE and ICE be redeemed at any time?",
@@ -52,11 +109,7 @@ const faqGroups: { title: string; items: FAQItem[] }[] = [
     items: [
       {
         q: "How is the Cardano treasury's money protected?",
-        a: "Launch liquidity is deployed in three tranches: $250K after audit and launch-readiness review; $250K after public reporting, operational review, and a 30-day grace period; and $500K after mint/redeem thresholds, reserve ratio tracking, growth monitoring, and dashboard performance are confirmed. The $1M liquidity pool is separately tracked from the $1M delivery budget.",
-      },
-      {
-        q: "Who audits the protocol?",
-        a: "Sundial's BTC platform and locker components are already Hacken-audited and live on testnet. Before mainnet launch, the Alchemy protocol will undergo an independent security review covering protocol logic, reserve thresholds, smart-contract execution, oracle dependencies, and economic assumptions.",
+        a: "Launch liquidity is deployed in three tranches: $250K after audit and launch-readiness review; $250K after public reporting, operational review, and a 30-day grace period; and $500K after mint/redeem thresholds, reserve ratio tracking, growth monitoring, and dashboard performance are confirmed. The $1M liquidity pool is separately tracked from the $1M delivery budget. We're in discussions with third-party administrators to provide additional oversight and reporting.",
       },
       {
         q: "What happens when Alchemy's TVL reaches $60M?",
@@ -64,7 +117,7 @@ const faqGroups: { title: string; items: FAQItem[] }[] = [
       },
       {
         q: "Is this a risk-free investment for Cardano?",
-        a: "No. Treasury-supported liquidity is deployed into a protocol exposed to BTC price risk, reserve health risk, oracle risk, bridge and locker risk, and DeFi liquidity risk. These risks are mitigated through staged deployment, audit gates, always-on public dashboards, reserve constraints, and monthly governance reporting — but they cannot be eliminated entirely.",
+        a: "No. Treasury-supported liquidity is deployed into a protocol exposed to BTC price risk, reserve health risk, oracle risk, bridge and locker risk, and DeFi liquidity risk. These risks are mitigated through staged deployment, audit gates, always-on public dashboards, reserve constraints, and monthly governance reporting - but they cannot be eliminated entirely.",
       },
     ],
   },
@@ -86,7 +139,7 @@ export default function AlchemyFAQ() {
 
         {/* Hero */}
         <div className="mb-12">
-          <div className="inline-flex items-center gap-2 rounded-full border border-green-500/20 bg-green-500/25 px-4 py-1.5 text-sm font-medium text-green-400 mb-5">
+          <div className="inline-flex items-center gap-2 rounded-full border border-green-500/30 bg-background/40 backdrop-blur-sm px-4 py-1.5 text-sm font-medium text-green-400 mb-5">
             <MessageCircleQuestion className="h-4 w-4" />
             Common Questions
           </div>

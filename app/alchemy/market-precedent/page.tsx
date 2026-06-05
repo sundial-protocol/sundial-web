@@ -8,7 +8,8 @@ const precedents = [
     id: "strc",
     color: "border-orange-500/40 bg-background/90 backdrop-blur-sm",
     accentColor: "text-orange-400",
-    badgeColor: "border-orange-500/20 bg-orange-500/10 text-orange-400",
+    badgeColor:
+      "border-orange-500/30 bg-background/80 text-orange-400 backdrop-blur-sm",
     label: "Public Equity Markets",
     name: "Strategy STRC",
     tagline: "BTC-backed senior preferred shares",
@@ -30,7 +31,8 @@ const precedents = [
     id: "pendle",
     color: "border-sky-500/40 bg-background/90 backdrop-blur-sm",
     accentColor: "text-sky-400",
-    badgeColor: "border-sky-500/20 bg-sky-500/10 text-sky-400",
+    badgeColor:
+      "border-sky-500/30 bg-background/80 text-sky-400 backdrop-blur-sm",
     label: "DeFi Yield Infrastructure",
     name: "Pendle Finance",
     tagline: "Entirely new markets emerge around financial primitives",
@@ -52,7 +54,8 @@ const precedents = [
     id: "djed",
     color: "border-primary/40 bg-background/90 backdrop-blur-sm",
     accentColor: "text-primary",
-    badgeColor: "border-primary/20 bg-primary/10 text-primary",
+    badgeColor:
+      "border-primary/30 bg-background/80 text-primary backdrop-blur-sm",
     label: "Cardano Reserve System",
     name: "Djed",
     tagline: "Algorithmic reserve-backed stablecoin on Cardano",
@@ -152,9 +155,9 @@ export default function MarketPrecedentPage() {
 
         {/* Hero */}
         <div className="mb-14">
-          <div className="inline-flex items-center gap-2 rounded-full border border-sky-500/20 bg-sky-500/25 px-4 py-1.5 text-sm font-medium text-sky-400 mb-5">
+          <div className="inline-flex items-center gap-2 rounded-full border border-sky-500/30 bg-background/40 backdrop-blur-sm px-4 py-1.5 text-sm font-medium text-sky-400 mb-5">
             <TrendingUp className="h-4 w-4" />
-            The Demand Already Exists
+            The Demand Exists
           </div>
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
             Market Precedent

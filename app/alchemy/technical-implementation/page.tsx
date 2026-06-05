@@ -123,7 +123,7 @@ export default function TechnicalImplementationPage() {
 
         {/* Hero */}
         <div className="mb-14">
-          <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/20 bg-cyan-500/25 px-4 py-1.5 text-sm font-medium text-cyan-400 mb-5">
+          <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-background/40 backdrop-blur-sm px-4 py-1.5 text-sm font-medium text-cyan-400 mb-5">
             <Code2 className="h-4 w-4" />
             Powered by Charms
           </div>

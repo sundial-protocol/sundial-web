@@ -156,7 +156,7 @@ export default function AlchemyGovernancePage() {
 
         {/* Hero */}
         <div className="mb-14">
-          <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/20 bg-purple-500/25 px-4 py-1.5 text-sm font-medium text-purple-400 mb-5">
+          <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-background/40 backdrop-blur-sm px-4 py-1.5 text-sm font-medium text-purple-400 mb-5">
             <Vote className="h-4 w-4" />
             DRep Resources
           </div>
