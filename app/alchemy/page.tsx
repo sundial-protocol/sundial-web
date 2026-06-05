@@ -10,6 +10,7 @@ import {
   MessageCircleQuestion,
   Vote,
   ArrowRight,
+  ExternalLink,
   Flame,
   Snowflake,
 } from "lucide-react";
@@ -221,7 +222,7 @@ export default function AlchemyPage() {
                 </div>
               </div>
               <div>
-                <div className="text-3xl font-bold text-foreground">8.3M</div>
+                <div className="text-3xl font-bold text-foreground">9.3M</div>
                 <div className="text-xs text-foreground/70 mt-1 uppercase tracking-widest">
                   ADA Equivalent
                 </div>
@@ -247,6 +248,10 @@ export default function AlchemyPage() {
                 <Link
                   key={page.href}
                   href={page.href}
+                  {...(page.href.startsWith("http") && {
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                  })}
                   className="group rounded-xl border border-foreground/15 bg-background/80 backdrop-blur-sm p-5 flex flex-col gap-3 hover:border-foreground/25 hover:bg-background/90 transition-all"
                 >
                   <div className="flex items-start justify-between">
@@ -255,7 +260,11 @@ export default function AlchemyPage() {
                     >
                       <Icon className="h-4 w-4" />
                     </div>
-                    <ArrowRight className="h-4 w-4 text-foreground/50 group-hover:text-foreground/80 transition-colors" />
+                    {page.href.startsWith("http") ? (
+                      <ExternalLink className="h-4 w-4 text-foreground/50 group-hover:text-foreground/80 transition-colors" />
+                    ) : (
+                      <ArrowRight className="h-4 w-4 text-foreground/50 group-hover:text-foreground/80 transition-colors" />
+                    )}
                   </div>
                   <div>
                     <h3 className="font-semibold text-foreground">

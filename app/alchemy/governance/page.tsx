@@ -8,6 +8,8 @@ import {
   Users,
   BarChart2,
   BookOpen,
+  Award,
+  Bitcoin,
 } from "lucide-react";
 import InteractiveGradientBackground from "@/components/ui/interactive-gradient-bg";
 import { AlchemyTable } from "@/components/ui/alchemy-table";
@@ -26,7 +28,7 @@ const benefits = [
     icon: Cpu,
     title: "Reusable DeFi Primitive",
     description:
-      "FIRE and ICE are composable Cardano-native assets. Once live, wallets, DEXs, dashboards, and future BTC-facing Cardano applications can build on top of them — extending the ecosystem beyond just this protocol.",
+      "FIRE and ICE are composable Cardano-native assets. Once live, wallets, DEXs, dashboards, and future BTC-facing Cardano applications can build on top of them - extending the ecosystem beyond just this protocol.",
     colorClasses: "border-sky-500/30 bg-background/85",
     accentClass: "text-sky-400",
   },
@@ -42,7 +44,7 @@ const benefits = [
     icon: Shield,
     title: "Matching Capital Catalysis",
     description:
-      "$1.0M in treasury-supported launch liquidity catalyzes a larger BTCfi liquidity base with matching outside capital — amplifying the treasury's impact beyond the direct deployment.",
+      "$1.0M in treasury-supported launch liquidity catalyzes a larger BTCfi liquidity base with matching outside capital - amplifying the treasury's impact beyond the direct deployment.",
     colorClasses: "border-primary/30 bg-background/85",
     accentClass: "text-primary",
   },
@@ -53,6 +55,22 @@ const benefits = [
       "STRC, Pendle, Djed, and Ethena have all validated market demand for BTC-backed structured products and reserve-ratio systems. Alchemy brings that proven product logic to Cardano natively.",
     colorClasses: "border-purple-500/30 bg-background/85",
     accentClass: "text-purple-400",
+  },
+  //{
+  //  icon: Award,
+  //  title: "Teams that Deliver",
+  //  description:
+  //    "Two venture-backed startups with top-tier audits, multiple live protocols, thousands of users and deep institutional connections. Charms & Sundial have the expertise needed to execute.",
+  //  colorClasses: "border-yellow-500/30 bg-background/85",
+  //  accentClass: "text-yellow-400",
+  //},
+  {
+    icon: Bitcoin,
+    title: "Diversify the Treasury",
+    description:
+      "The $1.0M liquidity position puts idle ADA to work in a BTC-backed reserve, generating yield that returns to the Treasury quarterly — adding a new productive asset class to Cardano's balance sheet.",
+    colorClasses: "border-orange-500/30 bg-background/85",
+    accentClass: "text-orange-400",
   },
 ];
 
@@ -97,7 +115,7 @@ const milestones = [
     pct: "25%",
     approx: "~$500K",
     description:
-      "Final milestone — details to be confirmed at proposal submission.",
+      "Final milestone - details to be confirmed at proposal submission.",
   },
 ];
 

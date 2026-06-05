@@ -21,7 +21,7 @@ const pillars = [
     title: "eUTXO Architecture",
     colorClasses: "border-sky-500/30 bg-sky-500/25",
     accentClass: "text-sky-400",
-    body: "Charms builds directly on Cardano's pioneering extended UTXO model. Each transaction output can carry multiple assets and arbitrary programmable data. Charms are entries in an app → data mapping attached to a UTXO — you can have as many charms per output as you need, and they travel with Bitcoin-level ownership guarantees.",
+    body: "Charms builds directly on Cardano's pioneering extended UTXO model. Each transaction output can carry multiple assets and arbitrary programmable data. Charms are entries in an app → data mapping attached to a UTXO - you can have as many charms per output as you need, and they travel with Bitcoin-level ownership guarantees.",
   },
   {
     label: "02",
@@ -29,7 +29,7 @@ const pillars = [
     title: "Bitcoin Metaprotocols",
     colorClasses: "border-orange-500/30 bg-orange-500/25",
     accentClass: "text-orange-400",
-    body: 'Inspired by Ordinals and Runes, Charms creates fully native digital assets using client-side validation. Every Charms transaction contains a "spell" encoded in an OP_RETURN output. Spells are client-side validated — nodes choose to interpret or ignore them, and double-spending is still prevented by Bitcoin itself.',
+    body: 'Inspired by Ordinals and Runes, Charms creates fully native digital assets using client-side validation. Every Charms transaction contains a "spell" encoded in an OP_RETURN output. Spells are client-side validated - nodes choose to interpret or ignore them, and double-spending is still prevented by Bitcoin itself.',
   },
   {
     label: "03",
@@ -37,7 +37,7 @@ const pillars = [
     title: "zkVM Technology",
     colorClasses: "border-purple-500/30 bg-purple-500/25",
     accentClass: "text-purple-400",
-    body: "Charms app contracts are Rust functions compiled to a zero-knowledge virtual machine. Each spell carries a Groth16 ZK proof attesting to its correctness — that the app contract logic was satisfied. The proof is compact and verifiable by anyone, including on-chain validators on Cardano, without re-executing the logic.",
+    body: "Charms app contracts are Rust functions compiled to a zero-knowledge virtual machine. Each spell carries a Groth16 ZK proof attesting to its correctness - that the app contract logic was satisfied. The proof is compact and verifiable by anyone, including on-chain validators on Cardano, without re-executing the logic.",
   },
 ];
 
@@ -80,7 +80,7 @@ const alchemySteps = [
   {
     step: "1",
     title: "FIRE and ICE as Charms Tokens",
-    body: "FIRE (BTC+) and ICE (BTC\u2212) are implemented as Charms tokens \u2014 CNTs on Cardano, derived from Bitcoin-native app contracts. They are standard Cardano Native Tokens, compatible with every Cardano wallet and DEX from day one. No bridging or wrapping required.",
+    body: "FIRE (BTC+) and ICE (BTC\u2212) are implemented as Charms tokens, derived from Bitcoin-native app contracts. Once beamed trustlessly to Cardano, they are standard Cardano Native Tokens, compatible with every Cardano wallet and DEX from day one.",
     colorClasses: "border-orange-500/30 bg-orange-500/25",
     accentClass: "text-orange-400",
   },
@@ -88,8 +88,8 @@ const alchemySteps = [
     step: "2",
     title: "Reserve Rules as App Contracts",
     body: "The minting and redemption logic for FIRE and ICE is encoded as Charms app contracts (Rust). The contract checks: Is the reserve ratio above 4.0\u00d7 before minting ICE? Is it above 4.0\u00d7 before minting FIRE? Is the reserve zone allowing redemption? These rules cannot be bypassed \u2014 they are enforced by the ZK proof.",
-    colorClasses: "border-sky-500/30 bg-sky-500/25",
-    accentClass: "text-sky-400",
+    colorClasses: "border-green-500/30 bg-green-500/25",
+    accentClass: "text-green-400",
   },
   {
     step: "3",
@@ -100,17 +100,10 @@ const alchemySteps = [
   },
   {
     step: "4",
-    title: "BTC Vault via Sundial Lockers",
-    body: "The reserve BTC sits in Sundial's Hacken-audited Bitcoin lockers \u2014 native Bitcoin UTXOs with programmable unlock conditions. The locker's BTC balance and the current BTC price are fed as public inputs into the Charms spell. Because they are public inputs, they are visible in the proof and auditable by anyone.",
-    colorClasses: "border-green-500/30 bg-green-500/25",
-    accentClass: "text-green-400",
-  },
-  {
-    step: "5",
     title: "Cardano-Native, No Bridges",
     body: 'FIRE and ICE are created on Cardano as CNTs through the Charms beaming mechanism \u2014 without bridging BTC to Cardano. The BTC stays on Bitcoin; the token logic runs on Cardano. This is "chain agnostic" in the Charms sense: purely user-run software, no trusted third parties, no wrapped assets.',
-    colorClasses: "border-primary/30 bg-primary/25",
-    accentClass: "text-primary",
+    colorClasses: "border-sky-500/30 bg-sky-500/25",
+    accentClass: "text-sky-400",
   },
 ];
 
@@ -138,7 +131,7 @@ export default function TechnicalImplementationPage() {
             Technical Implementation
           </h1>
           <p className="text-lg text-foreground/85 max-w-2xl leading-relaxed">
-            FIRE and ICE are implemented using the Charms protocol — a
+            FIRE and ICE are implemented using the Charms protocol - a
             zkVM-based programmable asset system built on Bitcoin and Cardano.
             This page explains what Charms is, how it works, and exactly how
             Alchemy uses it to enforce reserve mechanics on-chain.
@@ -154,7 +147,7 @@ export default function TechnicalImplementationPage() {
             <p className="text-foreground/85 leading-relaxed mb-4">
               Charms is a programmable assets protocol for Bitcoin (and beyond).
               Put simply, charms are programmable tokens on top of Bitcoin UTXOs
-              — but with full app contract logic, ZK proof verification, and
+              - but with full app contract logic, ZK proof verification, and
               cross-chain portability. No bridges. No wrappers. No trusted third
               parties.
             </p>
@@ -171,10 +164,33 @@ export default function TechnicalImplementationPage() {
               Charms is inspired by Ordinals and Runes but goes further: it adds
               full programmability via ZK-provable app contracts written in
               mainstream languages (Rust), and it deploys those assets natively
-              on other chains — including Cardano — under their standard token
+              on other chains - including Cardano - under their standard token
               formats (CNTs, ERC-20, SPL) without any bridging infrastructure.
             </p>
           </div>
+
+          {/* Charms credentials */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+            {[
+              { label: "Backed by", value: "Draper Associates" },
+              { label: "Live product", value: "eBTC Bridge" },
+              { label: "Ecosystems", value: "Bitcoin, Cardano" },
+              { label: "Wallet users", value: "3,000+" },
+            ].map((s) => (
+              <div
+                key={s.label}
+                className="rounded-xl border border-foreground/15 bg-background/85 backdrop-blur-sm px-4 py-3"
+              >
+                <div className="text-xs text-foreground/55 uppercase tracking-widest mb-1">
+                  {s.label}
+                </div>
+                <div className="font-semibold text-foreground text-sm">
+                  {s.value}
+                </div>
+              </div>
+            ))}
+          </div>
+
           <div className="flex flex-wrap gap-3">
             <Link
               href="https://charms.dev"
@@ -234,12 +250,12 @@ export default function TechnicalImplementationPage() {
         {/* Spells */}
         <div className="mb-14">
           <h2 className="text-2xl font-bold tracking-tight mb-4">
-            Spells — Charms Transactions
+            Spells - Charms Transactions
           </h2>
           <div className="space-y-4">
             <p className="text-foreground/80 leading-relaxed text-sm">
               Every Charms transaction contains a{" "}
-              <strong className="text-foreground">spell</strong> —
+              <strong className="text-foreground">spell</strong> -
               Charms-related metadata stored in an{" "}
               <code className="rounded bg-foreground/10 px-1.5 py-0.5 text-xs font-mono text-foreground/90">
                 OP_RETURN
@@ -290,7 +306,7 @@ app_public_inputs:
           </h2>
           <p className="text-foreground/80 leading-relaxed text-sm mb-5">
             Each asset type is governed by an{" "}
-            <strong className="text-foreground">app contract</strong> — a Rust
+            <strong className="text-foreground">app contract</strong> - a Rust
             function that defines the rules for minting, burning, and
             transferring. This function is compiled to a zkVM, and a Groth16
             proof is generated off-chain. Anyone can verify the proof; no one
@@ -306,12 +322,7 @@ app_public_inputs:
     tx:  &Transaction, // the full transaction context
     x:   &Data,        // public inputs (e.g. current reserve ratio)
     w:   &Data,        // private witness (e.g. vault BTC balance)
-) -> bool {
-    // FIRE: minting only allowed above 4.0× reserve ratio
-    // ICE:  minting only allowed above 4.0× after issuance
-    // Both: redemption gated by reserve zone
-    todo!()
-}`}
+) -> bool`}
             </pre>
           </div>
           <p className="text-sm text-foreground/75 leading-relaxed">
@@ -351,11 +362,11 @@ app_public_inputs:
             rows={[
               {
                 name: "Main Validator",
-                desc: "Routes validation to the appropriate versioned script. Upgradeable by design — new proving systems can be added without breaking existing tokens.",
+                desc: "Routes validation to the appropriate versioned script. Upgradeable by design - new proving systems can be added without breaking existing tokens.",
               },
               {
                 name: "Groth16 Validator",
-                desc: "Verifies zkSNARK proofs using the Groth16 proving system. Trustless — no ICP verifiers, no multisig, just math. This is the validator Alchemy targets.",
+                desc: "Verifies zkSNARK proofs using the Groth16 proving system. Trustless - no ICP verifiers, no multisig, just math. This is the validator Alchemy targets.",
               },
               {
                 name: "Scrolls Validator (V1)",
@@ -404,7 +415,7 @@ app_public_inputs:
           </h2>
           <p className="text-foreground/75 text-sm mb-6">
             Charms is the execution layer that makes Alchemy's reserve
-            constraints enforced — not promised.
+            constraints enforced - not promised.
           </p>
           <div className="space-y-4">
             {alchemySteps.map((item) => (
