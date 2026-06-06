@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Flame, Snowflake, Shield } from "lucide-react";
+import { Flame, Snowflake, Shield, ExternalLinkIcon } from "lucide-react";
 import { Section } from "@/components/ui/section";
 
 const highlights = [
@@ -79,10 +79,13 @@ export default function AlchemyWidget() {
                 Learn More
               </Link>
               <Link
-                href="/alchemy/proposal"
+                href="https://medium.com/@SundialProtocol/sundial-x-charms-proposal-building-the-first-bitcoin-treasury-protocol-for-cardano-e437c964c3b6"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex h-12 items-center justify-center rounded-full border border-foreground/20 bg-white/5 px-8 text-base font-medium text-foreground text-center whitespace-nowrap hover:bg-white/10 transition-colors"
               >
                 Read Proposal
+                <ExternalLinkIcon className="h-4 w-4 ml-2" />
               </Link>
             </div>
           </div>
