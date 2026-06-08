@@ -6,7 +6,6 @@ import InteractiveGradientBg from "@/components/ui/interactive-gradient-bg";
 import { C } from "./constants";
 import { fmtTokens, fmtUsd, fmt2, fmtPct, ratioToPct } from "./format";
 import { VaultGauge } from "./vault-gauge";
-import { CharmsDiagram } from "./charms-diagram";
 
 export function VisualizerContent() {
   const { resolvedTheme } = useTheme();
@@ -144,6 +143,7 @@ export function VisualizerContent() {
           </div>
 
           <div
+            className="viz-eq-grid"
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(3,1fr)",
