@@ -85,6 +85,18 @@ export function VisualizerContent() {
     input[type="range"].viz-slider{width:100%;-webkit-appearance:none;appearance:none;height:6px;background:${C.bgDeep};border-radius:3px;outline:none;border:1px solid ${C.cardEdge}}
     input[type="range"].viz-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;background:${C.charms};border-radius:50%;cursor:pointer;border:2px solid ${C.bg};box-shadow:0 0 0 2px ${C.charms}}
     input[type="range"].viz-slider::-moz-range-thumb{width:18px;height:18px;background:${C.charms};border-radius:50%;cursor:pointer;border:2px solid ${C.bg}}
+    @media(max-width:639px){
+      .viz-sec{padding:18px!important}
+      .viz-header-img{height:120px!important}
+      .viz-h2{font-size:20px!important}
+      .viz-eqn-num{font-size:16px!important}
+      .viz-eq-grid{grid-template-columns:1fr!important}
+      .viz-results-grid{grid-template-columns:1fr!important}
+      .viz-sim-grid{grid-template-columns:1fr!important}
+    }
+    @media(min-width:640px) and (max-width:767px){
+      .viz-sim-grid{grid-template-columns:1fr!important}
+    }
   `;
 
   return (
@@ -112,6 +124,7 @@ export function VisualizerContent() {
             <img
               src={isDark ? "/alchemy/v2-gold.png" : "/alchemy/v2-normal.png"}
               alt="Alchemy"
+              className="viz-header-img"
               style={{ height: 180, width: "auto" }}
             />
           </div>
@@ -120,9 +133,11 @@ export function VisualizerContent() {
         {/*<CharmsDiagram />*/}
 
         {/* Mathematics */}
-        <div style={sec}>
+        <div className="viz-sec" style={sec}>
           <div style={eyebrow}>The Mathematics</div>
-          <h2 style={h2s}>Three equations describe the entire system.</h2>
+          <h2 className="viz-h2" style={h2s}>
+            Three equations describe the entire system.
+          </h2>
           <div style={lede}>
             L = total ICE liability (USD), V = vault BTC, P = BTC price, N
             <sub>fire</sub> = FIRE supply.
@@ -220,6 +235,7 @@ export function VisualizerContent() {
                 }}
               >
                 <div
+                  className="viz-eqn-num"
                   style={{
                     fontFamily: "Cambria,Georgia,serif",
                     fontSize: 22,
@@ -260,9 +276,11 @@ export function VisualizerContent() {
         </div>
 
         {/* Live Simulator */}
-        <div style={sec}>
+        <div className="viz-sec" style={sec}>
           <div style={eyebrow}>Live Simulator</div>
-          <h2 style={h2s}>Move the sliders. Watch the system respond.</h2>
+          <h2 className="viz-h2" style={h2s}>
+            Move the sliders. Watch the system respond.
+          </h2>
           <div style={lede}>
             Each ICE token redeems for its USD face value at mint (minimum
             $100). FIRE tokens share whatever the vault holds beyond the ICE
@@ -270,6 +288,7 @@ export function VisualizerContent() {
           </div>
 
           <div
+            className="viz-sim-grid"
             style={{
               display: "grid",
               gridTemplateColumns: "280px 220px 1fr",
@@ -414,6 +433,7 @@ export function VisualizerContent() {
 
             <div>
               <div
+                className="viz-results-grid"
                 style={{
                   display: "grid",
                   gridTemplateColumns: "repeat(2,1fr)",
@@ -607,9 +627,11 @@ export function VisualizerContent() {
         </div>
 
         {/* Thermometer */}
-        <div style={sec}>
+        <div className="viz-sec" style={sec}>
           <div style={eyebrow}>The Strength of the Magic</div>
-          <h2 style={h2s}>Three thresholds govern what&apos;s possible.</h2>
+          <h2 className="viz-h2" style={h2s}>
+            Three thresholds govern what&apos;s possible.
+          </h2>
           <div style={lede}>
             As the reserve ratio crosses each line, the protocol shifts
             what&apos;s allowed.
@@ -729,15 +751,18 @@ export function VisualizerContent() {
         </div>
 
         {/* Scenarios */}
-        <div style={sec}>
+        <div className="viz-sec" style={sec}>
           <div style={eyebrow}>Scenarios</div>
-          <h2 style={h2s}>What happens when BTC moves from here.</h2>
+          <h2 className="viz-h2" style={h2s}>
+            What happens when BTC moves from here.
+          </h2>
           <div style={lede}>
             Holding the vault and ICE outstanding constant; only BTC&apos;s
             price changes.
           </div>
 
           <div
+            className="viz-eq-grid"
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(3,1fr)",

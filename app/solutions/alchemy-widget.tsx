@@ -34,7 +34,7 @@ const highlights = [
 
 export default function AlchemyWidget() {
   return (
-    <Section className="w-full max-w-6xl mx-auto pt-24 lg:pt-6 pb-8 lg:pr-24">
+    <Section className="w-full max-w-6xl mx-auto pt-16 sm:pt-20 lg:pt-6 pb-8 lg:pr-24">
       <div className="relative overflow-hidden rounded-[18px] border border-white/10 bg-white/5 px-3 py-4 shadow-2xl backdrop-blur-xl sm:px-4 sm:py-5 md:rounded-[28px] md:px-10 md:py-10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,196,57,0.18),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.08),transparent_25%)] pointer-events-none" />
 

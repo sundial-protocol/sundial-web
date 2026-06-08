@@ -7,7 +7,7 @@ import { VisualizerContent } from "./visualizer-content";
 export default function AlchemyVisualizer() {
   return (
     <div className="min-h-screen">
-      <div className="max-w-5xl mx-auto px-6 pt-36 pb-4">
+      <div className="max-w-5xl mx-auto px-6 pt-20 md:pt-36 pb-4">
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
             <div className="flex items-center gap-3 mb-3">
