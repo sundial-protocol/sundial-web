@@ -65,7 +65,7 @@ export default function Team() {
           return prevMembers;
         }
 
-        let newMembers = [...prevMembers];
+        const newMembers = [...prevMembers];
         newMembers[memberIndex] = newMembers[0];
         newMembers[0] = member;
         return newMembers;
@@ -105,10 +105,10 @@ export default function Team() {
     return displayNames[teamName] || teamName;
   };
 
-  let desktopSelectedMember: TeamMemberType | null = members
+  const desktopSelectedMember: TeamMemberType | null = members
     ? members[0]
     : null;
-  let displayMembers = members || [];
+  const displayMembers = members || [];
 
   return (
     <SunbeamBackground

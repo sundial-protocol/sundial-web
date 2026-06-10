@@ -171,7 +171,7 @@ export async function signMessage(
     if (hexAddresses.length > 0) {
       const hexAddress = hexAddresses[0];
       let hexMessage = "";
-      for (var i = 0, l = message.length; i < l; i++) {
+      for (let i = 0, l = message.length; i < l; i++) {
         hexMessage += message.charCodeAt(i).toString(16);
       }
       try {
