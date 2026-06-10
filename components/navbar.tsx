@@ -38,7 +38,7 @@ function NavLink({
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
+  const [, setScrollY] = useState(0);
 
   // Open drawer by default on desktop, keep closed on mobile
   useEffect(() => {

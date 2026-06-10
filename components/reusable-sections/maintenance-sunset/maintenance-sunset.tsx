@@ -3,19 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./sunset.module.css";
 import Image from "next/image";
-import ScrambleText, { ScrambleTextRef } from "@/components/ui/scramble-text";
 import MaintenanceOverlay from "@/components/ui/maintenance-overlay";
 
 export default function MaintenanceSunset() {
-  const scrambleRef = useRef<ScrambleTextRef>(null);
-
-  function onMouseOverText() {
-    const isLarsWatching = Math.random() < 0.05;
-    const textToShow = isLarsWatching ? "LARS IS WATCHING" : "ON THE HORIZON";
-
-    scrambleRef.current?.scramble(textToShow);
-  }
-
   // Prevent scrolling when overlay is active
   useEffect(() => {
     const original = document.body.style.overflow;
@@ -55,10 +45,10 @@ export default function MaintenanceSunset() {
     const sunDay = document.getElementById("sunDay");
     const sunSet = document.getElementById("sunSet");
     const waterReflectionContainer = document.getElementById(
-      "waterReflectionContainer"
+      "waterReflectionContainer",
     );
     const waterReflectionMiddle = document.getElementById(
-      "waterReflectionMiddle"
+      "waterReflectionMiddle",
     );
     const darknessOverlay = document.getElementById("darknessOverlay");
     const darknessOverlaySky = document.getElementById("darknessOverlaySky");
@@ -146,21 +136,21 @@ export default function MaintenanceSunset() {
     if (darknessOverlay) {
       darknessOverlay.style.opacity = `${Math.min(
         (sunPos.current.y - myHeight / 1.9) / (myHeight / 2) + 0.3,
-        1
+        1,
       )}`;
     }
 
     if (darknessOverlaySky) {
       darknessOverlaySky.style.opacity = `${Math.min(
         (sunPos.current.y - myHeight * 0.7) / (myHeight - myHeight * 0.7),
-        1
+        1,
       )}`;
     }
 
     if (moon) {
       moon.style.opacity = `${Math.min(
         (sunPos.current.y - myHeight * 0.9) / (myHeight - myHeight * 0.9),
-        0.65
+        0.65,
       )}`;
     }
 
@@ -204,7 +194,7 @@ export default function MaintenanceSunset() {
   }, [mouse, scrollY, animateSunPosition]);
 
   function handleMouseMove(
-    event: React.MouseEvent<HTMLDivElement> | React.WheelEvent<HTMLDivElement>
+    event: React.MouseEvent<HTMLDivElement> | React.WheelEvent<HTMLDivElement>,
   ) {
     setMouse({
       x: event.clientX,

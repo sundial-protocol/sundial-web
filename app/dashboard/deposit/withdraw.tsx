@@ -11,13 +11,8 @@ import { yieldFromProvider } from "@/hooks/dashboard/yield-opportunities";
 import { usePrices } from "@/hooks/dashboard/prices";
 
 export default function WithdrawTab() {
-  const {
-    portfolioData,
-    calculations,
-    updateStakedAmount,
-    isLoading,
-    selectedYieldProvider,
-  } = useDashboardContext();
+  const { portfolioData, calculations, isLoading, selectedYieldProvider } =
+    useDashboardContext();
   const { convert } = usePrices();
   const [selectedChain, setSelectedChain] = useState<SupportedChain>("btc");
   const [amount, setAmount] = useState("");
@@ -73,8 +68,8 @@ export default function WithdrawTab() {
       <div className="p-6 text-center">
         <h2 className="text-2xl font-bold mb-4">No Unlocked Stakes</h2>
         <p className="text-muted-foreground mb-6">
-          Once your stake has passed its lock period, you'll be able to withdraw
-          your rewards here.
+          Once your stake has passed its lock period, you&apos;ll be able to
+          withdraw your rewards here.
         </p>
         <Button asChild>
           <Link href="/dashboard?tab=stake">Keep Staking</Link>

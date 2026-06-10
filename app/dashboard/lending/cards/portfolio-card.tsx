@@ -25,10 +25,7 @@ import {
 } from "@/hooks/dashboard/lending";
 // Import dashboard context for transactions
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
-import {
-  TransactionType,
-  LendingTransaction,
-} from "@/hooks/dashboard/dashboard";
+import { TransactionType } from "@/hooks/dashboard/dashboard";
 import { useState } from "react";
 import { useToast } from "@/components/ui/toast";
 
@@ -50,8 +47,6 @@ export default function PortfolioActivityCard() {
   const {
     loans,
     activeLoans,
-    loanHistory,
-    stats,
     refreshData,
     setSelectedLoanId,
     setShowManageLoan,
@@ -94,12 +89,12 @@ export default function PortfolioActivityCard() {
         source: "transaction" as const,
         details: tx.details,
         interestRate: tx.interestRate,
-      })
+      }),
     );
 
     // Combine and sort by date
     return [...paymentItems, ...transactionItems].sort(
-      (a, b) => b.date.getTime() - a.date.getTime()
+      (a, b) => b.date.getTime() - a.date.getTime(),
     );
   };
 
@@ -126,7 +121,7 @@ export default function PortfolioActivityCard() {
   // Get recent activity (last 10 items)
   const recentActivity = combinedActivity.slice(
     0,
-    showAllActivity ? combinedActivity.length : 5
+    showAllActivity ? combinedActivity.length : 5,
   );
 
   // Get loan display list
@@ -166,7 +161,7 @@ export default function PortfolioActivityCard() {
   const getActivityIcon = (
     type: string,
     status: string,
-    source: "payment" | "transaction"
+    source: "payment" | "transaction",
   ) => {
     if (status === "failed") {
       return <AlertTriangle className="h-3 w-3 text-red-600" />;
@@ -219,7 +214,7 @@ export default function PortfolioActivityCard() {
   // Get activity type display name
   const getActivityTypeDisplay = (
     type: string,
-    source: "payment" | "transaction"
+    source: "payment" | "transaction",
   ) => {
     if (source === "transaction") {
       switch (type) {
@@ -406,7 +401,7 @@ export default function PortfolioActivityCard() {
           <div className="space-y-2">
             {recentActivity.length > 0 ? (
               recentActivity.map((activity) => {
-                const loan = loans.find((l) => l.id === activity.loanId);
+                const _loan = loans.find((l) => l.id === activity.loanId);
                 return (
                   <div
                     key={`${activity.source}-${activity.id}`}
@@ -416,7 +411,7 @@ export default function PortfolioActivityCard() {
                       {getActivityIcon(
                         activity.type,
                         activity.status,
-                        activity.source
+                        activity.source,
                       )}
                       <div>
                         <div className="text-xs font-medium">
@@ -440,7 +435,7 @@ export default function PortfolioActivityCard() {
                         <div className="text-xs text-muted-foreground">
                           {getActivityTypeDisplay(
                             activity.type,
-                            activity.source
+                            activity.source,
                           )}{" "}
                           • {activity.date.toLocaleDateString()}
                           {/* Show loan ID for transaction activities */}
@@ -462,7 +457,7 @@ export default function PortfolioActivityCard() {
                     <div className="flex flex-col items-end gap-1">
                       <Badge
                         className={`text-xs ${getActivityStatusColor(
-                          activity.status
+                          activity.status,
                         )}`}
                       >
                         {activity.status}

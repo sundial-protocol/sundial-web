@@ -8,7 +8,6 @@ import {
   Users,
   BarChart2,
   BookOpen,
-  Award,
   Bitcoin,
 } from "lucide-react";
 import InteractiveGradientBackground from "@/components/ui/interactive-gradient-bg";
@@ -164,9 +163,9 @@ export default function AlchemyGovernancePage() {
             Governance
           </h1>
           <p className="text-lg text-foreground/85 max-w-2xl leading-relaxed">
-            A strategic investment in Cardano's Bitcoin position. Here you will
-            find the case for a Yes vote, the full funding structure, milestone
-            schedule, and how to participate.
+            A strategic investment in Cardano&apos;s Bitcoin position. Here you
+            will find the case for a Yes vote, the full funding structure,
+            milestone schedule, and how to participate.
           </p>
         </div>
 

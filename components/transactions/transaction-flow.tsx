@@ -71,7 +71,7 @@ export function TransactionFlow({
   const [psbtData, setPsbtData] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const { generatePsbt, loading: generatingPsbt } = usePsbtGeneration();
+  const { generatePsbt } = usePsbtGeneration();
 
   const getTransactionTitle = () => {
     if (title) return title;
@@ -147,7 +147,7 @@ export function TransactionFlow({
       });
 
       setPsbtData(psbt);
-    } catch (error) {
+    } catch {
       setError("Failed to generate Bitcoin transaction");
     }
   };
@@ -165,7 +165,7 @@ export function TransactionFlow({
         asset,
         txid: `traditional_${Date.now()}`,
       });
-    } catch (error) {
+    } catch {
       setError("Traditional payment failed");
     } finally {
       setIsProcessing(false);
@@ -392,11 +392,11 @@ export function TransactionFlow({
 export function useTransactionFlow() {
   const [isOpen, setIsOpen] = useState(false);
   const [config, setConfig] = useState<Partial<TransactionFlowProps> | null>(
-    null
+    null,
   );
 
   const startTransaction = (
-    transactionConfig: Partial<TransactionFlowProps>
+    transactionConfig: Partial<TransactionFlowProps>,
   ) => {
     setConfig(transactionConfig);
     setIsOpen(true);

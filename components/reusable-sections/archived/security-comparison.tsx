@@ -16,7 +16,7 @@ type StepProps = {
 };
 
 function Step({ icon: Icon, title, bulletPoints, color }: StepProps) {
-  const [_scrollY, setScrollY] = useState(0);
+  const [, setScrollY] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

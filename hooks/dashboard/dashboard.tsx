@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { SupportedChain } from "@/lib/multichain";
-import usePrices, { DEFAULT_PRICES, PricesMap } from "./prices";
+import usePrices from "./prices";
 import { yieldFromProvider, YieldOpportunity } from "./yield-opportunities";
 
 // Enhanced transaction types to include lending
@@ -208,7 +208,7 @@ export function useDashboardData() {
     portfolioData,
     selectedYieldProvider,
   );
-  const [earningsData, setEarningsData] = useState<EarningsData[]>(() =>
+  const [earningsData] = useState<EarningsData[]>(() =>
     generateEarningsData(
       mockPortfolioData.staking.ADA.staked,
       mockPortfolioData.staking.BTC.staked,
@@ -224,7 +224,7 @@ export function useDashboardData() {
     chain: SupportedChain,
     amount: number,
     type: "deposit" | "withdraw",
-    txHash?: string,
+    _txHash?: string,
   ) => {
     setPortfolioData((prev) => {
       // Map chain to the correct asset key, handling testnet cases

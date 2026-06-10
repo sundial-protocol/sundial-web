@@ -1,9 +1,6 @@
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Book } from "lucide-react";
-import { HeroSection } from "@/components/ui/hero-section";
-import { Section } from "@/components/ui/section";
+import { ArrowRight, Book } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 import MaintenanceSunset from "@/components/reusable-sections/maintenance-sunset/maintenance-sunset";
 
 type GuideLinkProps = {
@@ -12,7 +9,7 @@ type GuideLinkProps = {
   description: string;
 };
 
-function GuideLink(props: GuideLinkProps) {
+export function GuideLink(props: GuideLinkProps) {
   const { href, title, description } = props;
   return (
     <Card>

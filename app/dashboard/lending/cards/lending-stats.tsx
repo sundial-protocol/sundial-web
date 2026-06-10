@@ -1,7 +1,6 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import {
   TrendingUp,
   RefreshCw,
@@ -17,25 +16,24 @@ import { Button } from "@/components/ui/button";
 import { useMemo } from "react";
 
 export default function LendingStatsCard() {
-  const { getLendingTransactions, refreshData, transactions } =
-    useDashboardContext();
+  const { getLendingTransactions, refreshData } = useDashboardContext();
 
   const stats = useMemo(() => {
     const lendingTxs = getLendingTransactions();
 
     // Get loan creation transactions
     const loanCreations = lendingTxs.filter(
-      (tx) => tx.type === "loan_created" && tx.status === "completed"
+      (tx) => tx.type === "loan_created" && tx.status === "completed",
     );
 
     // Get payment transactions
     const loanPayments = lendingTxs.filter(
-      (tx) => tx.type === "loan_payment" && tx.status === "completed"
+      (tx) => tx.type === "loan_payment" && tx.status === "completed",
     );
 
     // Get all failed transactions
     const failedTransactions = lendingTxs.filter(
-      (tx) => tx.status === "failed"
+      (tx) => tx.status === "failed",
     );
 
     // Calculate total borrowed amount
@@ -45,7 +43,7 @@ export default function LendingStatsCard() {
     const totalInterestPaid = loanPayments.reduce((sum, payment) => {
       // Find the corresponding loan creation
       const loanCreation = loanCreations.find(
-        (creation) => creation.loanId === payment.loanId
+        (creation) => creation.loanId === payment.loanId,
       );
 
       if (loanCreation) {
@@ -53,7 +51,7 @@ export default function LendingStatsCard() {
         const interestRate = loanCreation.interestRate || 10.5;
         const daysSinceCreation = Math.floor(
           (payment.timestamp.getTime() - loanCreation.timestamp.getTime()) /
-            (1000 * 60 * 60 * 24)
+            (1000 * 60 * 60 * 24),
         );
 
         // Simple daily interest calculation
@@ -72,14 +70,14 @@ export default function LendingStatsCard() {
     // Calculate active loans (loans with remaining balance)
     const activeLoanCount = loanCreations.filter((creation) => {
       const paymentsForLoan = loanPayments.filter(
-        (payment) => payment.loanId === creation.loanId
+        (payment) => payment.loanId === creation.loanId,
       );
       const totalPaid = paymentsForLoan.reduce((sum, p) => sum + p.amount, 0);
 
       // Calculate total owed with interest
       const daysSinceCreation = Math.floor(
         (new Date().getTime() - creation.timestamp.getTime()) /
-          (1000 * 60 * 60 * 24)
+          (1000 * 60 * 60 * 24),
       );
       const interestRate = creation.interestRate || 10.5;
       const dailyRate = interestRate / 100 / 365;
@@ -94,7 +92,7 @@ export default function LendingStatsCard() {
     // Calculate payment success rate
     const totalTransactionAttempts = lendingTxs.length;
     const successfulTransactions = lendingTxs.filter(
-      (tx) => tx.status === "completed"
+      (tx) => tx.status === "completed",
     ).length;
     const paymentSuccessRate =
       totalTransactionAttempts > 0
@@ -123,7 +121,7 @@ export default function LendingStatsCard() {
 
     // Calculate Bitcoin-verified loans
     const bitcoinVerifiedLoans = lendingTxs.filter(
-      (tx) => tx.details?.includes("Bitcoin") || tx.details?.includes("BTC")
+      (tx) => tx.details?.includes("Bitcoin") || tx.details?.includes("BTC"),
     ).length;
 
     return {
@@ -275,16 +273,16 @@ export default function LendingStatsCard() {
                   stats.paymentSuccessRate >= 95
                     ? "bg-green-50 text-green-700"
                     : stats.paymentSuccessRate >= 80
-                    ? "bg-yellow-50 text-yellow-700"
-                    : "bg-red-50 text-red-700"
+                      ? "bg-yellow-50 text-yellow-700"
+                      : "bg-red-50 text-red-700"
                 }`}
               >
                 <div className="font-medium">
                   {stats.paymentSuccessRate >= 95
                     ? "Excellent"
                     : stats.paymentSuccessRate >= 80
-                    ? "Good"
-                    : "Needs Improvement"}
+                      ? "Good"
+                      : "Needs Improvement"}
                 </div>
                 <div>Credit Rating</div>
               </div>
@@ -294,16 +292,16 @@ export default function LendingStatsCard() {
                   stats.activeLoanCount === 0
                     ? "bg-green-50 text-green-700"
                     : stats.activeLoanCount <= 2
-                    ? "bg-yellow-50 text-yellow-700"
-                    : "bg-orange-50 text-orange-700"
+                      ? "bg-yellow-50 text-yellow-700"
+                      : "bg-orange-50 text-orange-700"
                 }`}
               >
                 <div className="font-medium">
                   {stats.activeLoanCount === 0
                     ? "Clear"
                     : stats.activeLoanCount <= 2
-                    ? "Moderate"
-                    : "High"}
+                      ? "Moderate"
+                      : "High"}
                 </div>
                 <div>Debt Load</div>
               </div>

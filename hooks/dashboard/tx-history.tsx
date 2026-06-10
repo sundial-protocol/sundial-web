@@ -12,16 +12,14 @@ export interface LoggedTx {
 }
 
 export function useTransactionHistory() {
-  const [transactions, setTransactions] = useState<LoggedTx[]>(
-    mockTransactionHistory
-  );
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [transactions] = useState<LoggedTx[]>(mockTransactionHistory);
+  const [isLoading] = useState(false);
+  const [error] = useState<string | null>(null);
 
   const filterTransactions = (
     type?: string,
     asset?: string,
-    status?: string
+    status?: string,
   ) => {
     return transactions.filter((tx) => {
       if (type && tx.type !== type) return false;

@@ -204,7 +204,7 @@ export default function Team() {
                   </h1>
                   {availableTeams.length > 1 && (
                     <div className="flex items-center gap-1 mt-2">
-                      {availableTeams.map((team, index) => (
+                      {availableTeams.map((team) => (
                         <button
                           key={team}
                           onClick={() => handleTeamSelect(team)}

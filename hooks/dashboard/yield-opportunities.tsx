@@ -56,10 +56,9 @@ export interface YieldOpportunity {
 }
 
 export function useYieldOpportunities() {
-  const [opportunities, setOpportunities] =
-    useState<YieldOpportunity[]>(yieldOpportunities);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [opportunities] = useState<YieldOpportunity[]>(yieldOpportunities);
+  const [isLoading] = useState(false);
+  const [error] = useState<string | null>(null);
 
   const filterOpportunities = (
     type?: "staking" | "lending" | "liquidity" | "alternative",

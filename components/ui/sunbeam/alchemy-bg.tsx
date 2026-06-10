@@ -124,7 +124,6 @@ function FacetBeam({
   );
 
   // Strip `background` so the caller's sunbeamGradient() value doesn't fight the SVG
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { background: _bg, ...restStyles } = beam.styles;
 
   const wrapperStyle: React.CSSProperties = {

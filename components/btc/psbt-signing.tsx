@@ -157,16 +157,19 @@ export function PsbtSigning({
             <strong>Sparrow Wallet:</strong>
             <ol className="list-decimal list-inside ml-4 mt-1 space-y-1">
               <li>Go to File → Open Transaction</li>
-              <li>Paste the PSBT and click "Open"</li>
-              <li>Click "Finalize Transaction" then "Broadcast Transaction"</li>
+              <li>Paste the PSBT and click &quot;Open&quot;</li>
+              <li>
+                Click &quot;Finalize Transaction&quot; then &quot;Broadcast
+                Transaction&quot;
+              </li>
             </ol>
           </div>
           <div>
             <strong>Electrum:</strong>
             <ol className="list-decimal list-inside ml-4 mt-1 space-y-1">
               <li>Go to Tools → Load transaction → From text</li>
-              <li>Paste the PSBT and click "Load transaction"</li>
-              <li>Click "Sign" then "Broadcast"</li>
+              <li>Paste the PSBT and click &quot;Load transaction&quot;</li>
+              <li>Click &quot;Sign&quot; then &quot;Broadcast&quot;</li>
             </ol>
           </div>
         </div>
@@ -204,7 +207,7 @@ export function usePsbtGeneration() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const generatePsbt = async (params: {
+  const generatePsbt = async (_params: {
     sourceAddress: string;
     targetAddress: string;
     amount: number; // in BTC

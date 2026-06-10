@@ -414,7 +414,7 @@ app_public_inputs:
             How Alchemy Uses Charms
           </h2>
           <p className="text-foreground/75 text-sm mb-6">
-            Charms is the execution layer that makes Alchemy's reserve
+            Charms is the execution layer that makes Alchemy&apos;s reserve
             constraints enforced - not promised.
           </p>
           <div className="space-y-4">
@@ -444,7 +444,7 @@ app_public_inputs:
               return {
                 key: row.layer,
                 cells: [
-                  <div className="flex items-start gap-3">
+                  <div key={row.layer} className="flex items-start gap-3">
                     <Icon className={`h-4 w-4 shrink-0 mt-0.5 ${row.color}`} />
                     <div>
                       <div className="font-semibold text-sm text-foreground">

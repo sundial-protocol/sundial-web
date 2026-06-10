@@ -354,16 +354,14 @@ export const mockPrebuiltStrategies: PrebuiltStrategy[] = [
 
 // New hook for prebuilt strategies
 export function usePrebuiltStrategies() {
-  const [strategies, setStrategies] = useState<PrebuiltStrategy[]>(
-    mockPrebuiltStrategies
-  );
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [strategies] = useState<PrebuiltStrategy[]>(mockPrebuiltStrategies);
+  const [isLoading] = useState(false);
+  const [error] = useState<string | null>(null);
 
   const filterStrategies = (
     risk?: RiskEval,
     minAPY?: number,
-    minAmount?: number
+    minAmount?: number,
   ) => {
     return strategies.filter((strategy) => {
       if (risk && strategy.risk !== risk) return false;

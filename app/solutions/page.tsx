@@ -19,7 +19,7 @@ export default function Home() {
               height={500}
             />
             <h1 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">
-              Built on Bitcoin's Ledger Model
+              Built on Bitcoin&apos;s Ledger Model
             </h1>
             <p className="text-lg md:text-xl text-foreground/80">
               Sundial leverages a UTXO architecture to deliver

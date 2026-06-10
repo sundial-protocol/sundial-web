@@ -20,7 +20,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import {
   Search,
-  Filter,
   Download,
   ArrowUpRight,
   ArrowDownLeft,

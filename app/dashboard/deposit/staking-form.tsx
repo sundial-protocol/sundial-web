@@ -833,7 +833,7 @@ export default function StakingForm({
   };
 
   // Broadcast Bitcoin transaction using mempool.js
-  const handleBroadcast = async (e: React.FormEvent) => {
+  const _handleBroadcast = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
@@ -977,8 +977,8 @@ export default function StakingForm({
                   {selectedChain === "btc"
                     ? "Bitcoin Testnet"
                     : "Bitcoin Mainnet"}
-                  , but you've selected {config?.name || selectedChain}. Please
-                  switch networks in your wallet.
+                  , but you&apos;ve selected {config?.name || selectedChain}.
+                  Please switch networks in your wallet.
                 </div>
               </div>
               <div>
@@ -1122,8 +1122,8 @@ export default function StakingForm({
           </div>
           <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
             <p className="text-yellow-800 text-xs">
-              <strong>Note:</strong> Your wallet couldn't provide the public key
-              automatically. Please verify your public key above.
+              <strong>Note:</strong> Your wallet couldn&apos;t provide the
+              public key automatically. Please verify your public key above.
             </p>
           </div>
           {manualPublicKey && !/^[0-9a-fA-F]{66}$/.test(manualPublicKey) && (

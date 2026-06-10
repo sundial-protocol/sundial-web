@@ -38,7 +38,7 @@ export default function AlchemyLogoStrip({
         Built By
       </p>
       <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 md:gap-14">
-        {logos.map((logo, idx) => (
+        {logos.map((logo) => (
           <div key={logo.name} className="flex items-center">
             <Link
               href={logo.href}

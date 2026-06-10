@@ -33,7 +33,7 @@ import {
   Legend as ChartLegend,
   Filler,
 } from "chart.js";
-import { formatAmount, PricesMap } from "@/hooks/dashboard/prices";
+import { formatAmount } from "@/hooks/dashboard/prices";
 import { useState } from "react";
 import {
   EarningsData,

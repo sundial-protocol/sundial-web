@@ -12,7 +12,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/b
 export default function Whitepaper() {
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]); // Array of refs for each page
 
-  const scrollToPage = (pageNumber: number) => {
+  const _scrollToPage = (pageNumber: number) => {
     const pageElement = pageRefs.current[pageNumber - 1];
     if (pageElement) {
       pageElement.scrollIntoView({ behavior: "smooth" });

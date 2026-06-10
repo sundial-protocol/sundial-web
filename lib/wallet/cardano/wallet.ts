@@ -24,17 +24,17 @@ export function getInstalledWalletExtensions(supportedWallets?: string[]) {
         walletExtension !== "typhon" &&
         cardano[walletExtension] &&
         cardano[walletExtension].enable &&
-        typeof cardano[walletExtension].enable === "function"
+        typeof cardano[walletExtension].enable === "function",
     )
     .map((walletExtension) => walletExtension.toLowerCase());
 
   if (supportedWallets) {
     const lowerCaseNames = supportedWallets.map((walletName) =>
-      walletName.toLowerCase()
+      walletName.toLowerCase(),
     );
 
     return installedExtensions.filter((wallet) =>
-      lowerCaseNames.includes(wallet)
+      lowerCaseNames.includes(wallet),
     );
   } else {
     return installedExtensions;
@@ -62,7 +62,7 @@ export async function getRewardAddresses(api: WalletApi) {
     const hexAddresses = await api.getRewardAddresses();
     if (hexAddresses && hexAddresses.length > 0) {
       return hexAddresses.map((hexAddress: string) =>
-        decodeHexAddress(hexAddress)
+        decodeHexAddress(hexAddress),
       );
     } else {
       return [];
@@ -114,7 +114,7 @@ export async function getStakeAddress(api: WalletApi) {
     if (hexAddresses && hexAddresses.length > 0) {
       try {
         return decodeHexAddress(hexAddresses[0]);
-      } catch (error) {}
+      } catch {}
     }
   }
 
@@ -128,7 +128,7 @@ export async function getChangeAddress(api: WalletApi) {
     if (hexAddress) {
       try {
         return decodeHexAddress(hexAddress);
-      } catch (error) {}
+      } catch {}
     }
   }
 
@@ -140,7 +140,7 @@ export async function signMessage(
   message: string,
   onSignMessage?: (signature: string, key: string | undefined) => void,
   onSignError?: (error: Error) => void,
-  network?: NetworkType
+  network?: NetworkType,
 ) {
   if (!walletName || typeof message === "undefined") {
     return;

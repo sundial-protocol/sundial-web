@@ -21,12 +21,9 @@ import {
   Badge,
   RefreshCw,
   Shield,
-  Star,
-  X,
   Download,
 } from "lucide-react";
 import { useState } from "react";
-import { usePsbtGeneration } from "@/components/btc/psbt-signing";
 import {
   TransactionFlow,
   useTransactionFlow,
@@ -55,9 +52,6 @@ export default function CreditLoan() {
   const [borrowAmount, setBorrowAmount] = useState("");
   const [loanTerm, setLoanTerm] = useState("30");
   const [isLoadingScore, setIsLoadingScore] = useState(false);
-  const [showBitcoinCreditLoan, setShowBitcoinCreditLoan] = useState(false);
-  const [creditLoanPsbt, setCreditLoanPsbt] = useState("");
-  const { generatePsbt, loading: generatingPsbt } = usePsbtGeneration();
 
   // Mock credit score data - enhanced based on user's actual lending history
   const [creditScore, setCreditScore] = useState({
@@ -66,8 +60,8 @@ export default function CreditLoan() {
       stats.paymentSuccessRate > 90
         ? "A"
         : stats.paymentSuccessRate > 80
-        ? "A-"
-        : "B+",
+          ? "A-"
+          : "B+",
     factors: {
       paymentHistory: Math.min(95, stats.paymentSuccessRate + 5),
       accountAge: 78,
@@ -106,10 +100,10 @@ export default function CreditLoan() {
       newScore >= 800
         ? "A+"
         : newScore >= 750
-        ? "A"
-        : newScore >= 700
-        ? "A-"
-        : "B+";
+          ? "A"
+          : newScore >= 700
+            ? "A-"
+            : "B+";
 
     setCreditScore((prev) => ({
       ...prev,
@@ -146,9 +140,8 @@ export default function CreditLoan() {
   const calculateMonthlyPayment = (
     amount: number,
     rate: number,
-    days: number
+    days: number,
   ) => {
-    const monthlyRate = rate / 100 / 12;
     const months = days / 30;
     const totalWithInterest = amount * (1 + (rate / 100) * (days / 365));
     return totalWithInterest / months;
@@ -159,7 +152,7 @@ export default function CreditLoan() {
   };
 
   // UPDATED: Direct loan creation handler (traditional flow)
-  const handleBorrow = async () => {
+  const _handleBorrow = async () => {
     if (!borrowAmount) return;
 
     const originationFee = calculateOriginationFee(Number(borrowAmount));
@@ -168,11 +161,11 @@ export default function CreditLoan() {
     const confirmed = await confirm({
       title: "Create Credit-Based Loan",
       message: `You will receive: ${netAmount.toFixed(
-        2
+        2,
       )} ${borrowAsset}\nLoan Amount: ${borrowAmount} ${borrowAsset}\nOrigination Fee: ${originationFee.toFixed(
-        2
+        2,
       )} ${borrowAsset}\nInterest Rate: ${creditScore.interestRate.toFixed(
-        1
+        1,
       )}% APR\nTerm: ${loanTerm} days\nCredit Score: ${creditScore.score} (${
         creditScore.grade
       })\n\nThis is an unsecured loan - no collateral required.`,
@@ -192,13 +185,13 @@ export default function CreditLoan() {
         "loan_created",
         {
           details: `Credit loan approved - receiving ${netAmount.toFixed(
-            2
+            2,
           )} ${borrowAsset} at ${creditScore.interestRate.toFixed(1)}% APR`,
           interestRate: creditScore.interestRate,
-        }
+        },
       );
 
-      const loanData = {
+      const _loanData = {
         type: "credit" as const,
         amount: Number(borrowAmount),
         asset: borrowAsset,
@@ -215,7 +208,7 @@ export default function CreditLoan() {
         monthlyPayment: calculateMonthlyPayment(
           Number(borrowAmount),
           creditScore.interestRate,
-          Number(loanTerm)
+          Number(loanTerm),
         ),
         nextPaymentDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         paymentsRemaining: Math.ceil(Number(loanTerm) / 30),
@@ -234,12 +227,12 @@ export default function CreditLoan() {
         type: "success",
         title: "Credit Loan Approved!",
         message: `You will receive: ${netAmount.toFixed(
-          2
+          2,
         )} ${borrowAsset}\nOrigination fee: ${originationFee.toFixed(
-          2
+          2,
         )} ${borrowAsset}\nFunds will be transferred to your account.`,
       });
-    } catch (error) {
+    } catch {
       // Mark transaction as failed
       if (transactionId) {
         updateTransactionStatus(transactionId, "failed");
@@ -278,12 +271,12 @@ export default function CreditLoan() {
       details: {
         description: withBitcoinBoost
           ? `Verify Bitcoin ownership for enhanced credit terms and receive ${netAmount.toFixed(
-              2
+              2,
             )} ${borrowAsset}`
           : `Receive ${netAmount.toFixed(
-              2
+              2,
             )} ${borrowAsset} credit loan (after ${originationFee.toFixed(
-              2
+              2,
             )} ${borrowAsset} origination fee)`,
         toAddress: "your-wallet-address",
         benefits: withBitcoinBoost
@@ -294,7 +287,7 @@ export default function CreditLoan() {
               "50% lower origination fee",
               `Enhanced rate: ${enhancedRate.toFixed(1)}% APR`,
               `You receive: ${(Number(borrowAmount) * 0.995).toFixed(
-                2
+                2,
               )} ${borrowAsset}`,
             ]
           : [
@@ -321,13 +314,13 @@ export default function CreditLoan() {
             {
               details: withBitcoinBoost
                 ? `Bitcoin-verified credit loan - receiving ${netAmount.toFixed(
-                    2
+                    2,
                   )} ${borrowAsset} at ${enhancedRate.toFixed(1)}% APR`
                 : `Credit loan approved - receiving ${netAmount.toFixed(
-                    2
+                    2,
                   )} ${borrowAsset} at ${enhancedRate.toFixed(1)}% APR`,
               interestRate: enhancedRate,
-            }
+            },
           );
 
           const loanData = {
@@ -347,7 +340,7 @@ export default function CreditLoan() {
             monthlyPayment: calculateMonthlyPayment(
               Number(borrowAmount),
               enhancedRate,
-              Number(loanTerm)
+              Number(loanTerm),
             ),
             nextPaymentDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
             paymentsRemaining: Math.ceil(Number(loanTerm) / 30),
@@ -358,7 +351,7 @@ export default function CreditLoan() {
             disbursementMethod: result.method,
           };
 
-          const newLoan = await addLoan(loanData);
+          await addLoan(loanData);
 
           // Mark transaction as completed with loan ID
           updateTransactionStatus(transactionId, "completed");
@@ -380,7 +373,7 @@ export default function CreditLoan() {
               withBitcoinBoost ? "Bitcoin-Verified " : ""
             }Credit Loan Approved!`,
             message: `Funds disbursed: ${netAmount.toFixed(
-              2
+              2,
             )} ${borrowAsset}\nMethod: ${result.method}\n${
               withBitcoinBoost
                 ? `Enhanced rate: ${enhancedRate.toFixed(1)}% APR`
@@ -474,7 +467,7 @@ export default function CreditLoan() {
               <div className="text-center">
                 <div
                   className={`text-3xl font-bold ${getScoreColor(
-                    creditScore.score
+                    creditScore.score,
                   )}`}
                 >
                   {creditScore.score.toFixed(0)}
@@ -606,7 +599,7 @@ export default function CreditLoan() {
                   {formatAmount(
                     Number(borrowAmount) -
                       calculateOriginationFee(Number(borrowAmount)),
-                    2
+                    2,
                   )}{" "}
                   {borrowAsset}
                 </div>
@@ -642,7 +635,7 @@ export default function CreditLoan() {
                 </span>
                 <span
                   className={`font-medium ${getUtilizationColor(
-                    utilizationPercent
+                    utilizationPercent,
                   )}`}
                 >
                   {utilizationPercent.toFixed(1)}%
@@ -672,7 +665,7 @@ export default function CreditLoan() {
                     -$
                     {formatAmount(
                       calculateOriginationFee(Number(borrowAmount)),
-                      2
+                      2,
                     )}
                   </span>
                 </div>
@@ -685,7 +678,7 @@ export default function CreditLoan() {
                     {formatAmount(
                       Number(borrowAmount) -
                         calculateOriginationFee(Number(borrowAmount)),
-                      2
+                      2,
                     )}{" "}
                     {borrowAsset}
                   </span>
@@ -698,9 +691,9 @@ export default function CreditLoan() {
                       calculateMonthlyPayment(
                         Number(borrowAmount),
                         creditScore.interestRate,
-                        Number(loanTerm)
+                        Number(loanTerm),
                       ),
-                      2
+                      2,
                     )}
                   </span>
                 </div>

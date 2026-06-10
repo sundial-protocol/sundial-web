@@ -76,7 +76,9 @@ const ScrambleText = forwardRef<ScrambleTextRef, ScrambleTextProps>(
         {props.text}
       </span>
     );
-  }
+  },
 );
+
+ScrambleText.displayName = "ScrambleText";
 
 export default ScrambleText;

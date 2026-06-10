@@ -20,7 +20,7 @@ async function createLucid() {
 
 export async function initWallet(
   lastSelectedWallet: string,
-  setters: WalletContextSetters
+  setters: WalletContextSetters,
 ) {
   setters.setInitializing(true);
   try {
@@ -30,7 +30,7 @@ export async function initWallet(
       setters.setConnecting(true);
       try {
         await waitforWalletExtension(lastSelectedWallet);
-      } catch (error) {
+      } catch {
         // Never got injected maybe it was uninstalled. Clear it so we don't bother trying next time
         setters.setConnecting(false);
         setters.setSelectedWallet("");
@@ -75,7 +75,7 @@ export async function connect(
   lucid: Lucid,
   wallet: string,
   setters: WalletContextSetters,
-  suppressErrors = false
+  suppressErrors = false,
 ) {
   setters.setConnecting(true);
   setters.setSelectedWallet(wallet);
@@ -97,7 +97,7 @@ export async function connect(
     setters.setConnected(true);
     setters.setLastSelectedWallet(wallet);
     setters.setDefaultAddress(
-      await api.getUsedAddresses().then((addrs) => addrs[0] || "")
+      await api.getUsedAddresses().then((addrs) => addrs[0] || ""),
     );
     setters.setChangeAddress(await getChangeAddress(api));
     setters.setStakeAddress(await getStakeAddress(api));
@@ -115,7 +115,7 @@ export async function connect(
     setters.setAccountBalance(0);
     if (!suppressErrors) {
       toast.info(
-        "You may need to open the wallet extension from your browser before connecting."
+        "You may need to open the wallet extension from your browser before connecting.",
       );
       throw apiError("ApiError", error);
     }
@@ -127,14 +127,14 @@ export async function connect(
 export async function updateProvider(
   lucid: Lucid,
   networkId: number,
-  setters: WalletContextSetters
+  setters: WalletContextSetters,
 ) {
   const { Blockfrost } = await import("lucid-cardano");
   if (networkId === 1) {
     if (lucid.network !== "Mainnet" || !lucid.txBuilderConfig) {
       const blockfrost = new Blockfrost(
         "https://cardano-mainnet.blockfrost.io/api/v0",
-        process.env.NEXT_PUBLIC_BLOCKFROST_KEY_MAINNET
+        process.env.NEXT_PUBLIC_BLOCKFROST_KEY_MAINNET,
       );
       await lucid.switchProvider(blockfrost, "Mainnet");
       setters.setNetwork("Mainnet");
@@ -143,7 +143,7 @@ export async function updateProvider(
     if (lucid.network !== "Preprod" || !lucid.txBuilderConfig) {
       const blockfrost = new Blockfrost(
         "https://cardano-preprod.blockfrost.io/api/v0",
-        process.env.NEXT_PUBLIC_BLOCKFROST_KEY_PREPROD
+        process.env.NEXT_PUBLIC_BLOCKFROST_KEY_PREPROD,
       );
       await lucid.switchProvider(blockfrost, "Preprod");
       setters.setNetwork("Preprod");
