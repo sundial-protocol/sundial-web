@@ -43,7 +43,7 @@ export default function AlchemyProposal() {
           className="flex flex-col items-center justify-center w-full"
         >
           <Document
-            file="/alchemy-proposal-v3.pdf"
+            file="/alchemy-proposal-v4.pdf"
             loading="Loading document..."
             className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center justify-center"
           >
