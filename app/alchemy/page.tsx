@@ -17,9 +17,12 @@ import {
 import AlchemyLogoStrip from "./alchemy-logo-strip";
 import InteractiveGradientBackground from "@/components/ui/interactive-gradient-bg";
 
+export const PROPOSAL_LINK =
+  "https://gov.tools/governance_actions/0f75dd11be0b7a6cb4b305a175b17cf4b60cd307c052fccabf9f572950e70583#0";
+
 const subpages = [
   {
-    href: "https://gov.tools/governance_actions/0f75dd11be0b7a6cb4b305a175b17cf4b60cd307c052fccabf9f572950e70583#0",
+    href: PROPOSAL_LINK,
     icon: BookOpen,
     title: "The Proposal",
     description:
@@ -101,7 +104,7 @@ export default function AlchemyPage() {
             </p>
             <div className="flex flex-col sm:flex-row items-center gap-3">
               <Link
-                href="/alchemy/proposal"
+                href={PROPOSAL_LINK}
                 className="inline-flex h-12 items-center justify-center rounded-full bg-foreground px-8 text-base font-medium text-background hover:bg-foreground/80 transition-colors"
               >
                 Read the Proposal
