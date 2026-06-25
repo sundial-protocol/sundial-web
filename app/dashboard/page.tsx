@@ -158,20 +158,22 @@ function DashboardContent() {
 
         {/* Tab Content */}
         {renderActiveTab()}
-
-        <div className="mt-12 flex justify-center">
-          <Button asChild size="lg">
-            <a
-              href={TESTNET_FEEDBACK_FORM_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <MessageSquare />
-              Share testnet feedback
-            </a>
-          </Button>
-        </div>
       </div>
+
+      <Button
+        asChild
+        size="sm"
+        className="fixed bottom-6 right-6 z-50 shadow-lg"
+      >
+        <a
+          href={TESTNET_FEEDBACK_FORM_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <MessageSquare />
+          Feedback
+        </a>
+      </Button>
     </div>
   );
 }
