@@ -19,7 +19,7 @@ import InteractiveGradientBackground from "@/components/ui/interactive-gradient-
 
 const subpages = [
   {
-    href: "https://medium.com/@SundialProtocol/sundial-x-charms-proposal-building-the-first-bitcoin-treasury-protocol-for-cardano-e437c964c3b6",
+    href: "https://gov.tools/governance_actions/0f75dd11be0b7a6cb4b305a175b17cf4b60cd307c052fccabf9f572950e70583#0",
     icon: BookOpen,
     title: "The Proposal",
     description:
