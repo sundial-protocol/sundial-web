@@ -43,7 +43,7 @@ export default function AlchemyWidget() {
   function handleSubscribe() {
     document
       .getElementById("mailing-list-form")
-      ?.scrollIntoView({ behavior: "smooth" });
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
     window.dispatchEvent(
       new CustomEvent("preselectMailingList", { detail: { listId: 3 } }),
     );
