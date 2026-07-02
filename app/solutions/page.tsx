@@ -3,7 +3,6 @@ import Image from "next/image";
 import { L2Architecture } from "./l2-architecture";
 import DawnTestnet from "./dawn-testnet";
 import MailingListForm from "./mailing-list-form";
-import UseCases from "./use-cases";
 import AlchemyWidget from "./alchemy-widget";
 
 export default function Home() {

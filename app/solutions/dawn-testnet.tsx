@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Bitcoin, Lock, Coins } from "lucide-react";
+import { Bitcoin, Lock, Coins, MailIcon } from "lucide-react";
 import { Section } from "@/components/ui/section";
 import { Flags } from "@/lib/flags";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
@@ -28,6 +28,15 @@ const highlights = [
 ];
 
 export default function DawnTestnet() {
+  function handleSubscribe() {
+    document
+      .getElementById("mailing-list-form")
+      ?.scrollIntoView({ behavior: "smooth" });
+    window.dispatchEvent(
+      new CustomEvent("preselectMailingList", { detail: { listId: 5 } }),
+    );
+  }
+
   return (
     <SunbeamBackground
       beams={[
@@ -43,7 +52,7 @@ export default function DawnTestnet() {
         },
       ]}
     >
-      <Section className="w-full max-w-6xl mx-auto pt-60 lg:pt-6 pb-8 lg:pl-24">
+      <Section className="relative w-full max-w-6xl mx-auto pt-60 lg:pt-6 pb-8 lg:pl-24">
         <div className="relative overflow-hidden rounded-[18px] border border-white/10 bg-white/5 px-3 py-4 shadow-2xl backdrop-blur-xl sm:px-4 sm:py-5 md:rounded-[28px] md:px-10 md:py-10">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,196,57,0.18),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.08),transparent_25%)] pointer-events-none" />
 
@@ -113,6 +122,13 @@ export default function DawnTestnet() {
             </div>
           </div>
         </div>
+
+        <button
+          onClick={handleSubscribe}
+          className="hidden lg:flex absolute left-0 top-1/2 -translate-y-1/2 rotate-90 items-center gap-1.5 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+        >
+          Testnet Updates <MailIcon className="h-4 w-4" />
+        </button>
       </Section>
     </SunbeamBackground>
   );

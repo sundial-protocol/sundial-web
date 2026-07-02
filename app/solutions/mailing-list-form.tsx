@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Section } from "@/components/ui/section";
 import { Mail } from "lucide-react";
 
@@ -21,6 +21,17 @@ export default function MailingListForm() {
   const [message, setMessage] = useState("");
 
   const allSelected = selectedLists.length === LISTS.length;
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const listId = (e as CustomEvent<{ listId: number }>).detail.listId;
+      setSelectedLists((prev) =>
+        prev.includes(listId) ? prev : [...prev, listId],
+      );
+    };
+    window.addEventListener("preselectMailingList", handler);
+    return () => window.removeEventListener("preselectMailingList", handler);
+  }, []);
 
   function toggleAll() {
     setSelectedLists(allSelected ? [] : LISTS.map((l) => l.id));
@@ -70,7 +81,10 @@ export default function MailingListForm() {
 
   return (
     <Section className="w-full max-w-6xl mx-auto py-16 lg:pl-24">
-      <div className="relative overflow-hidden rounded-[18px] border border-white/10 bg-white/5 px-6 py-8 md:rounded-[28px] md:px-10 md:py-10">
+      <div
+        id="mailing-list-form"
+        className="relative overflow-hidden rounded-[18px] border border-white/10 bg-white/5 px-6 py-8 md:rounded-[28px] md:px-10 md:py-10"
+      >
         <div className="absolute inset-0 pointer-events-none" />
 
         <div className="relative max-w-2xl mx-auto">
