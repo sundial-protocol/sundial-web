@@ -2,6 +2,7 @@ import { HeroSection } from "@/components/ui/hero-section";
 import Image from "next/image";
 import { L2Architecture } from "./l2-architecture";
 import DawnTestnet from "./dawn-testnet";
+import MailingListForm from "./mailing-list-form";
 import UseCases from "./use-cases";
 import AlchemyWidget from "./alchemy-widget";
 
@@ -35,7 +36,8 @@ export default function Home() {
       <DawnTestnet />
 
       <L2Architecture />
-      <UseCases />
+      {/*<UseCases />*/}
+      <MailingListForm />
       {/* <Partners classes="py-8 w-3/4 mx-auto" /> */}
     </div>
   );
