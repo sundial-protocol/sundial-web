@@ -140,25 +140,23 @@ export default function Navbar() {
                 </span>
               )}
             </span>
-            {drawerOpen && (
-              <span
-                className={cn(
-                  "text-xs md:text-sm",
-                  !Flags.DISABLE_DASHBOARD && "",
-                )}
-              >
-                {Flags.DISABLE_DASHBOARD ? (
-                  <span className="flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
-                    <span className="text-xs md:text-sm font-semibold tracking-wide text-red-500">
-                      Coming Soon
-                    </span>
+            <span
+              className={cn(
+                "text-xs md:text-sm",
+                !Flags.DISABLE_DASHBOARD && "",
+              )}
+            >
+              {Flags.DISABLE_DASHBOARD ? (
+                <span className="flex items-center gap-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
+                  <span className="text-xs md:text-sm font-semibold tracking-wide text-red-500">
+                    Coming Soon
                   </span>
-                ) : (
-                  "Dashboard"
-                )}
-              </span>
-            )}
+                </span>
+              ) : (
+                "Dashboard"
+              )}
+            </span>
           </NavLink>
 
           <NavLink
@@ -166,32 +164,28 @@ export default function Navbar() {
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
             <BadgeCheck className={navIconCn} />
-            {drawerOpen && (
-              <span className="text-xs md:text-sm">Solutions</span>
-            )}
+            <span className="text-xs md:text-sm">Solutions</span>
           </NavLink>
           <NavLink
             href="/"
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
             <HomeIcon className={navIconCn} />
-            {drawerOpen && <span className="text-xs md:text-sm">Home</span>}
+            <span className="text-xs md:text-sm">Home</span>
           </NavLink>
           <NavLink
             href="/company"
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
             <Building className={navIconCn} />
-            {drawerOpen && <span className="text-xs md:text-sm">Company</span>}
+            <span className="text-xs md:text-sm">Company</span>
           </NavLink>
           <NavLink
             href="/resources"
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
             <Folder className={navIconCn} />
-            {drawerOpen && (
-              <span className="text-xs md:text-sm">Resources</span>
-            )}
+            <span className="text-xs md:text-sm">Resources</span>
           </NavLink>
         </nav>
 
