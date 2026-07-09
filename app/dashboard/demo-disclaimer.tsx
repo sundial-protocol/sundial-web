@@ -1,10 +1,23 @@
 "use client";
 
 import { AlertTriangle, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+const DISCLAIMER_KEY = "demo_disclaimer_hidden";
 
 export default function DemoDisclaimer({ classes }: { classes?: string }) {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem(DISCLAIMER_KEY) !== "true";
+    }
+    return true;
+  });
+
+  useEffect(() => {
+    if (!isVisible) {
+      localStorage.setItem(DISCLAIMER_KEY, "true");
+    }
+  }, [isVisible]);
 
   if (!isVisible) {
     return null;
