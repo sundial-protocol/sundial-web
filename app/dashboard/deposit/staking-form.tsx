@@ -132,6 +132,7 @@ export default function StakingForm({
     string | null
   >(null);
   const [psbtCalcFailed, setPsbtCalcFailed] = useState(false);
+  const [psbtError, setPsbtError] = useState<string | null>(null);
   const psbtDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Ensure selectedChain is always valid - recover if somehow set to invalid value
@@ -658,10 +659,11 @@ export default function StakingForm({
       }
     } catch (err: any) {
       console.warn("Error calculating PSBT:", err);
-      // Don't show error for auto-calculation, just reset and mark as failed
-      // so we don't retry until the user changes an input
+      const errorMessage =
+        err.message || "Failed to create transaction. Please check your inputs.";
       setUnsignedTransactionData(null);
       setPsbtCalcFailed(true);
+      setPsbtError(errorMessage);
     }
 
     setIsCalculatingPsbt(false);
@@ -715,17 +717,27 @@ export default function StakingForm({
     }, 100);
   };
 
+  // Round amount to 8 decimal places to prevent floating-point precision errors
+  const roundAmount = (value: number): number =>
+    parseFloat(value.toFixed(8));
+
   const handleAmountChange = (value: string) => {
-    setAmount(value);
+    const trimmed = value.trim();
+    // Round to 8 decimal places (Bitcoin/satoshi precision) to avoid floating-point drift
+    const rounded =
+      trimmed && !isNaN(Number(trimmed)) ? String(roundAmount(Number(trimmed))) : trimmed;
+    setAmount(rounded);
     setUnsignedTransactionData(null);
     setPsbtCalcFailed(false);
-    onAmountChange?.(value, selectedChain);
+    setPsbtError(null);
+    onAmountChange?.(rounded, selectedChain);
   };
 
   const handleAddressChange = (value: string) => {
     setUserAddress(value);
     setUnsignedTransactionData(null);
     setPsbtCalcFailed(false);
+    setPsbtError(null);
     // If user manually changes address, mark as not using connected wallet
     if (isUsingConnectedWallet && value !== getConnectedWalletAddress()) {
       setIsUsingConnectedWallet(false);
@@ -742,6 +754,7 @@ export default function StakingForm({
     setWithdrawAddress(value);
     setUnsignedTransactionData(null);
     setPsbtCalcFailed(false);
+    setPsbtError(null);
   };
 
   const handleManualPublicKeyChange = (value: string) => {
@@ -753,6 +766,7 @@ export default function StakingForm({
     setUnsignedTransactionData(null); // Reset PSBT when public key changes
     setDepositAddress("");
     setPsbtCalcFailed(false);
+    setPsbtError(null);
   };
 
   const handleUseConnectedWallet = () => {
@@ -918,6 +932,21 @@ export default function StakingForm({
   const getButtonText = () => {
     if (loading) return "Processing";
     return `${isDeposit ? "Deposit" : "Withdraw"} ${config?.symbol || selectedChain}`;
+  };
+
+  const getBtcButtonStatus = () => {
+    const hasAddress = !!userAddress && userAddress.startsWith(config?.addressPrefix || "");
+    const hasPubKey = !!(isUsingConnectedWallet && manualPublicKey) || !!manualPublicKey;
+    const hasValidAmount = amount && Number(amount) >= (config?.minDeposit || 0);
+    const hasPsbt = !!unsignedTransactionData;
+
+    if (!hasAddress) return "Enter a valid Bitcoin address";
+    if (!hasPubKey) return "Add your public key";
+    if (!hasValidAmount) return "Enter a valid amount (min: " + (config?.minDeposit || 0) + ")";
+    if (isAmountExceedsBalance) return "Amount exceeds your balance";
+    if (isCalculatingPsbt) return "Preparing transaction...";
+    if (!hasPsbt) return "No transaction data yet";
+    return "Ready to sign";
   };
 
   const getSuccessMessage = () => {
@@ -1218,6 +1247,54 @@ export default function StakingForm({
               Preparing transaction...
             </span>
           </div>
+        </div>
+      )}
+
+      {/* PSBT Error with Retry (Bitcoin only) */}
+      {isBtcChain && psbtError && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 text-red-700 font-medium mb-1">
+                <AlertCircle className="w-4 h-4" />
+                <span>PSBT Preparation Failed</span>
+              </div>
+              <p className="text-sm text-red-600">{psbtError}</p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setPsbtError(null);
+                setPsbtCalcFailed(false);
+              }}
+              className="shrink-0"
+            >
+              Retry
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Form Validation Status (Bitcoin only) */}
+      {isBtcChain && !unsignedTransactionData && !psbtCalcFailed && (
+        <div className="p-3 bg-amber-50 border border-amber-200 rounded-md">
+          <p className="text-xs text-amber-700 font-medium mb-1">
+            Button status: {getBtcButtonStatus()}
+          </p>
+          <ul className="text-xs text-amber-600 space-y-0.5">
+            {userAddress ? null : <li>• Enter a valid {config?.name || selectedChain} address</li>}
+            {!manualPublicKey && !isUsingConnectedWallet ? (
+              <li>• Provide a 66-character hex public key or connect a wallet</li>
+            ) : null}
+            {amount && Number(amount) < (config?.minDeposit || 0) ? (
+              <li>• Amount must be at least {(config?.minDeposit || 0)} {config?.symbol || selectedChain}</li>
+            ) : null}
+            {amount && isAmountExceedsBalance ? (
+              <li>• Amount exceeds your available balance</li>
+            ) : null}
+          </ul>
         </div>
       )}
 
