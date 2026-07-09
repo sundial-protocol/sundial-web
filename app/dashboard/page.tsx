@@ -11,6 +11,7 @@ import { PortfolioOverview } from "./overview/portfolio-overview";
 import { TransactionHistory } from "./tx-history";
 import Deposit from "./deposit/deposit";
 import WithdrawTab from "./deposit/withdraw";
+import LendingTab from "./lending/lending";
 import { Section } from "@/components/ui/section";
 import { ConfirmationProvider } from "@/components/ui/confirmation";
 import DemoDisclaimer from "./demo-disclaimer";
@@ -45,7 +46,7 @@ function DashboardContent() {
     { id: "portfolio", label: "Portfolio" },
     { id: "stake", label: "Stake" },
     { id: "withdraw", label: "Withdraw" },
-    { id: "lend", label: "Lend", disabled: true },
+    { id: "lend", label: "Lend" },
     //{ id: "yield", label: "Yield", disabled: true },
     //{ id: "strategies", label: "Strategies", disabled: true },
     { id: "history", label: "History" },
@@ -111,8 +112,8 @@ function DashboardContent() {
         return <WithdrawTab />;
       //case "yield":
       //  return <YieldCatalog />;
-      //case "lend":
-      //  return <LendingTab />;
+      case "lend":
+        return <LendingTab />;
       //case "strategies":
       //  return <PrebuiltStrategies />;
       case "history":
