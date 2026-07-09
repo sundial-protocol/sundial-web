@@ -157,10 +157,10 @@ export default function EarningsGraph(props: {
               </CardDescription>
             </div>
             <Select value={timeRange} onValueChange={setTimeRange}>
-              <SelectTrigger className="w-24">
+              <SelectTrigger className="w-24 pointer-events-auto z-50">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-[100] pointer-events-auto">
                 <SelectItem value="6m">6M</SelectItem>
                 <SelectItem value="12m">12M</SelectItem>
                 <SelectItem value="24m">24M</SelectItem>
