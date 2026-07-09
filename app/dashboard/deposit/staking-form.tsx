@@ -511,7 +511,7 @@ export default function StakingForm({
           type,
         );
       } catch (error) {
-        console.error("Error updating staked amount:", error);
+        console.warn("Error updating staked amount:", error);
       }
 
       // Update transaction status
@@ -534,7 +534,7 @@ export default function StakingForm({
         message: `${amount} ${config?.symbol} ${type} completed successfully`,
       });
     } catch (err: any) {
-      console.error("Sign/broadcast error:", err?.message);
+      console.warn("Sign/broadcast error:", err?.message);
       const errorMessage =
         err.message || "Error signing transaction in browser";
       setError(errorMessage);
@@ -657,7 +657,7 @@ export default function StakingForm({
         setDepositAddress(data.timelockScript.address);
       }
     } catch (err: any) {
-      console.error("Error calculating PSBT:", err);
+      console.warn("Error calculating PSBT:", err);
       // Don't show error for auto-calculation, just reset and mark as failed
       // so we don't retry until the user changes an input
       setUnsignedTransactionData(null);
@@ -870,7 +870,7 @@ export default function StakingForm({
       setStep("done");
       onSuccess?.(txidStr, selectedChain, amount);
     } catch (err: any) {
-      console.error("Broadcast error:", err);
+      console.warn("Broadcast error:", err);
       const errorMessage = err.message || "Broadcast error";
       setError(errorMessage);
 
@@ -1310,7 +1310,7 @@ export default function StakingForm({
               type,
             );
           } catch (error) {
-            console.error("Error updating staked amount:", error);
+            console.warn("Error updating staked amount:", error);
           }
 
           // Update transaction status using captured id (avoids stale closure)
@@ -1329,7 +1329,7 @@ export default function StakingForm({
           onSuccess?.(txid, selectedChain, amount);
         }}
         onError={(error) => {
-          console.error("Transaction watching error:", error);
+          console.warn("Transaction watching error:", error);
           setError(error);
 
           // Update transaction as failed
