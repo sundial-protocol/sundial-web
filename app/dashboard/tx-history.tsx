@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -129,6 +130,7 @@ const getExplorerUrl = (chain: string, txHash: string) => {
 };
 
 export function TransactionHistory() {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
@@ -518,9 +520,7 @@ export function TransactionHistory() {
                 <div className="flex gap-2 justify-center">
                   <Button
                     variant="outline"
-                    onClick={() =>
-                      (window.location.href = "/dashboard?tab=stake")
-                    }
+                    onClick={() => router.push("/dashboard?tab=stake")}
                   >
                     Make your first deposit
                   </Button>
