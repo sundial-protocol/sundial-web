@@ -6,9 +6,21 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+const TAB_MAP: Record<string, string> = {
+  stake: "stake",
+  withdraw: "withdraw",
+  history: "history",
+};
 
 export default function QuickActions() {
+  const router = useRouter();
+
+  const navigateToTab = (tabId: string) => {
+    router.push(`/dashboard?tab=${TAB_MAP[tabId]}`);
+  };
+
   return (
     <Card className="col-span-3 sm:col-span-2">
       <CardHeader>
@@ -18,17 +30,17 @@ export default function QuickActions() {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <Button asChild>
-          <Link href="/dashboard?tab=stake">Stake Bitcoin</Link>
+        <Button onClick={() => navigateToTab("stake")}>
+          Stake Bitcoin
         </Button>
-        <Button variant="outline" asChild>
-          <Link href="/dashboard?tab=withdraw">Withdraw Funds</Link>
+        <Button variant="outline" onClick={() => navigateToTab("withdraw")}>
+          Withdraw Funds
         </Button>
-        {/*<Button variant="outline" asChild>
-          <Link href="/dashboard?tab=deposits">My Deposits</Link>
+        {/*<Button variant="outline" onClick={() => navigateToTab("deposits")}>
+          My Deposits
         </Button>*/}
-        <Button variant="outline" asChild>
-          <Link href="/dashboard?tab=history">View Transactions</Link>
+        <Button variant="outline" onClick={() => navigateToTab("history")}>
+          View Transactions
         </Button>
       </CardContent>
     </Card>
