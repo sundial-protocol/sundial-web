@@ -114,9 +114,16 @@ export default function EarningsGraph(props: {
     const extra: EarningsData[] = [];
     const last = earningsData[earningsData.length - 1];
     let btc = last?.btcProjected ?? 0;
-    for (let i = 1; i <= monthCount - earningsData.length; i++) {
-      const date = new Date();
-      date.setMonth(date.getMonth() + 7 + i);
+    // Extract year/month from last point to continue sequentially
+    const [lastMonth, lastYearStr] = (last?.month || "").split(" ");
+    const lastYear = parseInt(lastYearStr, 10);
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const monthIdx = months.indexOf(lastMonth as any);
+    const lastDate = new Date(lastYear, monthIdx >= 0 ? monthIdx : 0, 1);
+
+    for (let i = 0; i < monthCount - earningsData.length; i++) {
+      const date = new Date(lastDate);
+      date.setMonth(date.getMonth() + 1 + i);
       const monthName = date.toLocaleDateString("en-US", {
         month: "short",
         year: "numeric",
