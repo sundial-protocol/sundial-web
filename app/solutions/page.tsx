@@ -4,6 +4,7 @@ import { L2Architecture } from "./l2-architecture";
 import DawnTestnet from "./dawn-testnet";
 import MailingListForm from "./mailing-list-form";
 import AlchemyWidget from "./alchemy-widget";
+import SolsticeWidget from "./solstice-widget";
 
 export default function Home() {
   return (
@@ -33,6 +34,7 @@ export default function Home() {
       {/*<EnterpriseSolutions />*/}
       <AlchemyWidget />
       <DawnTestnet />
+      <SolsticeWidget />
 
       <L2Architecture />
       {/*<UseCases />*/}

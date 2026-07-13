@@ -11,4 +11,5 @@ export const Flags = {
   DISABLE_STAKING_PAGE: isProd,
   DISABLE_VALIDATOR_PAGES: isProd,
   DISABLE_TESTNET: false,
+  DISABLE_SOLSTICE: true,
 };
