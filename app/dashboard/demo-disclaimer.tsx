@@ -6,12 +6,13 @@ import { useEffect, useState } from "react";
 const DISCLAIMER_KEY = "demo_disclaimer_hidden";
 
 export default function DemoDisclaimer({ classes }: { classes?: string }) {
-  const [isVisible, setIsVisible] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem(DISCLAIMER_KEY) !== "true";
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    if (localStorage.getItem(DISCLAIMER_KEY) === "true") {
+      setIsVisible(false);
     }
-    return true;
-  });
+  }, []);
 
   useEffect(() => {
     if (!isVisible) {

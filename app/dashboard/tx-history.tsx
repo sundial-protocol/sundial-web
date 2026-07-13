@@ -146,8 +146,7 @@ export function TransactionHistory() {
       tx.asset.toLowerCase().includes(searchTerm.toLowerCase()) ||
       // Search by loan ID for lending transactions
       (!Flags.DISABLE_LENDING &&
-        "loanId" in tx &&
-        (tx as any).loanId?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        tx.loanId?.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (tx.details &&
         tx.details.toLowerCase().includes(searchTerm.toLowerCase()));
 
@@ -178,14 +177,10 @@ export function TransactionHistory() {
     const csvContent = [
       csvHeaders.join(","),
       ...filteredTransactions.map((tx) => {
-        const loanId =
-          !Flags.DISABLE_LENDING && "loanId" in tx
-            ? (tx as any).loanId || ""
-            : undefined;
-        const interestRate =
-          !Flags.DISABLE_LENDING && "interestRate" in tx
-            ? (tx as any).interestRate || ""
-            : undefined;
+        const loanId = !Flags.DISABLE_LENDING ? (tx.loanId ?? "") : undefined;
+        const interestRate = !Flags.DISABLE_LENDING
+          ? (tx.interestRate ?? "")
+          : undefined;
         const details = tx.details ? `"${tx.details.replace(/"/g, '""')}"` : "";
         return [
           tx.id,
@@ -223,15 +218,11 @@ export function TransactionHistory() {
         getTransactionCategory(tx.type) === "staking" &&
         tx.status === "completed",
     ).length,
-    ...(!Flags.DISABLE_LENDING
-      ? {
-          lending: transactions.filter(
-            (tx) =>
-              getTransactionCategory(tx.type) === "lending" &&
-              tx.status === "completed",
-          ).length,
-        }
-      : {}),
+    lending: transactions.filter(
+      (tx) =>
+        getTransactionCategory(tx.type) === "lending" &&
+        tx.status === "completed",
+    ).length,
     portfolio: transactions.filter(
       (tx) =>
         getTransactionCategory(tx.type) === "portfolio" &&
@@ -363,7 +354,7 @@ export function TransactionHistory() {
               <div className="p-4 bg-purple-800/20 border border-purple-200/90 rounded-lg">
                 <div className="text-sm text-purple-600">Lending</div>
                 <div className="text-lg font-bold text-purple-800">
-                  {(categoryStats as any).lending}
+                  {categoryStats.lending}
                 </div>
               </div>
             )}
@@ -427,42 +418,35 @@ export function TransactionHistory() {
                       </div>
 
                       {/* Show loan ID for lending transactions */}
-                      {!Flags.DISABLE_LENDING &&
-                        "loanId" in transaction &&
-                        (transaction as any).loanId && (
-                          <div className="flex items-center gap-2">
-                            <CreditCard className="h-3 w-3" />
-                            <span className="font-mono text-xs">
-                              Loan: {(transaction as any).loanId}
-                            </span>
-                          </div>
-                        )}
+                      {!Flags.DISABLE_LENDING && transaction.loanId && (
+                        <div className="flex items-center gap-2">
+                          <CreditCard className="h-3 w-3" />
+                          <span className="font-mono text-xs">
+                            Loan: {transaction.loanId}
+                          </span>
+                        </div>
+                      )}
 
                       {/* Show interest rate for loan creation */}
-                      {!Flags.DISABLE_LENDING &&
-                        "interestRate" in transaction &&
-                        (transaction as any).interestRate && (
-                          <div className="flex items-center gap-2">
-                            <TrendingUp className="h-3 w-3" />
-                            <span className="text-xs">
-                              {(transaction as any).interestRate}% APR
-                            </span>
-                          </div>
-                        )}
+                      {!Flags.DISABLE_LENDING && transaction.interestRate && (
+                        <div className="flex items-center gap-2">
+                          <TrendingUp className="h-3 w-3" />
+                          <span className="text-xs">
+                            {transaction.interestRate}% APR
+                          </span>
+                        </div>
+                      )}
 
                       {/* Show collateral for collateral loans */}
-                      {!Flags.DISABLE_LENDING &&
-                        "collateral" in transaction &&
-                        (transaction as any).collateral && (
-                          <div className="flex items-center gap-2">
-                            <Coins className="h-3 w-3" />
-                            <span className="text-xs">
-                              Collateral:{" "}
-                              {(transaction as any).collateral.amount}{" "}
-                              {(transaction as any).collateral.asset}
-                            </span>
-                          </div>
-                        )}
+                      {!Flags.DISABLE_LENDING && transaction.collateral && (
+                        <div className="flex items-center gap-2">
+                          <Coins className="h-3 w-3" />
+                          <span className="text-xs">
+                            Collateral: {transaction.collateral.amount}{" "}
+                            {transaction.collateral.asset}
+                          </span>
+                        </div>
+                      )}
 
                       {/* Show transaction details */}
                       {transaction.details && (

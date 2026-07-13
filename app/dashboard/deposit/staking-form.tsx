@@ -303,16 +303,9 @@ export default function StakingForm({
           new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
       )[0];
 
-      console.log("Most recent deposit:", lastDeposit);
-
       if (lastDeposit && (lastDeposit as any).locktime) {
         const locktime = (lastDeposit as any).locktime;
         setSavedLocktime(locktime);
-      } else {
-        console.log("No deposit transaction with locktime found in history");
-        if (lastDeposit) {
-          console.log("Last deposit found but no locktime:", lastDeposit);
-        }
       }
     }
   }, [isDeposit, savedLocktime, transactions, selectedChain]);
@@ -337,9 +330,6 @@ export default function StakingForm({
 
       // For withdrawals, we need a saved locktime
       if (!isDeposit && !savedLocktime) {
-        console.log(
-          "Cannot calculate withdrawal PSBT: No saved locktime available",
-        );
         return false;
       }
 
@@ -498,10 +488,6 @@ export default function StakingForm({
       // Save locktime for future withdrawal transactions (only for deposits)
       if (isDeposit && unsignedTransactionData?.locktime) {
         setSavedLocktime(unsignedTransactionData.locktime);
-        console.log(
-          "Saved locktime for withdrawal:",
-          unsignedTransactionData.locktime,
-        );
       }
 
       // Update dashboard with successful transaction
@@ -594,7 +580,6 @@ export default function StakingForm({
           trimmedManualPubKey.length !== 66 ||
           !/^[0-9a-fA-F]{66}$/.test(trimmedManualPubKey)
         ) {
-          console.log(trimmedManualPubKey);
           setIsCalculatingPsbt(false);
           return;
         }
@@ -650,7 +635,7 @@ export default function StakingForm({
           "error" in data ? data.error : "Failed to create transaction",
         );
       }
-      console.log("Unsigned transaction calculated:", data);
+      console.debug("Unsigned transaction calculated:", data);
       setUnsignedTransactionData(data);
 
       // Populate depositAddress from staking response so PsbtSigning can watch it
@@ -660,7 +645,8 @@ export default function StakingForm({
     } catch (err: any) {
       console.warn("Error calculating PSBT:", err);
       const errorMessage =
-        err.message || "Failed to create transaction. Please check your inputs.";
+        err.message ||
+        "Failed to create transaction. Please check your inputs.";
       setUnsignedTransactionData(null);
       setPsbtCalcFailed(true);
       setPsbtError(errorMessage);
@@ -718,19 +704,23 @@ export default function StakingForm({
   };
 
   // Round amount to 8 decimal places to prevent floating-point precision errors
-  const roundAmount = (value: number): number =>
-    parseFloat(value.toFixed(8));
+  const roundAmount = (value: number): number => parseFloat(value.toFixed(8));
 
   const handleAmountChange = (value: string) => {
-    const trimmed = value.trim();
-    // Round to 8 decimal places (Bitcoin/satoshi precision) to avoid floating-point drift
-    const rounded =
-      trimmed && !isNaN(Number(trimmed)) ? String(roundAmount(Number(trimmed))) : trimmed;
-    setAmount(rounded);
+    setAmount(value);
     setUnsignedTransactionData(null);
     setPsbtCalcFailed(false);
     setPsbtError(null);
-    onAmountChange?.(rounded, selectedChain);
+    onAmountChange?.(value, selectedChain);
+  };
+
+  const handleAmountBlur = (value: string) => {
+    const trimmed = value.trim();
+    if (trimmed && !isNaN(Number(trimmed))) {
+      const rounded = String(roundAmount(Number(trimmed)));
+      setAmount(rounded);
+      onAmountChange?.(rounded, selectedChain);
+    }
   };
 
   const handleAddressChange = (value: string) => {
@@ -859,8 +849,6 @@ export default function StakingForm({
       // Initialize mempool.js client for broadcasting
       const mempool = getMempoolClient();
 
-      console.log("Broadcasting transaction");
-
       // Broadcast transaction using mempool.js
       const txid = await mempool.bitcoin.transactions.postTx({
         txhex: signedHex,
@@ -869,7 +857,7 @@ export default function StakingForm({
       // Ensure txid is a string
       const txidStr = typeof txid === "string" ? txid : String(txid);
 
-      console.log("Transaction broadcast successfully:", txidStr);
+      console.debug("Transaction broadcast successfully:", txidStr);
 
       setBroadcastResult(txidStr);
 
@@ -932,21 +920,6 @@ export default function StakingForm({
   const getButtonText = () => {
     if (loading) return "Processing";
     return `${isDeposit ? "Deposit" : "Withdraw"} ${config?.symbol || selectedChain}`;
-  };
-
-  const getBtcButtonStatus = () => {
-    const hasAddress = !!userAddress && userAddress.startsWith(config?.addressPrefix || "");
-    const hasPubKey = !!(isUsingConnectedWallet && manualPublicKey) || !!manualPublicKey;
-    const hasValidAmount = amount && Number(amount) >= (config?.minDeposit || 0);
-    const hasPsbt = !!unsignedTransactionData;
-
-    if (!hasAddress) return "Enter a valid Bitcoin address";
-    if (!hasPubKey) return "Add your public key";
-    if (!hasValidAmount) return "Enter a valid amount (min: " + (config?.minDeposit || 0) + ")";
-    if (isAmountExceedsBalance) return "Amount exceeds your balance";
-    if (isCalculatingPsbt) return "Preparing transaction...";
-    if (!hasPsbt) return "No transaction data yet";
-    return "Ready to sign";
   };
 
   const getSuccessMessage = () => {
@@ -1214,6 +1187,7 @@ export default function StakingForm({
           max={availableBalance ?? undefined}
           value={amount}
           onChange={(e) => handleAmountChange(e.target.value)}
+          onBlur={(e) => handleAmountBlur(e.target.value)}
           placeholder={(
             selectedYieldProvider?.minAmount ||
             config?.minDeposit ||
@@ -1278,25 +1252,35 @@ export default function StakingForm({
       )}
 
       {/* Form Validation Status (Bitcoin only) */}
-      {isBtcChain && !unsignedTransactionData && !psbtCalcFailed && (
-        <div className="p-3 bg-amber-50 border border-amber-200 rounded-md">
-          <p className="text-xs text-amber-700 font-medium mb-1">
-            Button status: {getBtcButtonStatus()}
-          </p>
-          <ul className="text-xs text-amber-600 space-y-0.5">
-            {userAddress ? null : <li>• Enter a valid {config?.name || selectedChain} address</li>}
-            {!manualPublicKey && !isUsingConnectedWallet ? (
-              <li>• Provide a 66-character hex public key or connect a wallet</li>
-            ) : null}
-            {amount && Number(amount) < (config?.minDeposit || 0) ? (
-              <li>• Amount must be at least {(config?.minDeposit || 0)} {config?.symbol || selectedChain}</li>
-            ) : null}
-            {amount && isAmountExceedsBalance ? (
-              <li>• Amount exceeds your available balance</li>
-            ) : null}
-          </ul>
-        </div>
-      )}
+      {isBtcChain &&
+        !unsignedTransactionData &&
+        !psbtCalcFailed &&
+        !isCalculatingPsbt && (
+          <div className="p-3 bg-amber-50 border border-amber-200 rounded-md">
+            <p className="text-xs text-amber-700 font-medium mb-1">
+              To enable signing:
+            </p>
+            <ul className="text-xs text-amber-600 space-y-0.5">
+              {userAddress ? null : (
+                <li>• Enter a valid {config?.name || selectedChain} address</li>
+              )}
+              {!manualPublicKey && !isUsingConnectedWallet ? (
+                <li>
+                  • Provide a 66-character hex public key or connect a wallet
+                </li>
+              ) : null}
+              {amount && Number(amount) < (config?.minDeposit || 0) ? (
+                <li>
+                  • Amount must be at least {config?.minDeposit || 0}{" "}
+                  {config?.symbol || selectedChain}
+                </li>
+              ) : null}
+              {amount && isAmountExceedsBalance ? (
+                <li>• Amount exceeds your available balance</li>
+              ) : null}
+            </ul>
+          </div>
+        )}
 
       {/* Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1367,16 +1351,11 @@ export default function StakingForm({
         expectedAmount={Math.floor(Number(amount) * 1e8)}
         chain={selectedChain as "btc" | "btc_testnet"}
         onTransactionFound={(txid) => {
-          console.log("Transaction found:", txid);
           setBroadcastResult(txid);
 
           // Save locktime for future withdrawal transactions (only for deposits)
           if (isDeposit && unsignedTransactionData?.locktime) {
             setSavedLocktime(unsignedTransactionData.locktime);
-            console.log(
-              "Saved locktime for withdrawal:",
-              unsignedTransactionData.locktime,
-            );
           }
 
           // Update dashboard with successful transaction

@@ -8,17 +8,11 @@ import {
 } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 
-const TAB_MAP: Record<string, string> = {
-  stake: "stake",
-  withdraw: "withdraw",
-  history: "history",
-};
-
 export default function QuickActions() {
   const router = useRouter();
 
   const navigateToTab = (tabId: string) => {
-    router.push(`/dashboard?tab=${TAB_MAP[tabId]}`);
+    router.push(`/dashboard?tab=${tabId}`);
   };
 
   return (
@@ -30,9 +24,7 @@ export default function QuickActions() {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <Button onClick={() => navigateToTab("stake")}>
-          Stake Bitcoin
-        </Button>
+        <Button onClick={() => navigateToTab("stake")}>Stake Bitcoin</Button>
         <Button variant="outline" onClick={() => navigateToTab("withdraw")}>
           Withdraw Funds
         </Button>
