@@ -26,9 +26,16 @@ import {
   ArrowDownLeft,
   Coins,
   ExternalLink,
+  CreditCard,
+  DollarSign,
+  Calendar,
+  RefreshCw,
+  TrendingUp,
+  XCircle,
 } from "lucide-react";
 import { TransactionType } from "@/hooks/dashboard/dashboard";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
+import { Flags } from "@/lib/flags";
 
 const getTransactionIcon = (type: TransactionType) => {
   switch (type) {
@@ -40,16 +47,41 @@ const getTransactionIcon = (type: TransactionType) => {
       return <ArrowDownLeft className="h-4 w-4 text-red-500" />;
     case "reward":
       return <Coins className="h-4 w-4 text-yellow-500" />;
+    // Lending transaction icons
+    case "loan_created":
+      return <CreditCard className="h-4 w-4 text-blue-500" />;
+    case "loan_payment":
+      return <DollarSign className="h-4 w-4 text-green-600" />;
+    case "loan_extended":
+      return <Calendar className="h-4 w-4 text-orange-500" />;
+    case "loan_refinanced":
+      return <RefreshCw className="h-4 w-4 text-purple-500" />;
+    case "loan_closed":
+      return <XCircle className="h-4 w-4 text-gray-500" />;
     default:
       return <ArrowUpRight className="h-4 w-4" />;
   }
 };
 
 const getTransactionTypeDisplay = (type: TransactionType) => {
-  return type.charAt(0).toUpperCase() + type.slice(1);
+  switch (type) {
+    case "loan_created":
+      return "Loan Created";
+    case "loan_payment":
+      return "Loan Payment";
+    case "loan_extended":
+      return "Loan Extended";
+    case "loan_refinanced":
+      return "Loan Refinanced";
+    case "loan_closed":
+      return "Loan Closed";
+    default:
+      return type.charAt(0).toUpperCase() + type.slice(1);
+  }
 };
 
 const getTransactionCategory = (type: TransactionType) => {
+  if (!Flags.DISABLE_LENDING && type.startsWith("loan_")) return "lending";
   if (["stake", "unstake"].includes(type)) return "staking";
   if (["deposit", "withdraw"].includes(type)) return "portfolio";
   if (type === "reward") return "earnings";
@@ -112,6 +144,10 @@ export function TransactionHistory() {
       tx.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (tx.txHash || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
       tx.asset.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      // Search by loan ID for lending transactions
+      (!Flags.DISABLE_LENDING &&
+        "loanId" in tx &&
+        (tx as any).loanId?.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (tx.details &&
         tx.details.toLowerCase().includes(searchTerm.toLowerCase()));
 
@@ -135,12 +171,21 @@ export function TransactionHistory() {
       "Status",
       "Transaction Hash",
       "Timestamp",
+      ...(!Flags.DISABLE_LENDING ? ["Loan ID", "Interest Rate"] : []),
       "Details",
     ];
 
     const csvContent = [
       csvHeaders.join(","),
       ...filteredTransactions.map((tx) => {
+        const loanId =
+          !Flags.DISABLE_LENDING && "loanId" in tx
+            ? (tx as any).loanId || ""
+            : undefined;
+        const interestRate =
+          !Flags.DISABLE_LENDING && "interestRate" in tx
+            ? (tx as any).interestRate || ""
+            : undefined;
         const details = tx.details ? `"${tx.details.replace(/"/g, '""')}"` : "";
         return [
           tx.id,
@@ -152,6 +197,8 @@ export function TransactionHistory() {
           tx.status,
           tx.txHash || "",
           tx.timestamp,
+          ...(loanId !== undefined ? [loanId] : []),
+          ...(interestRate !== undefined ? [interestRate] : []),
           details,
         ].join(",");
       }),
@@ -176,6 +223,15 @@ export function TransactionHistory() {
         getTransactionCategory(tx.type) === "staking" &&
         tx.status === "completed",
     ).length,
+    ...(!Flags.DISABLE_LENDING
+      ? {
+          lending: transactions.filter(
+            (tx) =>
+              getTransactionCategory(tx.type) === "lending" &&
+              tx.status === "completed",
+          ).length,
+        }
+      : {}),
     portfolio: transactions.filter(
       (tx) =>
         getTransactionCategory(tx.type) === "portfolio" &&
@@ -208,7 +264,7 @@ export function TransactionHistory() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search by transaction ID, hash, or details..."
+                placeholder={`Search by transaction ID, hash,${!Flags.DISABLE_LENDING ? " loan ID," : ""} or details...`}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -223,6 +279,9 @@ export function TransactionHistory() {
                 <SelectItem value="all">All Categories</SelectItem>
                 <SelectItem value="portfolio">Portfolio</SelectItem>
                 <SelectItem value="staking">Staking</SelectItem>
+                {!Flags.DISABLE_LENDING && (
+                  <SelectItem value="lending">Lending</SelectItem>
+                )}
                 <SelectItem value="earnings">Earnings</SelectItem>
               </SelectContent>
             </Select>
@@ -238,6 +297,17 @@ export function TransactionHistory() {
                 <SelectItem value="stake">Stake</SelectItem>
                 <SelectItem value="unstake">Unstake</SelectItem>
                 <SelectItem value="reward">Reward</SelectItem>
+                {!Flags.DISABLE_LENDING && (
+                  <>
+                    <SelectItem value="loan_created">Loan Created</SelectItem>
+                    <SelectItem value="loan_payment">Loan Payment</SelectItem>
+                    <SelectItem value="loan_extended">Loan Extended</SelectItem>
+                    <SelectItem value="loan_refinanced">
+                      Loan Refinanced
+                    </SelectItem>
+                    <SelectItem value="loan_closed">Loan Closed</SelectItem>
+                  </>
+                )}
               </SelectContent>
             </Select>
 
@@ -265,7 +335,9 @@ export function TransactionHistory() {
           </div>
 
           {/* Summary Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+          <div
+            className={`grid grid-cols-2 ${!Flags.DISABLE_LENDING ? "lg:grid-cols-6" : "lg:grid-cols-5"} gap-4 mb-6`}
+          >
             {/* Status Stats */}
             <div className="p-4 bg-green-800/20 border border-green-200/90 rounded-lg">
               <div className="text-sm text-green-600">Completed</div>
@@ -287,6 +359,14 @@ export function TransactionHistory() {
                 {categoryStats.staking}
               </div>
             </div>
+            {!Flags.DISABLE_LENDING && (
+              <div className="p-4 bg-purple-800/20 border border-purple-200/90 rounded-lg">
+                <div className="text-sm text-purple-600">Lending</div>
+                <div className="text-lg font-bold text-purple-800">
+                  {(categoryStats as any).lending}
+                </div>
+              </div>
+            )}
             <div className="p-4 bg-orange-800/20 border border-orange-200/90 rounded-lg">
               <div className="text-sm text-orange-600">Portfolio</div>
               <div className="text-lg font-bold text-orange-800">
@@ -327,10 +407,12 @@ export function TransactionHistory() {
                       <Badge
                         variant="outline"
                         className={`text-xs ${
-                          getTransactionCategory(transaction.type) ===
-                              "staking"
-                            ? "bg-blue-50 text-blue-700"
-                            : "bg-gray-50 text-gray-700"
+                          getTransactionCategory(transaction.type) === "lending"
+                            ? "bg-purple-50 text-purple-700"
+                            : getTransactionCategory(transaction.type) ===
+                                "staking"
+                              ? "bg-blue-50 text-blue-700"
+                              : "bg-gray-50 text-gray-700"
                         }`}
                       >
                         {getTransactionCategory(transaction.type)}
@@ -343,6 +425,44 @@ export function TransactionHistory() {
                       <div>
                         {new Date(transaction.timestamp).toLocaleString()}
                       </div>
+
+                      {/* Show loan ID for lending transactions */}
+                      {!Flags.DISABLE_LENDING &&
+                        "loanId" in transaction &&
+                        (transaction as any).loanId && (
+                          <div className="flex items-center gap-2">
+                            <CreditCard className="h-3 w-3" />
+                            <span className="font-mono text-xs">
+                              Loan: {(transaction as any).loanId}
+                            </span>
+                          </div>
+                        )}
+
+                      {/* Show interest rate for loan creation */}
+                      {!Flags.DISABLE_LENDING &&
+                        "interestRate" in transaction &&
+                        (transaction as any).interestRate && (
+                          <div className="flex items-center gap-2">
+                            <TrendingUp className="h-3 w-3" />
+                            <span className="text-xs">
+                              {(transaction as any).interestRate}% APR
+                            </span>
+                          </div>
+                        )}
+
+                      {/* Show collateral for collateral loans */}
+                      {!Flags.DISABLE_LENDING &&
+                        "collateral" in transaction &&
+                        (transaction as any).collateral && (
+                          <div className="flex items-center gap-2">
+                            <Coins className="h-3 w-3" />
+                            <span className="text-xs">
+                              Collateral:{" "}
+                              {(transaction as any).collateral.amount}{" "}
+                              {(transaction as any).collateral.asset}
+                            </span>
+                          </div>
+                        )}
 
                       {/* Show transaction details */}
                       {transaction.details && (
@@ -380,7 +500,15 @@ export function TransactionHistory() {
                 {/* Transaction amount display */}
                 <div className="text-right">
                   <div className="font-medium">
-                    {transaction.amount} {transaction.asset.toUpperCase()}
+                    {!Flags.DISABLE_LENDING &&
+                    transaction.type === "loan_extended" &&
+                    transaction.amount === 0 ? (
+                      <span className="text-muted-foreground">Extension</span>
+                    ) : (
+                      <>
+                        {transaction.amount} {transaction.asset.toUpperCase()}
+                      </>
+                    )}
                   </div>
                   <div className="text-sm text-muted-foreground">
                     ${transaction?.usdValue?.toLocaleString() ?? "0"}

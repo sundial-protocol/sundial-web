@@ -6,6 +6,7 @@ export const isProd = !isDev;
 
 export const Flags = {
   DISABLE_DASHBOARD: false,
+  DISABLE_LENDING: true,
   DISABLE_STAKE_PAGE: isProd,
   DISABLE_VALIDATORS_PAGE: isProd,
   DISABLE_STAKING_PAGE: isProd,
