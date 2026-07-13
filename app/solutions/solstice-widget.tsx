@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { Bitcoin, Gauge, ShieldCheck, MailIcon } from "lucide-react";
 import { Section } from "@/components/ui/section";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
+import { Flags } from "@/lib/flags";
 
 const highlights = [
   {
@@ -75,16 +77,21 @@ export default function SolsticeWidget() {
               </div>
 
               <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center sm:items-center lg:justify-start">
-                <button
-                  type="button"
-                  disabled
-                  className="inline-flex h-12 items-center justify-center rounded-full bg-foreground px-8 text-base font-medium text-background text-center whitespace-nowrap opacity-50 pointer-events-none cursor-not-allowed grayscale"
-                  aria-disabled
+                <Link
+                  href="/dashboard"
+                  className={`inline-flex h-12 items-center justify-center rounded-full bg-foreground px-8 text-base font-medium text-background text-center whitespace-nowrap transition-colors${
+                    Flags.DISABLE_SOLSTICE
+                      ? " opacity-50 pointer-events-none cursor-not-allowed grayscale"
+                      : " hover:bg-foreground/80"
+                  }`}
+                  aria-disabled={Flags.DISABLE_SOLSTICE}
                 >
-                  Coming Soon
-                </button>
+                  {Flags.DISABLE_SOLSTICE ? "Coming Soon" : "Solstice"}
+                </Link>
                 <p className="text-sm text-foreground/60">
-                  Launch details will be announced soon
+                  {Flags.DISABLE_SOLSTICE
+                    ? "Launch details will be announced soon"
+                    : "Live preview of the Bitcoin yield vault"}
                 </p>
               </div>
             </div>
