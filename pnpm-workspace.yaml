@@ -1,0 +1,5 @@
+allowBuilds:
+  '@reown/appkit': true
+  canvas: true
+  sharp: true
+  unrs-resolver: true

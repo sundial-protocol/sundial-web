@@ -12,7 +12,7 @@ import HedgeCTA from "@/components/reusable-sections/hedge-cta";
 import NewsList from "../news/newslist";
 import NewsCTA from "../news/news-cta";
 
-export function PageLink({
+function PageLink({
   href,
   title,
   description,

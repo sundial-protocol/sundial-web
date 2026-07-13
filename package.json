@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint --ext .js,.jsx,.ts,.tsx .",
     "generate:testnet-address": "node scripts/generate-testnet-address.js"
   },
   "dependencies": {
@@ -40,8 +40,7 @@
     "@radix-ui/react-tooltip": "^1.1.6",
     "@reown/appkit": "^1.8.14",
     "@reown/appkit-adapter-bitcoin": "^1.8.14",
-    "@sundial-protocol/ada-locker": "1.0.0",
-    "@sundial-protocol/btc-locker": "^1.6.4",
+    "@sundial-protocol/btc-locker": "2.0.5",
     "@tailwindcss/typography": "^0.5.16",
     "autoprefixer": "^10.4.20",
     "bech32": "^2.0.0",
@@ -80,6 +79,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",

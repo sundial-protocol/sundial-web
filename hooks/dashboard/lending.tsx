@@ -15,6 +15,7 @@ export interface LoanData {
   type: "collateral" | "credit";
   amount: number;
   asset: string;
+  bitcoinVerified?: boolean;
   collateral?: {
     amount: number;
     asset: string;
