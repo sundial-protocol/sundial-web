@@ -1,0 +1,12 @@
+allowBuilds:
+  '@reown/appkit': true
+  bufferutil: true
+  canvas: true
+  chacha-native: true
+  cpu-features: true
+  node-datachannel: true
+  sharp: true
+  ssh2: true
+  unrs-resolver: true
+  utf-8-validate: true
+  utp-native: true

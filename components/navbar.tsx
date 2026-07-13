@@ -25,7 +25,7 @@ function NavLink({
     <Link
       href={href}
       className={cn(
-        "flex flex-col hover:text-primary rounded-full p-2 items-center justify-center pointer-events-auto",
+        "group relative flex flex-col hover:text-primary rounded-full p-2 items-center justify-center pointer-events-auto",
         isActive ? "text-primary font-bold" : "text-muted-foreground",
         classes,
       )}
@@ -140,7 +140,7 @@ export default function Navbar() {
                 </span>
               )}
             </span>
-            {drawerOpen && (
+            {drawerOpen ? (
               <span
                 className={cn(
                   "text-xs md:text-sm",
@@ -158,6 +158,10 @@ export default function Navbar() {
                   "Dashboard"
                 )}
               </span>
+            ) : (
+              <span className="absolute top-full mt-2 left-1/2 -translate-x-1/2 text-xs whitespace-nowrap bg-popover text-popover-foreground border rounded px-2 py-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-[200]">
+                {Flags.DISABLE_DASHBOARD ? "Coming Soon" : "Dashboard"}
+              </span>
             )}
           </NavLink>
 
@@ -166,8 +170,12 @@ export default function Navbar() {
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
             <BadgeCheck className={navIconCn} />
-            {drawerOpen && (
+            {drawerOpen ? (
               <span className="text-xs md:text-sm">Solutions</span>
+            ) : (
+              <span className="absolute top-full mt-2 left-1/2 -translate-x-1/2 text-xs whitespace-nowrap bg-popover text-popover-foreground border rounded px-2 py-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-[200]">
+                Solutions
+              </span>
             )}
           </NavLink>
           <NavLink
@@ -175,22 +183,38 @@ export default function Navbar() {
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
             <HomeIcon className={navIconCn} />
-            {drawerOpen && <span className="text-xs md:text-sm">Home</span>}
+            {drawerOpen ? (
+              <span className="text-xs md:text-sm">Home</span>
+            ) : (
+              <span className="absolute top-full mt-2 left-1/2 -translate-x-1/2 text-xs whitespace-nowrap bg-popover text-popover-foreground border rounded px-2 py-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-[200]">
+                Home
+              </span>
+            )}
           </NavLink>
           <NavLink
             href="/company"
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
             <Building className={navIconCn} />
-            {drawerOpen && <span className="text-xs md:text-sm">Company</span>}
+            {drawerOpen ? (
+              <span className="text-xs md:text-sm">Company</span>
+            ) : (
+              <span className="absolute top-full mt-2 left-1/2 -translate-x-1/2 text-xs whitespace-nowrap bg-popover text-popover-foreground border rounded px-2 py-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-[200]">
+                Company
+              </span>
+            )}
           </NavLink>
           <NavLink
             href="/resources"
             classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
             <Folder className={navIconCn} />
-            {drawerOpen && (
+            {drawerOpen ? (
               <span className="text-xs md:text-sm">Resources</span>
+            ) : (
+              <span className="absolute top-full mt-2 left-1/2 -translate-x-1/2 text-xs whitespace-nowrap bg-popover text-popover-foreground border rounded px-2 py-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-[200]">
+                Resources
+              </span>
             )}
           </NavLink>
         </nav>
