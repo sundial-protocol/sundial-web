@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { Bitcoin, Gauge, ShieldCheck, MailIcon } from "lucide-react";
 import { Section } from "@/components/ui/section";
@@ -66,9 +67,20 @@ export default function SolsticeWidget() {
                 <p className="text-sm font-semibold uppercase tracking-[0.3em] text-foreground/60">
                   BTC Yield Vault
                 </p>
-                <h2 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
-                  Solstice
-                </h2>
+                <Image
+                  src="/Solstice-Horizontal.png"
+                  alt="Solstice Tokenized Vault"
+                  width={440}
+                  height={160}
+                  className="block dark:hidden"
+                />
+                <Image
+                  src="/Solstice-Horizontal-DT.png"
+                  alt="Solstice Tokenized Vault"
+                  width={440}
+                  height={160}
+                  className="hidden dark:block"
+                />
                 <p className="mx-auto max-w-xl text-base text-foreground/80 md:text-xl lg:mx-0">
                   Solstice is our next Bitcoin-native vault experience: BTC in,
                   receipt tokens out, with yield expressed through a rising
