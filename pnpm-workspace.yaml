@@ -1,5 +1,21 @@
 allowBuilds:
   '@reown/appkit': true
+  bufferutil: true
   canvas: true
+  chacha-native: true
+  cpu-features: true
+  node-datachannel: true
   sharp: true
+  ssh2: true
   unrs-resolver: true
+  utf-8-validate: true
+  utp-native: true
+minimumReleaseAgeExclude:
+  - ws@7.5.12
+  - autoprefixer@10.5.3
+overrides:
+  axios: 1.18.1
+  postcss@8: 8.5.19
+  uuid@13: 13.0.2
+  valibot: 1.4.2
+  ws@8: 8.21.0

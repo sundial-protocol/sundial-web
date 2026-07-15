@@ -1,8 +1,6 @@
-import MaintenanceSunset from "@/components/reusable-sections/maintenance-sunset/maintenance-sunset";
 import Image from "next/image";
 import Team from "./team";
 import NewsHighlights from "../news/highlights";
-import Partners from "@/components/reusable-sections/partners";
 import { HeroSection } from "@/components/ui/hero-section";
 
 export default function Home() {
@@ -25,7 +23,7 @@ export default function Home() {
             <p className="text-lg md:text-xl text-foreground/80">
               Our mission is to build the most secure, scalable, and
               user-friendly Bitcoin financial infrastructure, enabling seamless
-              access to Bitcoin's potential for everyone.
+              access to Bitcoin&apos;s potential for everyone.
             </p>
           </div>
         </section>

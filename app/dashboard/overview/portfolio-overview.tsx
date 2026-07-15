@@ -1,20 +1,13 @@
 "use client";
-import { useState } from "react";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
-import PortfolioSummary from "./summary";
 import QuickActions from "./quick-actions";
 import WalletsCard from "./wallets-card";
 import EarningsGraph from "./earnings-graph";
 import AssetAllocation from "./asset-allocation";
 
 export function PortfolioOverview() {
-  const {
-    portfolioData,
-    calculations,
-    isLoading,
-    error,
-    selectedYieldProvider,
-  } = useDashboardContext();
+  const { calculations, isLoading, error, selectedYieldProvider } =
+    useDashboardContext();
 
   if (isLoading)
     return <div className="p-4 text-center">Loading dashboard...</div>;

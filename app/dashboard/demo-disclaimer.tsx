@@ -1,10 +1,24 @@
 "use client";
 
 import { AlertTriangle, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+const DISCLAIMER_KEY = "demo_disclaimer_hidden";
 
 export default function DemoDisclaimer({ classes }: { classes?: string }) {
   const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    if (localStorage.getItem(DISCLAIMER_KEY) === "true") {
+      setIsVisible(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isVisible) {
+      localStorage.setItem(DISCLAIMER_KEY, "true");
+    }
+  }, [isVisible]);
 
   if (!isVisible) {
     return null;
@@ -23,8 +37,9 @@ export default function DemoDisclaimer({ classes }: { classes?: string }) {
           <div className="text-amber-700 dark:text-amber-300">
             This is an early-stage, test-only demonstration. Dashboard features,
             transactions, and staking functions are simulated for preview
-            purposes and interact with Bitcoin's testnet3 network only. Please
-            make sure your wallet is set to testnet3 to avoid any confusion.
+            purposes and interact with Bitcoin&apos;s testnet3 network only.
+            Please make sure your wallet is set to testnet3 to avoid any
+            confusion.
           </div>
         </div>
         <button

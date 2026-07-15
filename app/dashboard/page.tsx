@@ -9,18 +9,20 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PortfolioOverview } from "./overview/portfolio-overview";
 import { TransactionHistory } from "./tx-history";
-import { YieldCatalog } from "./yield-catalog";
-import PrebuiltStrategies from "./prebuilt-strategies";
 import Deposit from "./deposit/deposit";
 import WithdrawTab from "./deposit/withdraw";
 import { Section } from "@/components/ui/section";
-import LendingTab from "./lending/lending";
 import { ConfirmationProvider } from "@/components/ui/confirmation";
 import DemoDisclaimer from "./demo-disclaimer";
 import { PriceProvider } from "@/lib/contexts/price-context";
 import MaintenanceSunset from "@/components/reusable-sections/maintenance-sunset/maintenance-sunset";
 import { Flags } from "@/lib/flags";
 import ContextProvider from "@/lib/wallet/bitcoin/context";
+import { Button } from "@/components/ui/button";
+import { MessageSquare } from "lucide-react";
+
+const TESTNET_FEEDBACK_FORM_URL =
+  "https://docs.google.com/forms/d/e/1FAIpQLScxils2djgjes3C4XSFM8UDiVs8KiTSgmdDqcvVYSAzQIJ5Yg/viewform?usp=header";
 
 // Loading component
 function DashboardLoading() {
@@ -157,6 +159,21 @@ function DashboardContent() {
         {/* Tab Content */}
         {renderActiveTab()}
       </div>
+
+      <Button
+        asChild
+        size="sm"
+        className="fixed bottom-6 right-6 z-50 shadow-lg"
+      >
+        <a
+          href={TESTNET_FEEDBACK_FORM_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <MessageSquare />
+          Feedback
+        </a>
+      </Button>
     </div>
   );
 }

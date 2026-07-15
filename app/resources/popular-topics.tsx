@@ -3,7 +3,7 @@ import { Section } from "@/components/ui/section";
 import SunbeamBackground, {
   sunbeamGradient,
 } from "@/components/ui/sunbeam/sunbeam-bg";
-import { ArrowRight, Book, Sun } from "lucide-react";
+import { ArrowRight, Book } from "lucide-react";
 import Link from "next/link";
 
 type GuideLinkProps = {

@@ -2,7 +2,7 @@ import { toast } from "sonner";
 
 import { networkName, NetworkType } from "./cardano/util";
 
-const WALLET_API_ERROR_TYPE = {
+export const WALLET_API_ERROR_TYPE = {
   Unknown: "Unknown",
   ApiError: "ApiError",
   TxSendError: "TxSendError",
@@ -55,7 +55,7 @@ export class WalletApiError extends Error {
   constructor(
     type: WalletApiErrorType,
     code: WalletApiErrorCode,
-    info: string
+    info: string,
   ) {
     super(info);
     this.type = type;
@@ -95,7 +95,7 @@ export class WalletConnectError extends Error {
 export class WrongNetworkTypeError extends Error {
   constructor(targetNetwork: NetworkType, currentNetwork: NetworkType) {
     const message = `You have tried to call functions on ${networkName(
-      currentNetwork
+      currentNetwork,
     )}, while the network type is limited to ${networkName(targetNetwork)}.`;
 
     super(message);
@@ -154,13 +154,13 @@ export function apiError(type: WalletApiErrorType, error: unknown) {
     return new WalletApiError(
       type,
       "Unknown",
-      "An unexpected error occurred with wallet api"
+      "An unexpected error occurred with wallet api",
     );
   }
 }
 
 export function isWalletInternalApiError(
-  error: unknown
+  error: unknown,
 ): error is WalletInternalApiError {
   if (error instanceof Object) {
     if (
@@ -210,7 +210,7 @@ function walletApiErrorCode(code: number | undefined) {
 // Make the error code into a human readable string
 function convertErrorCode(
   type: WalletApiErrorType,
-  code: number
+  code: number,
 ): WalletApiErrorCode {
   switch (type) {
     case "ApiError":

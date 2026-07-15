@@ -1,4 +1,4 @@
-import { LucideArrowRight, LucideSquareArrowRight } from "lucide-react";
+import { LucideArrowRight } from "lucide-react";
 import { Section } from "../ui/section";
 
 export default function HedgeCTA() {
@@ -10,8 +10,8 @@ export default function HedgeCTA() {
             Empowering Your Bitcoin Treasury to Be More Than Just a Hedge
           </h2>
           <p className="mx-auto max-w-[700px] text-foreground/90 md:text-lg">
-            Join leading institutions leveraging Sundial's secure infrastructure
-            for sustainable Bitcoin yield
+            Join leading institutions leveraging Sundial&apos;s secure
+            infrastructure for sustainable Bitcoin yield
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4">

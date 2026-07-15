@@ -16,10 +16,11 @@ import {
 } from "lucide-react";
 import AlchemyLogoStrip from "./alchemy-logo-strip";
 import InteractiveGradientBackground from "@/components/ui/interactive-gradient-bg";
+import { PROPOSAL_LINK } from "./constants";
 
 const subpages = [
   {
-    href: "https://medium.com/@SundialProtocol/sundial-x-charms-proposal-building-the-first-bitcoin-treasury-protocol-for-cardano-e437c964c3b6",
+    href: PROPOSAL_LINK,
     icon: BookOpen,
     title: "The Proposal",
     description:
@@ -101,7 +102,7 @@ export default function AlchemyPage() {
             </p>
             <div className="flex flex-col sm:flex-row items-center gap-3">
               <Link
-                href="/alchemy/proposal"
+                href={PROPOSAL_LINK}
                 className="inline-flex h-12 items-center justify-center rounded-full bg-foreground px-8 text-base font-medium text-background hover:bg-foreground/80 transition-colors"
               >
                 Read the Proposal

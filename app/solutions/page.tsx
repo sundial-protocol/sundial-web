@@ -2,8 +2,9 @@ import { HeroSection } from "@/components/ui/hero-section";
 import Image from "next/image";
 import { L2Architecture } from "./l2-architecture";
 import DawnTestnet from "./dawn-testnet";
-import UseCases from "./use-cases";
+import MailingListForm from "./mailing-list-form";
 import AlchemyWidget from "./alchemy-widget";
+import SolsticeWidget from "./solstice-widget";
 
 export default function Home() {
   return (
@@ -19,7 +20,7 @@ export default function Home() {
               height={500}
             />
             <h1 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">
-              Built on Bitcoin's Ledger Model
+              Built on Bitcoin&apos;s Ledger Model
             </h1>
             <p className="text-lg md:text-xl text-foreground/80">
               Sundial leverages a UTXO architecture to deliver
@@ -33,9 +34,11 @@ export default function Home() {
       {/*<EnterpriseSolutions />*/}
       <AlchemyWidget />
       <DawnTestnet />
+      <SolsticeWidget />
 
       <L2Architecture />
-      <UseCases />
+      {/*<UseCases />*/}
+      <MailingListForm />
       {/* <Partners classes="py-8 w-3/4 mx-auto" /> */}
     </div>
   );

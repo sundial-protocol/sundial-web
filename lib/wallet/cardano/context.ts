@@ -41,7 +41,7 @@ export type WalletContextSetters = {
   setAccountBalance: Dispatch<SetStateAction<number>>;
 };
 
-const noop = async (..._: any) => {};
+const noop = async (..._args: unknown[]) => {};
 
 export const WalletContext = createContext<WalletContextType>({
   lucid: null,

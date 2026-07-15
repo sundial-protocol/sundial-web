@@ -65,7 +65,7 @@ export default function Team() {
           return prevMembers;
         }
 
-        let newMembers = [...prevMembers];
+        const newMembers = [...prevMembers];
         newMembers[memberIndex] = newMembers[0];
         newMembers[0] = member;
         return newMembers;
@@ -105,10 +105,10 @@ export default function Team() {
     return displayNames[teamName] || teamName;
   };
 
-  let desktopSelectedMember: TeamMemberType | null = members
+  const desktopSelectedMember: TeamMemberType | null = members
     ? members[0]
     : null;
-  let displayMembers = members || [];
+  const displayMembers = members || [];
 
   return (
     <SunbeamBackground
@@ -204,7 +204,7 @@ export default function Team() {
                   </h1>
                   {availableTeams.length > 1 && (
                     <div className="flex items-center gap-1 mt-2">
-                      {availableTeams.map((team, index) => (
+                      {availableTeams.map((team) => (
                         <button
                           key={team}
                           onClick={() => handleTeamSelect(team)}

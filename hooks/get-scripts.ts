@@ -20,7 +20,7 @@ export const depositAddress = (chain: SupportedChain): string => {
 // Alternative: Generate addresses programmatically (more advanced)
 export const generateDepositAddress = (
   chain: SupportedChain,
-  index: number = 0
+  _index: number = 0,
 ): string => {
   // This would use your HD wallet or key derivation
   // For now, return the static addresses above

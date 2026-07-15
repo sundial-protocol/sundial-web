@@ -30,12 +30,11 @@ export default function CollateralizedLoan() {
   const { portfolioData } = useDashboardContext();
 
   // Get dashboard transaction functions
-  const { addPendingTransaction, updateTransactionStatus, transactions } =
+  const { addPendingTransaction, updateTransactionStatus } =
     useDashboardContext();
 
   const { convert } = usePrices();
-  const { addLoan, isProcessingNewLoan, setShowFullLoanInterface } =
-    useLending();
+  const { addLoan, isProcessingNewLoan } = useLending();
   const {
     isOpen: showCollateralFlow,
     config: collateralConfig,
@@ -95,9 +94,8 @@ export default function CollateralizedLoan() {
   const calculateMonthlyPayment = (
     amount: number,
     rate: number,
-    days: number
+    days: number,
   ) => {
-    const monthlyRate = rate / 100 / 12;
     const months = days / 30;
     const totalWithInterest = amount * (1 + (rate / 100) * (days / 365));
     return totalWithInterest / months;
@@ -134,7 +132,7 @@ export default function CollateralizedLoan() {
         monthlyPayment: calculateMonthlyPayment(
           Number(borrowAmount),
           currentBorrowRate * 0.8,
-          Number(loanTerm)
+          Number(loanTerm),
         ),
         nextPaymentDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         paymentsRemaining: Math.ceil(Number(loanTerm) / 30),
@@ -168,7 +166,7 @@ export default function CollateralizedLoan() {
       loanTerm,
       addLoan,
       addToast,
-    ]
+    ],
   );
 
   const handleTransactionError = useCallback(
@@ -188,17 +186,17 @@ export default function CollateralizedLoan() {
 
       setPendingCollateralTxId(""); // Clear pending tx ID
     },
-    [pendingCollateralTxId, updateTransactionStatus, addToast]
+    [pendingCollateralTxId, updateTransactionStatus, addToast],
   );
 
   // Add transaction recording to handleBorrow
-  const handleBorrow = async () => {
+  const _handleBorrow = async () => {
     if (!collateralAmount || !borrowAmount) return;
 
     const confirmed = await confirm({
       title: "Create Collateralized Loan",
       message: `Create collateralized loan?\n\nCollateral: ${collateralAmount} ${collateralAsset}\nBorrow: ${borrowAmount} ${borrowAsset}\nInterest Rate: ${currentBorrowRate}% APR\nTerm: ${loanTerm} days\nLTV: ${currentLTV.toFixed(
-        1
+        1,
       )}%\n\nThis will lock your collateral until the loan is repaid.`,
       confirmText: "Create Loan",
       cancelText: "Cancel",
@@ -221,7 +219,7 @@ export default function CollateralizedLoan() {
             asset: collateralAsset,
             amount: Number(collateralAmount),
           },
-        }
+        },
       );
 
       const loanData = {
@@ -245,7 +243,7 @@ export default function CollateralizedLoan() {
         monthlyPayment: calculateMonthlyPayment(
           Number(borrowAmount),
           currentBorrowRate,
-          Number(loanTerm)
+          Number(loanTerm),
         ),
         nextPaymentDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         paymentsRemaining: Math.ceil(Number(loanTerm) / 30),
@@ -253,7 +251,7 @@ export default function CollateralizedLoan() {
         interestPaid: 0,
       };
 
-      const newLoan = await addLoan(loanData);
+      await addLoan(loanData);
 
       // Mark transaction as completed
       updateTransactionStatus(transactionId, "completed");
@@ -295,7 +293,7 @@ export default function CollateralizedLoan() {
     const confirmed = await confirm({
       title: "Create Bitcoin-Collateralized Loan",
       message: `Create Bitcoin-collateralized loan?\n\nCollateral: ${collateralAmount} BTC (locked in smart contract)\nBorrow: ${borrowAmount} ${borrowAsset}\nInterest Rate: ${currentBorrowRate}% APR\nTerm: ${loanTerm} days\nLTV: ${currentLTV.toFixed(
-        1
+        1,
       )}%\n\nYour Bitcoin will be locked in a secure smart contract until repayment.`,
       confirmText: "Generate Transaction",
       cancelText: "Cancel",
@@ -316,7 +314,7 @@ export default function CollateralizedLoan() {
             asset: collateralAsset,
             amount: Number(collateralAmount),
           },
-        }
+        },
       );
 
       // Store the transaction ID for later updates
@@ -399,7 +397,7 @@ export default function CollateralizedLoan() {
                 asset: collateralAsset,
                 amount: Number(collateralAmount),
               },
-            }
+            },
           );
 
           const loanData = {
@@ -428,7 +426,7 @@ export default function CollateralizedLoan() {
             monthlyPayment: calculateMonthlyPayment(
               Number(borrowAmount),
               currentBorrowRate * 0.8,
-              Number(loanTerm)
+              Number(loanTerm),
             ),
             nextPaymentDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
             paymentsRemaining: Math.ceil(Number(loanTerm) / 30),
@@ -436,7 +434,7 @@ export default function CollateralizedLoan() {
             interestPaid: 0,
           };
 
-          const newLoan = await addLoan(loanData);
+          await addLoan(loanData);
 
           // Mark transaction as completed
           updateTransactionStatus(transactionId, "completed");
@@ -560,7 +558,7 @@ export default function CollateralizedLoan() {
                     setCollateralAmount(
                       availableCollateral[
                         collateralAsset as keyof typeof availableCollateral
-                      ].toString()
+                      ].toString(),
                     )
                   }
                   disabled={isProcessingNewLoan}
@@ -576,7 +574,7 @@ export default function CollateralizedLoan() {
                 availableCollateral[
                   collateralAsset as keyof typeof availableCollateral
                 ],
-                collateralAsset === "BTC" ? 4 : 0
+                collateralAsset === "BTC" ? 4 : 0,
               )}{" "}
               {collateralAsset}
             </div>
@@ -680,9 +678,9 @@ export default function CollateralizedLoan() {
                       calculateMonthlyPayment(
                         Number(borrowAmount),
                         currentBorrowRate,
-                        Number(loanTerm)
+                        Number(loanTerm),
                       ),
-                      2
+                      2,
                     )}
                   </span>
                 </div>
@@ -694,7 +692,7 @@ export default function CollateralizedLoan() {
                       (((Number(borrowAmount) * currentBorrowRate) / 100) *
                         Number(loanTerm)) /
                         365,
-                      2
+                      2,
                     )}
                   </span>
                 </div>
@@ -794,7 +792,7 @@ export default function CollateralizedLoan() {
                   psbtBase64={collateralPsbt}
                   targetAddress="collateral-smart-contract-address"
                   expectedAmount={Math.floor(
-                    Number(collateralAmount) * 100000000
+                    Number(collateralAmount) * 100000000,
                   )}
                   chain="btc"
                   onTransactionFound={handleTransactionFound}

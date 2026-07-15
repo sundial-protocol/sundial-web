@@ -30,7 +30,7 @@ import {
 import { usePrebuiltStrategies } from "@/hooks/dashboard/prebuilt-strategies";
 
 export default function PrebuiltStrategies() {
-  const { strategies, filterStrategies, isLoading } = usePrebuiltStrategies();
+  const { strategies } = usePrebuiltStrategies();
 
   const [filterRisk, setFilterRisk] = useState("all");
   const [sortBy, setSortBy] = useState("popularity");
@@ -157,7 +157,7 @@ export default function PrebuiltStrategies() {
             }`}
             onClick={() =>
               setSelectedStrategy(
-                selectedStrategy === strategy.id ? null : strategy.id
+                selectedStrategy === strategy.id ? null : strategy.id,
               )
             }
           >

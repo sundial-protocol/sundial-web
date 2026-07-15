@@ -1,39 +1,39 @@
 "use client";
 
 import Link from "next/link";
-import { Bitcoin, Lock, Coins, MailIcon } from "lucide-react";
+import { Bitcoin, Gauge, ShieldCheck, MailIcon } from "lucide-react";
 import { Section } from "@/components/ui/section";
-import { Flags } from "@/lib/flags";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
+import { Flags } from "@/lib/flags";
 
 const highlights = [
   {
+    icon: Gauge,
+    title: "Claim Ratio Engine",
+    description:
+      "A system-wide BTC-per-RT ratio prices investment and redemption from a single source of truth.",
+  },
+  {
     icon: Bitcoin,
-    title: "Built on Bitcoin",
+    title: "Bitcoin-Native Settlement",
     description:
-      "Our novel BTC lockers are built entirely on Bitcoin for native, chain-level security.",
+      "Atomic BTC-in and RT-out settlement keeps pricing and execution aligned to the same transaction.",
   },
   {
-    icon: Lock,
-    title: "Keep Assets On-Chain",
+    icon: ShieldCheck,
+    title: "Reserve-First Controls",
     description:
-      "Send assets directly to our Bitcoin smart contracts without leaving the Bitcoin environment.",
-  },
-  {
-    icon: Coins,
-    title: "Native Rewards",
-    description:
-      "Yield and original assets are returned in BTC, preserving a clean Bitcoin-native experience.",
+      "Operational reserve checks and proof-of-reserves gating are designed to protect backing integrity.",
   },
 ];
 
-export default function DawnTestnet() {
+export default function SolsticeWidget() {
   function handleSubscribe() {
     document
       .getElementById("mailing-list-form")
       ?.scrollIntoView({ behavior: "smooth", block: "center" });
     window.dispatchEvent(
-      new CustomEvent("preselectMailingList", { detail: { listId: 5 } }),
+      new CustomEvent("preselectMailingList", { detail: { listId: 4 } }),
     );
   }
 
@@ -45,34 +45,34 @@ export default function DawnTestnet() {
             top: "-250px",
             height: "900px",
             background:
-              "linear-gradient(to bottom right, hsl(var(--primary)) 0%, hsl(var(--primary)) 32%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 82%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)",
-            clipPath: "polygon(-100% 0%, 100% 10%, 100% 62%, 0% 100%)",
-            opacity: "0.18",
+              "linear-gradient(to top left, hsl(var(--primary)) 0%, hsl(var(--primary)) 30%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 78%, color-mix(in srgb, hsl(var(--background)) 0%, transparent) 100%)",
+            clipPath: "polygon(0% 8%, 100% 0%, 120% 80%, 0% 100%)",
+            opacity: "0.16",
           },
         },
       ]}
     >
-      <Section className="relative w-full max-w-6xl mx-auto pt-60 lg:pt-6 pb-8 lg:pl-24">
+      <Section className="relative w-full max-w-6xl mx-auto pt-16 sm:pt-20 lg:pt-6 pb-8 lg:pr-24">
         <div className="relative overflow-hidden rounded-[18px] border border-white/10 bg-white/5 px-3 py-4 shadow-2xl backdrop-blur-xl sm:px-4 sm:py-5 md:rounded-[28px] md:px-10 md:py-10">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,196,57,0.18),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.08),transparent_25%)] pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,196,57,0.14),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.08),transparent_25%)] pointer-events-none" />
 
           <div className="relative mx-auto grid max-w-5xl gap-3 lg:gap-0 lg:grid-cols-[0.68fr_1.32fr] lg:items-center">
             <div className="mx-auto max-w-2xl text-center lg:mx-0 lg:text-left">
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
                 <span className="h-2 w-2 rounded-full bg-primary" />
-                {Flags.DISABLE_DASHBOARD ? "Upcoming" : "New"} Release
+                Upcoming Product
               </div>
               <div className="mt-6 space-y-4">
                 <p className="text-sm font-semibold uppercase tracking-[0.3em] text-foreground/60">
-                  Bitcoin Yield Testnet
+                  BTC Yield Vault
                 </p>
                 <h2 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
-                  Dawn Marketplace
+                  Solstice
                 </h2>
                 <p className="mx-auto max-w-xl text-base text-foreground/80 md:text-xl lg:mx-0">
-                  Explore Sundial&apos;s newly released testnet and see how
-                  Bitcoin-native yield can feel when the full flow stays rooted
-                  in Bitcoin infrastructure.
+                  Solstice is our next Bitcoin-native vault experience: BTC in,
+                  receipt tokens out, with yield expressed through a rising
+                  claim ratio over time.
                 </p>
               </div>
 
@@ -80,30 +80,20 @@ export default function DawnTestnet() {
                 <Link
                   href="/dashboard"
                   className={`inline-flex h-12 items-center justify-center rounded-full bg-foreground px-8 text-base font-medium text-background text-center whitespace-nowrap transition-colors${
-                    Flags.DISABLE_DASHBOARD
+                    Flags.DISABLE_SOLSTICE
                       ? " opacity-50 pointer-events-none cursor-not-allowed grayscale"
                       : " hover:bg-foreground/80"
                   }`}
-                  aria-disabled={Flags.DISABLE_DASHBOARD}
+                  aria-disabled={Flags.DISABLE_SOLSTICE}
                 >
-                  {Flags.DISABLE_DASHBOARD ? "Coming Soon" : "Testnet"}
+                  {Flags.DISABLE_SOLSTICE ? "Coming Soon" : "Solstice"}
                 </Link>
                 <p className="text-sm text-foreground/60">
-                  Live preview of the Bitcoin yield experience
+                  {Flags.DISABLE_SOLSTICE
+                    ? "Launch details will be announced soon"
+                    : "Live preview of the Bitcoin yield vault"}
                 </p>
               </div>
-
-              {!Flags.DISABLE_TESTNET ? (
-                <p className="mt-4 text-sm text-foreground/70">
-                  Need L2 testnet ADA?{" "}
-                  <Link
-                    href="/testnet/faucet"
-                    className="text-primary underline-offset-4 hover:underline"
-                  >
-                    Use the faucet.
-                  </Link>
-                </p>
-              ) : null}
             </div>
 
             <div className="grid max-w-[520px] gap-3 mt-8 justify-self-center lg:mt-20 lg:justify-self-end">
@@ -137,9 +127,9 @@ export default function DawnTestnet() {
 
         <button
           onClick={handleSubscribe}
-          className="hidden lg:flex absolute left-0 top-1/2 -translate-y-1/2 rotate-90 items-center gap-1.5 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+          className="hidden lg:flex absolute right-0 top-1/2 -translate-y-1/2 -rotate-90 items-center gap-1.5 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
         >
-          Testnet Updates <MailIcon className="h-4 w-4" />
+          Solstice Updates <MailIcon className="h-4 w-4" />
         </button>
       </Section>
     </SunbeamBackground>

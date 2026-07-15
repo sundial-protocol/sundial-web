@@ -17,7 +17,7 @@ export function NewsWidget({ item }: { item: NewsCard }) {
         month: "long",
         day: "numeric",
       });
-    } catch (error) {
+    } catch {
       return dateString; // Return original if parsing fails
     }
   };

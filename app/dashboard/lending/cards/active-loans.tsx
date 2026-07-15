@@ -21,7 +21,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { useState, useMemo } from "react";
-import { useLending, usePaymentHistory } from "@/hooks/dashboard/lending";
+import { useLending } from "@/hooks/dashboard/lending";
 // Get both transaction and loan context
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import { PsbtSigning, usePsbtGeneration } from "@/components/btc/psbt-signing";
@@ -50,8 +50,6 @@ export default function ActiveLoansCard({
     isProcessingPayment,
     isProcessingExtension,
     isProcessingRefinance,
-    // Use loans from lending context which properly updates on payments
-    loans: contextLoans,
     activeLoans: contextActiveLoans,
   } = useLending();
 
@@ -60,9 +58,6 @@ export default function ActiveLoansCard({
     addPendingTransaction,
     updateTransactionStatus,
     getLendingTransactions,
-    // Get loan data from dashboard context
-    portfolioData,
-    transactions,
   } = useDashboardContext();
 
   // Use active loans from lending context which properly tracks payments
@@ -70,11 +65,6 @@ export default function ActiveLoansCard({
     // Return the active loans from lending context instead of recalculating
     return contextActiveLoans;
   }, [contextActiveLoans]);
-
-  // For backwards compatibility, also provide all loans
-  const loans = useMemo(() => {
-    return contextLoans;
-  }, [contextLoans]);
 
   console.log("Active loans calculated from dashboard context:", {
     totalLoans: activeLoans.length,
@@ -113,7 +103,7 @@ export default function ActiveLoansCard({
 
     // Get all payment transactions for this loan
     const loanPayments = getLendingTransactions().filter(
-      (tx) => tx.loanId === selectedLoan.id && tx.type === "loan_payment"
+      (tx) => tx.loanId === selectedLoan.id && tx.type === "loan_payment",
     );
 
     return loanPayments.map((payment) => ({
@@ -182,7 +172,7 @@ export default function ActiveLoansCard({
           details: `Payment of ${paymentAmount} ${
             selectedLoan.asset
           } for loan ${selectedLoan.id.slice(-6)}`,
-        }
+        },
       );
 
       // Step 2: Process payment through lending system
@@ -192,7 +182,7 @@ export default function ActiveLoansCard({
       updateTransactionStatus(
         transactionId,
         "completed",
-        `payment-${Date.now()}`
+        `payment-${Date.now()}`,
       );
 
       // Step 4: Reset form and close modal
@@ -240,7 +230,7 @@ export default function ActiveLoansCard({
           details: `Quick payment of ${amount} ${
             loan.asset
           } for loan ${loan.id.slice(-6)}`,
-        }
+        },
       );
 
       // Show transaction flow with callback to complete the transaction
@@ -278,7 +268,7 @@ export default function ActiveLoansCard({
               message: `Payment of $${amount} via ${result.method} completed successfully.`,
             });
             closeTransaction();
-          } catch (error) {
+          } catch {
             updateTransactionStatus(transactionId, "failed");
             addToast({
               type: "error",
@@ -296,7 +286,7 @@ export default function ActiveLoansCard({
         showAsModal: true,
         title: `Pay Loan #${loan.id}`,
       });
-    } catch (error) {
+    } catch {
       if (transactionId) {
         updateTransactionStatus(transactionId, "failed");
       }
@@ -323,9 +313,9 @@ export default function ActiveLoansCard({
         {
           loanId: selectedLoan.id,
           details: `Bitcoin payment of $${amount} for loan ${selectedLoan.id.slice(
-            -6
+            -6,
           )}`,
-        }
+        },
       );
 
       // Step 2: Generate PSBT
@@ -338,7 +328,7 @@ export default function ActiveLoansCard({
 
       setPaymentPsbt(psbt);
       setShowBitcoinPayment(true);
-    } catch (error) {
+    } catch {
       if (transactionId) {
         updateTransactionStatus(transactionId, "failed");
       }
@@ -376,9 +366,9 @@ export default function ActiveLoansCard({
         {
           loanId: selectedLoan.id,
           details: `Loan ${selectedLoan.id.slice(
-            -6
+            -6,
           )} extended by ${extensionDays} days`,
-        }
+        },
       );
 
       // Process extension
@@ -398,7 +388,7 @@ export default function ActiveLoansCard({
 
       setExtensionDays("30");
       setShowExtendModal(false);
-    } catch (error) {
+    } catch {
       if (transactionId) {
         updateTransactionStatus(transactionId, "failed");
       }
@@ -435,16 +425,16 @@ export default function ActiveLoansCard({
           loanId: selectedLoan.id,
           interestRate: Number(refinanceRate),
           details: `Loan ${selectedLoan.id.slice(
-            -6
+            -6,
           )} refinanced - ${refinanceRate}% APR for ${refinanceTerm} days`,
-        }
+        },
       );
 
       // Process refinancing
       await refinanceLoan(
         selectedLoan.id,
         Number(refinanceRate),
-        Number(refinanceTerm)
+        Number(refinanceTerm),
       );
 
       // Mark transaction as completed
@@ -459,7 +449,7 @@ export default function ActiveLoansCard({
       setRefinanceRate("10.5");
       setRefinanceTerm("90");
       setShowRefinanceModal(false);
-    } catch (error) {
+    } catch {
       if (transactionId) {
         updateTransactionStatus(transactionId, "failed");
       }
@@ -476,7 +466,7 @@ export default function ActiveLoansCard({
 
     // Include all transactions related to this loan
     const loanTransactions = getLendingTransactions().filter(
-      (tx) => tx.loanId === selectedLoan.id
+      (tx) => tx.loanId === selectedLoan.id,
     );
 
     const statementData = {
@@ -499,7 +489,7 @@ export default function ActiveLoansCard({
     downloadAnchorNode.setAttribute("href", dataStr);
     downloadAnchorNode.setAttribute(
       "download",
-      `loan-statement-${selectedLoan.id}.json`
+      `loan-statement-${selectedLoan.id}.json`,
     );
     document.body.appendChild(downloadAnchorNode);
     downloadAnchorNode.click();
@@ -535,7 +525,7 @@ export default function ActiveLoansCard({
   // Helper function to get status color for loan
   const getLoanStatusColor = (loan: any) => {
     const daysToDue = Math.ceil(
-      (loan.dueDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+      (loan.dueDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24),
     );
 
     if (daysToDue <= 0) return "bg-red-100 text-red-700";
@@ -545,7 +535,7 @@ export default function ActiveLoansCard({
 
   const getLoanStatus = (loan: any) => {
     const daysToDue = Math.ceil(
-      (loan.dueDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+      (loan.dueDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24),
     );
 
     if (daysToDue <= 0) return "Overdue";
@@ -557,7 +547,7 @@ export default function ActiveLoansCard({
   if (!activeLoans || activeLoans.length === 0) {
     const allLendingTxs = getLendingTransactions();
     const loanCreationTxs = allLendingTxs.filter(
-      (tx) => tx.type === "loan_created"
+      (tx) => tx.type === "loan_created",
     );
 
     return (
@@ -650,7 +640,7 @@ export default function ActiveLoansCard({
                 {(() => {
                   const daysToDue = Math.ceil(
                     (selectedLoan.dueDate.getTime() - new Date().getTime()) /
-                      (1000 * 60 * 60 * 24)
+                      (1000 * 60 * 60 * 24),
                   );
 
                   return (
@@ -925,7 +915,7 @@ export default function ActiveLoansCard({
                 <strong>New Due Date:</strong>{" "}
                 {new Date(
                   selectedLoan.dueDate.getTime() +
-                    Number(extensionDays) * 24 * 60 * 60 * 1000
+                    Number(extensionDays) * 24 * 60 * 60 * 1000,
                 ).toLocaleDateString()}
               </div>
             </div>
@@ -1102,10 +1092,10 @@ export default function ActiveLoansCard({
                   psbtBase64={paymentPsbt}
                   targetAddress="loan-payment-address"
                   expectedAmount={Math.floor(
-                    (Number(paymentAmount) * 100000000) / 50000
+                    (Number(paymentAmount) * 100000000) / 50000,
                   )} // Convert USD to sats
                   chain="btc"
-                  onTransactionFound={(txid) => {
+                  onTransactionFound={(_txid) => {
                     // Process the Bitcoin payment with transaction logging
                     makePayment(selectedLoan.id, Number(paymentAmount));
 
@@ -1119,7 +1109,7 @@ export default function ActiveLoansCard({
                       message: `Payment of $${paymentAmount} confirmed on Bitcoin network.`,
                     });
                   }}
-                  onError={(error) => {
+                  onError={() => {
                     addToast({
                       type: "error",
                       title: "Bitcoin Payment Failed",
@@ -1159,7 +1149,7 @@ export default function ActiveLoansCard({
             Total: $
             {formatAmount(
               activeLoans.reduce((sum, loan) => sum + loan.totalOwed, 0),
-              2
+              2,
             )}
           </div>
         </CardTitle>
@@ -1168,7 +1158,7 @@ export default function ActiveLoansCard({
         {activeLoans.map((loan) => {
           const daysToDue = Math.ceil(
             (loan.dueDate.getTime() - new Date().getTime()) /
-              (1000 * 60 * 60 * 24)
+              (1000 * 60 * 60 * 24),
           );
           const isExpanded = expandedLoans.has(loan.id);
 
@@ -1238,8 +1228,8 @@ export default function ActiveLoansCard({
                       daysToDue <= 7
                         ? "text-orange-600"
                         : daysToDue <= 0
-                        ? "text-red-600"
-                        : "text-green-600"
+                          ? "text-red-600"
+                          : "text-green-600"
                     }`}
                   >
                     {daysToDue > 0
@@ -1331,7 +1321,7 @@ export default function ActiveLoansCard({
                 activeLoans.filter((loan) => {
                   const days = Math.ceil(
                     (loan.dueDate.getTime() - new Date().getTime()) /
-                      (1000 * 60 * 60 * 24)
+                      (1000 * 60 * 60 * 24),
                   );
                   return days <= 7;
                 }).length
@@ -1347,7 +1337,7 @@ export default function ActiveLoansCard({
                   .filter((loan) => {
                     const days = Math.ceil(
                       (loan.dueDate.getTime() - new Date().getTime()) /
-                        (1000 * 60 * 60 * 24)
+                        (1000 * 60 * 60 * 24),
                     );
                     return days <= 7;
                   })

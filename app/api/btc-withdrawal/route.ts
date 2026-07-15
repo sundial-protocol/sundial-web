@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  BTCLocker,
-  WithdrawalParams,
-} from "@sundial-protocol/btc-locker";
+import { BTCLocker, WithdrawalParams } from "@sundial-protocol/btc-locker";
 import { YIELD_PROVIDER_PUBKEY } from "@/lib/yield-provider";
 import type { BtcWithdrawalResponse } from "./types";
 
@@ -91,7 +88,7 @@ export async function POST(
 
     console.log("Withdrawal params:", withdrawalParams);
 
-    // Create dawn withdrawal transaction
+    // Create withdrawal transaction
     const psbtBase64 =
       await locker.createWithdrawalTransaction(withdrawalParams);
 

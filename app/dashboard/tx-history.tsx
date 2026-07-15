@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -20,24 +21,22 @@ import {
 import { Badge } from "@/components/ui/badge";
 import {
   Search,
-  Filter,
   Download,
   ArrowUpRight,
   ArrowDownLeft,
   Coins,
-  DollarSign,
   ExternalLink,
   CreditCard,
+  DollarSign,
   Calendar,
   RefreshCw,
   TrendingUp,
   XCircle,
 } from "lucide-react";
-// Updated import to use the new dashboard hook
 import { TransactionType } from "@/hooks/dashboard/dashboard";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
+import { Flags } from "@/lib/flags";
 
-// Enhanced transaction icon function to support lending transactions
 const getTransactionIcon = (type: TransactionType) => {
   switch (type) {
     case "stake":
@@ -48,7 +47,7 @@ const getTransactionIcon = (type: TransactionType) => {
       return <ArrowDownLeft className="h-4 w-4 text-red-500" />;
     case "reward":
       return <Coins className="h-4 w-4 text-yellow-500" />;
-    //  Lending transaction icons
+    // Lending transaction icons
     case "loan_created":
       return <CreditCard className="h-4 w-4 text-blue-500" />;
     case "loan_payment":
@@ -64,7 +63,6 @@ const getTransactionIcon = (type: TransactionType) => {
   }
 };
 
-// Enhanced transaction type display names
 const getTransactionTypeDisplay = (type: TransactionType) => {
   switch (type) {
     case "loan_created":
@@ -82,9 +80,8 @@ const getTransactionTypeDisplay = (type: TransactionType) => {
   }
 };
 
-// Enhanced transaction category for grouping
 const getTransactionCategory = (type: TransactionType) => {
-  if (type.startsWith("loan_")) return "lending";
+  if (!Flags.DISABLE_LENDING && type.startsWith("loan_")) return "lending";
   if (["stake", "unstake"].includes(type)) return "staking";
   if (["deposit", "withdraw"].includes(type)) return "portfolio";
   if (type === "reward") return "earnings";
@@ -130,15 +127,14 @@ const getExplorerUrl = (chain: string, txHash: string) => {
 };
 
 export function TransactionHistory() {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
 
-  // Updated to use the new dashboard hook
   const { transactions } = useDashboardContext();
 
-  // Sort transactions by timestamp (newest first)
   const sortedTransactions = [...transactions].sort(
     (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
   );
@@ -148,10 +144,9 @@ export function TransactionHistory() {
       tx.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (tx.txHash || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
       tx.asset.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      //  Search by loan ID for lending transactions
-      ("loanId" in tx &&
+      // Search by loan ID for lending transactions
+      (!Flags.DISABLE_LENDING &&
         tx.loanId?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      //  Search by transaction details
       (tx.details &&
         tx.details.toLowerCase().includes(searchTerm.toLowerCase()));
 
@@ -175,18 +170,18 @@ export function TransactionHistory() {
       "Status",
       "Transaction Hash",
       "Timestamp",
-      "Loan ID", //  Include loan ID
-      "Interest Rate", //  Include interest rate
-      "Details", //  Include transaction details
+      ...(!Flags.DISABLE_LENDING ? ["Loan ID", "Interest Rate"] : []),
+      "Details",
     ];
 
     const csvContent = [
       csvHeaders.join(","),
       ...filteredTransactions.map((tx) => {
-        const loanId = "loanId" in tx ? tx.loanId || "" : "";
-        const interestRate = "interestRate" in tx ? tx.interestRate || "" : "";
+        const loanId = !Flags.DISABLE_LENDING ? (tx.loanId ?? "") : undefined;
+        const interestRate = !Flags.DISABLE_LENDING
+          ? (tx.interestRate ?? "")
+          : undefined;
         const details = tx.details ? `"${tx.details.replace(/"/g, '""')}"` : "";
-
         return [
           tx.id,
           tx.type,
@@ -197,8 +192,8 @@ export function TransactionHistory() {
           tx.status,
           tx.txHash || "",
           tx.timestamp,
-          loanId,
-          interestRate,
+          ...(loanId !== undefined ? [loanId] : []),
+          ...(interestRate !== undefined ? [interestRate] : []),
           details,
         ].join(",");
       }),
@@ -217,7 +212,6 @@ export function TransactionHistory() {
     window.URL.revokeObjectURL(url);
   };
 
-  //  Calculate category statistics
   const categoryStats = {
     staking: transactions.filter(
       (tx) =>
@@ -243,7 +237,7 @@ export function TransactionHistory() {
 
   return (
     <div className="space-y-6">
-      {/* Enhanced Filters */}
+      {/* Filters */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
@@ -261,14 +255,13 @@ export function TransactionHistory() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search by transaction ID, hash, loan ID, or details..."
+                placeholder={`Search by transaction ID, hash,${!Flags.DISABLE_LENDING ? " loan ID," : ""} or details...`}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
             </div>
 
-            {/*  Category filter */}
             <Select value={filterCategory} onValueChange={setFilterCategory}>
               <SelectTrigger className="w-full sm:w-[180px]">
                 <SelectValue placeholder="Filter by category" />
@@ -277,12 +270,13 @@ export function TransactionHistory() {
                 <SelectItem value="all">All Categories</SelectItem>
                 <SelectItem value="portfolio">Portfolio</SelectItem>
                 <SelectItem value="staking">Staking</SelectItem>
-                <SelectItem value="lending">Lending</SelectItem>
+                {!Flags.DISABLE_LENDING && (
+                  <SelectItem value="lending">Lending</SelectItem>
+                )}
                 <SelectItem value="earnings">Earnings</SelectItem>
               </SelectContent>
             </Select>
 
-            {/* Enhanced type filter with lending types */}
             <Select value={filterType} onValueChange={setFilterType}>
               <SelectTrigger className="w-full sm:w-[180px]">
                 <SelectValue placeholder="Filter by type" />
@@ -294,11 +288,17 @@ export function TransactionHistory() {
                 <SelectItem value="stake">Stake</SelectItem>
                 <SelectItem value="unstake">Unstake</SelectItem>
                 <SelectItem value="reward">Reward</SelectItem>
-                <SelectItem value="loan_created">Loan Created</SelectItem>
-                <SelectItem value="loan_payment">Loan Payment</SelectItem>
-                <SelectItem value="loan_extended">Loan Extended</SelectItem>
-                <SelectItem value="loan_refinanced">Loan Refinanced</SelectItem>
-                <SelectItem value="loan_closed">Loan Closed</SelectItem>
+                {!Flags.DISABLE_LENDING && (
+                  <>
+                    <SelectItem value="loan_created">Loan Created</SelectItem>
+                    <SelectItem value="loan_payment">Loan Payment</SelectItem>
+                    <SelectItem value="loan_extended">Loan Extended</SelectItem>
+                    <SelectItem value="loan_refinanced">
+                      Loan Refinanced
+                    </SelectItem>
+                    <SelectItem value="loan_closed">Loan Closed</SelectItem>
+                  </>
+                )}
               </SelectContent>
             </Select>
 
@@ -325,8 +325,10 @@ export function TransactionHistory() {
             </Button>
           </div>
 
-          {/* Enhanced Summary Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
+          {/* Summary Stats */}
+          <div
+            className={`grid grid-cols-2 ${!Flags.DISABLE_LENDING ? "lg:grid-cols-6" : "lg:grid-cols-5"} gap-4 mb-6`}
+          >
             {/* Status Stats */}
             <div className="p-4 bg-green-800/20 border border-green-200/90 rounded-lg">
               <div className="text-sm text-green-600">Completed</div>
@@ -341,19 +343,21 @@ export function TransactionHistory() {
               </div>
             </div>
 
-            {/*  Category Stats */}
+            {/* Category Stats */}
             <div className="p-4 bg-blue-800/20 border border-blue-200/90 rounded-lg">
               <div className="text-sm text-blue-600">Staking</div>
               <div className="text-lg font-bold text-blue-800">
                 {categoryStats.staking}
               </div>
             </div>
-            <div className="p-4 bg-purple-800/20 border border-purple-200/90 rounded-lg">
-              <div className="text-sm text-purple-600">Lending</div>
-              <div className="text-lg font-bold text-purple-800">
-                {categoryStats.lending}
+            {!Flags.DISABLE_LENDING && (
+              <div className="p-4 bg-purple-800/20 border border-purple-200/90 rounded-lg">
+                <div className="text-sm text-purple-600">Lending</div>
+                <div className="text-lg font-bold text-purple-800">
+                  {categoryStats.lending}
+                </div>
               </div>
-            </div>
+            )}
             <div className="p-4 bg-orange-800/20 border border-orange-200/90 rounded-lg">
               <div className="text-sm text-orange-600">Portfolio</div>
               <div className="text-lg font-bold text-orange-800">
@@ -372,7 +376,7 @@ export function TransactionHistory() {
             </div>
           </div>
 
-          {/* Enhanced Transaction List */}
+          {/* Transaction List */}
           <div className="space-y-4">
             {filteredTransactions.map((transaction) => (
               <div
@@ -407,14 +411,14 @@ export function TransactionHistory() {
                       {getStatusBadge(transaction.status)}
                     </div>
 
-                    {/*  Enhanced transaction details */}
+                    {/* Transaction details */}
                     <div className="text-sm text-muted-foreground space-y-1">
                       <div>
                         {new Date(transaction.timestamp).toLocaleString()}
                       </div>
 
-                      {/*  Show loan ID for lending transactions */}
-                      {"loanId" in transaction && transaction.loanId && (
+                      {/* Show loan ID for lending transactions */}
+                      {!Flags.DISABLE_LENDING && transaction.loanId && (
                         <div className="flex items-center gap-2">
                           <CreditCard className="h-3 w-3" />
                           <span className="font-mono text-xs">
@@ -423,30 +427,28 @@ export function TransactionHistory() {
                         </div>
                       )}
 
-                      {/*  Show interest rate for loan creation */}
-                      {"interestRate" in transaction &&
-                        transaction.interestRate && (
-                          <div className="flex items-center gap-2">
-                            <TrendingUp className="h-3 w-3" />
-                            <span className="text-xs">
-                              {transaction.interestRate}% APR
-                            </span>
-                          </div>
-                        )}
+                      {/* Show interest rate for loan creation */}
+                      {!Flags.DISABLE_LENDING && transaction.interestRate && (
+                        <div className="flex items-center gap-2">
+                          <TrendingUp className="h-3 w-3" />
+                          <span className="text-xs">
+                            {transaction.interestRate}% APR
+                          </span>
+                        </div>
+                      )}
 
-                      {/*  Show collateral for collateral loans */}
-                      {"collateral" in transaction &&
-                        transaction.collateral && (
-                          <div className="flex items-center gap-2">
-                            <Coins className="h-3 w-3" />
-                            <span className="text-xs">
-                              Collateral: {transaction.collateral.amount}{" "}
-                              {transaction.collateral.asset}
-                            </span>
-                          </div>
-                        )}
+                      {/* Show collateral for collateral loans */}
+                      {!Flags.DISABLE_LENDING && transaction.collateral && (
+                        <div className="flex items-center gap-2">
+                          <Coins className="h-3 w-3" />
+                          <span className="text-xs">
+                            Collateral: {transaction.collateral.amount}{" "}
+                            {transaction.collateral.asset}
+                          </span>
+                        </div>
+                      )}
 
-                      {/*  Show transaction details */}
+                      {/* Show transaction details */}
                       {transaction.details && (
                         <div className="text-xs text-muted-foreground max-w-md truncate">
                           {transaction.details}
@@ -479,10 +481,11 @@ export function TransactionHistory() {
                   </div>
                 </div>
 
-                {/* Enhanced transaction amount display */}
+                {/* Transaction amount display */}
                 <div className="text-right">
                   <div className="font-medium">
-                    {transaction.type === "loan_extended" &&
+                    {!Flags.DISABLE_LENDING &&
+                    transaction.type === "loan_extended" &&
                     transaction.amount === 0 ? (
                       <span className="text-muted-foreground">Extension</span>
                     ) : (
@@ -507,7 +510,7 @@ export function TransactionHistory() {
             ))}
           </div>
 
-          {/* Enhanced empty state */}
+          {/* Empty state */}
           {filteredTransactions.length === 0 && (
             <div className="text-center py-12">
               <div className="text-muted-foreground mb-4">
@@ -519,20 +522,10 @@ export function TransactionHistory() {
                 <div className="flex gap-2 justify-center">
                   <Button
                     variant="outline"
-                    onClick={() =>
-                      (window.location.href = "/dashboard?tab=stake")
-                    }
+                    onClick={() => router.push("/dashboard?tab=stake")}
                   >
                     Make your first deposit
                   </Button>
-                  {/*<Button
-                    variant="outline"
-                    onClick={() =>
-                      (window.location.href = "/dashboard?tab=lending")
-                    }
-                  >
-                    Create a loan
-                  </Button>*/}
                 </div>
               )}
             </div>
