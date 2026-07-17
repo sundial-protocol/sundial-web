@@ -47,8 +47,8 @@ const clientIp = (request: NextRequest): string => {
   return request.headers.get("x-real-ip")?.trim() || "unknown";
 };
 
-// Hash the IP so the faucet only ever stores an opaque identifier. A configurable
-// salt keeps the hash non-reversible across a rainbow table of IPs.
+// Hash the IP so the faucet only ever stores an opaque identifier.
+// Set `FAUCET_IP_HASH_SALT` to avoid the hash being precomputable from public IP ranges.
 const hashIp = (ip: string): string => {
   const salt = process.env.FAUCET_IP_HASH_SALT ?? "";
   return createHash("sha256").update(`${salt}:${ip}`).digest("hex");

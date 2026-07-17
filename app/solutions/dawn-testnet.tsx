@@ -95,7 +95,7 @@ export default function DawnTestnet() {
 
               {!Flags.DISABLE_TESTNET ? (
                 <p className="mt-4 text-sm text-foreground/70">
-                  Need L2 testnet ADA?{" "}
+                  Need L2 testnet sBTC?{" "}
                   <Link
                     href="/testnet/faucet"
                     className="text-primary underline-offset-4 hover:underline"
