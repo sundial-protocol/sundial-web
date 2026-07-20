@@ -118,7 +118,7 @@ export async function GET(): Promise<NextResponse<BtcPriceResponse>> {
   }
 }
 
-export async function getBitcoinPrice(): Promise<number | null> {
+async function getBitcoinPrice(): Promise<number | null> {
   const apiKey = process.env.CMC_API_KEY;
   if (!apiKey) {
     throw new Error("CMC_API_KEY is not set in environment variables.");

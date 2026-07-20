@@ -16,9 +16,7 @@ import {
 } from "lucide-react";
 import AlchemyLogoStrip from "./alchemy-logo-strip";
 import InteractiveGradientBackground from "@/components/ui/interactive-gradient-bg";
-
-export const PROPOSAL_LINK =
-  "https://gov.tools/governance_actions/0f75dd11be0b7a6cb4b305a175b17cf4b60cd307c052fccabf9f572950e70583#0";
+import { PROPOSAL_LINK } from "./constants";
 
 const subpages = [
   {

@@ -10,7 +10,7 @@ import {
   MailIcon,
 } from "lucide-react";
 import { Section } from "@/components/ui/section";
-import { PROPOSAL_LINK } from "../alchemy/page";
+import { PROPOSAL_LINK } from "../alchemy/constants";
 
 const highlights = [
   {

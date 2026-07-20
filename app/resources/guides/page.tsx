@@ -9,7 +9,8 @@ type GuideLinkProps = {
   description: string;
 };
 
-export function GuideLink(props: GuideLinkProps) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for the commented-out page content below
+function GuideLink(props: GuideLinkProps) {
   const { href, title, description } = props;
   return (
     <Card>

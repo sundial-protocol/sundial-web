@@ -6,17 +6,18 @@ import { Psbt } from "bitcoinjs-lib";
  *
  * Format: <varint:num_items> [<varint:item_length> <item_data>]...
  */
-function witnessStackToScriptWitness(witness: Buffer[]): Buffer {
+function witnessStackToScriptWitness(witness: readonly Uint8Array[]): Buffer {
   const parts: Buffer[] = [];
 
   // Number of witness stack items (compact size uint)
   parts.push(encodeVarInt(witness.length));
 
   for (const item of witness) {
+    const data = Buffer.from(item);
     // Item length (compact size uint)
-    parts.push(encodeVarInt(item.length));
+    parts.push(encodeVarInt(data.length));
     // Item data
-    parts.push(item);
+    parts.push(data);
   }
 
   return Buffer.concat(parts);
@@ -125,10 +126,11 @@ function _finalizePsbtSafe(psbt: Psbt): boolean {
           firstSig.signature,
           firstSig.pubkey,
         ]);
-        const redeemScriptLen = input.redeemScript.length;
+        const redeemScript = Buffer.from(input.redeemScript);
+        const redeemScriptLen = redeemScript.length;
         const scriptSig = Buffer.allocUnsafe(1 + redeemScriptLen);
         scriptSig.writeUInt8(redeemScriptLen, 0);
-        input.redeemScript.copy(scriptSig, 1);
+        redeemScript.copy(scriptSig, 1);
         input.finalScriptSig = scriptSig;
         delete input.partialSig;
         delete input.bip32Derivation;
