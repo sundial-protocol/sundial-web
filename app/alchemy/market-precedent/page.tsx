@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, ExternalLink, TrendingUp } from "lucide-react";
+import { ArrowLeft, TrendingUp } from "lucide-react";
 import InteractiveGradientBackground from "@/components/ui/interactive-gradient-bg";
 import { AlchemyTable } from "@/components/ui/alchemy-table";
 
@@ -25,7 +25,7 @@ const precedents = [
       { label: "On-chain", value: "Partial (via Ondo/Pendle)" },
     ],
     relevance:
-      "Alchemy's ICE directly mirrors the senior-claim structure of STRC - a lower-volatility, priority-return vehicle backed by a BTC reserve - but built natively on-chain with deterministic reserve mechanics and Cardano DeFi interoperability.",
+      "Alchemy's ICE directly mirrors the senior-claim structure of STRC - a lower-volatility, priority-return vehicle backed by a BTC reserve - but built natively on-chain with deterministic reserve mechanics and DeFi interoperability.",
   },
   {
     id: "pendle",
@@ -56,21 +56,21 @@ const precedents = [
     accentColor: "text-primary",
     badgeColor:
       "border-primary/30 bg-background/80 text-primary backdrop-blur-sm",
-    label: "Cardano Reserve System",
+    label: "Algorithmic Reserve System",
     name: "Djed",
-    tagline: "Algorithmic reserve-backed stablecoin on Cardano",
+    tagline: "Algorithmic reserve-backed stablecoin",
     body: [
-      "Djed launched on Cardano with reserve ratios exceeding 400% and attracted over 27 million ADA in reserve backing within its first day. It surpassed $10M TVL in the first 24 hours - demonstrating that Cardano users will adopt visibly overcollateralized reserve systems and that the reserve-ratio model is legible and trusted by the Cardano community.",
-      "Djed's architecture uses a seigniorage-style reserve with two complementary tokens: DJED (the stable senior claim) and SHEN (the reserve-equity token that absorbs volatility and captures upside). This dual-token reserve structure is the closest existing Cardano precedent to Alchemy's FIRE/ICE model.",
+      "Djed launched with reserve ratios exceeding 400% and surpassed $10M TVL in its first 24 hours - demonstrating that users will adopt visibly overcollateralized reserve systems and that the reserve-ratio model is legible and trusted.",
+      "Djed's architecture uses a seigniorage-style reserve with two complementary tokens: DJED (the stable senior claim) and SHEN (the reserve-equity token that absorbs volatility and captures upside). This dual-token reserve structure is the closest existing precedent to Alchemy's FIRE/ICE model.",
     ],
     stats: [
       { label: "Structure", value: "Dual-token reserve (DJED + SHEN)" },
-      { label: "Chain", value: "Cardano (native)" },
-      { label: "BTC-linked", value: "No - ADA-backed" },
-      { label: "On-chain", value: "Yes - Cardano-native" },
+      { label: "Chain", value: "On-chain (native)" },
+      { label: "BTC-linked", value: "No - crypto-backed" },
+      { label: "On-chain", value: "Yes - native" },
     ],
     relevance:
-      "Djed is the strongest Cardano-specific proof point: users here already understand and adopt dual-token reserve systems. Alchemy replaces ADA with BTC as the reserve asset and substitutes FIRE/ICE for SHEN/DJED - bringing Bitcoin-native capital into the same proven reserve-ratio framework.",
+      "Djed is a strong proof point: users already understand and adopt dual-token reserve systems. Alchemy uses BTC as the reserve asset and substitutes FIRE/ICE for SHEN/DJED - bringing Bitcoin-native capital into the same proven reserve-ratio framework.",
   },
 ];
 
@@ -106,7 +106,7 @@ const comparison = [
   },
   {
     product: "Djed / SHEN",
-    network: "Cardano",
+    network: "eUTXO",
     structure: "Reserve dual-token",
     btcLinked: "No",
     onChain: "Yes",
@@ -130,7 +130,7 @@ const comparison = [
   },
   {
     product: "Alchemy FIRE/ICE",
-    network: "Bitcoin & Cardano",
+    network: "Bitcoin",
     structure: "BTC reserve senior/junior",
     btcLinked: "Yes",
     onChain: "Yes",
@@ -165,8 +165,8 @@ export default function MarketPrecedentPage() {
           <p className="text-lg text-foreground/85 max-w-2xl leading-relaxed">
             Alchemy does not need to prove that BTC-backed structured products
             can work. Public-market and DeFi precedents already confirm the
-            demand. The proposal brings that proven product logic into
-            transparent, on-chain, Cardano-native infrastructure.
+            demand. Alchemy brings that proven product logic into transparent,
+            on-chain infrastructure.
           </p>
         </div>
 
@@ -300,19 +300,18 @@ export default function MarketPrecedentPage() {
             <p className="text-sm text-foreground/90 leading-relaxed">
               Alchemy combines all the right properties in one system: a
               transparent BTC reserve, a senior/junior split that markets
-              understand, Cardano-native composability for wallets and DEXs, and
+              understand, native composability for wallets and DEXs, and
               always-on public reporting. FIRE and ICE are not analogies to
-              these products - they are the on-chain, auditable, Cardano-native
-              version of a product category that public markets have already
-              validated.
+              these products - they are the on-chain, auditable version of a
+              product category that public markets have already validated.
             </p>
           </div>
           <Link
-            href="https://medium.com/@SundialProtocol/sundial-x-charms-proposal-building-the-first-bitcoin-treasury-protocol-for-cardano-e437c964c3b6"
+            href="/alchemy/visualizer"
             className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-2.5 text-sm font-medium text-background hover:bg-foreground/80 transition-colors"
           >
-            <ExternalLink className="h-4 w-4" />
-            Read the Full Proposal
+            <TrendingUp className="h-4 w-4" />
+            Try the Visualizer
           </Link>
         </div>
       </div>

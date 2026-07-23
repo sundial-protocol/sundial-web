@@ -2,15 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import {
-  Flame,
-  Snowflake,
-  Shield,
-  ExternalLinkIcon,
-  MailIcon,
-} from "lucide-react";
+import { Flame, Snowflake, Shield, MailIcon } from "lucide-react";
 import { Section } from "@/components/ui/section";
-import { PROPOSAL_LINK } from "../alchemy/page";
 
 const highlights = [
   {
@@ -58,7 +51,7 @@ export default function AlchemyWidget() {
           <div className="mx-auto max-w-2xl text-center lg:mx-0 lg:text-left">
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
               <span className="h-2 w-2 rounded-full bg-primary" />
-              Cardano Treasury Proposal
+              Bitcoin Reserve Infrastructure
             </div>
             <div className="mt-6 space-y-4">
               <p className="text-sm font-semibold uppercase tracking-[0.3em] text-foreground/60">
@@ -81,9 +74,9 @@ export default function AlchemyWidget() {
                 className="block dark:hidden h-auto w-full object-contain"
               />
               <p className="mx-auto max-w-xl text-base text-foreground/80 md:text-xl lg:mx-0">
-                BTC-backed reserve assets for Cardano. FIRE and ICE - a
-                senior/junior split of a shared Bitcoin vault - built natively
-                on Cardano & Bitcoin with the Charms protocol.
+                BTC-backed reserve assets. FIRE and ICE - a senior/junior split
+                of a shared Bitcoin vault - built natively on Bitcoin with the
+                Charms protocol.
               </p>
             </div>
 
@@ -93,15 +86,6 @@ export default function AlchemyWidget() {
                 className="inline-flex h-12 items-center justify-center rounded-full bg-foreground px-8 text-base font-medium text-background text-center whitespace-nowrap hover:bg-foreground/80 transition-colors"
               >
                 Learn More
-              </Link>
-              <Link
-                href={PROPOSAL_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex h-12 items-center justify-center rounded-full border border-foreground/20 bg-white/5 px-8 text-base font-medium text-foreground text-center whitespace-nowrap hover:bg-white/10 transition-colors"
-              >
-                Read Proposal
-                <ExternalLinkIcon className="h-4 w-4 ml-2" />
               </Link>
             </div>
           </div>

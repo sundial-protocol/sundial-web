@@ -21,7 +21,7 @@ const pillars = [
     title: "eUTXO Architecture",
     colorClasses: "border-sky-500/30 bg-sky-500/25",
     accentClass: "text-sky-400",
-    body: "Charms builds directly on Cardano's pioneering extended UTXO model. Each transaction output can carry multiple assets and arbitrary programmable data. Charms are entries in an app → data mapping attached to a UTXO - you can have as many charms per output as you need, and they travel with Bitcoin-level ownership guarantees.",
+    body: "Charms builds directly on the extended UTXO (eUTXO) model. Each transaction output can carry multiple assets and arbitrary programmable data. Charms are entries in an app → data mapping attached to a UTXO - you can have as many charms per output as you need, and they travel with Bitcoin-level ownership guarantees.",
   },
   {
     label: "02",
@@ -37,7 +37,7 @@ const pillars = [
     title: "zkVM Technology",
     colorClasses: "border-purple-500/30 bg-purple-500/25",
     accentClass: "text-purple-400",
-    body: "Charms app contracts are Rust functions compiled to a zero-knowledge virtual machine. Each spell carries a Groth16 ZK proof attesting to its correctness - that the app contract logic was satisfied. The proof is compact and verifiable by anyone, including on-chain validators on Cardano, without re-executing the logic.",
+    body: "Charms app contracts are Rust functions compiled to a zero-knowledge virtual machine. Each spell carries a Groth16 ZK proof attesting to its correctness - that the app contract logic was satisfied. The proof is compact and verifiable by anyone, including on-chain validators on UTXO ledgers, without re-executing the logic.",
   },
 ];
 
@@ -59,18 +59,18 @@ const stack = [
     color: "text-purple-400",
   },
   {
-    layer: "Charms-Cardano",
+    layer: "Charms Validators",
     role: "On-chain verification",
     detail:
-      "Aiken validators deployed on Cardano verify ZK proofs trustlessly via the Groth16 validator. A main routing contract delegates to versioned validators, with beacon tokens for on-chain discoverability.",
+      "Smart-contract validators deployed on any UTXO ledger verify ZK proofs trustlessly via the Groth16 validator. A main routing contract delegates to versioned validators, with beacon tokens for on-chain discoverability.",
     icon: Shield,
     color: "text-sky-400",
   },
   {
-    layer: "Cardano Native Tokens",
+    layer: "Native Ledger Tokens",
     role: "FIRE and ICE token lifecycle",
     detail:
-      "FIRE and ICE live as CNTs (Cardano Native Tokens) on Cardano, making them compatible with every Cardano wallet, DEX, and application without bridging or wrapping.",
+      "FIRE and ICE live as native tokens on the UTXO ledger, making them compatible with every wallet, DEX, and application on that ledger without bridging or wrapping.",
     icon: Layers,
     color: "text-green-400",
   },
@@ -80,7 +80,7 @@ const alchemySteps = [
   {
     step: "1",
     title: "FIRE and ICE as Charms Tokens",
-    body: "FIRE (BTC+) and ICE (BTC\u2212) are implemented as Charms tokens, derived from Bitcoin-native app contracts. Once beamed to Cardano, they are standard Cardano Native Tokens, compatible with every Cardano wallet and DEX from day one.",
+    body: "FIRE (BTC+) and ICE (BTC\u2212) are implemented as Charms tokens, derived from Bitcoin-native app contracts. Once beamed to the target UTXO ledger, they are standard native tokens, compatible with every wallet and DEX on that ledger from day one.",
     colorClasses: "border-orange-500/30 bg-orange-500/25",
     accentClass: "text-orange-400",
   },
@@ -94,14 +94,14 @@ const alchemySteps = [
   {
     step: "3",
     title: "ZK Proof as On-Chain Enforcement",
-    body: "When a user wants to mint or redeem, the Charms prover generates a Groth16 proof off-chain that all reserve constraints were satisfied. This proof is embedded in the transaction spell. Cardano's Charms-Cardano Groth16 validator verifies the proof on-chain before allowing the CNTs to be minted or burned.",
+    body: "When a user wants to mint or redeem, the Charms prover generates a Groth16 proof off-chain that all reserve constraints were satisfied. This proof is embedded in the transaction spell. The UTXO ledger's Groth16 validator verifies the proof on-chain before allowing the tokens to be minted or burned.",
     colorClasses: "border-purple-500/30 bg-purple-500/25",
     accentClass: "text-purple-400",
   },
   {
     step: "4",
-    title: "Cardano-Native, No Bridges",
-    body: 'FIRE and ICE are created on Cardano as CNTs through the Charms beaming mechanism. The BTC stays on Bitcoin; the token logic runs on Cardano. This is "chain agnostic" in the Charms sense, and it\'s purely user-run software.',
+    title: "Cross-Chain by Default",
+    body: 'FIRE and ICE are created onchain as native tokens through the Charms beaming mechanism. The BTC stays on Bitcoin; the token logic runs on any UTXO ledger. This is "chain agnostic" in the Charms sense, and it\'s purely user-run software.',
     colorClasses: "border-sky-500/30 bg-sky-500/25",
     accentClass: "text-sky-400",
   },
@@ -132,9 +132,10 @@ export default function TechnicalImplementationPage() {
           </h1>
           <p className="text-lg text-foreground/85 max-w-2xl leading-relaxed">
             FIRE and ICE are implemented using the Charms protocol - a
-            zkVM-based programmable asset system built on Bitcoin and Cardano.
-            This page explains what Charms is, how it works, and exactly how
-            Alchemy uses it to enforce reserve mechanics on-chain.
+            zkVM-based programmable asset system built on Bitcoin and portable
+            to all UTXO ledgers. This page explains what Charms is, how it
+            works, and exactly how Alchemy uses it to enforce reserve mechanics
+            on-chain.
           </p>
         </div>
 
@@ -161,11 +162,11 @@ export default function TechnicalImplementationPage() {
               the same UTXO, creating composable strings of programmable state.
             </p>
             <p className="text-foreground/80 leading-relaxed">
-              Charms is inspired by Ordinals and Runes but goes further: it adds
-              full programmability via ZK-provable app contracts written in
+              Charms is inspired by OErdinals and Runes but goes further: it
+              adds full programmability via ZK-provable app contracts written in
               mainstream languages (Rust), and it deploys those assets natively
-              on other chains - including Cardano - under their standard token
-              formats (CNTs, ERC-20, SPL) without any bridging infrastructure.
+              on other chains under their standard token formats (CNTs, ERC-20,
+              SPL) without any bridging infrastructure.
             </p>
           </div>
 
@@ -174,7 +175,7 @@ export default function TechnicalImplementationPage() {
             {[
               { label: "Backed by", value: "Draper Associates" },
               { label: "Live product", value: "eBTC Bridge" },
-              { label: "Ecosystems", value: "Bitcoin, Cardano" },
+              { label: "Ecosystems", value: "Bitcoin, UTXO ledgers" },
               { label: "Wallet users", value: "3,000+" },
             ].map((s) => (
               <div
@@ -337,10 +338,10 @@ app_public_inputs:
           </p>
         </div>
 
-        {/* Charms-Cardano */}
+        {/* Charms on UTXO ledgers */}
         <div className="mb-14">
           <h2 className="text-2xl font-bold tracking-tight mb-2">
-            Charms on Cardano
+            Charms on other UTXO Ledgers
           </h2>
           <p className="text-foreground/75 text-sm mb-6">
             The{" "}
