@@ -29,6 +29,13 @@ next-env.d.ts
 
 # ai
 /prompts
+
+# playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
 .hermes
 
 # audit

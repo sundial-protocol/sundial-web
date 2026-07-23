@@ -92,6 +92,18 @@ export default function DawnTestnet() {
                   Live preview of the Bitcoin yield experience
                 </p>
               </div>
+
+              {!Flags.DISABLE_TESTNET ? (
+                <p className="mt-4 text-sm text-foreground/70">
+                  Need L2 testnet sBTC?{" "}
+                  <Link
+                    href="/testnet/faucet"
+                    className="text-primary underline-offset-4 hover:underline"
+                  >
+                    Use the faucet.
+                  </Link>
+                </p>
+              ) : null}
             </div>
 
             <div className="grid max-w-[520px] gap-3 mt-8 justify-self-center lg:mt-20 lg:justify-self-end">

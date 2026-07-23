@@ -85,27 +85,42 @@ export async function connect(
   try {
     const api = await getWalletApi(wallet);
     const networkId = await api.getNetworkId();
-    await updateProvider(lucid, networkId, setters);
-
     lucid.selectWallet(api);
 
-    api.getChangeAddress();
+    const usedAddresses = await api.getUsedAddresses();
+    const changeAddress = await getChangeAddress(api);
+    const defaultAddress = usedAddresses[0] || changeAddress;
+
+    if (!changeAddress) {
+      throw new Error("Wallet did not return a usable change address.");
+    }
 
     setters.setApi(api);
     setters.setNetwork(networkId === 1 ? "Mainnet" : "Preprod");
     setters.setEnabled(true);
     setters.setConnected(true);
     setters.setLastSelectedWallet(wallet);
-    setters.setDefaultAddress(
-      await api.getUsedAddresses().then((addrs) => addrs[0] || ""),
-    );
-    setters.setChangeAddress(await getChangeAddress(api));
-    setters.setStakeAddress(await getStakeAddress(api));
-    setters.setAccountBalance(await getBalanceAda(api));
-    setters.setConnecting(false);
+    setters.setDefaultAddress(defaultAddress);
+    setters.setChangeAddress(changeAddress);
+    setters.setStakeAddress("");
+    setters.setAccountBalance(0);
+
+    try {
+      await updateProvider(lucid, networkId, setters);
+      setters.setStakeAddress(await getStakeAddress(api));
+      setters.setAccountBalance(await getBalanceAda(api));
+    } catch {
+      setters.setStakeAddress("");
+      setters.setAccountBalance(0);
+
+      if (!suppressErrors) {
+        toast.info(
+          "Wallet connected, but network metadata or balance could not be loaded."
+        );
+      }
+    }
   } catch (error) {
     setters.setEnabled(false);
-    setters.setConnecting(false);
     setters.setConnected(false);
     setters.setSelectedWallet("");
     setters.setLastSelectedWallet("");
@@ -119,6 +134,8 @@ export async function connect(
       );
       throw apiError("ApiError", error);
     }
+  } finally {
+    setters.setConnecting(false);
   }
 }
 
