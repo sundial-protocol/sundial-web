@@ -3,12 +3,10 @@ import { Section } from "@/components/ui/section";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  BookOpen,
   Code2,
   Cpu,
   TrendingUp,
   MessageCircleQuestion,
-  Vote,
   ArrowRight,
   ExternalLink,
   Flame,
@@ -16,17 +14,8 @@ import {
 } from "lucide-react";
 import AlchemyLogoStrip from "./alchemy-logo-strip";
 import InteractiveGradientBackground from "@/components/ui/interactive-gradient-bg";
-import { PROPOSAL_LINK } from "./constants";
 
 const subpages = [
-  {
-    href: PROPOSAL_LINK,
-    icon: BookOpen,
-    title: "The Proposal",
-    description:
-      "Read the draft Cardano treasury proposal - funding structure, milestones, and accountability.",
-    color: "text-primary",
-  },
   {
     href: "/alchemy/visualizer",
     icon: Cpu,
@@ -52,19 +41,11 @@ const subpages = [
     color: "text-green-400",
   },
   {
-    href: "/alchemy/governance",
-    icon: Vote,
-    title: "Governance",
-    description:
-      "DRep resources, Cardano strategic case, milestone structure, and how to participate in the vote.",
-    color: "text-purple-400",
-  },
-  {
     href: "/alchemy/technical-implementation",
     icon: Code2,
     title: "Technical Implementation",
     description:
-      "How Charms' zkVM-based programmable asset protocol powers FIRE and ICE natively on Cardano.",
+      "How Charms' zkVM-based programmable asset protocol powers FIRE and ICE natively on-chain.",
     color: "text-cyan-400",
   },
 ];
@@ -77,7 +58,7 @@ export default function AlchemyPage() {
           <div className="flex flex-col items-center text-center gap-6 max-w-3xl mx-auto pt-36">
             <div className="inline-flex items-center gap-2 rounded-full border border-green-300/30 bg-background/40 backdrop-blur-sm px-4 py-1.5 text-sm font-medium text-foreground">
               <span className="h-2 w-2 rounded-full bg-green-300" />
-              Cardano Treasury Proposal
+              Bitcoin Reserve Infrastructure
             </div>
             <Image
               src="/alchemy/v2-gold.png"
@@ -96,20 +77,13 @@ export default function AlchemyPage() {
               className="block dark:hidden h-auto w-full sm:w-5/6 md:w-4/5 lg:w-3/4 object-contain"
             />
             <p className="text-lg md:text-xl text-foreground/90 max-w-2xl">
-              Bitcoin reserve infrastructure for Cardano. Two complementary
-              assets - FIRE and ICE - backed by a shared BTC reserve, built with
-              Charms.
+              Bitcoin reserve infrastructure. Two complementary assets - FIRE
+              and ICE - backed by a shared BTC reserve, built with Charms.
             </p>
             <div className="flex flex-col sm:flex-row items-center gap-3">
               <Link
-                href={PROPOSAL_LINK}
-                className="inline-flex h-12 items-center justify-center rounded-full bg-foreground px-8 text-base font-medium text-background hover:bg-foreground/80 transition-colors"
-              >
-                Read the Proposal
-              </Link>
-              <Link
                 href="/alchemy/visualizer"
-                className="inline-flex h-12 items-center justify-center rounded-full border border-foreground/25 bg-foreground/8 px-8 text-base font-medium text-foreground hover:bg-foreground/15 transition-colors"
+                className="inline-flex h-12 items-center justify-center rounded-full bg-foreground px-8 text-base font-medium text-background hover:bg-foreground/80 transition-colors"
               >
                 Try the Visualizer
               </Link>
@@ -210,35 +184,6 @@ export default function AlchemyPage() {
           </div>
         </Section>
 
-        {/* Stats strip */}
-        <Section className="max-w-5xl mx-auto px-4 w-full">
-          <div className="rounded-xl border border-foreground/15 bg-background/85 backdrop-blur-sm px-6 py-5">
-            <div className="grid grid-cols-3 text-center items-center">
-              <div>
-                <div className="text-3xl font-bold text-foreground">$2.0M</div>
-                <div className="text-xs text-foreground/70 mt-1 uppercase tracking-widest">
-                  Requested Funding
-                </div>
-              </div>
-              <div className="flex items-center justify-center">
-                <Image
-                  src="/alchemy/v2-badge.png"
-                  alt="Alchemy"
-                  width={160}
-                  height={160}
-                  className="h-auto w-16 object-contain"
-                />
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-foreground">9.3M</div>
-                <div className="text-xs text-foreground/70 mt-1 uppercase tracking-widest">
-                  ADA Equivalent
-                </div>
-              </div>
-            </div>
-          </div>
-        </Section>
-
         {/* Subpage navigation */}
         <Section className="max-w-5xl mx-auto px-4 w-full">
           <div className="mb-8">
@@ -249,7 +194,7 @@ export default function AlchemyPage() {
               Learn More About Alchemy
             </h2>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid sm:grid-cols-2 gap-4">
             {subpages.map((page) => {
               const Icon = page.icon;
               return (

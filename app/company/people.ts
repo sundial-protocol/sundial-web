@@ -10,7 +10,7 @@ const CoreTeamMembers: TeamMemberType[] = [
     role: "CEO",
     image: "/team/sheldon.jpg",
     link: "https://x.com/_MrHunt_",
-    description: "Ex-Head of Cardano Ecosystem",
+    description: "Ex-Head of Ecosystem at Emurgo",
     bio: `Sheldon Hunt is the Founder and CEO of Sundial Protocol, former Head of Ecosystem at Emurgo and Canadian diplomat. He brings years of experience in blockchain infrastructure and ecosystem growth, having worked across UTXO-based chains and led initiatives that combine decentralised finance with cross-chain innovation.`,
   },
   {

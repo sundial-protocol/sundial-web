@@ -11,7 +11,7 @@ const faqGroups: { title: string; items: FAQItem[] }[] = [
     items: [
       {
         q: "What is Alchemy?",
-        a: "Alchemy is a Cardano-native Bitcoin treasury and liquidity system. It creates two reserve-backed assets - FIRE (BTC+) and ICE (BTC−) - from a shared Bitcoin reserve using the Charms protocol and Sundial's BTC platform. The system is being proposed for Cardano treasury funding to launch initial liquidity.",
+        a: "Alchemy is a Bitcoin treasury and liquidity system. It creates two reserve-backed assets - FIRE (BTC+) and ICE (BTC−) - from a shared Bitcoin reserve using the Charms protocol and Sundial's BTC platform.",
       },
       {
         q: "What is FIRE (BTC+)?",
@@ -105,19 +105,11 @@ const faqGroups: { title: string; items: FAQItem[] }[] = [
     ],
   },
   {
-    title: "Governance & Risk",
+    title: "Risk",
     items: [
       {
-        q: "How is the Cardano treasury's money protected?",
-        a: "Launch liquidity is deployed in three tranches: $250K after audit and launch-readiness review; $250K after public reporting, operational review, and a 30-day grace period; and $500K after mint/redeem thresholds, reserve ratio tracking, growth monitoring, and dashboard performance are confirmed. The $1M liquidity pool is separately tracked from the $1M delivery budget. We're in discussions with third-party administrators to provide additional oversight and reporting.",
-      },
-      {
-        q: "What happens when Alchemy's TVL reaches $60M?",
-        a: "Sundial will submit a formal governance proposal, allowing DReps and the Constitutional Committee to vote on whether to return the full $1.0M principal to the Treasury ADA wallet. If approved, Sundial converts all funds back to ADA via Cardano-native DEXs at prevailing rates.",
-      },
-      {
-        q: "Is this a risk-free investment for Cardano?",
-        a: "No. Treasury-supported liquidity is deployed into a protocol exposed to BTC price risk, reserve health risk, oracle risk, bridge and locker risk, and DeFi liquidity risk. These risks are mitigated through staged deployment, audit gates, always-on public dashboards, reserve constraints, and monthly governance reporting - but they cannot be eliminated entirely.",
+        q: "Is Alchemy risk-free?",
+        a: "No. FIRE and ICE are exposed to BTC price risk, reserve health risk, oracle risk, bridge and locker risk, and DeFi liquidity risk. These risks are mitigated through audit gates, always-on public dashboards, reserve constraints, and regular reporting - but they cannot be eliminated entirely.",
       },
     ],
   },
@@ -148,7 +140,7 @@ export default function AlchemyFAQ() {
           </h1>
           <p className="text-lg text-foreground/90 leading-relaxed">
             Answers to common questions about FIRE, ICE, the reserve system,
-            risk, and the Cardano treasury proposal.
+            risk, and how it all works.
           </p>
         </div>
 
@@ -188,19 +180,13 @@ export default function AlchemyFAQ() {
               Still have questions?
             </p>
             <p className="text-sm text-foreground/85 mt-1">
-              Read the full proposal or try the interactive visualizer.
+              Explore the reserve mechanics or try the interactive visualizer.
             </p>
           </div>
           <div className="flex gap-3 shrink-0">
             <Link
-              href="/alchemy/proposal"
-              className="inline-flex h-9 items-center justify-center rounded-full bg-foreground px-5 text-sm font-medium text-background hover:bg-foreground/80 transition-colors"
-            >
-              Read Proposal
-            </Link>
-            <Link
               href="/alchemy/visualizer"
-              className="inline-flex h-9 items-center justify-center rounded-full border border-foreground/25 bg-foreground/8 px-5 text-sm font-medium text-foreground hover:bg-foreground/15 transition-colors"
+              className="inline-flex h-9 items-center justify-center rounded-full bg-foreground px-5 text-sm font-medium text-background hover:bg-foreground/80 transition-colors"
             >
               Visualizer
             </Link>
