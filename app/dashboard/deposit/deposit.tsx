@@ -9,6 +9,7 @@ import { usePrices } from "@/hooks/dashboard/prices";
 import { YieldOpportunityCard } from "@/components/yield-opportunity-card";
 import { useYieldOpportunities } from "@/hooks/dashboard/yield-opportunities";
 import { yieldFromProvider } from "@/hooks/dashboard/yield-opportunities";
+import { SolsticeVaultList } from "@/components/solstice/solstice-vault-list";
 
 export default function DepositTab() {
   const {
@@ -109,6 +110,13 @@ export default function DepositTab() {
             type="deposit"
           />
         </div>
+      </div>
+
+      <div className="mt-8">
+        <SolsticeVaultList
+          title="Solstice Vaults"
+          subtitle="Claim ratio & proof-of-reserves for BTC-native yield vaults"
+        />
       </div>
     </div>
   );

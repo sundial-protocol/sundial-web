@@ -20,6 +20,7 @@ import { Flags } from "@/lib/flags";
 import ContextProvider from "@/lib/wallet/bitcoin/context";
 import { Button } from "@/components/ui/button";
 import { MessageSquare } from "lucide-react";
+import { YieldCatalog } from "./yield-catalog";
 
 const TESTNET_FEEDBACK_FORM_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLScxils2djgjes3C4XSFM8UDiVs8KiTSgmdDqcvVYSAzQIJ5Yg/viewform?usp=header";
@@ -46,7 +47,7 @@ function DashboardContent() {
     { id: "stake", label: "Stake" },
     { id: "withdraw", label: "Withdraw" },
     { id: "lend", label: "Lend", disabled: true },
-    //{ id: "yield", label: "Yield", disabled: true },
+    { id: "yield", label: "Yield" },
     //{ id: "strategies", label: "Strategies", disabled: true },
     { id: "history", label: "History" },
   ];
@@ -109,8 +110,8 @@ function DashboardContent() {
         return <Deposit />;
       case "withdraw":
         return <WithdrawTab />;
-      //case "yield":
-      //  return <YieldCatalog />;
+      case "yield":
+        return <YieldCatalog />;
       //case "lend":
       //  return <LendingTab />;
       //case "strategies":

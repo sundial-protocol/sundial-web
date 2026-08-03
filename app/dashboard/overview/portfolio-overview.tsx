@@ -4,6 +4,7 @@ import QuickActions from "./quick-actions";
 import WalletsCard from "./wallets-card";
 import EarningsGraph from "./earnings-graph";
 import AssetAllocation from "./asset-allocation";
+import { SolsticePositionsPanel } from "@/components/solstice/solstice-positions-panel";
 
 export function PortfolioOverview() {
   const { calculations, isLoading, error, selectedYieldProvider } =
@@ -42,6 +43,8 @@ export function PortfolioOverview() {
 
         <AssetAllocation />
       </div>
+
+      <SolsticePositionsPanel />
     </div>
   );
 }

@@ -18,6 +18,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { useYieldOpportunities } from "@/hooks/dashboard/yield-opportunities";
 import { YieldOpportunityCard } from "@/components/yield-opportunity-card";
+import { SolsticeVaultList } from "@/components/solstice/solstice-vault-list";
 
 export function YieldCatalog() {
   const [filterType, setFilterType] = useState("all");
@@ -122,14 +123,20 @@ export function YieldCatalog() {
         </CardContent>
       </Card>
 
+      {/* Solstice Vaults — BTC-native receipt-Rune yield (mocked /api/solstice) */}
+      <SolsticeVaultList />
+
       {/* Opportunities Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {filteredOpportunities.map((opportunity) => (
-          <YieldOpportunityCard
-            key={opportunity.id}
-            opportunity={opportunity}
-          />
-        ))}
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold">Other Opportunities</h2>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {filteredOpportunities.map((opportunity) => (
+            <YieldOpportunityCard
+              key={opportunity.id}
+              opportunity={opportunity}
+            />
+          ))}
+        </div>
       </div>
 
       {filteredOpportunities.length === 0 && (
