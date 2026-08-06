@@ -184,7 +184,12 @@ export function generateEarningsData(
 export type WalletBalances = {
   BTC: number | null;
   ADA: number | null;
+  // Bridged BTC held on the Sundial L2, in whole BTC (the L2 ledger is 6dp).
+  // Distinct from `BTC` above, which is native BTC on the Bitcoin network.
+  L2: number | null;
 };
+
+export type WalletBalanceAsset = keyof WalletBalances;
 
 export function useDashboardData() {
   const [portfolioData, setPortfolioData] = useState<PortfolioData>({
@@ -197,9 +202,13 @@ export function useDashboardData() {
   const [walletBalances, setWalletBalances] = useState<WalletBalances>({
     BTC: null,
     ADA: null,
+    L2: null,
   });
 
-  const setWalletBalance = (asset: "BTC" | "ADA", balance: number | null) => {
+  const setWalletBalance = (
+    asset: WalletBalanceAsset,
+    balance: number | null,
+  ) => {
     setWalletBalances((prev) => ({ ...prev, [asset]: balance }));
   };
   const [selectedYieldProvider, setSelectedYieldProvider] =

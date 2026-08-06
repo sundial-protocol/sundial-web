@@ -10,7 +10,7 @@ import {
 import { Bitcoin, Coins } from "lucide-react";
 //import { WalletButton } from "@/lib/wallet/cardano/wallet-button";
 import { Button } from "@/components/ui/button";
-import { ConnectButton } from "@/lib/wallet/bitcoin/btcbutton";
+import DashboardBtcHoldings from "./btc-holdings";
 
 export default function WalletsCard() {
   return (
@@ -23,18 +23,19 @@ export default function WalletsCard() {
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-4 md:gap-8">
-          {/* Bitcoin */}
+          {/* Bitcoin — one balance across every layer it sits on, with the
+              per-layer split available behind a disclosure. */}
           <div className="flex-1 border rounded p-4 flex flex-col gap-3">
             <div className="flex items-center gap-2 mb-2">
               <Bitcoin className="w-5 h-5 text-yellow-500" />
               <div className="flex flex-col">
                 <span className="font-semibold">Bitcoin</span>
                 <span className="text-xs italic text-muted-foreground">
-                  Testnet3
+                  All layers · Testnet
                 </span>
               </div>
             </div>
-            <ConnectButton />
+            <DashboardBtcHoldings />
           </div>
 
           {/* Other */}
