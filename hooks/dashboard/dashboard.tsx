@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { SupportedChain } from "@/lib/multichain";
+import { SupportedChain, chainAsset } from "@/lib/multichain";
 import usePrices from "./prices";
 import { yieldFromProvider, YieldOpportunity } from "./yield-opportunities";
 
@@ -236,16 +236,9 @@ export function useDashboardData() {
     _txHash?: string,
   ) => {
     setPortfolioData((prev) => {
-      // Map chain to the correct asset key, handling testnet cases
-      let asset: "BTC" | "ADA";
-      if (chain === "btc" || chain === "btc_testnet") {
-        asset = "BTC";
-      } else if (chain === "ada") {
-        asset = "ADA";
-      } else {
-        console.warn(`Unknown chain: ${chain}, defaulting to BTC`);
-        asset = "BTC";
-      }
+      // Map chain to the correct asset key. Covers testnets and the Sundial L2,
+      // whose bridged BTC rolls up under BTC — see chainAsset in lib/multichain.
+      const asset = chainAsset(chain);
 
       const multiplier = type === "deposit" ? 1 : -1;
       const amountChange = amount * multiplier;
@@ -306,14 +299,21 @@ export function useDashboardData() {
       .toString(36)
       .substr(2, 9)}`;
 
-    // Calculate USD value
+    // Calculate USD value. Keyed off the asset the chain rolls up to, so
+    // testnets and the Sundial L2 are priced rather than passed through at 1:1.
+    // (`chain` is widened to string by callers, hence the cast.)
     let usdValue = amount;
-    const chainLower = chain.toLowerCase();
-    if (chainLower === "btc") {
+    const asset = chainAsset(chain as SupportedChain);
+    if (asset === "BTC") {
       usdValue = amount * 52000;
-    } else if (chainLower === "ada") {
+    } else if (asset === "ADA") {
       usdValue = amount * 0.35;
     }
+
+    // Stored on the transaction as-is (lowercased). Transaction history switches
+    // on this to pick an explorer, so it must stay the chain id — not the rolled
+    // up asset above — or an L2 stake would resolve to a Bitcoin explorer.
+    const chainLower = chain.toLowerCase();
 
     const newTx: LoggedTx = {
       id: transactionId,

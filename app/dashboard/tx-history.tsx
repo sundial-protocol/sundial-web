@@ -113,7 +113,11 @@ const getStatusBadge = (status: string) => {
   }
 };
 
-const getExplorerUrl = (chain: string, txHash: string) => {
+// Null when the chain has no block explorer, so callers render no link at all.
+// The default deliberately falls back to mempool.space only for Bitcoin-ish
+// assets; anything unrecognised gets null rather than a Bitcoin URL that would
+// 404 — a dead explorer link is worse than none.
+const getExplorerUrl = (chain: string, txHash: string): string | null => {
   switch (chain.toLowerCase()) {
     case "btc":
       return `https://mempool.space/tx/${txHash}`;
@@ -121,8 +125,11 @@ const getExplorerUrl = (chain: string, txHash: string) => {
       return `https://mempool.space/testnet/tx/${txHash}`;
     case "ada":
       return `https://cardanoscan.io/transaction/${txHash}`;
+    // The Sundial L2 has no explorer yet.
+    case "sundial_l2":
+      return null;
     default:
-      return `https://mempool.space/tx/${txHash}`;
+      return null;
   }
 };
 
@@ -463,19 +470,25 @@ export function TransactionHistory() {
                             : `${transaction.txHash.slice(0, 16)}...`}
                         </span>
                         {transaction.txHash &&
-                          transaction.status === "completed" && (
-                            <a
-                              href={getExplorerUrl(
-                                transaction.asset,
-                                transaction.txHash,
-                              )}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-500 hover:text-blue-700"
-                            >
-                              <ExternalLink className="h-3 w-3" />
-                            </a>
-                          )}
+                          transaction.status === "completed" &&
+                          (() => {
+                            // No explorer for this chain → no link.
+                            const url = getExplorerUrl(
+                              transaction.asset,
+                              transaction.txHash,
+                            );
+                            if (!url) return null;
+                            return (
+                              <a
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-500 hover:text-blue-700"
+                              >
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            );
+                          })()}
                       </div>
                     </div>
                   </div>

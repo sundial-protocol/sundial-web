@@ -132,8 +132,10 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
   // Calculate USD value helper
   const calculateUsdValue = (amount: number, asset: string): number => {
     const assetName = asset.toLowerCase();
-    if (assetName === "btc") return amount * 52000;
-    if (assetName === "ada") return amount * 0.35;
+    // btc_testnet and sundial_l2 are both BTC-denominated.
+    if (assetName === "btc" || assetName === "btc_testnet") return amount * 52000;
+    if (assetName === "sundial_l2") return amount * 52000;
+    if (assetName === "ada" || assetName === "ada_testnet") return amount * 0.35;
     if (assetName === "usdc") return amount;
     return amount;
   };
