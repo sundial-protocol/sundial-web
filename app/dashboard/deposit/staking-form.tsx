@@ -31,6 +31,8 @@ import {
   BTC_CHAIN_ID_MAINNET,
   BTC_CHAIN_ID_TESTNET,
   chainConfigs,
+  isBitcoinChain,
+  isSundialL2,
   SupportedChain,
 } from "../../../lib/multichain";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
@@ -62,6 +64,7 @@ import {
   BtcWithdrawalSuccessResponse,
 } from "@/app/api/btc-withdrawal/types";
 import { useWalletBalance } from "@/hooks/dashboard/wallet-balance";
+import L2StakingForm from "./l2-staking-form";
 
 type TransactionType = "deposit" | "withdraw";
 
@@ -191,6 +194,16 @@ export default function StakingForm({
           address: cardanoAddress,
           wrongNetwork: false,
         };
+      case "sundial_l2":
+        // The L2 form takes a typed address rather than a connected wallet, so
+        // there is no wallet to be connected or on the wrong network. Reported
+        // as connected so the shared wallet-status banner stays out of its way.
+        return {
+          isConnected: true,
+          wallet: null,
+          address: null,
+          wrongNetwork: false,
+        };
       default:
         return {
           isConnected: false,
@@ -242,7 +255,7 @@ export default function StakingForm({
   useEffect(() => {
     // Auto-fill public key for Bitcoin chains when wallet is connected
     if (
-      (selectedChain === "btc" || selectedChain === "btc_testnet") &&
+      isBitcoinChain(selectedChain) &&
       bitcoinAccounts &&
       userAddress &&
       isUsingConnectedWallet
@@ -267,7 +280,7 @@ export default function StakingForm({
   // Restore cached public key when switching to manual mode
   useEffect(() => {
     if (
-      (selectedChain === "btc" || selectedChain === "btc_testnet") &&
+      isBitcoinChain(selectedChain) &&
       !isUsingConnectedWallet &&
       cachedUserPublicKey &&
       !manualPublicKey.trim()
@@ -315,7 +328,7 @@ export default function StakingForm({
   // until the user changes an input.
   useEffect(() => {
     const shouldCalculatePsbt = () => {
-      if (selectedChain !== "btc" && selectedChain !== "btc_testnet")
+      if (!isBitcoinChain(selectedChain))
         return false;
       if (step !== "form") return false;
       if (isCalculatingPsbt || unsignedTransactionData) return false;
@@ -930,7 +943,7 @@ export default function StakingForm({
 
   const walletStatus = getWalletConnectionStatus();
 
-  const isBtcChain = selectedChain === "btc" || selectedChain === "btc_testnet";
+  const isBtcChain = isBitcoinChain(selectedChain);
 
   const renderWalletStatus = () => {
     if (walletStatus.isConnected) {
@@ -1018,34 +1031,70 @@ export default function StakingForm({
     );
   };
 
-  const renderFormStep = () => (
+  // One control for where the stake lands, Bitcoin network or Sundial L2. Both
+  // branches below render it, so it is defined once. Options come from
+  // `chainConfigs`, so a newly enabled chain appears here without changes.
+  const chainSelector = (
+    <div className="space-y-2">
+      <label className="text-sm font-medium">Select Blockchain</label>
+      <Select value={selectedChain} onValueChange={handleChainChange}>
+        <SelectTrigger>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {Object.values(chainConfigs)
+            .filter(
+              (chain) => chain.id === "btc_testnet" || isSundialL2(chain.id),
+            )
+            .map((chain) => (
+              <SelectItem key={chain.id} value={chain.id}>
+                <div className="flex items-center gap-2">
+                  {chain.icon}
+                  <span>
+                    {chain.name} ({chain.symbol})
+                  </span>
+                </div>
+              </SelectItem>
+            ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+
+  const renderFormStep = () => {
+    // Staking on the L2 is a separate flow with its own submission path, so it
+    // renders instead of the Bitcoin form rather than threading a second set of
+    // conditionals through every field below.
+    if (isSundialL2(selectedChain)) {
+      return (
+        <div className="space-y-6">
+          {chainSelector}
+          <L2StakingForm
+            type={type}
+            onStaked={(amount: number) => {
+              const txId = addPendingTransaction(selectedChain, amount, type);
+              // Completed with no tx hash on purpose. Transaction history turns
+              // any hash into a mempool.space link, so a synthetic one would
+              // render a dead link for a stake that never touched Bitcoin. With
+              // the hash omitted the row shows no link at all.
+              updateTransactionStatus(txId, "completed");
+              try {
+                updateStakedAmount(selectedChain, amount, type);
+              } catch (e) {
+                console.warn("Error updating staked amount:", e);
+              }
+            }}
+          />
+        </div>
+      );
+    }
+
+    return (
     <form
       onSubmit={isBtcChain ? handleBtcTransaction : handleAdaTransaction}
       className="space-y-6"
     >
-      {/* Chain Selection */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Select Blockchain</label>
-        <Select value={selectedChain} onValueChange={handleChainChange}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.values(chainConfigs)
-              .filter((chain) => chain.id === "btc_testnet")
-              .map((chain) => (
-                <SelectItem key={chain.id} value={chain.id}>
-                  <div className="flex items-center gap-2">
-                    {chain.icon}
-                    <span>
-                      {chain.name} ({chain.symbol})
-                    </span>
-                  </div>
-                </SelectItem>
-              ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {chainSelector}
 
       {/* Wallet Connection Status */}
       {renderWalletStatus()}
@@ -1340,7 +1389,8 @@ export default function StakingForm({
         </div>
       )}
     </form>
-  );
+    );
+  };
 
   const renderPsbtStep = () => {
     const capturedPendingId = pendingTransactionId;

@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 
 // Trim a trailing slash so we can safely append the endpoint path.
 const faucetBaseUrl = (): string | null => {
-  const raw = process.env.MIDGARD_FAUCET_NODE_URL;
+  const raw = process.env.SUNDIAL_L2_NODE_URL;
   if (!raw) return null;
   return raw.replace(/\/+$/, "");
 };
@@ -77,7 +77,10 @@ export async function POST(
     return error(400, "ADDRESS_INVALID", "Request body must be a JSON object.");
   }
 
-  const { address, idempotencyKey: clientKey } = body as Record<string, unknown>;
+  const { address, idempotencyKey: clientKey } = body as Record<
+    string,
+    unknown
+  >;
   if (typeof address !== "string" || address.trim().length === 0) {
     return error(400, "ADDRESS_INVALID", "A recipient address is required.");
   }

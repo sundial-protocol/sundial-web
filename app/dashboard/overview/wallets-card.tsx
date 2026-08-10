@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Card,
   CardHeader,
@@ -10,9 +11,13 @@ import {
 import { Bitcoin, Coins } from "lucide-react";
 //import { WalletButton } from "@/lib/wallet/cardano/wallet-button";
 import { Button } from "@/components/ui/button";
-import { ConnectButton } from "@/lib/wallet/bitcoin/btcbutton";
+import DashboardBtcHoldings from "./btc-holdings";
 
 export default function WalletsCard() {
+  // Other chains yields the card to the breakdown while it is open: it is a
+  // "coming soon" note, and the breakdown is the only thing here anyone acts on.
+  const [breakdownExpanded, setBreakdownExpanded] = useState(false);
+
   return (
     <Card className="col-span-5 sm:col-span-1">
       <CardHeader>
@@ -23,18 +28,16 @@ export default function WalletsCard() {
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-4 md:gap-8">
-          {/* Bitcoin */}
+          {/* Bitcoin — one balance across every layer it sits on, with the
+              per-layer split available behind a disclosure. */}
           <div className="flex-1 border rounded p-4 flex flex-col gap-3">
             <div className="flex items-center gap-2 mb-2">
               <Bitcoin className="w-5 h-5 text-yellow-500" />
               <div className="flex flex-col">
                 <span className="font-semibold">Bitcoin</span>
-                <span className="text-xs italic text-muted-foreground">
-                  Testnet3
-                </span>
               </div>
             </div>
-            <ConnectButton />
+            <DashboardBtcHoldings onExpandedChange={setBreakdownExpanded} />
           </div>
 
           {/* Other */}
@@ -49,13 +52,20 @@ export default function WalletsCard() {
               </div>
             </div>
 
-            {/*<WalletButton />*/}
-            <Button variant="outline" disabled>
-              Cardano
-            </Button>
-            <Button variant="outline" disabled>
-              Dogecoin
-            </Button>
+            {/* Collapses to its heading while the breakdown is open. Nothing
+                here is connectable yet, so the disabled rows are what gives
+                way when the card needs the room. */}
+            {!breakdownExpanded && (
+              <>
+                {/*<WalletButton />*/}
+                <Button variant="outline" disabled>
+                  Cardano
+                </Button>
+                <Button variant="outline" disabled>
+                  Dogecoin
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </CardContent>

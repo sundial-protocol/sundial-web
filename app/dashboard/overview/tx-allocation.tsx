@@ -117,7 +117,14 @@ export default function TxAllocation() {
                     <div className="text-sm font-medium">
                       {formatAmount(
                         transaction.amount,
-                        transaction.asset === "btc" ? 4 : 2
+                        // BTC-denominated assets warrant more precision than
+                        // fiat-ish ones; the L2 is BTC at 6dp.
+                        transaction.asset === "sundial_l2"
+                          ? 6
+                          : transaction.asset === "btc" ||
+                              transaction.asset === "btc_testnet"
+                            ? 4
+                            : 2
                       )}{" "}
                       {transaction.asset.toUpperCase()}({percentage.toFixed(1)}
                       %)
