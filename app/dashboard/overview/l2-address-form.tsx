@@ -42,9 +42,12 @@ export default function L2AddressForm({
   };
 
   return (
-    <div className="flex flex-col gap-2 pl-1">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-        <Label htmlFor="l2-address" className="text-xs text-muted-foreground">
+    <div className="flex flex-col gap-1.5">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-1.5">
+        {/* The placeholder carries what the label said, so the label is a
+            screen-reader one only — a third line of text above a field this
+            narrow costs more than it explains. */}
+        <Label htmlFor="l2-address" className="sr-only">
           L2 address
         </Label>
         <Input
@@ -54,16 +57,21 @@ export default function L2AddressForm({
           placeholder="addr_test1..."
           spellCheck={false}
           autoComplete="off"
-          className="text-xs"
+          className="h-8 text-xs"
         />
-        <Button
-          type="submit"
-          variant="outline"
-          size="sm"
-          disabled={!trimmedDraft || (!isDirty && !!address)}
-        >
-          {address && !isDirty ? "Tracking" : "Track balance"}
-        </Button>
+        {/* Only rendered when submitting would change something. A permanently
+            disabled "Tracking" button is chrome that never does anything;
+            Enter still submits for anyone who does not reach for it. */}
+        {trimmedDraft && isDirty && (
+          <Button
+            type="submit"
+            variant="outline"
+            size="sm"
+            className="h-7 text-xs"
+          >
+            Track balance
+          </Button>
+        )}
       </form>
 
       {error && <p className="text-xs text-destructive">{error}</p>}
@@ -75,16 +83,19 @@ export default function L2AddressForm({
               ? ""
               : `${utxoCount} UTxO${utxoCount === 1 ? "" : "s"}`}
           </span>
+          {/* Icon only: the label sat on its own line in a column this narrow,
+              and a refresh glyph next to a balance is unambiguous. */}
           <Button
             type="button"
             variant="ghost"
             size="sm"
             onClick={onRefresh}
             disabled={isLoading}
-            className="px-2 text-xs"
+            aria-label="Refresh balance"
+            title="Refresh balance"
+            className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground [&_svg]:size-3"
           >
-            <RotateCcw className="w-3 h-3 mr-1" />
-            Refresh
+            <RotateCcw />
           </Button>
         </div>
       )}

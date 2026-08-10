@@ -20,7 +20,11 @@ import L2AddressForm from "./l2-address-form";
 
 const L2_ADDRESS_STORAGE_KEY = "sundial:l2-address";
 
-export default function DashboardBtcHoldings() {
+export default function DashboardBtcHoldings({
+  onExpandedChange,
+}: {
+  onExpandedChange?: (expanded: boolean) => void;
+} = {}) {
   const { address: btcAddress, isConnected } = useAppKitAccount();
   const { walletBalances } = useDashboardContext();
 
@@ -66,8 +70,9 @@ export default function DashboardBtcHoldings() {
   return (
     <BtcHoldings
       holdings={holdings}
+      onExpandedChange={onExpandedChange}
       controls={{
-        "bitcoin-l1": <ConnectButton />,
+        "bitcoin-l1": <ConnectButton size="sm" />,
         "sundial-l2": (
           <L2AddressForm
             address={l2Address}

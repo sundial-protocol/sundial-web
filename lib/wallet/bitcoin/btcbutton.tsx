@@ -16,9 +16,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+import {
+  Button,
+  buttonVariants,
+  type ButtonProps,
+} from "@/components/ui/button";
 
-export const ConnectButton = () => {
+// `size` is passed through so the same control can sit in a wide form and in
+// the narrow dashboard breakdown, where a full-height button dominates the
+// balance it belongs to. Defaults to the full size this started at.
+export const ConnectButton = ({
+  size = "default",
+}: {
+  size?: ButtonProps["size"];
+}) => {
   const [isClient, setIsClient] = useState(false);
   const { open } = useAppKit();
   const { address, isConnected } = useAppKitAccount();
@@ -45,9 +56,15 @@ export const ConnectButton = () => {
 
   if (!isClient) {
     return (
-      <div className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background h-10 px-4 py-2 w-full opacity-50">
-        <Bitcoin className="w-4 h-4 mr-2" />
-        Loading Bitcoin wallet...
+      <div
+        className={buttonVariants({
+          variant: "outline",
+          size,
+          className: "w-full opacity-50",
+        })}
+      >
+        <Bitcoin />
+        Loading wallet…
       </div>
     );
   }
@@ -55,7 +72,7 @@ export const ConnectButton = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" disabled={loading}>
+        <Button variant="outline" size={size} disabled={loading}>
           {loading ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : isConnected && walletInfo ? (

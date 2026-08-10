@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Card,
   CardHeader,
@@ -13,6 +14,10 @@ import { Button } from "@/components/ui/button";
 import DashboardBtcHoldings from "./btc-holdings";
 
 export default function WalletsCard() {
+  // Other chains yields the card to the breakdown while it is open: it is a
+  // "coming soon" note, and the breakdown is the only thing here anyone acts on.
+  const [breakdownExpanded, setBreakdownExpanded] = useState(false);
+
   return (
     <Card className="col-span-5 sm:col-span-1">
       <CardHeader>
@@ -30,12 +35,9 @@ export default function WalletsCard() {
               <Bitcoin className="w-5 h-5 text-yellow-500" />
               <div className="flex flex-col">
                 <span className="font-semibold">Bitcoin</span>
-                <span className="text-xs italic text-muted-foreground">
-                  All layers · Testnet
-                </span>
               </div>
             </div>
-            <DashboardBtcHoldings />
+            <DashboardBtcHoldings onExpandedChange={setBreakdownExpanded} />
           </div>
 
           {/* Other */}
@@ -50,13 +52,20 @@ export default function WalletsCard() {
               </div>
             </div>
 
-            {/*<WalletButton />*/}
-            <Button variant="outline" disabled>
-              Cardano
-            </Button>
-            <Button variant="outline" disabled>
-              Dogecoin
-            </Button>
+            {/* Collapses to its heading while the breakdown is open. Nothing
+                here is connectable yet, so the disabled rows are what gives
+                way when the card needs the room. */}
+            {!breakdownExpanded && (
+              <>
+                {/*<WalletButton />*/}
+                <Button variant="outline" disabled>
+                  Cardano
+                </Button>
+                <Button variant="outline" disabled>
+                  Dogecoin
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </CardContent>

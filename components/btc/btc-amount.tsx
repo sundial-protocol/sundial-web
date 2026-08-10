@@ -65,6 +65,7 @@ export default function BtcAmount({
         className,
       )}
     >
+      {showChip && <BtcSourceChip sourceId={sourceId} />}
       <span
         // The shown figure is rounded for width; the exact one stays on hover.
         title={
@@ -80,7 +81,6 @@ export default function BtcAmount({
         {value === null ? "—" : formatBtc(value, source.decimals)}
       </span>
       <span className="text-sm text-muted-foreground">{BTC_UNIT}</span>
-      {showChip && <BtcSourceChip sourceId={sourceId} />}
       {isLoading && (
         <span className="text-xs text-muted-foreground">updating…</span>
       )}
