@@ -4,14 +4,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   L2BalanceCode,
   L2BalanceResponse,
-} from "@/app/api/l2/utxos/types";
+} from "@/app/api/testnet/utxos/types";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 
 /**
  * Reads an address's spendable balance on the Sundial L2 and syncs it into
  * Dashboard context so any tab can read it.
  *
- * The balance comes from `/api/l2/utxos`, which proxies the node's `/utxos`
+ * The balance comes from `/api/testnet/utxos`, which proxies the node's `/utxos`
  * endpoint — the browser never talks to the node directly. Pass a null or empty
  * address to idle (nothing is fetched and the context balance is cleared).
  *
@@ -59,7 +59,7 @@ export function useL2Balance(address: string | null | undefined) {
 
       try {
         const res = await fetch(
-          `/api/l2/utxos?address=${encodeURIComponent(trimmed)}`,
+          `/api/testnet/utxos?address=${encodeURIComponent(trimmed)}`,
           { cache: "no-store" },
         );
         const data = (await res.json()) as L2BalanceResponse;

@@ -1,6 +1,6 @@
 import { decode } from "cborg";
 
-import type { NodeUtxo } from "@/app/api/l2/utxos/types";
+import type { NodeUtxo } from "@/app/api/testnet/utxos/types";
 
 // Server-only decoding of the L2 node's UTxO CBOR.
 //

@@ -23,7 +23,7 @@ import { btcSources, formatBtc, BTC_UNIT } from "@/lib/btc-sources";
 //
 // To make it real, `submitStake` becomes: build the lock transaction against the
 // L2 staking validator, have the wallet sign it, then POST the CBOR to the
-// node's `/submit` endpoint (a proxy route alongside app/api/l2/utxos). Nothing
+// node's `/submit` endpoint (a proxy route alongside app/api/testnet/utxos). Nothing
 // else in this file needs to change.
 //
 // Do not carry this into a mainnet build without replacing `submitStake` — with
