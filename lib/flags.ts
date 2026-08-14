@@ -13,8 +13,8 @@ export const Flags = {
   DISABLE_VALIDATOR_PAGES: isProd,
   DISABLE_TESTNET: false,
   DISABLE_SOLSTICE: true,
-  // The peg-in bridge is mocked end to end (app/dashboard/bridge/README.md).
-  // Gated on prod rather than a bare `true` so it stays exercisable in preview
+  // Transfers are mocked end to end (app/dashboard/transfer/README.md). Gated
+  // on prod rather than a bare `true` so the flow stays exercisable in preview
   // and locally, but cannot reach a user who would take it for real.
-  DISABLE_BRIDGE: isProd,
+  DISABLE_TRANSFER: isProd,
 };
