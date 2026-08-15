@@ -5,6 +5,7 @@ import { useAppKitAccount, useAppKitNetwork } from "@reown/appkit/react";
 import { useLocalStorage } from "usehooks-ts";
 
 import { useCardanoWallet } from "@/lib/wallet/cardano/context";
+import { useClientMounted } from "@/lib/wallet/bitcoin/mount";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import { useL2Balance } from "@/hooks/dashboard/l2-balance";
 import {
@@ -72,17 +73,32 @@ export interface TransferEndpointsResult {
 }
 
 export function useTransferEndpoints(): TransferEndpointsResult {
-  const { address: btcAddress, isConnected: isBtcConnected } = useAppKitAccount({
-    namespace: "bip122",
-  });
+  // Nothing the browser knows privately may reach the first client render.
+  //
+  // Both the AppKit store and localStorage are restored before React hydrates,
+  // so reading them straight away answers questions the server could not have
+  // answered — which wallet is connected, which Bitcoin network it is on, which
+  // L2 address was saved. The server rendered "Bitcoin"; the client would
+  // render "Bitcoin Testnet"; React calls that a hydration failure and throws
+  // the tree away. So the first client render repeats the server's answer —
+  // disconnected, mainnet defaults — and the mount effect re-renders with the
+  // truth a tick later.
+  const mounted = useClientMounted();
+
+  const { address: walletBtcAddress, isConnected: isBtcWalletConnected } =
+    useAppKitAccount({ namespace: "bip122" });
   const { caipNetworkId } = useAppKitNetwork();
   const cardano = useCardanoWallet();
   const { walletBalances } = useDashboardContext();
 
-  const [l2Address, setL2Address] = useLocalStorage(
+  const isBtcConnected = mounted && isBtcWalletConnected;
+  const btcAddress = mounted ? walletBtcAddress : undefined;
+
+  const [storedL2Address, setL2Address] = useLocalStorage(
     L2_ADDRESS_STORAGE_KEY,
     "",
   );
+  const l2Address = mounted ? storedL2Address : "";
   const { balance: l2Balance, isLoading: isL2Loading } =
     useL2Balance(l2Address);
 
@@ -92,13 +108,17 @@ export function useTransferEndpoints(): TransferEndpointsResult {
   // route resolver refuses cross-network pairs only if it is told the truth.
   const btcChain: SupportedChain = useMemo(
     () =>
+      mounted &&
       typeof caipNetworkId === "string" &&
       caipNetworkId.includes(BTC_CHAIN_ID_TESTNET)
         ? "btc_testnet"
         : "btc",
-    [caipNetworkId],
+    [mounted, caipNetworkId],
   );
 
+  // Safe to read unguarded: the Cardano wallet lives in a React context whose
+  // default is "Mainnet" on both sides, and is only filled in by an effect
+  // after hydration.
   const adaChain: SupportedChain =
     cardano.network === "Mainnet" ? "ada" : "ada_testnet";
 
