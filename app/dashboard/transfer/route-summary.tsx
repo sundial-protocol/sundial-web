@@ -97,21 +97,9 @@ export default function RouteSummary({
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
-                {route.label}
-              </span>
-              <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Clock className="h-3 w-3" />
-                {profile?.etaLabel ?? "—"}
-              </span>
-            </div>
-
-            <p className="text-sm text-muted-foreground">{route.description}</p>
-
             {route.direction ? (
-              <div className="space-y-2 border-t pt-4">
-                <Label htmlFor="transfer-mechanism">Route selection</Label>
+              <div className="space-y-2">
+                <Label htmlFor="transfer-mechanism">Select Route</Label>
                 <select
                   id="transfer-mechanism"
                   value={mechanismId ?? ""}
@@ -137,8 +125,17 @@ export default function RouteSummary({
                     );
                   })}
                 </select>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                    {route.label}
+                  </span>
+                  <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Clock className="h-3 w-3" />
+                    {profile?.etaLabel ?? "—"}
+                  </span>
+                </div>
                 {selected?.description ? (
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground pb-4 border-b">
                     {selected.description}
                   </p>
                 ) : null}

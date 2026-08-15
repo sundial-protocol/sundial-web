@@ -82,25 +82,9 @@ export default function TransferTab() {
       <div className="mb-8">
         <h2 className="mb-2 text-3xl font-bold">Transfer</h2>
         <p className="text-muted-foreground">
-          Move value between your connected wallets and the Sundial L2.
+          Move assets between your accounts.
         </p>
       </div>
-
-      {isMock ? (
-        <div className="mb-6 flex items-start gap-3 rounded-sm border border-amber-500/30 bg-amber-500/10 p-4">
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
-          <div className="text-sm">
-            <p className="font-medium text-amber-700 dark:text-amber-400">
-              Simulated end to end
-            </p>
-            <p className="mt-1 text-muted-foreground">
-              No transaction is built or broadcast, no proof is generated, and
-              nothing reaches any ledger. Balances and addresses are real; the
-              transfer itself runs on a timer.
-            </p>
-          </div>
-        </div>
-      ) : null}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {transfer.isRestoring ? (
