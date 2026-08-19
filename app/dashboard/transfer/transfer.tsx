@@ -1,13 +1,22 @@
 "use client";
 
 import { useEffect } from "react";
-import { AlertTriangle, Loader2 } from "lucide-react";
+import { AlertTriangle, Loader2, RotateCcw } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useTransfer } from "@/hooks/dashboard/transfer";
 import { useTransferEndpoints } from "@/hooks/dashboard/transfer-endpoints";
 import { useL2Balance } from "@/hooks/dashboard/l2-balance";
 import { resolveMechanismProfile } from "@/lib/transfer/mechanisms";
 import { resolveTransferRoute } from "@/lib/transfer/routes";
+import ModeChip from "./mode-chip";
 import RouteSummary from "./route-summary";
 import TransferForm from "./transfer-form";
 import TransferProgress from "./transfer-progress";
@@ -42,11 +51,11 @@ export default function TransferTab() {
     if (step === "settled") refreshL2Balance();
   }, [step, refreshL2Balance]);
 
-  // Shown unless a response positively identifies a real service. Erring toward
-  // the warning is the right bias: the cost of an unnecessary notice is mild
-  // confusion, and the cost of a missing one is somebody believing they moved
-  // real funds.
-  const isMock = transfer.status ? transfer.status.mock === true : true;
+  // An in-flight transfer reports the mode that actually served it; before one
+  // exists, fall back to what the routes say they will use. The first is the
+  // more truthful of the two — a transfer created under one mode keeps its
+  // badge even if the deployment is reconfigured underneath it.
+  const activeMode = transfer.status?.mode ?? transfer.serviceMode;
 
   // While a transfer is in flight the summary describes *it*, not whatever is
   // still sitting in the compose form behind it.
@@ -80,7 +89,10 @@ export default function TransferTab() {
   return (
     <div className="mx-auto p-6">
       <div className="mb-8">
-        <h2 className="mb-2 text-3xl font-bold">Transfer</h2>
+        <div className="mb-2 flex flex-wrap items-center gap-3">
+          <h2 className="text-3xl font-bold">Transfer</h2>
+          <ModeChip mode={activeMode} />
+        </div>
         <p className="text-muted-foreground">
           Move assets between your accounts.
         </p>
@@ -92,10 +104,38 @@ export default function TransferTab() {
             <Loader2 className="h-4 w-4 animate-spin" />
             Checking for an in-flight transfer...
           </div>
+        ) : transfer.isUnreadable ? (
+          // A stored transfer whose status will not read. Shown rather than
+          // silently falling through to the compose form: a fresh form implies
+          // nothing is running, while a retry loop is in fact still polling an
+          // id the user has no other way to see or clear.
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-amber-600" />
+                Transfer unavailable
+              </CardTitle>
+              <CardDescription>
+                A transfer is stored in this browser but its status cannot be
+                read
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">{transfer.error}</p>
+              <p className="break-all font-mono text-xs text-muted-foreground">
+                {transfer.transferId}
+              </p>
+              <Button type="button" variant="outline" onClick={transfer.reset}>
+                <RotateCcw className="h-4 w-4" />
+                Start over
+              </Button>
+            </CardContent>
+          </Card>
         ) : transfer.status ? (
           <TransferProgress
             status={transfer.status}
             onSubmitSigned={transfer.submitSigned}
+            onSubmitBeamReceive={transfer.submitBeamReceive}
             onReset={transfer.reset}
             isSubmitting={transfer.isSubmitting}
             error={transfer.error}

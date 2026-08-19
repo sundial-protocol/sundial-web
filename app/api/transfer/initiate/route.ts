@@ -9,6 +9,8 @@ import {
   mechanismCovers,
   transferMechanism,
 } from "@/lib/transfer/mechanisms";
+import * as live from "@/lib/transfer/live-service";
+import { isLiveMode } from "@/lib/transfer/mode";
 import { initiate } from "@/lib/transfer/mock-service";
 import { resolveTransferRoute } from "@/lib/transfer/routes";
 import {
@@ -179,8 +181,17 @@ export async function POST(
   }
 
   try {
-    return NextResponse.json(await initiate(payload), { status: 201 });
+    const result = isLiveMode()
+      ? await live.initiate(payload)
+      : await initiate(payload);
+    return NextResponse.json(result, { status: 201 });
   } catch (e) {
+    // Live mode refuses what it cannot really do rather than faking it, and the
+    // reason names the missing piece — that is worth passing through verbatim
+    // instead of collapsing into a generic 500.
+    if (e instanceof live.LiveUnsupportedError) {
+      return transferError(400, "MECHANISM_UNAVAILABLE", e.message);
+    }
     console.error("Transfer initiate failed:", e);
     return transferError(
       500,

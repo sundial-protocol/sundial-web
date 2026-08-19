@@ -1,4 +1,5 @@
 import type { SupportedChain } from "@/lib/multichain";
+import type { TransferMode } from "@/lib/transfer/mode";
 import type {
   MechanismFee,
   TransferMechanismId,
@@ -30,6 +31,17 @@ import type { ApiErrorResponse } from "../types";
 //   - `SUNDIAL_L2_NODE_URL` / the transfer service's own address.
 //
 // The browser's entire share of the state is a `transferId`.
+
+// What is answering the transfer routes. `external` has no counterpart in
+// `TransferMode` because it is not an implementation this repo runs — it means
+// the routes are proxying somebody else's, which is a third thing the UI has to
+// be able to say.
+export type TransferServiceMode = TransferMode | "external";
+
+// GET /api/transfer/mode
+export interface TransferModeResponse {
+  mode: TransferServiceMode;
+}
 
 export type TransferErrorCode =
   // Amount missing, non-numeric, at/below zero, or below the route's minimum.
@@ -102,28 +114,64 @@ export interface TransferInitiateSuccessResponse {
   transferId: string;
   // Unsigned source transaction for the user's wallet. Base64 PSBT for Bitcoin
   // sources, CBOR hex for Cardano-family ones.
-  sourceUnsignedTx: string;
+  //
+  // Null when the implementation cannot build one — live mode has no
+  // transaction builder, so the user brings a transaction produced by
+  // `charms spell prove`. Null rather than an empty string so "there is none"
+  // cannot be mistaken for "here is one, and it is blank".
+  sourceUnsignedTx: string | null;
   // Beam only: the L2 UTxO the beam is committed to, as `<txhash>:<ix>`. Shown
   // for transparency; the nonce binding it to the commitment stays server-side.
   placeholderUtxo: string | null;
   quote: TransferQuote;
-  // Present only while the mock orchestrator is serving. The real service omits
-  // it, and the UI treats absence as "this is real": it will drive the wallet
-  // rather than offering a simulated signature.
-  mock?: true;
+  // Which implementation answered. Stated rather than inferred from a missing
+  // flag: the UI has to behave differently in each mode — simulate a signature,
+  // ask for an externally-produced transaction, or drive a wallet — and
+  // guessing from an absent field gets that wrong the moment a third mode
+  // exists. Omitted by an external service, which the UI reads as "real".
+  mode?: TransferMode;
 }
 
 export type TransferInitiateResponse =
   | TransferInitiateSuccessResponse
   | TransferErrorResponse;
 
+// Real inputs for a Charms beam-receive, when the caller wants the server to
+// build and prove the transaction itself rather than supply one already
+// proven. See lib/transfer/charms-beam-receive.ts for exactly what each field
+// feeds into — every one of them maps to a real field in the Prover API
+// request, not a placeholder.
+//
+// This only ever applies to the `charms` mechanism in `live` mode: mock mode
+// has nothing to prove against, and no other mechanism has a proving step.
+export interface BeamReceiveInput {
+  placeholderUtxoId: string;
+  collateralUtxoId: string;
+  sourceUtxoId: string;
+  // Decimal string, not a number: a real nonce is a u64 (up to ~1.8e19) and
+  // JS numbers only safely represent integers up to 2^53 — round-tripping this
+  // through `number` silently corrupts it, which was caught by testing against
+  // a real captured nonce (13366537103519653124 became …4000).
+  nonce: string;
+  sourceTxHex: string;
+  // Verify the pipeline without spending real $PROVE. The result cannot be
+  // threshold-signed by Scrolls or accepted on-chain — see BeamReceiveParams's
+  // `mock` doc comment.
+  mock?: boolean;
+}
+
 // POST /api/transfer/submit-signed-source
 export interface TransferSubmitSignedSourceRequest {
   transferId: string;
   // Fully signed, finalized source transaction as raw hex. The service
   // broadcasts it — the browser does not, which is what lets the service watch
-  // for confirmation from the moment it goes out.
-  signedSourceTx: string;
+  // for confirmation from the moment it goes out. Mutually exclusive with
+  // `beamReceiveInput` — exactly one is required.
+  signedSourceTx?: string;
+  // Alternative to `signedSourceTx`: build-and-prove the beam-receive
+  // ourselves via the real Charms Prover API, then continue through the same
+  // Scrolls-sign + L2-submit path. See BeamReceiveInput.
+  beamReceiveInput?: BeamReceiveInput;
 }
 
 export interface TransferSubmitSignedSourceSuccessResponse {
@@ -169,7 +217,7 @@ export interface TransferStatusSuccessResponse {
   // then reads every successful status as a failed request.
   failureReason: string | null;
   quote: TransferQuote;
-  mock?: true;
+  mode?: TransferMode;
 }
 
 export type TransferStatusResponse =

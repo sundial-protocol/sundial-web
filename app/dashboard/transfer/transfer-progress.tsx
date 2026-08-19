@@ -15,7 +15,10 @@ import { useAppKitAccount, useAppKitProvider } from "@reown/appkit/react";
 import type { BitcoinConnector } from "@reown/appkit-adapter-bitcoin";
 import { toast } from "sonner";
 
-import type { TransferStatusSuccessResponse } from "@/app/api/transfer/types";
+import type {
+  BeamReceiveInput,
+  TransferStatusSuccessResponse,
+} from "@/app/api/transfer/types";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,6 +40,7 @@ import { resolveTransferRoute } from "@/lib/transfer/routes";
 import { transferStepInfo } from "@/lib/transfer/steps";
 import { finalizePsbtSafe } from "@/lib/psbt-finalize";
 import { cn } from "@/lib/utils";
+import BeamReceiveForm from "./beam-receive-form";
 
 // Progress for an in-flight transfer.
 //
@@ -54,12 +58,14 @@ import { cn } from "@/lib/utils";
 export default function TransferProgress({
   status,
   onSubmitSigned,
+  onSubmitBeamReceive,
   onReset,
   isSubmitting,
   error,
 }: {
   status: TransferStatusSuccessResponse;
   onSubmitSigned: (signedSourceTx: string) => Promise<boolean>;
+  onSubmitBeamReceive: (input: BeamReceiveInput) => Promise<boolean>;
   onReset: () => void;
   isSubmitting: boolean;
   error: string | null;
@@ -72,6 +78,9 @@ export default function TransferProgress({
   const [isSigning, setIsSigning] = useState(false);
   const [signError, setSignError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  // Live mode has no transaction builder, so the user brings one. Held locally
+  // because it is a one-shot input, not flow state worth persisting.
+  const [pastedTx, setPastedTx] = useState("");
 
   const route = useMemo(
     () => resolveTransferRoute(status.fromChain, status.toChain),
@@ -106,11 +115,12 @@ export default function TransferProgress({
   const isSettled = status.step === "settled";
   const isAwaitingSignature = status.step === "awaiting_signature";
 
-  // The mock orchestrator's transaction is a stand-in and cannot be signed, so
-  // in mock mode the wallet is never asked. The flag comes off the wire rather
-  // than being inferred, so pointing TRANSFER_API_URL at a real service
-  // switches this to the real signing path with no code change.
-  const isMock = status.mock === true;
+  // Each mode needs a different signing affordance: mock simulates, live asks
+  // for an externally-produced transaction, and an external service is assumed
+  // to drive the wallet. Read off the wire rather than inferred, so adding a
+  // mode cannot silently fall through to the wrong branch.
+  const isMock = status.mode === "mock";
+  const isLive = status.mode === "live";
   const isBitcoinSource = isBitcoinChain(status.fromChain);
 
   const copyUnsignedTx = async () => {
@@ -167,6 +177,27 @@ export default function TransferProgress({
       setSignError(
         e instanceof Error ? e.message : "The transaction could not be signed.",
       );
+    } finally {
+      setIsSigning(false);
+    }
+  };
+
+  // Live path: the user supplies a transaction produced outside the app — the
+  // `cborHex` from a `charms spell prove` envelope. From here the service does
+  // the real work: Scrolls threshold signature where the mechanism needs one,
+  // then POST /submit to the L2 node.
+  const submitPastedTx = async () => {
+    const hex = pastedTx.trim();
+    setSignError(null);
+
+    if (!/^[0-9a-fA-F]+$/.test(hex) || hex.length % 2 !== 0) {
+      setSignError("Paste the transaction as raw hex (the envelope's cborHex).");
+      return;
+    }
+
+    setIsSigning(true);
+    try {
+      await onSubmitSigned(hex);
     } finally {
       setIsSigning(false);
     }
@@ -323,6 +354,7 @@ export default function TransferProgress({
       {/* Signing step */}
       {isAwaitingSignature ? (
         <div className="space-y-4 rounded-sm border bg-background/50 p-4">
+          {status.sourceUnsignedTx ? (
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">
@@ -346,10 +378,11 @@ export default function TransferProgress({
             <textarea
               className="w-full resize-none rounded-sm border bg-background p-3 font-mono text-xs"
               rows={3}
-              value={status.sourceUnsignedTx ?? ""}
+              value={status.sourceUnsignedTx}
               readOnly
             />
           </div>
+          ) : null}
 
           {signError ? (
             <Alert variant="destructive" className="border-destructive/30">
@@ -375,6 +408,55 @@ export default function TransferProgress({
                   </>
                 ) : (
                   "Simulate signature and continue"
+                )}
+              </Button>
+            </div>
+          ) : isLive && mechanism?.id === "charms" ? (
+            <BeamReceiveForm
+              onSubmit={onSubmitBeamReceive}
+              isSubmitting={busy}
+              error={signError}
+            />
+          ) : isLive ? (
+            <div className="space-y-3">
+              <div className="flex items-start gap-2 rounded-sm border bg-background p-3 text-sm">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+                <div className="text-muted-foreground">
+                  <p className="font-medium text-foreground">
+                    Bring your own transaction
+                  </p>
+                  <p className="mt-1">
+                    This mechanism has no transaction builder yet. Produce a
+                    signed transaction externally and paste its raw hex here —
+                    it is submitted to the real L2 node.
+                  </p>
+                </div>
+              </div>
+
+              <textarea
+                className="w-full resize-none rounded-sm border bg-background p-3 font-mono text-xs"
+                rows={4}
+                placeholder="84a400818258200f3a…"
+                value={pastedTx}
+                onChange={(event) => {
+                  setPastedTx(event.target.value);
+                  if (signError) setSignError(null);
+                }}
+                spellCheck={false}
+              />
+
+              <Button
+                type="button"
+                onClick={submitPastedTx}
+                disabled={busy || !pastedTx.trim()}
+              >
+                {busy ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Submitting to the L2...
+                  </>
+                ) : (
+                  "Sign and submit to the L2"
                 )}
               </Button>
             </div>

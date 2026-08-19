@@ -58,18 +58,108 @@ The client mirrors the same filtering, and derives its effective selection
 rather than correcting it in an effect — an effect that rewrites the choice
 whenever direction changes fights the user's own click and can loop.
 
-**The UI and the `/api/transfer/*` contract are real. Everything behind them is
-not.** No transaction is built or broadcast, no proof is generated, no canister
-is called, nothing reaches any ledger. The step machine advances on a timer in
-`lib/transfer/mock-service.ts`.
+## Modes
 
-Balances, addresses and wallet connections **are** real — they come from the
-live Reown (Bitcoin), lucid (Cardano) and `/api/testnet/utxos` (L2) paths.
+Three implementations answer `app/api/transfer/*`, in precedence order:
 
-Setting `TRANSFER_API_URL` makes every route proxy a real service and the mock
-never runs. That variable is the whole switch.
+| | When | What runs |
+| --- | --- | --- |
+| **external** | `TRANSFER_API_URL` set | Proxy an external transfer service. Nothing in this repo runs. |
+| **live** | `TRANSFER_MODE=live` | `lib/transfer/live-service.ts` — the **real** L2 node and the **real** Scrolls canister, as far as the pipeline exists. |
+| **mock** | otherwise (default) | `lib/transfer/mock-service.ts` — the step machine on a timer. |
 
-## Why it is mocked
+The active mode is on the wire as `mode` on initiate and status, so the UI
+branches on fact rather than on an absent flag. `GET /api/transfer/mode` serves
+it before any transfer exists, which is what the badge beside the tab heading
+reads — served by the same functions the routes dispatch on, so it cannot claim
+"Simulated" while live mode moves real funds. A `NEXT_PUBLIC_` copy of the
+setting could drift; this cannot. The badge renders nothing if the lookup fails,
+because no claim beats a wrong one.
+
+### Live mode
+
+Real, and verified against the live endpoints:
+
+- **`POST /submit`** to the L2 node. Hex in the **body** — the `?tx_cbor=` query
+  form returns `400 Invalid CBOR provided`. Returns the node's queue id.
+- **`scrolls_cardano.sign()`** on IC mainnet (`tty7k-waaaa-aaaak-qvngq-cai`),
+  for mechanisms that need the threshold signature.
+- **`scrolls_cardano.config()`** for the live fee and fee addresses, read rather
+  than trusting the compiled constant — the canister can change it.
+- **The Charms Prover API** (`lib/transfer/charms-prover.ts`,
+  `lib/transfer/charms-beam-receive.ts`) — genuinely builds and proves the
+  beam-receive transaction, given an existing placeholder and beam-send. This
+  is a real HTTP POST to `docs.charms.dev/reference/prover-api` (default
+  `https://v15.charms.dev/spells/prove`, overridable via
+  `CHARMS_PROVE_API_URL`), not a CLI shell-out — see "How the prover call
+  works" below for how that was confirmed. Reachable from the live signing
+  panel via `BeamReceiveForm`; `mock: true` verifies the pipeline for free
+  (Scrolls still refuses the result, for real, since it re-verifies the actual
+  proof).
+- **Arrival**, read back from the destination address's UTxO count. `/submit`
+  returning 200 means *enqueued*, not *applied*; block production is a separate
+  operator-gated step, so the only honest "settled" is seeing it land. While the
+  block producer is down this correctly never fires.
+
+Not built, and **refuses rather than fakes**:
+
+- **The placeholder and the source beam-send themselves.** Building the
+  placeholder needs Cardano ledger protocol parameters for whatever network the
+  L2 testnet settles to (confirmed: **preprod** — Sam, 2026-08-18); building the
+  beam-send needs a real BTC wallet and, for anything beyond the demo NFT app,
+  a value-locking vault app that exists in no repo. `BeamReceiveForm` takes
+  both as inputs — e.g. from charms-test's own `beam-0{1,2,3}` scripts — it
+  does not create them.
+- **Real bridged value.** `my-token` (`lib/transfer/charms-apps/my-token.wasm`,
+  copied from `charms-test`) is the only Charms app anywhere to prove against.
+  It is a generic demo NFT app — proving through it exercises the mechanism for
+  real, not a fake, but it never moves real bridged BTC.
+- **Non-L2 destinations.** `/submit` is an L2 endpoint. A Bitcoin destination is
+  refused with a message naming what is missing.
+
+Errors from real infrastructure are passed through, and a refusal is kept
+distinct from an outage throughout — a Scrolls **refusal**
+(`ScrollsRefusedError`) or a prover **rejection** (`ProverRejectedError`) means
+the transaction is wrong (`SIGNED_TX_INVALID`, with the service's own
+diagnostic); a Scrolls or prover **outage** means the service is unreachable
+(`SERVICE_UNAVAILABLE`). Collapsing them would tell a user to wait when they
+need to fix their transaction.
+
+#### How the prover call works
+
+`charms spell prove --payload` was run once, locally, purely to read the wire
+format it sends — not as a runtime dependency (Sam was explicit: the live path
+calls the real server, not WSL). That capture, cross-checked against
+`docs.charms.dev/reference/prover-api`, showed the request is close to the
+YAML spell templates already in `charms-test/my-token/spells/`: a plain JSON
+object, not pre-compiled CBOR. Two things were verified against real data
+rather than assumed:
+
+- **`dest` derivation** — `charms util dest --addr <cardano-addr>` is exactly
+  bech32-decoding the address; `deriveCardanoDest` reproduced the CLI's output
+  byte-for-byte for a real address this session.
+- **Nonce precision** — a real nonce is a u64 (up to ~1.8×10¹⁹). Routing it
+  through a JS `number` silently corrupts it above 2^53 — caught by testing
+  against a real captured nonce, which a naive `Number()` turned from
+  `13366537103519653124` into `13366537103519654000`. `BeamReceiveInput.nonce`
+  and `ProveRequest`'s nonce are decimal strings end to end;
+  `serializeProveRequest` splices the digits into the JSON as a raw integer
+  literal so the value is never parsed by JS at all.
+
+Bitcoin `dest` derivation (`deriveBitcoinDest`, via `bitcoinjs-lib`) is
+standard and used elsewhere in this codebase, but — unlike the Cardano path —
+was **not** independently re-verified against `charms util dest` this session.
+
+### Mock mode
+
+No transaction is built or broadcast, no proof is generated, no canister is
+called, nothing reaches any ledger. The step machine advances on a timer.
+
+Balances, addresses and wallet connections **are** real in both modes — they
+come from the live Reown (Bitcoin), lucid (Cardano) and `/api/testnet/utxos`
+(L2) paths.
+
+## Why the rest is mocked
 
 Four independent blockers, none of them fixable from this repo:
 
@@ -96,11 +186,11 @@ Four independent blockers, none of them fixable from this repo:
 
 | Mocked | Replaced by | Notes |
 | --- | --- | --- |
-| Placeholder + collateral UTxOs | **Transfer service** — L2 tx construction + `POST /submit` | Beam spec §3.1: put the placeholder at an **always-succeeds script address**, not a user pubkey address. A script input needs no vkey witness, so the receive is authorized by the Scrolls signature alone and the user never co-signs. |
+| Placeholder + collateral UTxOs | **A real L2 tx builder** — needs Cardano ledger protocol parameters for the network the L2 settles to (preprod, per Sam) | Beam spec §3.1: put the placeholder at an **always-succeeds script address**, not a user pubkey address. A script input needs no vkey witness, so the receive is authorized by the Scrolls signature alone and the user never co-signs. Not built — `BeamReceiveForm` takes an already-created placeholder as input. |
 | `nonce` / commitment storage | **Transfer service** — durable store | The derivation is **not** faked: `deriveCommitment` is the real `SHA256(txid_reversed ‖ vout_le32 ‖ nonce_le64)` from `charms-test/scripts/beam_commit.py`. What is mocked is where it lives. |
-| The lock transaction | **eBTC-style vault app** | The `--app-bins` that burns on BTC and mints the bridged charm on the L2. Conceptually `CharmsDev/ebtc`; present in no local repo. **The single biggest build item.** |
+| The lock transaction (for real value) | **eBTC-style vault app** | The `--app-bins` that burns on BTC and mints the bridged charm on the L2. Conceptually `CharmsDev/ebtc`; present in no local repo. **The single biggest build item.** `my-token` (a generic demo NFT app) is the only app available today — proving through it is real, but never moves real bridged BTC. |
 | `confirming (N/6)` | **BTC mainnet watcher** | mempool.space **mainnet**, assembling `!bitcoin {tx, proof, headers}` from a merkleblock proof plus the chained headers. |
-| `proving` | **charms prover** | Hosted `v15.charms.dev/spells/prove` or self-hosted. ~2 proofs per beam; decide who operates and who pays. |
+| `proving` | ~~charms prover~~ **done** | Real, as of this pass: `lib/transfer/charms-prover.ts` POSTs to the real Prover API and gets back a real transaction. ~2 proofs per beam; who pays is Sam's Succinct account unless `mock: true`. |
 | `scrolls_sign` | **ICP agent** → `scrolls_cardano.sign` | Canister `tty7k-waaaa-aaaak-qvngq-cai` on IC mainnet, via `@dfinity/agent`. Port from `charms/scrolls/src/scrolls-api`; a 38-line reference call lives at `charms-test/scripts/scrolls-call/call.mjs`. |
 | `submitting` → `settled` | **Sundial L2 node** `POST /submit` + operator block production | Transaction hex goes in the **request body**; the `?tx_cbor=` query form returns `400 Invalid CBOR provided`. "Enqueued" ≠ "applied". |
 | `SCROLLS_FIXED_COST = 420000` | Live `scrolls_cardano.config()` | The canister can change it. It also gates the mandatory fee output, which must sit at index `spell.tx.outs.len()` and match `fee_address[network]` or signing is refused. |
@@ -160,7 +250,16 @@ built above:
 
 Unverified: whether `scrolls_cardano.sign` accepts a real beam-**receive** (with
 `beamed_outs` and a BTC finality prev-tx) off-chain. Only a plain mint has been
-tested.
+tested — and now, via `BeamReceiveForm`, a beam-receive can actually be
+attempted for real; nobody has yet run it against a currently-valid placeholder
+(the one captured demo state tried this session was stale — its L2 prev-tx was
+not found, confirming it predates a testnet reset or similar).
+
+Resolved: **the Sundial L2 testnet settles to Cardano preprod** (Sam,
+2026-08-18). This is what makes placeholder-tx construction tractable —
+preprod's protocol parameters (fetchable via Blockfrost, key already present as
+`NEXT_PUBLIC_BLOCKFROST_KEY_PREPROD`) are the correct ones, not a guess. Not yet
+acted on: no placeholder builder exists yet, per the table above.
 
 ## Adding more chains
 
@@ -186,3 +285,16 @@ No existing mechanism has to change.
 
 One thing still to watch: `resolveTransferRoute` is a hand-written if-ladder.
 It reads clearly at five chains; past roughly a dozen it wants to be table-driven.
+
+## Live-mode gaps that still matter
+
+- **State is in memory.** Both orchestrators keep transfers in a `globalThis`
+  Map, which dies with the process and, on serverless, between requests. This is
+  the single biggest gap between "works on a long-lived server" and "works
+  anywhere", and it applies to live mode too.
+- **The queue id is not a transaction hash.** `/submit` returns its own queue
+  id; live mode reports it under `sourceTxid` because that is the only handle
+  the node gives, and does not link it to an explorer.
+- **The node accepts any well-formed hex.** Its `/submit` check is
+  `isHexString`, so a garbage-but-hex payload is enqueued and returns a queue
+  id. Acceptance there is not validation.

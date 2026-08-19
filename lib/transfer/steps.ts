@@ -38,6 +38,10 @@ export interface TransferStepInfo {
   // One line explaining what is happening, shown for the active step only.
   detail: string;
   isTerminal: boolean;
+  // True when the step advances only because the *user* acts, not because the
+  // service makes progress. Polling one of these is pointless: no amount of
+  // asking changes an answer that is waiting on a human.
+  isUserBlocked: boolean;
   // How long the mock orchestrator dwells here. Ignored once a real service
   // answers, which reports its own step.
   mockDwellMs: number;
@@ -50,6 +54,7 @@ const STEPS: Record<TransferStep, TransferStepInfo> = {
     detail:
       "Building the destination UTxO and its collateral on the Sundial L2.",
     isTerminal: false,
+    isUserBlocked: false,
     mockDwellMs: 0,
   },
   awaiting_signature: {
@@ -57,6 +62,7 @@ const STEPS: Record<TransferStep, TransferStepInfo> = {
     label: "Awaiting your signature",
     detail: "Sign in your wallet to authorize the transfer.",
     isTerminal: false,
+    isUserBlocked: true,
     // Driven by the user, not the clock.
     mockDwellMs: 0,
   },
@@ -65,6 +71,7 @@ const STEPS: Record<TransferStep, TransferStepInfo> = {
     label: "Broadcasting",
     detail: "Sending the signed transaction to the network.",
     isTerminal: false,
+    isUserBlocked: false,
     mockDwellMs: 3_000,
   },
   confirming: {
@@ -72,6 +79,7 @@ const STEPS: Record<TransferStep, TransferStepInfo> = {
     label: "Confirming",
     detail: "Waiting for the network to confirm the transaction.",
     isTerminal: false,
+    isUserBlocked: false,
     // Per confirmation, not for the whole step — see routes.ts.
     mockDwellMs: 4_000,
   },
@@ -80,6 +88,7 @@ const STEPS: Record<TransferStep, TransferStepInfo> = {
     label: "Proving the receive",
     detail: "Generating the beam-receive spell proof.",
     isTerminal: false,
+    isUserBlocked: false,
     mockDwellMs: 8_000,
   },
   scrolls_sign: {
@@ -88,6 +97,7 @@ const STEPS: Record<TransferStep, TransferStepInfo> = {
     detail:
       "Scrolls re-verifies the proof from the transaction alone and threshold-signs it.",
     isTerminal: false,
+    isUserBlocked: false,
     mockDwellMs: 4_000,
   },
   submitting: {
@@ -95,6 +105,7 @@ const STEPS: Record<TransferStep, TransferStepInfo> = {
     label: "Submitting",
     detail: "Handing the signed transaction to the destination ledger.",
     isTerminal: false,
+    isUserBlocked: false,
     mockDwellMs: 4_000,
   },
   settled: {
@@ -102,6 +113,7 @@ const STEPS: Record<TransferStep, TransferStepInfo> = {
     label: "Settled",
     detail: "The funds are spendable at the destination.",
     isTerminal: true,
+    isUserBlocked: false,
     mockDwellMs: 0,
   },
   failed: {
@@ -109,6 +121,7 @@ const STEPS: Record<TransferStep, TransferStepInfo> = {
     label: "Failed",
     detail: "The transfer could not be completed.",
     isTerminal: true,
+    isUserBlocked: false,
     mockDwellMs: 0,
   },
 };
@@ -118,3 +131,12 @@ export const transferStepInfo = (step: TransferStep): TransferStepInfo =>
 
 export const isTerminalTransferStep = (step: TransferStep): boolean =>
   STEPS[step].isTerminal;
+
+export const isUserBlockedTransferStep = (step: TransferStep): boolean =>
+  STEPS[step].isUserBlocked;
+
+// Whether asking the service again could ever return something different.
+// Terminal steps are done; user-blocked steps change only when this client
+// acts, and it refreshes itself when it does.
+export const isPollableTransferStep = (step: TransferStep): boolean =>
+  !STEPS[step].isTerminal && !STEPS[step].isUserBlocked;

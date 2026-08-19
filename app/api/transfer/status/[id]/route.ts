@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import * as live from "@/lib/transfer/live-service";
+import { isLiveMode } from "@/lib/transfer/mode";
 import { getStatus, TransferUnknownError } from "@/lib/transfer/mock-service";
 import {
   proxyToTransferService,
@@ -40,9 +42,15 @@ export async function GET(
   }
 
   try {
-    return NextResponse.json(await getStatus(transferId));
+    const result = isLiveMode()
+      ? await live.getStatus(transferId)
+      : await getStatus(transferId);
+    return NextResponse.json(result);
   } catch (e) {
-    if (e instanceof TransferUnknownError) {
+    if (
+      e instanceof TransferUnknownError ||
+      e instanceof live.LiveTransferUnknownError
+    ) {
       return transferError(404, "TRANSFER_UNKNOWN", e.message);
     }
     console.error("Transfer status lookup failed:", e);
