@@ -30,6 +30,10 @@ import {
 } from "@/components/ui/card";
 import { useConfirmation } from "@/components/ui/confirmation";
 import { ConnectButton } from "@/lib/wallet/bitcoin/btcbutton";
+import {
+  describeSigningError,
+  isUserRejection,
+} from "@/lib/wallet/bitcoin/signing-errors";
 import { chainConfigs, isBitcoinChain } from "@/lib/multichain";
 import { formatUnits, shortenAddress } from "@/lib/transfer/format";
 import {
@@ -174,10 +178,17 @@ export default function TransferProgress({
 
       await onSubmitSigned(signed.extractTransaction().toHex());
     } catch (e) {
-      console.error("Failed to sign the transfer:", e);
-      setSignError(
-        e instanceof Error ? e.message : "The transaction could not be signed.",
-      );
+      // A declined signature is the expected outcome of asking for one, not
+      // an application error — console.error here would have Next.js's dev
+      // overlay treat a normal "no" as a crash, and the wallet's own
+      // rejection object often has no `.message` an `instanceof Error` check
+      // would find, which is why this was logging as an unhelpful `{}`.
+      if (isUserRejection(e)) {
+        console.warn("Wallet signature declined:", e);
+      } else {
+        console.error("Failed to sign the transfer:", e);
+      }
+      setSignError(describeSigningError(e));
     } finally {
       setIsSigning(false);
     }
@@ -192,7 +203,9 @@ export default function TransferProgress({
     setSignError(null);
 
     if (!/^[0-9a-fA-F]+$/.test(hex) || hex.length % 2 !== 0) {
-      setSignError("Paste the transaction as raw hex (the envelope's cborHex).");
+      setSignError(
+        "Paste the transaction as raw hex (the envelope's cborHex).",
+      );
       return;
     }
 
@@ -249,341 +262,334 @@ export default function TransferProgress({
       </CardHeader>
 
       <CardContent className="space-y-5">
-      {/* Route header */}
-      <div className="flex flex-wrap items-center gap-3 rounded-sm border bg-background/50 p-4">
-        <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-            From
-          </p>
-          <p className="text-sm font-semibold">{fromConfig.name}</p>
-          <p className="truncate font-mono text-xs text-muted-foreground">
-            {shortenAddress(status.fromAddress)}
-          </p>
+        {/* Route header */}
+        <div className="flex flex-wrap items-center gap-3 rounded-sm border bg-background/50 p-4">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+              From
+            </p>
+            <p className="text-sm font-semibold">{fromConfig.name}</p>
+            <p className="truncate font-mono text-xs text-muted-foreground">
+              {shortenAddress(status.fromAddress)}
+            </p>
+          </div>
+
+          <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+              To
+            </p>
+            <p className="text-sm font-semibold">{toConfig.name}</p>
+            <p className="truncate font-mono text-xs text-muted-foreground">
+              {shortenAddress(status.toAddress)}
+            </p>
+          </div>
+
+          {/* No route badge here: the card title already carries it. */}
+          <div className="ml-auto text-right">
+            <p className="text-lg font-semibold tabular-nums">
+              {formatUnits(status.quote.amount, fromConfig.decimals)}{" "}
+              {fromConfig.symbol}
+            </p>
+            <p className="text-xs text-muted-foreground">Amount</p>
+          </div>
         </div>
 
-        <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+        {/* Step track */}
+        <ol className="space-y-1">
+          {trackedSteps.map((stepId, index) => {
+            const stepInfo = transferStepInfo(stepId);
+            const isDone = !isFailed && index < activeIndex;
+            const isActive = !isFailed && index === activeIndex;
 
-        <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-            To
-          </p>
-          <p className="text-sm font-semibold">{toConfig.name}</p>
-          <p className="truncate font-mono text-xs text-muted-foreground">
-            {shortenAddress(status.toAddress)}
-          </p>
-        </div>
-
-        {/* No route badge here: the card title already carries it. */}
-        <div className="ml-auto text-right">
-          <p className="text-lg font-semibold tabular-nums">
-            {formatUnits(status.quote.amount, fromConfig.decimals)}{" "}
-            {fromConfig.symbol}
-          </p>
-          <p className="text-xs text-muted-foreground">Amount</p>
-        </div>
-      </div>
-
-      {/* Step track */}
-      <ol className="space-y-1">
-        {trackedSteps.map((stepId, index) => {
-          const stepInfo = transferStepInfo(stepId);
-          const isDone = !isFailed && index < activeIndex;
-          const isActive = !isFailed && index === activeIndex;
-
-          return (
-            <li
-              key={stepId}
-              className={cn(
-                "flex items-start gap-3 rounded-sm px-3 py-2 transition-colors",
-                isActive && "bg-primary/10",
-              )}
-            >
-              <span
+            return (
+              <li
+                key={stepId}
                 className={cn(
-                  "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] font-semibold",
-                  isDone && "border-primary/40 bg-primary/20 text-primary",
-                  isActive &&
-                    "border-primary bg-primary text-primary-foreground",
-                  !isDone && !isActive && "border-muted text-muted-foreground",
+                  "flex items-start gap-3 rounded-sm px-3 py-2 transition-colors",
+                  isActive && "bg-primary/10",
                 )}
               >
-                {isDone ? (
-                  <Check className="h-3 w-3" />
-                ) : isActive && !isSettled ? (
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                ) : isActive && isSettled ? (
-                  <Check className="h-3 w-3" />
-                ) : (
-                  index + 1
-                )}
-              </span>
-
-              <div className="min-w-0">
-                <p
+                <span
                   className={cn(
-                    "text-sm font-medium",
-                    !isDone && !isActive && "text-muted-foreground",
+                    "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] font-semibold",
+                    isDone && "border-primary/40 bg-primary/20 text-primary",
+                    isActive &&
+                      "border-primary bg-primary text-primary-foreground",
+                    !isDone &&
+                      !isActive &&
+                      "border-muted text-muted-foreground",
                   )}
                 >
-                  {stepInfo.label}
-                  {isActive &&
-                  stepId === "confirming" &&
-                  status.confirmations !== null
-                    ? ` (${status.confirmations}/${status.quote.requiredConfirmations})`
-                    : ""}
-                </p>
-                {isActive ? (
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    {stepInfo.detail}
+                  {isDone ? (
+                    <Check className="h-3 w-3" />
+                  ) : isActive && !isSettled ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : isActive && isSettled ? (
+                    <Check className="h-3 w-3" />
+                  ) : (
+                    index + 1
+                  )}
+                </span>
+
+                <div className="min-w-0">
+                  <p
+                    className={cn(
+                      "text-sm font-medium",
+                      !isDone && !isActive && "text-muted-foreground",
+                    )}
+                  >
+                    {stepInfo.label}
+                    {isActive &&
+                    stepId === "confirming" &&
+                    status.confirmations !== null
+                      ? ` (${status.confirmations}/${status.quote.requiredConfirmations})`
+                      : ""}
                   </p>
-                ) : null}
+                  {isActive ? (
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {stepInfo.detail}
+                    </p>
+                  ) : null}
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+
+        {isFailed ? (
+          <Alert variant="destructive" className="border-destructive/30">
+            <AlertDescription>
+              <p className="font-medium">{info.label}</p>
+              <p className="mt-1 text-sm">
+                {status.failureReason ?? info.detail}
+              </p>
+            </AlertDescription>
+          </Alert>
+        ) : null}
+
+        {/* Signing step */}
+        {isAwaitingSignature ? (
+          <div className="space-y-4 rounded-sm border bg-background/50 p-4">
+            {status.sourceUnsignedTx ? (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">
+                    Unsigned transaction{isBitcoinSource ? " (PSBT)" : ""}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={copyUnsignedTx}
+                    disabled={!status.sourceUnsignedTx}
+                  >
+                    {copied ? (
+                      <Check className="h-3 w-3" />
+                    ) : (
+                      <Copy className="h-3 w-3" />
+                    )}
+                    Copy
+                  </Button>
+                </div>
+                <textarea
+                  className="w-full resize-none rounded-sm border bg-background p-3 font-mono text-xs"
+                  rows={3}
+                  value={status.sourceUnsignedTx}
+                  readOnly
+                />
               </div>
-            </li>
-          );
-        })}
-      </ol>
+            ) : null}
 
-      {isFailed ? (
-        <Alert variant="destructive" className="border-destructive/30">
-          <AlertDescription>
-            <p className="font-medium">{info.label}</p>
-            <p className="mt-1 text-sm">{status.failureReason ?? info.detail}</p>
-          </AlertDescription>
-        </Alert>
-      ) : null}
+            {signError ? (
+              <Alert variant="destructive" className="border-destructive/30">
+                <AlertDescription>{signError}</AlertDescription>
+              </Alert>
+            ) : null}
 
-      {/* Signing step */}
-      {isAwaitingSignature ? (
-        <div className="space-y-4 rounded-sm border bg-background/50 p-4">
-          {status.sourceUnsignedTx ? (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">
-                Unsigned transaction{isBitcoinSource ? " (PSBT)" : ""}
-              </span>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={copyUnsignedTx}
-                disabled={!status.sourceUnsignedTx}
-              >
-                {copied ? (
-                  <Check className="h-3 w-3" />
-                ) : (
-                  <Copy className="h-3 w-3" />
-                )}
-                Copy
-              </Button>
-            </div>
-            <textarea
-              className="w-full resize-none rounded-sm border bg-background p-3 font-mono text-xs"
-              rows={3}
-              value={status.sourceUnsignedTx}
-              readOnly
-            />
-          </div>
-          ) : null}
-
-          {signError ? (
-            <Alert variant="destructive" className="border-destructive/30">
-              <AlertDescription>{signError}</AlertDescription>
-            </Alert>
-          ) : null}
-
-          {isMock ? (
-            <div className="space-y-3">
-              <div className="flex items-start gap-2 rounded-sm border border-amber-500/30 bg-amber-500/10 p-3 text-sm">
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
-                <p className="text-muted-foreground">
-                  This transaction is a stand-in and cannot be signed — nothing
-                  exists behind it on any chain. Continue to watch the rest of
-                  the flow run.
-                </p>
-              </div>
-              <Button type="button" onClick={simulateSignature} disabled={busy}>
-                {busy ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Continuing...
-                  </>
-                ) : (
-                  "Simulate signature and continue"
-                )}
-              </Button>
-            </div>
-          ) : isLive && mechanism?.id === "charms" ? (
-            <BeamReceiveForm
-              onSubmit={onSubmitBeamReceive}
-              isSubmitting={busy}
-              error={signError}
-            />
-          ) : isLive ? (
-            <div className="space-y-3">
-              <div className="flex items-start gap-2 rounded-sm border bg-background p-3 text-sm">
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
-                <div className="text-muted-foreground">
-                  <p className="font-medium text-foreground">
-                    Bring your own transaction
-                  </p>
-                  <p className="mt-1">
-                    This mechanism has no transaction builder yet. Produce a
-                    signed transaction externally and paste its raw hex here —
-                    it is submitted to the real L2 node.
+            {isMock ? (
+              <div className="space-y-3">
+                <div className="flex items-start gap-2 rounded-sm border border-amber-500/30 bg-amber-500/10 p-3 text-sm">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+                  <p className="text-muted-foreground">
+                    This transaction is a stand-in and cannot be signed —
+                    nothing exists behind it on any chain. Continue to watch the
+                    rest of the flow run.
                   </p>
                 </div>
-              </div>
-
-              <textarea
-                className="w-full resize-none rounded-sm border bg-background p-3 font-mono text-xs"
-                rows={4}
-                placeholder="84a400818258200f3a…"
-                value={pastedTx}
-                onChange={(event) => {
-                  setPastedTx(event.target.value);
-                  if (signError) setSignError(null);
-                }}
-                spellCheck={false}
-              />
-
-              <Button
-                type="button"
-                onClick={submitPastedTx}
-                disabled={busy || !pastedTx.trim()}
-              >
-                {busy ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Submitting to the L2...
-                  </>
-                ) : (
-                  "Sign and submit to the L2"
-                )}
-              </Button>
-            </div>
-          ) : !isBitcoinSource ? (
-            // Only the Bitcoin connector is wired for in-browser signing. Saying
-            // so beats a button that throws.
-            <Alert className="border-amber-500/30 bg-amber-500/10 text-foreground">
-              <AlertDescription>
-                Signing from {fromConfig.name} is not wired up in the browser
-                yet. Copy the transaction above and sign it in your wallet.
-              </AlertDescription>
-            </Alert>
-          ) : (
-            <div className="space-y-3">
-              {isDemo ? (
-                <div className="flex items-start gap-2 rounded-sm border border-sky-500/30 bg-sky-500/10 p-3 text-sm">
-                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-sky-600" />
-                  <div className="text-muted-foreground">
-                    <p className="font-medium text-foreground">
-                      Real broadcast, demo-only lock
-                    </p>
-                    <p className="mt-1">
-                      Signing sends a real transaction on Bitcoin testnet that
-                      locks this amount into a timelock script — reclaimable
-                      by this same wallet once the lock expires. That timelock
-                      is a stand-in chosen to look like something is
-                      genuinely happening; it is not how a real beam-send
-                      works. The real mechanism sends to a shared
-                      always-succeeds script with no timelock at all, so the
-                      beam-receive side can consume it without asking you to
-                      sign again — see app/dashboard/transfer/README.md.
-                    </p>
-                  </div>
-                </div>
-              ) : null}
-              {isConnected ? (
-                <Button type="button" onClick={signWithWallet} disabled={busy}>
+                <Button
+                  type="button"
+                  onClick={simulateSignature}
+                  disabled={busy}
+                >
                   {busy ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Waiting for your wallet...
+                      Continuing...
                     </>
                   ) : (
-                    "Sign in wallet"
+                    "Simulate signature and continue"
                   )}
                 </Button>
-              ) : (
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">
-                    Connect a Bitcoin wallet to sign.
-                  </p>
-                  <ConnectButton />
+              </div>
+            ) : isLive && mechanism?.id === "charms" ? (
+              <BeamReceiveForm
+                onSubmit={onSubmitBeamReceive}
+                isSubmitting={busy}
+                error={signError}
+              />
+            ) : isLive ? (
+              <div className="space-y-3">
+                <div className="flex items-start gap-2 rounded-sm border bg-background p-3 text-sm">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+                  <div className="text-muted-foreground">
+                    <p className="font-medium text-foreground">
+                      Bring your own transaction
+                    </p>
+                    <p className="mt-1">
+                      This mechanism has no transaction builder yet. Produce a
+                      signed transaction externally and paste its raw hex here —
+                      it is submitted to the real L2 node.
+                    </p>
+                  </div>
                 </div>
-              )}
-            </div>
-          )}
-        </div>
-      ) : null}
 
-      {/* Settled */}
-      {isSettled ? (
-        <div className="rounded-sm border border-emerald-500/30 bg-emerald-500/10 p-4">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-300">
-            Settled
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {formatUnits(status.quote.receiveAmount, toConfig.decimals)}{" "}
-            {toConfig.symbol} is now spendable on {toConfig.name}.
-          </p>
-        </div>
-      ) : null}
+                <textarea
+                  className="w-full resize-none rounded-sm border bg-background p-3 font-mono text-xs"
+                  rows={4}
+                  placeholder="84a400818258200f3a…"
+                  value={pastedTx}
+                  onChange={(event) => {
+                    setPastedTx(event.target.value);
+                    if (signError) setSignError(null);
+                  }}
+                  spellCheck={false}
+                />
 
-      {/* Identifiers */}
-      <dl className="grid gap-3 text-sm">
-        <div className="rounded-sm border bg-background/50 p-3">
-          <dt className="text-muted-foreground">Transfer</dt>
-          <dd className="mt-1 break-all font-mono text-xs">
-            {status.transferId}
-          </dd>
-        </div>
-        {status.sourceTxid ? (
+                <Button
+                  type="button"
+                  onClick={submitPastedTx}
+                  disabled={busy || !pastedTx.trim()}
+                >
+                  {busy ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Submitting to the L2...
+                    </>
+                  ) : (
+                    "Sign and submit to the L2"
+                  )}
+                </Button>
+              </div>
+            ) : !isBitcoinSource ? (
+              // Only the Bitcoin connector is wired for in-browser signing. Saying
+              // so beats a button that throws.
+              <Alert className="border-amber-500/30 bg-amber-500/10 text-foreground">
+                <AlertDescription>
+                  Signing from {fromConfig.name} is not wired up in the browser
+                  yet. Copy the transaction above and sign it in your wallet.
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <div className="space-y-3">
+                {isConnected ? (
+                  <Button
+                    type="button"
+                    onClick={signWithWallet}
+                    disabled={busy}
+                  >
+                    {busy ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Waiting for your wallet...
+                      </>
+                    ) : (
+                      "Sign in wallet"
+                    )}
+                  </Button>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                      Connect a Bitcoin wallet to sign.
+                    </p>
+                    <ConnectButton />
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ) : null}
+
+        {/* Settled */}
+        {isSettled ? (
+          <div className="rounded-sm border border-emerald-500/30 bg-emerald-500/10 p-4">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-300">
+              Settled
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {formatUnits(status.quote.receiveAmount, toConfig.decimals)}{" "}
+              {toConfig.symbol} is now spendable on {toConfig.name}.
+            </p>
+          </div>
+        ) : null}
+
+        {/* Identifiers */}
+        <dl className="grid gap-3 text-sm">
           <div className="rounded-sm border bg-background/50 p-3">
-            <dt className="text-muted-foreground">
-              {fromConfig.name} transaction
-            </dt>
+            <dt className="text-muted-foreground">Transfer</dt>
             <dd className="mt-1 break-all font-mono text-xs">
-              {/* No explorer link while mocked: the txid is generated by the
+              {status.transferId}
+            </dd>
+          </div>
+          {status.sourceTxid ? (
+            <div className="rounded-sm border bg-background/50 p-3">
+              <dt className="text-muted-foreground">
+                {fromConfig.name} transaction
+              </dt>
+              <dd className="mt-1 break-all font-mono text-xs">
+                {/* No explorer link while mocked: the txid is generated by the
                   mock service and would 404. Nor for the L2, which has no
                   explorer at all — chainConfigs carries an empty base URL to
                   make that checkable rather than guessable. */}
-              {isMock || !fromConfig.explorerBaseUrl ? (
-                status.sourceTxid
-              ) : (
-                <a
-                  className="inline-flex items-center gap-1 hover:text-primary"
-                  href={`${fromConfig.explorerBaseUrl}${fromConfig.explorerTxSlug}${status.sourceTxid}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {status.sourceTxid}
-                  <ExternalLink className="h-3 w-3 shrink-0" />
-                </a>
-              )}
-            </dd>
-          </div>
-        ) : null}
-        {status.destinationTxId ? (
-          <div className="rounded-sm border bg-background/50 p-3">
-            <dt className="text-muted-foreground">{toConfig.name} transaction</dt>
-            <dd className="mt-1 break-all font-mono text-xs">
-              {status.destinationTxId}
-            </dd>
-          </div>
-        ) : null}
-      </dl>
+                {isMock || !fromConfig.explorerBaseUrl ? (
+                  status.sourceTxid
+                ) : (
+                  <a
+                    className="inline-flex items-center gap-1 hover:text-primary"
+                    href={`${fromConfig.explorerBaseUrl}${fromConfig.explorerTxSlug}${status.sourceTxid}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {status.sourceTxid}
+                    <ExternalLink className="h-3 w-3 shrink-0" />
+                  </a>
+                )}
+              </dd>
+            </div>
+          ) : null}
+          {status.destinationTxId ? (
+            <div className="rounded-sm border bg-background/50 p-3">
+              <dt className="text-muted-foreground">
+                {toConfig.name} transaction
+              </dt>
+              <dd className="mt-1 break-all font-mono text-xs">
+                {status.destinationTxId}
+              </dd>
+            </div>
+          ) : null}
+        </dl>
 
-      {error ? (
-        <Alert className="border-amber-500/30 bg-amber-500/10 text-foreground">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      ) : null}
+        {error ? (
+          <Alert className="border-amber-500/30 bg-amber-500/10 text-foreground">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        ) : null}
 
-      <Button type="button" variant="outline" onClick={handleReset}>
-        <RotateCcw className="h-4 w-4" />
-        {isSettled || isFailed ? "New transfer" : "Start over"}
-      </Button>
+        <Button type="button" variant="outline" onClick={handleReset}>
+          <RotateCcw className="h-4 w-4" />
+          {isSettled || isFailed ? "New transfer" : "Start over"}
+        </Button>
       </CardContent>
     </Card>
   );

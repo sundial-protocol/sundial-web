@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SupportedChain, chainAsset } from "@/lib/multichain";
 import usePrices from "./prices";
 import { yieldFromProvider, YieldOpportunity } from "./yield-opportunities";
@@ -211,6 +211,28 @@ export function useDashboardData() {
   ) => {
     setWalletBalances((prev) => ({ ...prev, [asset]: balance }));
   };
+
+  // Demo mode's fake transferred funds (see lib/transfer/demo-service.ts),
+  // layered onto the L2 balance rather than mixed into it. Keyed by
+  // transferId rather than accumulated directly: a settled demo transfer's
+  // own effect can legitimately re-fire (remounting the transfer tab,
+  // resuming after a refresh), and without a key that would credit the same
+  // transfer's funds again on every remount. useL2Balance adds the summed
+  // total on top of whatever the real L2 node actually reports, so it shows
+  // up everywhere that hook is used — dashboard overview, staking, transfer —
+  // not just wherever the transfer happened to settle.
+  const [demoL2Credits, setDemoL2Credits] = useState<Record<string, number>>(
+    {},
+  );
+  const creditDemoL2Transfer = (transferId: string, amount: number) => {
+    setDemoL2Credits((prev) =>
+      prev[transferId] === amount ? prev : { ...prev, [transferId]: amount },
+    );
+  };
+  const demoL2Credit = useMemo(
+    () => Object.values(demoL2Credits).reduce((sum, v) => sum + v, 0),
+    [demoL2Credits],
+  );
   const [selectedYieldProvider, setSelectedYieldProvider] =
     useState<YieldOpportunity | null>(null);
   const calculations = usePortfolioCalculations(
@@ -495,6 +517,8 @@ export function useDashboardData() {
     // Wallet balances
     walletBalances,
     setWalletBalance,
+    demoL2Credit,
+    creditDemoL2Transfer,
   };
 }
 

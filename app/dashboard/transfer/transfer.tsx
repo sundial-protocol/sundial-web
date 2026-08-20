@@ -14,6 +14,7 @@ import {
 import { useTransfer } from "@/hooks/dashboard/transfer";
 import { useTransferEndpoints } from "@/hooks/dashboard/transfer-endpoints";
 import { useL2Balance } from "@/hooks/dashboard/l2-balance";
+import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import { resolveMechanismProfile } from "@/lib/transfer/mechanisms";
 import { resolveTransferRoute } from "@/lib/transfer/routes";
 import ModeChip from "./mode-chip";
@@ -41,15 +42,36 @@ export default function TransferTab() {
   const endpoints = useTransferEndpoints();
   const composer = useTransferComposer(endpoints);
   const { refresh: refreshL2Balance } = useL2Balance(endpoints.l2Address);
+  const { creditDemoL2Transfer } = useDashboardContext();
 
   const step = transfer.status?.step;
+  const transferId = transfer.transferId;
+  const isDemo = transfer.status?.mode === "demo";
+  const receiveAmount = transfer.status?.quote.receiveAmount;
 
   // The balance the user came here to change has just changed. Waiting on the
   // balance hook's own cycle would leave the success message sitting above a
   // stale number.
+  //
+  // A demo transfer never actually moved anything on the L2 — refreshing here
+  // would just re-read the unchanged real balance — so it credits the quoted
+  // amount instead, keyed by transferId so revisiting this tab after the fact
+  // (remount, page refresh) cannot credit the same transfer twice.
   useEffect(() => {
-    if (step === "settled") refreshL2Balance();
-  }, [step, refreshL2Balance]);
+    if (step !== "settled") return;
+    if (isDemo && transferId && receiveAmount !== undefined) {
+      creditDemoL2Transfer(transferId, receiveAmount);
+    } else {
+      refreshL2Balance();
+    }
+  }, [
+    step,
+    isDemo,
+    transferId,
+    receiveAmount,
+    creditDemoL2Transfer,
+    refreshL2Balance,
+  ]);
 
   // An in-flight transfer reports the mode that actually served it; before one
   // exists, fall back to what the routes say they will use. The first is the

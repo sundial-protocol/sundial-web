@@ -39,6 +39,10 @@ import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import Link from "next/link";
 import { PsbtSigning } from "@/components/btc/psbt-signing";
 import { ConnectButton } from "@/lib/wallet/bitcoin/btcbutton";
+import {
+  describeSigningError,
+  isUserRejection,
+} from "@/lib/wallet/bitcoin/signing-errors";
 import { WalletButton } from "@/lib/wallet/cardano/wallet-button";
 import { useToast } from "@/components/ui/toast";
 
@@ -533,11 +537,17 @@ export default function StakingForm({
         title: "Transaction Successful",
         message: `${amount} ${config?.symbol} ${type} completed successfully`,
       });
-    } catch (err: any) {
-      console.warn("Sign/broadcast error:", err?.message);
-      const errorMessage =
-        err.message || "Error signing transaction in browser";
-      setError(errorMessage);
+    } catch (err) {
+      // A declined signature is the expected outcome of asking for one, not
+      // a bug — and the wallet's own rejection object often carries no
+      // `.message` a plain `err?.message` read would find. See
+      // lib/wallet/bitcoin/signing-errors.ts.
+      if (isUserRejection(err)) {
+        console.warn("Wallet signature declined:", err);
+      } else {
+        console.warn("Sign/broadcast error:", err);
+      }
+      setError(describeSigningError(err));
 
       // Update transaction as failed
       updateTransactionStatus(transactionId, "failed");

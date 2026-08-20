@@ -18,11 +18,20 @@ import { useDashboardContext } from "@/lib/contexts/dashboard-context";
  * `refresh()` is exposed because balances move in response to user actions the
  * page already knows about — a faucet claim, a deposit — and waiting on a poll
  * makes those feel broken.
+ *
+ * The returned `balance` is the real fetched amount plus
+ * `demoL2Credit` — demo mode's fake transferred funds (see
+ * lib/transfer/demo-service.ts and dashboard.tsx's own doc comment on
+ * `creditDemoL2Transfer`), which is always 0 outside a settled demo transfer.
+ * Layered on at read time rather than baked into the fetched value, so every
+ * mounted instance of this hook — dashboard overview, staking, transfer —
+ * picks up a new credit immediately when a demo transfer settles, without
+ * waiting on its own next poll.
  */
 export function useL2Balance(address: string | null | undefined) {
-  const { setWalletBalance } = useDashboardContext();
+  const { setWalletBalance, demoL2Credit } = useDashboardContext();
 
-  const [balance, setBalance] = useState<number | null>(null);
+  const [rawBalance, setRawBalance] = useState<number | null>(null);
   const [utxoCount, setUtxoCount] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,11 +51,10 @@ export function useL2Balance(address: string | null | undefined) {
 
   useEffect(() => {
     if (!trimmed) {
-      setBalance(null);
+      setRawBalance(null);
       setUtxoCount(null);
       setError(null);
       setErrorCode(null);
-      setWalletBalanceRef.current("L2", null);
       return;
     }
 
@@ -68,23 +76,20 @@ export function useL2Balance(address: string | null | undefined) {
         if ("error" in data) {
           setError(data.error);
           setErrorCode(data.code);
-          setBalance(null);
+          setRawBalance(null);
           setUtxoCount(null);
-          setWalletBalanceRef.current("L2", null);
           return;
         }
 
-        setBalance(data.balance);
+        setRawBalance(data.balance);
         setUtxoCount(data.utxoCount);
-        setWalletBalanceRef.current("L2", data.balance);
       } catch (err) {
         if (cancelled) return;
         console.error("Failed to fetch L2 balance:", err);
         setError("Could not reach the L2 balance service.");
         setErrorCode("NODE_UNAVAILABLE");
-        setBalance(null);
+        setRawBalance(null);
         setUtxoCount(null);
-        setWalletBalanceRef.current("L2", null);
       } finally {
         if (!cancelled) setIsLoading(false);
       }
@@ -95,6 +100,17 @@ export function useL2Balance(address: string | null | undefined) {
       cancelled = true;
     };
   }, [trimmed, reloadToken]);
+
+  const balance =
+    trimmed && rawBalance !== null ? rawBalance + demoL2Credit : null;
+
+  // A separate effect from the fetch itself: this also has to fire when only
+  // `demoL2Credit` changes, i.e. a demo transfer just settled and this
+  // instance is not the one that credited it and is not about to re-fetch on
+  // its own.
+  useEffect(() => {
+    setWalletBalanceRef.current("L2", balance);
+  }, [balance]);
 
   return {
     balance,
