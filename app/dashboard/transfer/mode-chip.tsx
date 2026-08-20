@@ -1,6 +1,6 @@
 "use client";
 
-import { FlaskConical, Radio, Server } from "lucide-react";
+import { FlaskConical, Bitcoin, Radio, Server } from "lucide-react";
 
 import type { TransferServiceMode } from "@/app/api/transfer/types";
 import { cn } from "@/lib/utils";
@@ -28,6 +28,14 @@ const PRESENTATION: Record<
     icon: FlaskConical,
     className:
       "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400",
+  },
+  demo: {
+    label: "Demo",
+    title:
+      "Real wallet, real signed broadcast to Bitcoin testnet. Everything after that runs on the same timer as Simulated.",
+    icon: Bitcoin,
+    className:
+      "border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-400",
   },
   live: {
     label: "Live",

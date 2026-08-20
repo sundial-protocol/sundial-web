@@ -60,12 +60,13 @@ whenever direction changes fights the user's own click and can loop.
 
 ## Modes
 
-Three implementations answer `app/api/transfer/*`, in precedence order:
+Four implementations answer `app/api/transfer/*`, in precedence order:
 
 | | When | What runs |
 | --- | --- | --- |
 | **external** | `TRANSFER_API_URL` set | Proxy an external transfer service. Nothing in this repo runs. |
 | **live** | `TRANSFER_MODE=live` | `lib/transfer/live-service.ts` — the **real** L2 node and the **real** Scrolls canister, as far as the pipeline exists. |
+| **demo** | `TRANSFER_MODE=demo` | `lib/transfer/demo-service.ts` — a **real** wallet-signed broadcast to Bitcoin testnet, then `lib/transfer/mock-service.ts`'s same timer for everything after. |
 | **mock** | otherwise (default) | `lib/transfer/mock-service.ts` — the step machine on a timer. |
 
 The active mode is on the wire as `mode` on initiate and status, so the UI
@@ -149,6 +150,65 @@ rather than assumed:
 Bitcoin `dest` derivation (`deriveBitcoinDest`, via `bitcoinjs-lib`) is
 standard and used elsewhere in this codebase, but — unlike the Cardano path —
 was **not** independently re-verified against `charms util dest` this session.
+
+### Demo mode
+
+Exists for one thing: showing a team a genuine, explorer-verifiable Bitcoin
+testnet transaction without depending on the parts of the real pipeline that
+are not built (the placeholder builder, a chain observer, a live L2 block
+producer — see "Why the rest is mocked" below). It is a deliberate hybrid, and
+`lib/transfer/demo-service.ts`'s own module doc comment says so up front.
+
+Real:
+
+- **UTXO fetch, timelock script, PSBT construction, broadcast** —
+  `@sundial-protocol/btc-locker` against `mempool.space/testnet/api`, the same
+  library and endpoint the staking flow (`app/api/btc-staking/route.ts`)
+  already uses in production. `initiate()` fetches the connected wallet's
+  actual confirmed testnet UTXOs, derives a real CLTV timelock script address
+  from that same wallet's own public key via `createTimelockScript` (identical
+  call to the staking flow's, `DEMO_TIMELOCK_MINUTES` minutes out instead of
+  30 days), and builds a real, spendable PSBT sending the quoted amount there.
+  Self-custodial by construction — reclaimable by the same wallet once the
+  lock expires, and there is nothing to configure: the destination address is
+  derived per-request from `sourcePublicKey`
+  (`hooks/dashboard/transfer-endpoints.ts`, threaded through
+  `TransferInitiateRequest` — ignored by mock and live mode).
+- **The wallet signature.** No new UI branch was needed for this:
+  `transfer-progress.tsx`'s `signWithWallet()` already calls the real
+  connector's `signPSBT()` whenever the response's `mode` is neither `"mock"`
+  nor `"live"` — that branch existed but was unreachable before this mode,
+  because nothing had ever populated `sourceUnsignedTx` with a real PSBT
+  outside live mode's (never-built) beam-receive path.
+  `finalizePsbtSafe` + raw-hex extraction is the same code live mode's
+  Bitcoin-source signing already exercises.
+- **The broadcast.** `submitSignedSource()` posts the signed hex to
+  `mempool.space/testnet/api/tx` for real; the txid the UI shows and links to
+  an explorer is whatever that endpoint actually returned, not a generated one.
+
+Not real, on purpose — everything from `confirming` onward is
+`mock-service.ts`'s own step timer, unmodified. There is no placeholder to
+build, no proof to generate, no Scrolls signature, no L2 submission: this mode
+does not attempt any of that, the same way live mode refuses rather than fakes
+the pieces it cannot do.
+
+**The timelock is not the real mechanism, and the signing panel says so.**
+The actual Charms beam-send does not use a CLTV timelock at all — it sends to
+a shared *always-succeeds* script address (no repo builds this) so the
+beam-receive side can consume it later without a second signature from the
+sender. A timelock is the opposite shape: spendable only by the original key,
+and only after a delay. It was chosen anyway, deliberately, because it is the
+one demo-worthy property this app can build entirely from an already-verified
+staking-flow call: a script that visibly cannot be spent yet on screen, with
+no separate address to configure or lose track of. `transfer-progress.tsx`
+renders an explicit note in the signing panel whenever `mode === "demo"` so a
+demo audience is not left thinking this is how beaming actually locks funds.
+
+Threaded through `mock-service.ts` as two additive fields on its existing
+record (`realUnsignedTx`, `isDemo`) and two optional parameters on its existing
+`initiate`/`submitSignedSource`, rather than a parallel step machine — every
+ordinary mock-mode call site is unaffected, since both are `undefined` unless
+demo-service passes them.
 
 ### Mock mode
 

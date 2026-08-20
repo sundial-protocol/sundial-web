@@ -59,6 +59,16 @@ interface TransferRecord {
   signedAt: number | null;
   sourceTxid: string | null;
   destinationTxId: string | null;
+  // Demo mode only (lib/transfer/demo-service.ts): a real PSBT built from the
+  // connected wallet's real testnet UTXOs, in place of mockUnsignedTx's fake
+  // one. Stored, not just returned once from initiate(), so a poll mid
+  // awaiting_signature re-serves the same real PSBT instead of a fresh fake.
+  realUnsignedTx: string | null;
+  // True once initiate() received a real unsigned tx. Read back by
+  // statusFrom so a later poll still reports mode "demo" — getStatus never
+  // sees demo-service, only this store, and mode "mock" from a later poll
+  // would send the UI back to the simulated-signature branch mid-flow.
+  isDemo: boolean;
 }
 
 // Mock-only store.
@@ -284,20 +294,28 @@ const statusFrom = (record: TransferRecord): TransferStatusSuccessResponse => {
     confirmations,
     sourceTxid: record.sourceTxid,
     // Re-served only while it is still needed, so a refresh mid-signature can
-    // pick the flow back up without the browser having stored anything.
+    // pick the flow back up without the browser having stored anything. A demo
+    // record re-serves its real PSBT here rather than a fresh fake one — the
+    // wallet needs to sign the exact transaction that was quoted.
     sourceUnsignedTx:
-      step === "awaiting_signature" ? mockUnsignedTx(record) : null,
+      step === "awaiting_signature"
+        ? (record.realUnsignedTx ?? mockUnsignedTx(record))
+        : null,
     // Withheld until the transfer actually settles, so the UI cannot link to a
     // transaction that does not exist yet.
     destinationTxId: step === "settled" ? record.destinationTxId : null,
     failureReason: null,
     quote: quoteFor(record.request, record.route),
-    mode: "mock",
+    mode: record.isDemo ? "demo" : "mock",
   };
 };
 
 export const initiate = async (
   request: TransferInitiateRequest,
+  // Demo-only seam (lib/transfer/demo-service.ts): a real PSBT built from the
+  // connected wallet's real testnet UTXOs. Undefined for every ordinary mock
+  // caller, which is what keeps this file's own behavior unchanged for them.
+  opts?: { realUnsignedTx?: string },
 ): Promise<TransferInitiateSuccessResponse> => {
   const route = resolveTransferRoute(request.fromChain, request.toChain);
   const createdAt = Date.now();
@@ -314,6 +332,8 @@ export const initiate = async (
     signedAt: null,
     sourceTxid: null,
     destinationTxId: randomTxid(),
+    realUnsignedTx: opts?.realUnsignedTx ?? null,
+    isDemo: opts?.realUnsignedTx !== undefined,
   };
 
   // Only the Charms beam commits to a destination UTxO; every other mechanism
@@ -333,16 +353,19 @@ export const initiate = async (
 
   return {
     transferId: record.id,
-    sourceUnsignedTx: mockUnsignedTx(record),
+    sourceUnsignedTx: record.realUnsignedTx ?? mockUnsignedTx(record),
     placeholderUtxo: record.placeholderUtxo,
     quote: quoteFor(request, route),
-    mode: "mock",
+    mode: record.isDemo ? "demo" : "mock",
   };
 };
 
 export const submitSignedSource = async (
   transferId: string,
   _signedSourceTx: string,
+  // Demo-only seam: the real txid a real broadcast returned, in place of a
+  // random one. Undefined for every ordinary mock caller.
+  opts?: { realTxid?: string },
 ): Promise<TransferSubmitSignedSourceSuccessResponse> => {
   const record = require_(transferId);
 
@@ -353,7 +376,7 @@ export const submitSignedSource = async (
   }
 
   record.signedAt = Date.now();
-  record.sourceTxid = randomTxid();
+  record.sourceTxid = opts?.realTxid ?? randomTxid();
 
   return {
     transferId: record.id,

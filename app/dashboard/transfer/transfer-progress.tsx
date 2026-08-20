@@ -121,6 +121,7 @@ export default function TransferProgress({
   // mode cannot silently fall through to the wrong branch.
   const isMock = status.mode === "mock";
   const isLive = status.mode === "live";
+  const isDemo = status.mode === "demo";
   const isBitcoinSource = isBitcoinChain(status.fromChain);
 
   const copyUnsignedTx = async () => {
@@ -469,23 +470,48 @@ export default function TransferProgress({
                 yet. Copy the transaction above and sign it in your wallet.
               </AlertDescription>
             </Alert>
-          ) : isConnected ? (
-            <Button type="button" onClick={signWithWallet} disabled={busy}>
-              {busy ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Waiting for your wallet...
-                </>
-              ) : (
-                "Sign in wallet"
-              )}
-            </Button>
           ) : (
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">
-                Connect a Bitcoin wallet to sign.
-              </p>
-              <ConnectButton />
+            <div className="space-y-3">
+              {isDemo ? (
+                <div className="flex items-start gap-2 rounded-sm border border-sky-500/30 bg-sky-500/10 p-3 text-sm">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-sky-600" />
+                  <div className="text-muted-foreground">
+                    <p className="font-medium text-foreground">
+                      Real broadcast, demo-only lock
+                    </p>
+                    <p className="mt-1">
+                      Signing sends a real transaction on Bitcoin testnet that
+                      locks this amount into a timelock script — reclaimable
+                      by this same wallet once the lock expires. That timelock
+                      is a stand-in chosen to look like something is
+                      genuinely happening; it is not how a real beam-send
+                      works. The real mechanism sends to a shared
+                      always-succeeds script with no timelock at all, so the
+                      beam-receive side can consume it without asking you to
+                      sign again — see app/dashboard/transfer/README.md.
+                    </p>
+                  </div>
+                </div>
+              ) : null}
+              {isConnected ? (
+                <Button type="button" onClick={signWithWallet} disabled={busy}>
+                  {busy ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Waiting for your wallet...
+                    </>
+                  ) : (
+                    "Sign in wallet"
+                  )}
+                </Button>
+              ) : (
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    Connect a Bitcoin wallet to sign.
+                  </p>
+                  <ConnectButton />
+                </div>
+              )}
             </div>
           )}
         </div>

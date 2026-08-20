@@ -108,6 +108,12 @@ export interface TransferInitiateRequest {
   // for the resolved route's direction when it is omitted, and rejects one that
   // is unavailable or cannot carry that direction.
   mechanism?: TransferMechanismId;
+  // The connected Bitcoin wallet's public key, when its connector exposes one
+  // (compressed, 66 hex chars — same format app/api/btc-staking validates).
+  // Ignored by mock and live mode. Demo mode uses it to derive a timelock
+  // script address via @sundial-protocol/btc-locker, the same way the staking
+  // flow already does — see lib/transfer/demo-service.ts.
+  sourcePublicKey?: string;
 }
 
 export interface TransferInitiateSuccessResponse {

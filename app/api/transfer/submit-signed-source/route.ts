@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { ProverError, ProverRejectedError } from "@/lib/transfer/charms-prover";
+import * as demo from "@/lib/transfer/demo-service";
 import { L2NodeError } from "@/lib/transfer/l2-node";
 import * as live from "@/lib/transfer/live-service";
-import { isLiveMode } from "@/lib/transfer/mode";
+import { isDemoMode, isLiveMode } from "@/lib/transfer/mode";
 import {
   submitSignedSource,
   TransferStateError,
@@ -131,7 +132,9 @@ export async function POST(
           signedSourceTx,
           beamReceiveInput,
         })
-      : await submitSignedSource(transferId, signedSourceTx as string);
+      : isDemoMode()
+        ? await demo.submitSignedSource(transferId, signedSourceTx as string)
+        : await submitSignedSource(transferId, signedSourceTx as string);
     return NextResponse.json(result, { status: 201 });
   } catch (e) {
     if (
@@ -145,6 +148,12 @@ export async function POST(
       e instanceof live.LiveTransferStateError
     ) {
       return transferError(409, "TRANSFER_STATE_INVALID", e.message);
+    }
+    // A real testnet rejection (already spent, insufficient fee, malformed
+    // signature) — surfaced verbatim, same reasoning as the prover/Scrolls
+    // rejections below.
+    if (e instanceof demo.DemoBroadcastError) {
+      return transferError(400, "SIGNED_TX_INVALID", e.message);
     }
     // Real rejections from real infrastructure, surfaced rather than
     // generalized: a prover rejection, a Scrolls refusal, and the node's own

@@ -9,8 +9,9 @@ import {
   mechanismCovers,
   transferMechanism,
 } from "@/lib/transfer/mechanisms";
+import * as demo from "@/lib/transfer/demo-service";
 import * as live from "@/lib/transfer/live-service";
-import { isLiveMode } from "@/lib/transfer/mode";
+import { isDemoMode, isLiveMode } from "@/lib/transfer/mode";
 import { initiate } from "@/lib/transfer/mock-service";
 import { resolveTransferRoute } from "@/lib/transfer/routes";
 import {
@@ -158,6 +159,11 @@ export async function POST(
     );
   }
 
+  const sourcePublicKey =
+    typeof body.sourcePublicKey === "string" && body.sourcePublicKey.trim()
+      ? body.sourcePublicKey.trim()
+      : undefined;
+
   const payload: TransferInitiateRequest = {
     fromChain,
     toChain,
@@ -165,6 +171,7 @@ export async function POST(
     toAddress,
     amount,
     ...(mechanism ? { mechanism } : {}),
+    ...(sourcePublicKey ? { sourcePublicKey } : {}),
   };
 
   const baseUrl = transferServiceUrl();
@@ -183,13 +190,17 @@ export async function POST(
   try {
     const result = isLiveMode()
       ? await live.initiate(payload)
-      : await initiate(payload);
+      : isDemoMode()
+        ? await demo.initiate(payload)
+        : await initiate(payload);
     return NextResponse.json(result, { status: 201 });
   } catch (e) {
     // Live mode refuses what it cannot really do rather than faking it, and the
     // reason names the missing piece — that is worth passing through verbatim
-    // instead of collapsing into a generic 500.
-    if (e instanceof live.LiveUnsupportedError) {
+    // instead of collapsing into a generic 500. Demo mode's own refusals (no
+    // configured destination, no confirmed testnet balance) are the same kind
+    // of honest failure.
+    if (e instanceof live.LiveUnsupportedError || e instanceof demo.DemoUnsupportedError) {
       return transferError(400, "MECHANISM_UNAVAILABLE", e.message);
     }
     console.error("Transfer initiate failed:", e);

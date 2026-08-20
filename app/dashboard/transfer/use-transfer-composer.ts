@@ -114,6 +114,8 @@ export function useTransferComposer(
       label: "Another address",
       walletName: null,
       address: trimmed || null,
+      // A destination-only endpoint has no signing key to read.
+      publicKey: null,
       // Not ours to read, and reading it would be a needless lookup against an
       // address the user only wants to send to.
       balance: null,
@@ -282,6 +284,10 @@ export function useTransferComposer(
       toAddress: to.address,
       amount: parsed,
       ...(mechanismId ? { mechanism: mechanismId } : {}),
+      // Harmless outside demo mode — mock and live both ignore it. Demo mode
+      // needs it to build a timelock script the way the staking flow already
+      // does; see hooks/dashboard/transfer-endpoints.ts's own doc comment.
+      ...(from.publicKey ? { sourcePublicKey: from.publicKey } : {}),
     };
   };
 

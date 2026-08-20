@@ -1,7 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
-import { useAppKitAccount, useAppKitNetwork } from "@reown/appkit/react";
+import {
+  useAppKitAccount,
+  useAppKitNetwork,
+  type AccountType,
+} from "@reown/appkit/react";
 import { useLocalStorage } from "usehooks-ts";
 
 import { useCardanoWallet } from "@/lib/wallet/cardano/context";
@@ -45,6 +49,11 @@ export interface TransferEndpoint {
   // address.
   walletName: string | null;
   address: string | null;
+  // Bitcoin only, and only when the connected wallet's connector exposes it
+  // (not every connector does). Demo mode (lib/transfer/demo-service.ts) needs
+  // this to build a timelock script the same way the staking flow does — see
+  // getBTCPubKey there. Null for every other chain.
+  publicKey: string | null;
   // Whole units. Null when unknown — not connected, still loading, or the
   // lookup failed. Kept distinct from zero, which is a different fact.
   balance: number | null;
@@ -85,9 +94,23 @@ export function useTransferEndpoints(): TransferEndpointsResult {
   // truth a tick later.
   const mounted = useClientMounted();
 
-  const { address: walletBtcAddress, isConnected: isBtcWalletConnected } =
-    useAppKitAccount({ namespace: "bip122" });
+  const {
+    address: walletBtcAddress,
+    isConnected: isBtcWalletConnected,
+    allAccounts: btcAccounts,
+  } = useAppKitAccount({ namespace: "bip122" });
   const { caipNetworkId } = useAppKitNetwork();
+
+  // Same lookup staking-form.tsx already does: the connector returns every
+  // account it knows, not just the active one, keyed nowhere else but by
+  // address.
+  const btcPublicKey = useMemo(() => {
+    if (!mounted || !walletBtcAddress || !btcAccounts) return null;
+    const match = (btcAccounts as AccountType[]).find(
+      (account) => account.address === walletBtcAddress,
+    );
+    return match?.publicKey ?? null;
+  }, [mounted, walletBtcAddress, btcAccounts]);
   const cardano = useCardanoWallet();
   const { walletBalances } = useDashboardContext();
 
@@ -130,6 +153,7 @@ export function useTransferEndpoints(): TransferEndpointsResult {
         label: chainConfigs[btcChain].name,
         walletName: isBtcConnected ? "Bitcoin wallet" : null,
         address: isBtcConnected ? (btcAddress ?? null) : null,
+        publicKey: isBtcConnected ? btcPublicKey : null,
         balance: isBtcConnected ? walletBalances.BTC : null,
         isLoadingBalance: false,
         isConnected: isBtcConnected,
@@ -148,6 +172,7 @@ export function useTransferEndpoints(): TransferEndpointsResult {
         address: cardano.isConnected
           ? (cardano.changeAddress ?? cardano.defaultAddress ?? null)
           : null,
+        publicKey: null,
         balance: cardano.isConnected ? walletBalances.ADA : null,
         isLoadingBalance: cardano.isConnecting,
         isConnected: cardano.isConnected,
@@ -164,6 +189,7 @@ export function useTransferEndpoints(): TransferEndpointsResult {
         // hand. Saying so is better than showing an empty wallet slot.
         walletName: null,
         address: l2Address.trim() || null,
+        publicKey: null,
         balance: l2Address.trim() ? l2Balance : null,
         isLoadingBalance: isL2Loading,
         isConnected: Boolean(l2Address.trim()),
@@ -187,6 +213,7 @@ export function useTransferEndpoints(): TransferEndpointsResult {
     btcChain,
     adaChain,
     btcAddress,
+    btcPublicKey,
     isBtcConnected,
     cardano.isConnected,
     cardano.isConnecting,

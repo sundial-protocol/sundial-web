@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 
+import * as demo from "@/lib/transfer/demo-service";
 import * as live from "@/lib/transfer/live-service";
-import { isLiveMode } from "@/lib/transfer/mode";
+import { isDemoMode, isLiveMode } from "@/lib/transfer/mode";
 import { getStatus, TransferUnknownError } from "@/lib/transfer/mock-service";
 import {
   proxyToTransferService,
@@ -42,9 +43,16 @@ export async function GET(
   }
 
   try {
+    // demo.getStatus is mock.getStatus re-exported — a demo record lives in
+    // the same store and its mode ("demo" vs "mock") is read off the record
+    // itself, not the mode this route dispatches on. Branching here anyway
+    // for the same reason the other two routes do: readability, and so a
+    // future divergence has an obvious place to land.
     const result = isLiveMode()
       ? await live.getStatus(transferId)
-      : await getStatus(transferId);
+      : isDemoMode()
+        ? await demo.getStatus(transferId)
+        : await getStatus(transferId);
     return NextResponse.json(result);
   } catch (e) {
     if (
