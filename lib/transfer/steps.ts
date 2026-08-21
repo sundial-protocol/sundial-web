@@ -85,7 +85,7 @@ const STEPS: Record<TransferStep, TransferStepInfo> = {
   },
   proving: {
     id: "proving",
-    label: "Proving the receive",
+    label: "Proving the source transaction",
     detail: "Generating the beam-receive spell proof.",
     isTerminal: false,
     isUserBlocked: false,
@@ -93,7 +93,7 @@ const STEPS: Record<TransferStep, TransferStepInfo> = {
   },
   scrolls_sign: {
     id: "scrolls_sign",
-    label: "Threshold signing",
+    label: "Scrolls signing",
     detail:
       "Scrolls re-verifies the proof from the transaction alone and threshold-signs it.",
     isTerminal: false,

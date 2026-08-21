@@ -55,7 +55,11 @@ export function ConfirmationProvider({ children }: { children: ReactNode }) {
       {children}
       {isOpen && options && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <Card className="w-full max-w-md">
+          {/* Card's own base styling includes h-full, for cards that stretch
+              to fill a grid cell — inside this fixed full-viewport overlay
+              that resolves to full screen height. Overridden here so the
+              dialog sizes to its content instead. */}
+          <Card className="h-auto w-full max-w-md">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-orange-600" />
