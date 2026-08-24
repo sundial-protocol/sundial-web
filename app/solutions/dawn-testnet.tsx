@@ -1,14 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { Bitcoin, Lock, Coins, MailIcon } from "lucide-react";
+import { Lock, Coins, MailIcon } from "lucide-react";
+import { BitcoinSymbol } from "@/components/ui/bitcoin-logo";
 import { Section } from "@/components/ui/section";
 import { Flags } from "@/lib/flags";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 
 const highlights = [
   {
-    icon: Bitcoin,
+    icon: BitcoinSymbol,
     title: "Built on Bitcoin",
     description:
       "Our novel BTC lockers are built entirely on Bitcoin for native, chain-level security.",

@@ -4,13 +4,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Clock,
-  AlertTriangle,
-  Wallet,
-  Bitcoin,
-  DollarSign,
-} from "lucide-react";
+import { Clock, AlertTriangle, Wallet, DollarSign } from "lucide-react";
+import { BitcoinSymbol } from "@/components/ui/bitcoin-logo";
 import { PsbtSigning, usePsbtGeneration } from "@/components/btc/psbt-signing";
 import { TransactionType } from "@/hooks/dashboard/dashboard";
 
@@ -97,11 +92,11 @@ export function TransactionFlow({
       case "bitcoin":
         return {
           name: "Bitcoin",
-          icon: <Bitcoin className="w-5 h-5 text-orange-600" />,
+          icon: <BitcoinSymbol className="w-5 h-5 text-[#F7931A]" />,
           description: "Pay with Bitcoin (BTC)",
           benefits: ["Lower fees", "Instant settlement", "Decentralized"],
           fees: details?.fees?.bitcoin || 0,
-          badgeColor: "bg-orange-100 text-orange-700",
+          badgeColor: "bg-orange-100 text-[#F7931A]",
         };
       case "traditional":
         return {

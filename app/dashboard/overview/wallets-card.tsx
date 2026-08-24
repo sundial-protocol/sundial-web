@@ -8,7 +8,8 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
-import { Bitcoin, Coins } from "lucide-react";
+import { Coins } from "lucide-react";
+import { BitcoinSymbol } from "@/components/ui/bitcoin-logo";
 //import { WalletButton } from "@/lib/wallet/cardano/wallet-button";
 import { Button } from "@/components/ui/button";
 import DashboardBtcHoldings from "./btc-holdings";
@@ -32,7 +33,7 @@ export default function WalletsCard() {
               per-layer split available behind a disclosure. */}
           <div className="flex-1 border rounded p-4 flex flex-col gap-3">
             <div className="flex items-center gap-2 mb-2">
-              <Bitcoin className="w-5 h-5 text-yellow-500" />
+              <BitcoinSymbol className="w-5 h-5 text-[#F7931A]" />
               <div className="flex flex-col">
                 <span className="font-semibold">Bitcoin</span>
               </div>

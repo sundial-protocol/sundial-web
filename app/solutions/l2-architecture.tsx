@@ -4,7 +4,8 @@ import { Section } from "@/components/ui/section";
 import SunbeamBackground, {
   sunbeamGradient,
 } from "@/components/ui/sunbeam/sunbeam-bg";
-import { Bitcoin, Link, Sun, Wrench } from "lucide-react";
+import { Link, Sun, Wrench } from "lucide-react";
+import { BitcoinSymbol } from "@/components/ui/bitcoin-logo";
 import { useEffect, useRef, useState } from "react";
 
 export function FeatureCard({
@@ -67,7 +68,7 @@ export function FeatureCard({
 export function L2Architecture() {
   const features = [
     {
-      icon: Bitcoin,
+      icon: BitcoinSymbol,
       title: "Bitcoin Layer 1",
       description:
         "Native Bitcoin blockchain providing ultimate security and finality. Assets never leave user custody.",

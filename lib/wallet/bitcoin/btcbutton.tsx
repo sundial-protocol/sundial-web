@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bitcoin, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { BitcoinSymbol } from "@/components/ui/bitcoin-logo";
 import {
   useAppKit,
   useAppKitAccount,
@@ -63,7 +64,7 @@ export const ConnectButton = ({
           className: "w-full opacity-50",
         })}
       >
-        <Bitcoin />
+        <BitcoinSymbol />
         Loading wallet…
       </div>
     );
@@ -129,7 +130,7 @@ export const ConnectButton = ({
         ) : (
           <DropdownMenuItem onClick={() => open()}>
             <div className="flex w-full items-center gap-4 font-bold">
-              <Bitcoin className="w-5 h-5" />
+              <BitcoinSymbol className="w-5 h-5" />
               Connect Bitcoin Wallet
             </div>
           </DropdownMenuItem>

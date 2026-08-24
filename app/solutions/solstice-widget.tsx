@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Bitcoin, Gauge, ShieldCheck, MailIcon } from "lucide-react";
+import { Gauge, ShieldCheck, MailIcon } from "lucide-react";
+import { BitcoinSymbol } from "@/components/ui/bitcoin-logo";
 import { Section } from "@/components/ui/section";
 import SunbeamBackground from "@/components/ui/sunbeam/sunbeam-bg";
 import { Flags } from "@/lib/flags";
@@ -14,7 +15,7 @@ const highlights = [
       "A system-wide BTC-per-RT ratio prices investment and redemption from a single source of truth.",
   },
   {
-    icon: Bitcoin,
+    icon: BitcoinSymbol,
     title: "Bitcoin-Native Settlement",
     description:
       "Atomic BTC-in and RT-out settlement keeps pricing and execution aligned to the same transaction.",

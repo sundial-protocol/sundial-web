@@ -1,4 +1,5 @@
-import { Bitcoin, Coins, Sun } from "lucide-react";
+import { Coins, Sun } from "lucide-react";
+import { BitcoinSymbol } from "@/components/ui/bitcoin-logo";
 import { Flags } from "@/lib/flags";
 import { CurrencyCode } from "@/hooks/dashboard/prices";
 
@@ -34,7 +35,7 @@ export const chainConfigs: Record<SupportedChain, ChainConfig> = {
     id: "btc",
     name: "Bitcoin",
     symbol: "BTC",
-    icon: <Bitcoin className="w-4 h-4" />,
+    icon: <BitcoinSymbol className="w-4 h-4" />,
     addressPrefix: "bc1q",
     minDeposit: 0.00001,
     decimals: 8,
@@ -70,7 +71,7 @@ export const chainConfigs: Record<SupportedChain, ChainConfig> = {
     id: "btc_testnet",
     name: "Bitcoin Testnet",
     symbol: "tBTC",
-    icon: <Bitcoin className="w-4 h-4" />,
+    icon: <BitcoinSymbol className="w-4 h-4" />,
     addressPrefix: "tb1q",
     minDeposit: 0.000001,
     decimals: 8,

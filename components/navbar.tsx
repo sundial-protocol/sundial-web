@@ -6,7 +6,8 @@ import { cn } from "@/lib/utils";
 import { Flags } from "@/lib/flags";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
-import { BadgeCheck, HomeIcon, Building, Folder, Bitcoin } from "lucide-react";
+import { BadgeCheck, HomeIcon, Building, Folder } from "lucide-react";
+import { BitcoinSymbol } from "@/components/ui/bitcoin-logo";
 import Image from "next/image";
 
 function NavLink({
@@ -122,7 +123,7 @@ export default function Navbar() {
             )}
           >
             <span className="relative">
-              <Bitcoin
+              <BitcoinSymbol
                 className={cn(
                   navIconCn,
                   Flags.DISABLE_DASHBOARD && "text-muted-foreground grayscale",
