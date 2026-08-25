@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { Lock, Coins, MailIcon } from "lucide-react";
 import { BitcoinSymbol } from "@/components/ui/bitcoin-logo";
@@ -67,9 +68,20 @@ export default function DawnTestnet() {
                 <p className="text-sm font-semibold uppercase tracking-[0.3em] text-foreground/60">
                   Bitcoin Yield Testnet
                 </p>
-                <h2 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
-                  Dawn Marketplace
-                </h2>
+                <Image
+                  src="/Dawn-Horizontal.png"
+                  alt="Dawn Yield Marketplace"
+                  width={320}
+                  height={116}
+                  className="block dark:hidden"
+                />
+                <Image
+                  src="/Dawn-Horizontal-DT.png"
+                  alt="Dawn Yield Marketplace"
+                  width={320}
+                  height={116}
+                  className="hidden dark:block"
+                />
                 <p className="mx-auto max-w-xl text-base text-foreground/80 md:text-xl lg:mx-0">
                   Explore Sundial&apos;s newly released testnet and see how
                   Bitcoin-native yield can feel when the full flow stays rooted
