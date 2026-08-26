@@ -29,7 +29,7 @@ export default function WalletsCard() {
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-4 md:gap-8">
-          {/* Bitcoin — one balance across every layer it sits on, with the
+          {/* Bitcoin - one balance across every layer it sits on, with the
               per-layer split available behind a disclosure. */}
           <div className="flex-1 border rounded p-4 flex flex-col gap-3">
             <div className="flex items-center gap-2 mb-2">

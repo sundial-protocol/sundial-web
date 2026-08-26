@@ -14,7 +14,7 @@ import { btcSources, formatBtc, BTC_UNIT } from "@/lib/btc-sources";
 //
 // ⚠ THE SUBMISSION HERE IS A MOCK. It broadcasts nothing and signs nothing: it
 // waits, then updates local dashboard state as though a stake had settled. The
-// UI does not say so — by decision, since this is testnet-only and the dashboard
+// UI does not say so - by decision, since this is testnet-only and the dashboard
 // already carries a page-level notice that staking is simulated.
 //
 // It is mocked because there is nothing to submit to: `midgard-node` has no
@@ -26,7 +26,7 @@ import { btcSources, formatBtc, BTC_UNIT } from "@/lib/btc-sources";
 // node's `/submit` endpoint (a proxy route alongside app/api/l2/utxos). Nothing
 // else in this file needs to change.
 //
-// Do not carry this into a mainnet build without replacing `submitStake` — with
+// Do not carry this into a mainnet build without replacing `submitStake` - with
 // the notice gone there is nothing in the UI to tell a user the stake is fake.
 
 const L2_ADDRESS_STORAGE_KEY = "sundial:l2-address";
@@ -65,7 +65,7 @@ export default function L2StakingForm({
     availableBalance !== null && hasAmount && parsed > availableBalance;
   const canSubmit = hasAmount && !exceedsBalance && !!l2Address && !loading;
 
-  // Mocked — see the note at the top of this file. Replace the body to go live.
+  // Mocked - see the note at the top of this file. Replace the body to go live.
   const submitStake = async () => {
     setLoading(true);
     setResult(null);

@@ -237,7 +237,7 @@ export function useDashboardData() {
   ) => {
     setPortfolioData((prev) => {
       // Map chain to the correct asset key. Covers testnets and the Sundial L2,
-      // whose bridged BTC rolls up under BTC — see chainAsset in lib/multichain.
+      // whose bridged BTC rolls up under BTC - see chainAsset in lib/multichain.
       const asset = chainAsset(chain);
 
       const multiplier = type === "deposit" ? 1 : -1;
@@ -311,8 +311,8 @@ export function useDashboardData() {
     }
 
     // Stored on the transaction as-is (lowercased). Transaction history switches
-    // on this to pick an explorer, so it must stay the chain id — not the rolled
-    // up asset above — or an L2 stake would resolve to a Bitcoin explorer.
+    // on this to pick an explorer, so it must stay the chain id - not the rolled
+    // up asset above - or an L2 stake would resolve to a Bitcoin explorer.
     const chainLower = chain.toLowerCase();
 
     const newTx: LoggedTx = {

@@ -270,7 +270,7 @@ export function VisualizerContent() {
             </strong>{" "}
             So FIRE absorbs <em style={{ color: C.charms }}>all</em> the
             volatility of the vault, and a small percentage move in BTC produces
-            a larger percentage move in FIRE — that&apos;s where the leverage
+            a larger percentage move in FIRE - that&apos;s where the leverage
             comes from. Where the chaos goes, ICE stays still.
           </div>
         </div>
@@ -284,7 +284,7 @@ export function VisualizerContent() {
           <div style={lede}>
             Each ICE token redeems for its USD face value at mint (minimum
             $100). FIRE tokens share whatever the vault holds beyond the ICE
-            liability — change the supply to see dilution.
+            liability - change the supply to see dilution.
           </div>
 
           <div
@@ -459,19 +459,19 @@ export function VisualizerContent() {
                     {
                       accent: C.charms,
                       lbl: "FIRE pool (USD)",
-                      num: firePool >= 0 ? fmtUsd(firePool) : "—",
+                      num: firePool >= 0 ? fmtUsd(firePool) : "-",
                       numColor: C.white,
                       sub: "Vault value beyond ICE liability",
                     },
                     {
                       accent: C.fire,
                       lbl: "FIRE per token",
-                      num: firePer >= 0 ? `$${fmt2(firePer)}` : "—",
+                      num: firePer >= 0 ? `$${fmt2(firePer)}` : "-",
                       numColor: C.fire,
                       sub:
                         firePer >= 0
                           ? `${fmtUsd(firePool)} pool ÷ ${fmtTokens(fireOut)}`
-                          : "Vault below ICE liability — FIRE wiped",
+                          : "Vault below ICE liability - FIRE wiped",
                     },
                   ] as {
                     accent: string;
@@ -601,7 +601,7 @@ export function VisualizerContent() {
                         fontSize: 13,
                       }}
                     >
-                      Vault under ICE liability — FIRE underwater
+                      Vault under ICE liability - FIRE underwater
                     </div>
                   ) : (
                     <div

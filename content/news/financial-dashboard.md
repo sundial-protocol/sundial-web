@@ -13,7 +13,7 @@ At Sundial, our mission is to make Bitcoin productive in a way that’s secure, 
 Beyond tracking individual transactions, the dashboard highlights yield opportunities tailored to different levels of risk and time horizons. From Bitcoin staking with trusted validators to liquid staking, lending pools, and even tokenised real asset strategies, users can explore the full spectrum of options available through Sundial.
 
 ![Portfolio Approaches](/news/portfolio-approaches.png)
-Alternatively, our strategy hub allows you to select between different portfolio approaches — from Conservative Growth to Bitcoin Maximalist or Balanced Yield. Each card makes it easy to compare APY, time horizon, popularity, and total locked assets at a glance, so you can deploy strategies that fit your goals with confidence.
+Alternatively, our strategy hub allows you to select between different portfolio approaches - from Conservative Growth to Bitcoin Maximalist or Balanced Yield. Each card makes it easy to compare APY, time horizon, popularity, and total locked assets at a glance, so you can deploy strategies that fit your goals with confidence.
 
 ![Transaction History](/news/transaction-history.png)
 

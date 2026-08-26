@@ -22,7 +22,7 @@ export default function L2Page() {
           </h1>
           <p className="pt-4 md:text-xl text-foreground/80">
             A fraud-proof, UTXO-native Bitcoin Layer-2 with its own
-            Bitcoin-anchored bridge — no wrapped tokens, no bridge risk, no
+            Bitcoin-anchored bridge - no wrapped tokens, no bridge risk, no
             dependency on external L2s or custodians.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 pt-8">

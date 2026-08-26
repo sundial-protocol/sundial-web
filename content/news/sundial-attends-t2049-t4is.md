@@ -4,7 +4,7 @@ date: "2025-10-20"
 image: "t20495r.jpeg"
 ---
 
-Sundial recently participated in two major global events, TOKEN2049 Singapore and the Tech for Impact Summit in Tokyo — each showcasing the future of blockchain, finance, and technology’s role in building a more inclusive digital economy.
+Sundial recently participated in two major global events, TOKEN2049 Singapore and the Tech for Impact Summit in Tokyo - each showcasing the future of blockchain, finance, and technology’s role in building a more inclusive digital economy.
 
 At TOKEN2049 Singapore 2025, Sundial joined leading voices from across the digital asset ecosystem including institutional investors and DeFi pioneers to infrastructure builders and policymakers. This year’s conference focused on the evolving landscape of Bitcoin-based innovation, institutional adoption, and the integration of real-world assets (RWA) into blockchain systems.
 

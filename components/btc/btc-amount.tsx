@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 // Primitives for rendering BTC figures.
 //
-// Every source denominates in BTC — bridged BTC is the same asset — so the chip
+// Every source denominates in BTC - bridged BTC is the same asset - so the chip
 // is what carries the distinction. It is built into `BtcAmount` rather than
 // something callers add, so a per-source figure cannot be rendered without
 // saying which source it came from.
@@ -78,7 +78,7 @@ export default function BtcAmount({
           valueClassName,
         )}
       >
-        {value === null ? "—" : formatBtc(value, source.decimals)}
+        {value === null ? "-" : formatBtc(value, source.decimals)}
       </span>
       <span className="text-sm text-muted-foreground">{BTC_UNIT}</span>
       {isLoading && (

@@ -23,7 +23,7 @@ export interface L2BalanceSuccessResponse {
   // Total spendable lovelace, as a decimal string (matches the node's
   // serialization and avoids precision loss on values above 2^53).
   lovelace: string;
-  // `lovelace` scaled to whole units — the L2 ledger uses 6 decimals. This is
+  // `lovelace` scaled to whole units - the L2 ledger uses 6 decimals. This is
   // bridged BTC, so the UI denominates it in BTC and marks the layer; see
   // lib/btc-sources.ts.
   balance: number;

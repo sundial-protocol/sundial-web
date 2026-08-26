@@ -21,7 +21,7 @@ export function fmt2(n: number) {
 }
 
 export function fmtPct(n: number) {
-  if (!isFinite(n)) return "—";
+  if (!isFinite(n)) return "-";
   return (n > 0 ? "+" : "") + n.toFixed(0) + "%";
 }
 

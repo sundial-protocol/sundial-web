@@ -5,7 +5,7 @@ import type { NodeUtxo } from "@/app/api/l2/utxos/types";
 // Server-only decoding of the L2 node's UTxO CBOR.
 //
 // `GET /utxos` returns entries whose `value` field is the hex CBOR of a whole
-// Cardano TransactionOutput — address, amount and datum — not just the amount.
+// Cardano TransactionOutput - address, amount and datum - not just the amount.
 // Summing a balance therefore means deserializing each output and taking its
 // coin, which is what the node itself does when it sizes the faucet
 // (demo/midgard-node/src/services/faucet.ts, selectFaucetUtxo).
@@ -20,7 +20,7 @@ import type { NodeUtxo } from "@/app/api/l2/utxos/types";
 // lines, and the node's own CML-based reader accepts both, so refusing it here
 // would make this stricter than the thing producing the data.
 //
-// Import this from route handlers only — cborg is pure JS, but this module is
+// Import this from route handlers only - cborg is pure JS, but this module is
 // server-side by intent and nothing here needs to reach the browser.
 
 export class L2DecodeError extends Error {
@@ -81,7 +81,7 @@ const toCoin = (value: unknown): bigint => {
 // only the coin is the lovelace; the multiasset map is other tokens.
 //
 // Note this counts the coin of multi-asset outputs. `selectFaucetUtxo` skips
-// those, but it does so because it needs a lovelace-only UTxO it can spend —
+// those, but it does so because it needs a lovelace-only UTxO it can spend -
 // a different question from what an address holds.
 const coinFromValue = (value: unknown): bigint =>
   Array.isArray(value) ? toCoin(value[0]) : toCoin(value);

@@ -12,11 +12,11 @@ import { useDashboardContext } from "@/lib/contexts/dashboard-context";
  * Dashboard context so any tab can read it.
  *
  * The balance comes from `/api/l2/utxos`, which proxies the node's `/utxos`
- * endpoint — the browser never talks to the node directly. Pass a null or empty
+ * endpoint - the browser never talks to the node directly. Pass a null or empty
  * address to idle (nothing is fetched and the context balance is cleared).
  *
  * `refresh()` is exposed because balances move in response to user actions the
- * page already knows about — a faucet claim, a deposit — and waiting on a poll
+ * page already knows about - a faucet claim, a deposit - and waiting on a poll
  * makes those feel broken.
  */
 export function useL2Balance(address: string | null | undefined) {

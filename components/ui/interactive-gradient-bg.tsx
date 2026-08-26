@@ -3,7 +3,7 @@
  *
  * Animated blob-gradient background with a mouse-tracking highlight.
  * Ported from the "Interactive Gradient & Glassmorphism with noise" CodePen
- * by Podgro — adapted as a drop-in React wrapper (same API as AlchemyBackground).
+ * by Podgro - adapted as a drop-in React wrapper (same API as AlchemyBackground).
  *
  * Usage:
  *   <InteractiveGradientBackground>
@@ -134,7 +134,7 @@ export default function InteractiveGradientBackground({
   return (
     <div style={{ position: "relative" }}>
       {/* ------------------------------------------------------------------ */}
-      {/* Background layer — sits behind all children                        */}
+      {/* Background layer - sits behind all children                        */}
       {/* ------------------------------------------------------------------ */}
       <div
         aria-hidden="true"
@@ -198,7 +198,7 @@ export default function InteractiveGradientBackground({
             height: "100%",
           }}
         >
-          {/* Blob 1 — vertical oscillation */}
+          {/* Blob 1 - vertical oscillation */}
           <div
             style={blob(c.color1, {
               transformOrigin: "center center",
@@ -206,7 +206,7 @@ export default function InteractiveGradientBackground({
             })}
           />
 
-          {/* Blob 2 — circular orbit (reverse) */}
+          {/* Blob 2 - circular orbit (reverse) */}
           <div
             style={blob(c.color2, {
               transformOrigin: "calc(50% - 400px)",
@@ -214,7 +214,7 @@ export default function InteractiveGradientBackground({
             })}
           />
 
-          {/* Blob 3 — circular orbit (forward), offset position */}
+          {/* Blob 3 - circular orbit (forward), offset position */}
           <div
             style={blob(c.color3, {
               top: "calc(50% - 40% + 200px)",
@@ -224,7 +224,7 @@ export default function InteractiveGradientBackground({
             })}
           />
 
-          {/* Blob 4 — horizontal sway */}
+          {/* Blob 4 - horizontal sway */}
           <div
             style={blob(c.color4, {
               transformOrigin: "calc(50% - 200px)",
@@ -233,7 +233,7 @@ export default function InteractiveGradientBackground({
             })}
           />
 
-          {/* Blob 5 — large, slow circular orbit */}
+          {/* Blob 5 - large, slow circular orbit */}
           <div
             style={blob(c.color5, {
               width: "160%",

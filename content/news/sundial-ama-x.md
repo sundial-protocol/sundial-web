@@ -21,7 +21,7 @@ Ask us anything about
 • Treasury reserves & BTC yield
 • Or general questions about our protocol, the team and our mission.
 
-Drop your questions in the replies below — we’ll be responding throughout the day.
+Drop your questions in the replies below - we’ll be responding throughout the day.
 </em>
 
 <br><br>

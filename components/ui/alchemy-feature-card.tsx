@@ -24,8 +24,8 @@ export type AlchemyFeatureCardProps = {
    */
   label?: string;
   /**
-   * "vertical"   — badge stacked above title (default when icon only)
-   * "horizontal" — badge on left, title + body on right (default when step)
+   * "vertical"   - badge stacked above title (default when icon only)
+   * "horizontal" - badge on left, title + body on right (default when step)
    */
   layout?: "horizontal" | "vertical";
   className?: string;

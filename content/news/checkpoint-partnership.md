@@ -4,7 +4,7 @@ date: "2025-08-15"
 image: "Sundial-Checkpoint.jpg"
 ---
 
-We’re excited to announce our new partnership with Check Point — a leading provider of blockchain verification and compliance solutions.
+We’re excited to announce our new partnership with Check Point - a leading provider of blockchain verification and compliance solutions.
 
 ## Security & Compliance
 

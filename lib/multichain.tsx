@@ -8,7 +8,7 @@ export type SupportedChain =
   | "ada"
   | "btc_testnet"
   | "ada_testnet"
-  // The Sundial L2. Bridged BTC on its own ledger — not a Bitcoin network, so
+  // The Sundial L2. Bridged BTC on its own ledger - not a Bitcoin network, so
   // Bitcoin-specific paths (PSBT building, mempool.space lookups, wallet network
   // checks) must exclude it. `isSundialL2` below is the guard for that.
   | "sundial_l2";
@@ -121,7 +121,7 @@ export const chainConfigs: Record<SupportedChain, ChainConfig> = {
     explorerTxSlug: "",
     features: [
       "Bridged BTC, redeemable 1:1 for native BTC",
-      "Settles on the L2 ledger — no Bitcoin transaction fee",
+      "Settles on the L2 ledger - no Bitcoin transaction fee",
       "6 decimal places",
     ],
     enabled: !Flags.DISABLE_TESTNET,

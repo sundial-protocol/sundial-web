@@ -25,7 +25,7 @@ import { cn } from "@/lib/utils";
 // the layers matter when moving funds, not when reading a balance.
 //
 // Rendering is driven off the source registry, so a new bridged source appears
-// here as soon as its holding is passed in — see lib/btc-sources.ts.
+// here as soon as its holding is passed in - see lib/btc-sources.ts.
 
 export default function BtcHoldings({
   holdings,
@@ -33,7 +33,7 @@ export default function BtcHoldings({
   // inside that source's breakdown row. Optional for any source.
   controls,
   defaultExpanded = false,
-  // The disclosure stays owned here — callers get told when it opens so the
+  // The disclosure stays owned here - callers get told when it opens so the
   // surrounding layout can respond, without having to drive it.
   onExpandedChange,
   className,
