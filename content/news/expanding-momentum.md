@@ -16,7 +16,7 @@ Bitcoin’s liquidity has remained largely idle, held in cold storage, siloed fr
 
 #### The Sundial team attended BTC Vegas
 
-The Sundial team attended BTC Vegas, joining a dynamic gathering of Bitcoin builders and infrastructure pioneers. The event was a valuable opportunity to share our vision for Bitcoin-native DeFi, discuss our upcoming mainnet plans, and showcase how Sundial is enabling trustless BTC interoperability with other UTxOs. Thank you to everyone we connected with — we’re excited to keep the momentum going.
+The Sundial team attended BTC Vegas, joining a dynamic gathering of Bitcoin builders and infrastructure pioneers. The event was a valuable opportunity to share our vision for Bitcoin-native DeFi, discuss our upcoming mainnet plans, and showcase how Sundial is enabling trustless BTC interoperability with other UTxOs. Thank you to everyone we connected with - we’re excited to keep the momentum going.
 
 [Check out this quick chat with Sundial's CEO at BTC Vegas](https://x.com/lilybrodi/status/1927507647755927897)
 

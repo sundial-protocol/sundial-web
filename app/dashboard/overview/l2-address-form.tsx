@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 // Controls for the Sundial L2 row: which address to watch, and a manual
-// refresh. Presentational — the address and the balance behind it are owned by
+// refresh. Presentational - the address and the balance behind it are owned by
 // the holdings container, since the balance feeds the unified total.
 //
 // The address is typed rather than taken from a connected wallet: the Cardano
@@ -45,7 +45,7 @@ export default function L2AddressForm({
     <div className="flex flex-col gap-1.5">
       <form onSubmit={handleSubmit} className="flex flex-col gap-1.5">
         {/* The placeholder carries what the label said, so the label is a
-            screen-reader one only — a third line of text above a field this
+            screen-reader one only - a third line of text above a field this
             narrow costs more than it explains. */}
         <Label htmlFor="l2-address" className="sr-only">
           L2 address

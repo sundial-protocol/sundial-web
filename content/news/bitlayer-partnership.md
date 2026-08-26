@@ -12,7 +12,7 @@ Cardano, a proof-of-stake blockchain platform, boasts over 1,990 projects buildi
 
 ## A Unified Vision for Bitcoin and Cardano
 
-The rift between Bitcoin and other crypto ecosystems has long plagued the digital asset industry. Enter the BitVM Bridge as a game — changing solution to unite these two giants. It envisions a new digital value ecosystem where the whole exceeds the sum of its parts.
+The rift between Bitcoin and other crypto ecosystems has long plagued the digital asset industry. Enter the BitVM Bridge as a game - changing solution to unite these two giants. It envisions a new digital value ecosystem where the whole exceeds the sum of its parts.
 
 Through this partnership, Bitlayer and Sundial aim to:
 

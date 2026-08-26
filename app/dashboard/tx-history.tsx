@@ -116,7 +116,7 @@ const getStatusBadge = (status: string) => {
 // Null when the chain has no block explorer, so callers render no link at all.
 // The default deliberately falls back to mempool.space only for Bitcoin-ish
 // assets; anything unrecognised gets null rather than a Bitcoin URL that would
-// 404 — a dead explorer link is worse than none.
+// 404 - a dead explorer link is worse than none.
 const getExplorerUrl = (chain: string, txHash: string): string | null => {
   switch (chain.toLowerCase()) {
     case "btc":

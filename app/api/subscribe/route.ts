@@ -35,9 +35,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const credentials = Buffer.from(`${username}:${password}`).toString(
-    "base64",
-  );
+  const credentials = Buffer.from(`${username}:${password}`).toString("base64");
 
   const response = await fetch(
     "https://lists.sundialprotocol.com/api/subscribers",
@@ -60,7 +58,7 @@ export async function POST(req: NextRequest) {
   if (!response.ok) {
     const text = await response.text();
     console.error("Listmonk error:", response.status, text);
-    // 409 means already subscribed — treat as success
+    // 409 means already subscribed - treat as success
     if (response.status === 409) {
       return NextResponse.json({ success: true, alreadySubscribed: true });
     }

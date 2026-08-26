@@ -14,7 +14,7 @@ Sundial also met with Michael Saylor, a long-standing advocate for Bitcoin's ins
 
 _The Sundial Protocol team at Bitcoin Vegas 2025._
 
-Bitcoin 2025 was a valuable opportunity to share our vision for Bitcoin-native DeFi, discuss our upcoming mainnet plans, and showcase how Sundial is enabling trustless BTC interoperability with other UTxOs. Backed by Midgard's hybrid Layer-2 design and core partnerships with BitcoinOS, Bitlayer, DeltaDeFi and more. Sundial is creating a secure, zero-knowledge bridge for Bitcoin DeFi capabilities. Thank you to everyone we connected with — we're excited to keep the momentum going.
+Bitcoin 2025 was a valuable opportunity to share our vision for Bitcoin-native DeFi, discuss our upcoming mainnet plans, and showcase how Sundial is enabling trustless BTC interoperability with other UTxOs. Backed by Midgard's hybrid Layer-2 design and core partnerships with BitcoinOS, Bitlayer, DeltaDeFi and more. Sundial is creating a secure, zero-knowledge bridge for Bitcoin DeFi capabilities. Thank you to everyone we connected with - we're excited to keep the momentum going.
 
 ![Sundial + Moneta](/news/62525Momentum.jpg)
 

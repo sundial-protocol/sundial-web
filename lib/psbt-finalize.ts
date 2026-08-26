@@ -108,7 +108,7 @@ function _finalizePsbtSafe(psbt: Psbt): boolean {
     // Taproot key-path: witness = [schnorr_signature]
     if (input.tapKeySig && input.tapKeySig.length > 0) {
       input.finalScriptWitness = witnessStackToScriptWitness([input.tapKeySig]);
-      // Must use `delete` (not `= undefined`) — bip174 serializer
+      // Must use `delete` (not `= undefined`) - bip174 serializer
       // iterates object keys and crashes on undefined values.
       delete input.tapKeySig;
       delete input.tapInternalKey;

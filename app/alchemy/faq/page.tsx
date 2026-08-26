@@ -18,7 +18,7 @@ const faqGroups: { title: string; items: FAQItem[] }[] = [
         a: (
           <>
             FIRE is the junior reserve-growth asset. It absorbs downside first
-            and captures residual upside after ICE liabilities are met —
+            and captures residual upside after ICE liabilities are met -
             providing higher-beta BTC exposure without margin calls or
             liquidation mechanics. Its price is:
             <div className="my-3 rounded-lg border border-foreground/10 bg-foreground/5 px-4 py-3 text-center font-mono text-sm text-foreground">

@@ -38,7 +38,7 @@ export default function DashboardBtcHoldings({
 
   // Called for its side effect: it fetches and writes the raw balance into
   // context. We read the raw value below rather than this hook's return, which
-  // is `availableBalance` — a fee reserve subtracted for transaction building.
+  // is `availableBalance` - a fee reserve subtracted for transaction building.
   // That is right for a staking form and wrong for "what do I hold".
   const { isFetchingBalance } = useWalletBalance({
     selectedChain: chain,

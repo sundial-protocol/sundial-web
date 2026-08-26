@@ -31,7 +31,10 @@ const invalidAddressCodes: FaucetClaimCode[] = [
 ];
 
 const generateIdempotencyKey = () => {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ) {
     return crypto.randomUUID();
   }
 
@@ -39,7 +42,7 @@ const generateIdempotencyKey = () => {
 };
 
 const formatTimestamp = (value?: string) => {
-  if (!value) return "—";
+  if (!value) return "-";
 
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
@@ -97,8 +100,7 @@ export function FaucetForm() {
   const [copiedTxHash, setCopiedTxHash] = useState(false);
   const [idempotencyKey, setIdempotencyKey] = useState(generateIdempotencyKey);
 
-  const helperText =
-    "Paste a Sundial testnet payment address (addr_test1...).";
+  const helperText = "Paste a Sundial testnet payment address (addr_test1...).";
 
   const resetResult = () => {
     setResult(null);
@@ -169,7 +171,10 @@ export function FaucetForm() {
 
       setResult(payload);
 
-      if (!isSuccessResult(payload) && invalidAddressCodes.includes(payload.code)) {
+      if (
+        !isSuccessResult(payload) &&
+        invalidAddressCodes.includes(payload.code)
+      ) {
         setAddressError(getErrorSummary(payload.code));
       } else {
         setAddressError(null);
@@ -199,7 +204,8 @@ export function FaucetForm() {
         </div>
 
         <div className="rounded-sm border border-primary/15 bg-primary/5 px-4 py-3 text-sm text-foreground/75">
-          The faucet grant amount is fixed and confirmed after a successful claim.
+          The faucet grant amount is fixed and confirmed after a successful
+          claim.
         </div>
       </div>
 
@@ -223,7 +229,8 @@ export function FaucetForm() {
             }}
             className={cn(
               "font-mono text-sm",
-              addressError && "border-destructive focus-visible:ring-destructive",
+              addressError &&
+                "border-destructive focus-visible:ring-destructive",
             )}
           />
           <p className="text-xs text-foreground/60">{helperText}</p>
@@ -287,7 +294,9 @@ export function FaucetForm() {
           <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
             <div className="rounded-sm border border-white/10 bg-background/80 p-3">
               <dt className="text-foreground/60">Grant amount</dt>
-              <dd className="mt-1 font-semibold">{formatAmount(result.amount)}</dd>
+              <dd className="mt-1 font-semibold">
+                {formatAmount(result.amount)}
+              </dd>
             </div>
             <div className="rounded-sm border border-white/10 bg-background/80 p-3">
               <dt className="text-foreground/60">Next eligible at</dt>
@@ -313,7 +322,11 @@ export function FaucetForm() {
 
       {result && !isSuccessResult(result) ? (
         <Alert
-          variant={invalidAddressCodes.includes(result.code) ? "destructive" : "default"}
+          variant={
+            invalidAddressCodes.includes(result.code)
+              ? "destructive"
+              : "default"
+          }
           className={cn(
             "border-white/10 bg-background/80",
             unavailableCodes.includes(result.code) &&

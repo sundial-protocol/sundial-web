@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Alchemy — How It Works</title>
+<title>Alchemy - How It Works</title>
 <style>
   :root {
     --bg: #0A1628;
@@ -629,7 +629,7 @@
     </div>
 
     <div class="punchline">
-      <strong>L stays constant in dollars while V·P moves with the market.</strong> So FIRE absorbs <em>all</em> the volatility of the vault, and a small percentage move in BTC produces a larger percentage move in FIRE — that's where the leverage comes from. Where the chaos goes, ICE stays still.
+      <strong>L stays constant in dollars while V·P moves with the market.</strong> So FIRE absorbs <em>all</em> the volatility of the vault, and a small percentage move in BTC produces a larger percentage move in FIRE - that's where the leverage comes from. Where the chaos goes, ICE stays still.
     </div>
   </div>
 
@@ -637,7 +637,7 @@
   <div class="section">
     <div class="eyebrow">Live Simulator</div>
     <h2>Move the sliders. Watch the system respond.</h2>
-    <div class="lede">Each ICE bond redeems for its USD face value at mint (minimum $100). FIRE tokens share whatever the vault holds beyond the ICE liability — change the supply to see dilution.</div>
+    <div class="lede">Each ICE bond redeems for its USD face value at mint (minimum $100). FIRE tokens share whatever the vault holds beyond the ICE liability - change the supply to see dilution.</div>
 
     <div class="sim">
       <div class="controls">
@@ -841,7 +841,7 @@
     return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
   function fmtPct(n) {
-    if (!isFinite(n)) return '—';
+    if (!isFinite(n)) return '-';
     const sign = n > 0 ? '+' : '';
     return sign + n.toFixed(0) + '%';
   }
@@ -877,11 +877,11 @@
     $('vault-val').textContent = fmtUsd(vaultUsd);
     $('vault-sub').textContent = (V % 1 === 0 ? V : V.toFixed(1)) + ' BTC × $' + P.toLocaleString();
     $('ratio-val').textContent = isFinite(ratio) ? ratio.toFixed(2) + '×' : '∞';
-    $('fire-pool-val').textContent = firePool >= 0 ? fmtUsd(firePool) : '—';
-    $('fire-each').textContent = firePer >= 0 ? '$' + fmt2(firePer) : '—';
+    $('fire-pool-val').textContent = firePool >= 0 ? fmtUsd(firePool) : '-';
+    $('fire-each').textContent = firePer >= 0 ? '$' + fmt2(firePer) : '-';
     $('fire-sub').textContent  = firePool >= 0
       ? fmtUsd(firePool) + ' pool ÷ ' + fmtTokens(N_FIRE)
-      : 'Vault below ICE liability — FIRE wiped';
+      : 'Vault below ICE liability - FIRE wiped';
 
     // Zone
     let zoneName, zoneDesc, zoneColor;
@@ -904,7 +904,7 @@
       const f = document.createElement('div'); f.className = 'fire-block'; f.style.width = firePct + '%'; f.textContent = 'FIRE ' + Math.round(firePct) + '%';
       sb.appendChild(i); sb.appendChild(f);
     } else if (firePool <= 0 && L > 0) {
-      sb.innerHTML = '<div class="underwater" style="width:100%;">Vault under ICE liability — FIRE underwater</div>';
+      sb.innerHTML = '<div class="underwater" style="width:100%;">Vault under ICE liability - FIRE underwater</div>';
     } else {
       sb.innerHTML = '<div class="fire-block" style="width:100%; justify-content:center;">FIRE 100% (no ICE issued)</div>';
     }
@@ -916,7 +916,7 @@
     tag.style.left = pct + '%';
     tag.textContent = isFinite(ratio) ? ratio.toFixed(2) + '×' : '∞';
 
-    // Vault gauge — map dollar values to flask y-coordinates
+    // Vault gauge - map dollar values to flask y-coordinates
     const VG_MAX = 4_000_000;     // $4M = full flask height
     const VG_TOP = 62;            // y of inside top of flask
     const VG_BOT = 393;           // y of inside bottom of flask
@@ -938,7 +938,7 @@
     $$('vg-fire').setAttribute('y', fireY);
     $$('vg-fire').setAttribute('height', fireH);
 
-    // ICE claim line (dashed) at $L — independent of vault fill
+    // ICE claim line (dashed) at $L - independent of vault fill
     const claimY = dollarsToY(L);
     $$('vg-ice-line').setAttribute('y1', claimY);
     $$('vg-ice-line').setAttribute('y2', claimY);
@@ -954,7 +954,7 @@
     // Vault total readout
     $$('vg-vault-total').textContent = fmtUsd(vaultUsd);
 
-    // Band labels — center vertically in band, hide if band too short
+    // Band labels - center vertically in band, hide if band too short
     const fireLabel = $$('vg-fire-label');
     fireLabel.textContent = 'FIRE ' + fmtUsd(Math.max(0, firePool));
     fireLabel.setAttribute('y', fireY + fireH / 2 + 4);

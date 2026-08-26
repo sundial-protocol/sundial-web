@@ -10,8 +10,8 @@ import {
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 
 // Flat fee reserves subtracted from wallet balance to ensure txs don't fail
-const BTC_FEE_RESERVE = 0.00006; // 6000 sats — covers fee + dust for typical staking tx
-const ADA_FEE_RESERVE = 0.5; // 0.5 ADA — covers tx fee + min-UTXO
+const BTC_FEE_RESERVE = 0.00006; // 6000 sats - covers fee + dust for typical staking tx
+const ADA_FEE_RESERVE = 0.5; // 0.5 ADA - covers tx fee + min-UTXO
 // One base unit at the L2's 6dp. L2 transfers carry no Bitcoin fee, so this is
 // a rounding guard rather than a real reserve.
 const L2_FEE_RESERVE = 0.000001;
@@ -36,7 +36,7 @@ export function useWalletBalance({
 
   const config = chainConfigs[selectedChain];
   // Bitcoin networks only. The Sundial L2 holds BTC but has no mempool.space
-  // presence, so it must never reach the fetch below — its balance comes from
+  // presence, so it must never reach the fetch below - its balance comes from
   // useL2Balance, which writes into the same context under the "L2" key.
   const isBtc = isBitcoinChain(selectedChain);
 

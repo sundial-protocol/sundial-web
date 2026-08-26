@@ -89,7 +89,7 @@ export async function GET(
   try {
     nodeBody = (await nodeResponse.json()) as Record<string, unknown>;
   } catch {
-    // Non-JSON response (e.g. a gateway error page) — fall through to the
+    // Non-JSON response (e.g. a gateway error page) - fall through to the
     // status handling below with an empty body.
   }
 

@@ -5,7 +5,7 @@
  * interpretation, and the ₿ character (U+20BF) renders in whatever fallback
  * font the browser picks, since none of our loaded fonts include the glyph.
  *
- * Sizing mirrors lucide — 24×24 by default, overridable with `className`.
+ * Sizing mirrors lucide - 24×24 by default, overridable with `className`.
  * Remaining svg props pass through, so either can also be placed inside
  * another svg with `x`/`y`/`width`/`height` (see the landing hero's sun).
  */
@@ -17,7 +17,7 @@ const B_PATH =
 type LogoProps = React.ComponentProps<"svg"> & { title?: string };
 
 /**
- * The bare "B" in `currentColor` — the icon form. Sits alongside lucide icons
+ * The bare "B" in `currentColor` - the icon form. Sits alongside lucide icons
  * and picks up the same text-colour classes they do.
  *
  * The viewBox is cropped tight to the glyph, so it fills its box the way a
@@ -43,7 +43,7 @@ export function BitcoinSymbol({ title, ...props }: LogoProps) {
 }
 
 /**
- * The full mark — white "B" on the orange disc. Its colours are fixed, so
+ * The full mark - white "B" on the orange disc. Its colours are fixed, so
  * text-colour classes have no effect on it.
  */
 export function BitcoinLogo({ title, ...props }: LogoProps) {
