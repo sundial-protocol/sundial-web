@@ -3,11 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Flags } from "@/lib/flags";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
-import { BadgeCheck, HomeIcon, Building, Folder } from "lucide-react";
-import { BitcoinSymbol } from "@/components/ui/bitcoin-logo";
+import { BadgeCheck, HomeIcon, Building, Folder, Layers3 } from "lucide-react";
 import Image from "next/image";
 
 function NavLink({
@@ -115,53 +113,15 @@ export default function Navbar() {
           )}
         >
           <NavLink
-            href="/dashboard"
-            classes={cn(
-              drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70",
-              Flags.DISABLE_DASHBOARD &&
-                "opacity-70 pointer-events-none cursor-not-allowed",
-            )}
+            href="/l2"
+            classes={drawerOpen ? "bg-transparent" : "hover:bg-gray-600/70"}
           >
-            <span className="relative">
-              <BitcoinSymbol
-                className={cn(
-                  navIconCn,
-                  Flags.DISABLE_DASHBOARD && "text-muted-foreground grayscale",
-                )}
-              />
-              {Flags.DISABLE_DASHBOARD && (
-                <span
-                  className="absolute inset-0 flex items-center justify-center pointer-events-none"
-                  aria-hidden="true"
-                >
-                  <span
-                    className="block w-full h-[2px] rotate-45 rounded-full"
-                    style={{ backgroundColor: "#ef4444" }}
-                  />
-                </span>
-              )}
-            </span>
+            <Layers3 className={navIconCn} />
             {drawerOpen ? (
-              <span
-                className={cn(
-                  "text-xs md:text-sm",
-                  !Flags.DISABLE_DASHBOARD && "",
-                )}
-              >
-                {Flags.DISABLE_DASHBOARD ? (
-                  <span className="flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
-                    <span className="text-xs md:text-sm font-semibold tracking-wide text-red-500">
-                      Coming Soon
-                    </span>
-                  </span>
-                ) : (
-                  "Dashboard"
-                )}
-              </span>
+              <span className="text-xs md:text-sm">L2</span>
             ) : (
               <span className="absolute top-full mt-2 left-1/2 -translate-x-1/2 text-xs whitespace-nowrap bg-popover text-popover-foreground border rounded px-2 py-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-[200]">
-                {Flags.DISABLE_DASHBOARD ? "Coming Soon" : "Dashboard"}
+                L2
               </span>
             )}
           </NavLink>
