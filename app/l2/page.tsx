@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default function L2Page() {
   return (
     <div className="flex flex-col min-h-screen">
-      <HeroSection classes="bg-gradient-to-b from-primary/20 to-background pb-16 pt-96">
+      <HeroSection classes="bg-gradient-to-b from-primary/20 to-background pb-16 pt-72">
         <div className="max-w-3xl mx-auto text-center flex flex-col items-center">
           <h1 className="text-[2.75rem]/[1.1] font-bold tracking-tight sm:text-6xl">
             The Sundial <span className="text-[#f7931a]">Layer-2</span>
