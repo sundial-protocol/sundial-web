@@ -12,6 +12,8 @@ import HedgeCTA from "@/components/reusable-sections/hedge-cta";
 import NewsList from "../news/newslist";
 import NewsCTA from "../news/news-cta";
 
+export const docsLink = "https://sundial.mintlify.app";
+
 function PageLink({
   href,
   title,
@@ -94,7 +96,7 @@ export default async function DocsPage() {
         <Section>
           <div className="grid gap-6 md:grid-cols-3 lg:gap-12 px-auto mx-auto w-4/5">
             <PageLink
-              href="https://sundial-protocol-docs.readthedocs.io/"
+              href={docsLink}
               title="Technical Documentation"
               description="Full L2 protocol documentation for developers."
               newTab

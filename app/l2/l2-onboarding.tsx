@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Droplets, FileText, LayoutDashboard } from "lucide-react";
 import { Section } from "@/components/ui/section";
 import { Flags } from "@/lib/flags";
+import { docsLink } from "@/app/resources/page";
 
 type Step = {
   icon: React.ComponentType<{ className?: string }>;
@@ -31,7 +32,7 @@ const steps: Step[] = [
     title: "Read the Docs",
     description:
       "Full L2 protocol documentation covering the sequencer, state model, and integration paths for developers.",
-    href: "/resources",
+    href: docsLink,
     cta: "View Documentation",
   },
   {
