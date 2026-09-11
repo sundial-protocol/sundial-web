@@ -12,7 +12,7 @@ import HedgeCTA from "@/components/reusable-sections/hedge-cta";
 import NewsList from "../news/newslist";
 import NewsCTA from "../news/news-cta";
 
-export const docsLink = "https://sundial.mintlify.app";
+export const docsLink = "https://docs.sundialprotocol.com";
 
 function PageLink({
   href,
