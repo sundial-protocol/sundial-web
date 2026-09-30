@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { ArrowRight, Book, FileText, ShieldCheck } from "lucide-react";
+import {
+  ArrowRight,
+  Book,
+  FileText,
+  ScrollText,
+  ShieldCheck,
+} from "lucide-react";
 import { Section } from "@/components/ui/section";
 import { HeroSection } from "@/components/ui/hero-section";
 import SunbeamBackground, {
@@ -11,6 +17,8 @@ import { getNews } from "@/hooks/get-news";
 import HedgeCTA from "@/components/reusable-sections/hedge-cta";
 import NewsList from "../news/newslist";
 import NewsCTA from "../news/news-cta";
+
+export const docsLink = "https://docs.sundialprotocol.com";
 
 function PageLink({
   href,
@@ -92,12 +100,19 @@ export default async function DocsPage() {
         ]}
       >
         <Section>
-          <div className="grid gap-6 md:grid-cols-3 lg:gap-12 px-auto mx-auto w-4/5">
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4 lg:gap-12 px-auto mx-auto w-4/5">
             <PageLink
-              href="https://sundial-protocol-docs.readthedocs.io/"
+              href={docsLink}
               title="Technical Documentation"
               description="Full L2 protocol documentation for developers."
               newTab
+            />
+
+            <PageLink
+              icon={ScrollText}
+              href="/resources/whitepaper"
+              title="Whitepaper"
+              description="The full protocol specification: ledger rules, fraud proofs, and implementation."
             />
 
             <PageLink

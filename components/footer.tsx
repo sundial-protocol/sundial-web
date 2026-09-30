@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SocialIcon } from "./footer-social-icon";
+import { docsLink } from "@/app/resources/page";
 
 interface FooterLinkProps {
   href: string;
@@ -77,10 +78,7 @@ export default function Footer() {
             <h4 className="font-bold">Resources</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <FooterLink
-                  href="https://sundial-protocol-docs.readthedocs.io/"
-                  external
-                >
+                <FooterLink href={docsLink} external>
                   Documentation
                 </FooterLink>
               </li>

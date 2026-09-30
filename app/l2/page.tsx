@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LucideArrowRight, Droplets } from "lucide-react";
+import { docsLink } from "@/app/resources/page";
 import { HeroSection } from "@/components/ui/hero-section";
 import { Flags } from "@/lib/flags";
 import { L2Pillars } from "./l2-pillars";
@@ -38,7 +39,7 @@ export default function L2Page() {
               <Droplets className="mr-2 h-4 w-4" /> Get Testnet sBTC
             </Link>
             <Link
-              href="/resources"
+              href={docsLink}
               className="inline-flex items-center justify-center rounded-full h-14 md:px-12 text-base font-medium transition-colors bg-background/20 hover:bg-foreground/20 border border-foreground"
             >
               Read the Docs <LucideArrowRight className="ml-2 h-4 w-4" />
