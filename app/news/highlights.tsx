@@ -53,10 +53,9 @@ export default async function NewsHighlights() {
     "BitAngels-Pitch",
     "draper-university",
     "ascent-partnership",
-    "appold-partnership",
-    "btc-vegas-2025",
     "financial-dashboard",
     "Consensus-and-Liquidity",
+    "alchemy-treasury-proposal",
   ];
 
   return (
