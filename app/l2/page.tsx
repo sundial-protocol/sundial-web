@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LucideArrowRight, Droplets } from "lucide-react";
-import { docsLink } from "@/app/resources/page";
+import { docsLink } from "@/lib/links";
 import { HeroSection } from "@/components/ui/hero-section";
 import { Flags } from "@/lib/flags";
 import { L2Pillars } from "./l2-pillars";

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { SocialIcon } from "./footer-social-icon";
-import { docsLink } from "@/app/resources/page";
+import { docsLink } from "@/lib/links";
 
 interface FooterLinkProps {
   href: string;

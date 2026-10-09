@@ -11,9 +11,7 @@ import { getNews } from "@/hooks/get-news";
 import HedgeCTA from "@/components/reusable-sections/hedge-cta";
 import NewsList from "../news/newslist";
 import NewsCTA from "../news/news-cta";
-
-export const docsLink = "https://docs.sundialprotocol.com";
-const auditsLink = `${docsLink}/overview/status#audits-and-reviews`;
+import { auditsLink, docsLink } from "@/lib/links";
 
 function PageLink({
   href,
