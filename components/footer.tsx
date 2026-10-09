@@ -83,7 +83,7 @@ export default function Footer() {
                 </FooterLink>
               </li>
               <li>
-                <FooterLink href="/resources/litepaper">Litepaper</FooterLink>
+                <FooterLink href="/resources/whitepaper">Whitepaper</FooterLink>
               </li>
               <li>
                 <FooterLink href="/news">News</FooterLink>
