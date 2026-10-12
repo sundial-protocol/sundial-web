@@ -12,13 +12,13 @@ const highlights = [
     icon: Gauge,
     title: "Claim Ratio Engine",
     description:
-      "A system-wide BTC-per-RT ratio prices investment and redemption from a single source of truth.",
+      "Each vault's Claim Ratio prices investment and redemption from a single source of truth.",
   },
   {
     icon: BitcoinSymbol,
     title: "Bitcoin-Native Settlement",
     description:
-      "Atomic BTC-in and RT-out settlement keeps pricing and execution aligned to the same transaction.",
+      "Atomic BTC-in, receipt-token-out settlement keeps pricing and execution aligned to the same transaction.",
   },
   {
     icon: ShieldCheck,
