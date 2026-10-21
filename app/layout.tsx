@@ -7,7 +7,6 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import CustomThemeProvider from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
-import { WalletProvider } from "@/components/wallet-provider";
 import type { Viewport } from "next";
 import { ToastProvider } from "@/components/ui/toast";
 
@@ -101,15 +100,13 @@ export default function RootLayout({
         <link rel="canonical" href="https://sundialprotocol.com"></link>
       </head>
       <body className={cn(roboto.variable, galanoGrotesque.variable)}>
-        <WalletProvider>
-          <CustomThemeProvider>
-            <ToastProvider>
-              <Navbar />
-              <main className="pt-24">{children}</main>
-              <Footer />
-            </ToastProvider>
-          </CustomThemeProvider>
-        </WalletProvider>
+        <CustomThemeProvider>
+          <ToastProvider>
+            <Navbar />
+            <main className="pt-24">{children}</main>
+            <Footer />
+          </ToastProvider>
+        </CustomThemeProvider>
       </body>
     </html>
   );
