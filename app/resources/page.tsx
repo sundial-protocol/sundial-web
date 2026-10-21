@@ -1,11 +1,5 @@
 import Link from "next/link";
-import {
-  ArrowRight,
-  Book,
-  FileText,
-  ScrollText,
-  ShieldCheck,
-} from "lucide-react";
+import { ArrowRight, Book, ScrollText, ShieldCheck } from "lucide-react";
 import { Section } from "@/components/ui/section";
 import { HeroSection } from "@/components/ui/hero-section";
 import SunbeamBackground, {
@@ -17,8 +11,7 @@ import { getNews } from "@/hooks/get-news";
 import HedgeCTA from "@/components/reusable-sections/hedge-cta";
 import NewsList from "../news/newslist";
 import NewsCTA from "../news/news-cta";
-
-export const docsLink = "https://docs.sundialprotocol.com";
+import { auditsLink, docsLink } from "@/lib/links";
 
 function PageLink({
   href,
@@ -100,7 +93,7 @@ export default async function DocsPage() {
         ]}
       >
         <Section>
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4 lg:gap-12 px-auto mx-auto w-4/5">
+          <div className="grid gap-6 md:grid-cols-3 lg:gap-12 px-auto mx-auto w-4/5">
             <PageLink
               href={docsLink}
               title="Technical Documentation"
@@ -116,17 +109,11 @@ export default async function DocsPage() {
             />
 
             <PageLink
-              icon={FileText}
-              href="/resources/litepaper"
-              title="Litepaper"
-              description="Learn how it all works!"
-            />
-
-            <PageLink
               icon={ShieldCheck}
-              href="/resources/audit"
-              title="Security Audit"
-              description="Read the code review and security analysis report from Hacken."
+              href={auditsLink}
+              title="Audits and Reviews"
+              description="The audits, reviews and formal verification behind each Sundial component."
+              newTab
             />
           </div>
         </Section>

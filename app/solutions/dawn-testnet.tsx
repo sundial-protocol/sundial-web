@@ -18,7 +18,7 @@ const highlights = [
     icon: Lock,
     title: "Keep Assets On-Chain",
     description:
-      "Send assets directly to our Bitcoin smart contracts without leaving the Bitcoin environment.",
+      "Your BTC sits in its own Bitcoin scripts and never leaves the Bitcoin environment.",
   },
   {
     icon: Coins,
@@ -96,7 +96,7 @@ export default function DawnTestnet() {
 
               {!Flags.DISABLE_TESTNET ? (
                 <p className="mt-4 text-sm text-foreground/70">
-                  Need L2 testnet sBTC?{" "}
+                  Need testnet BTC on the L2?{" "}
                   <Link
                     href="/testnet/faucet"
                     className="text-primary underline-offset-4 hover:underline"

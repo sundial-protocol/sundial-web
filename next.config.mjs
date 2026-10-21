@@ -24,6 +24,11 @@ const nextConfig = {
         destination: '/company',
         permanent: true,
       },
+      {
+        source: '/resources/litepaper',
+        destination: '/resources/whitepaper',
+        permanent: true,
+      },
     ];
   },
 };

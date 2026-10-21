@@ -20,12 +20,12 @@ export default function Home() {
               height={500}
             />
             <h1 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">
-              Built on Bitcoin&apos;s Ledger Model
+              An institutional-grade L2 stack for Bitcoin yield generation
             </h1>
             <p className="text-lg md:text-xl text-foreground/80">
-              Sundial leverages a UTXO architecture to deliver
-              institutional-grade security, deterministic execution, and
-              fraud-proof protection for Bitcoin yield
+              Sundial uses Bitcoin&apos;s UTXO ledger model to deliver
+              institutional-grade security and deterministic execution, from
+              yield earned on Bitcoin to a Layer 2 secured by fraud proofs
             </p>
           </div>
         </section>

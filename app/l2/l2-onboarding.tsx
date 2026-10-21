@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Droplets, FileText, LayoutDashboard } from "lucide-react";
 import { Section } from "@/components/ui/section";
 import { Flags } from "@/lib/flags";
-import { docsLink } from "@/app/resources/page";
+import { docsLink } from "@/lib/links";
 
 type Step = {
   icon: React.ComponentType<{ className?: string }>;
