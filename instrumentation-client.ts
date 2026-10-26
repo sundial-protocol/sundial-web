@@ -14,6 +14,7 @@ if (key) {
     defaults: "2025-05-24",
     person_profiles: "identified_only",
     disable_session_recording: true,
+    // Runs inside init(), before the first automatic $pageview.
+    loaded: (ph) => ph.register({ product: "website" }),
   });
-  posthog.register({ product: "website" });
 }
