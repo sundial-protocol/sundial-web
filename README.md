@@ -40,6 +40,8 @@ Before you begin, ensure you have the following installed on your system:
    NEXT_PUBLIC_VERCEL_ENV=development
    ```
 
+   Analytics are off unless `NEXT_PUBLIC_POSTHOG_KEY` is set. PostHog starts in `instrumentation-client.ts`, and events go through the `/ingest` rewrites in `next.config.mjs`. Set the key in Vercel for Production only, and leave it unset locally unless you're testing analytics. Event names and privacy rules are in docs-v2's [product analytics](https://github.com/sundial-protocol/docs-v2/blob/main/operations/analytics.md) page.
+
    Set an auth token for GitHub Packages in your terminal:
 
    **Linux/MacOS:**
