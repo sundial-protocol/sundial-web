@@ -22,24 +22,35 @@ export function amountBucket(btc: number): string {
   return "1+ BTC";
 }
 
-// Ask the server for this wallet's PostHog ID (a keyed hash of the address)
-// and identify the browser as that person. The address itself never reaches
-// PostHog.
-export async function identifyWallet(address: string): Promise<boolean> {
-  if (!posthog.__loaded) return false;
-  const response = await fetch("/api/analytics/wallet-id", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ address }),
-  });
-  if (!response.ok) return false;
-  const { id } = (await response.json()) as { id?: string };
-  if (!id) return false;
-  posthog.identify(id);
-  return true;
+// Asks the server for this wallet's PostHog ID (a keyed hash of the address).
+// The address itself never reaches PostHog. Returns null when PostHog isn't
+// running, the server has no key, or the request fails.
+export async function fetchWalletId(address: string): Promise<string | null> {
+  if (!posthog.__loaded) return null;
+  try {
+    const response = await fetch("/api/analytics/wallet-id", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ address }),
+    });
+    if (!response.ok) return null;
+    const { id } = (await response.json()) as { id?: string };
+    return id ?? null;
+  } catch {
+    return null;
+  }
 }
 
+export function identify(id: string) {
+  if (!posthog.__loaded) return;
+  posthog.identify(id);
+}
+
+// Starts a fresh anonymous ID. posthog.reset() also clears super properties,
+// so `product` (registered once at startup) is put back afterwards.
 export function resetIdentity() {
   if (!posthog.__loaded) return;
+  const product = posthog.get_property("product");
   posthog.reset();
+  if (product) posthog.register({ product });
 }

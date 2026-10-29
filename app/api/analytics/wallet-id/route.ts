@@ -18,10 +18,16 @@ const recent = new Map<string, number[]>();
 function rateLimited(caller: string): boolean {
   const now = Date.now();
   const hits = (recent.get(caller) ?? []).filter((t) => now - t < WINDOW_MS);
+  // Refused calls aren't recorded, so a caller never holds more than
+  // MAX_PER_WINDOW timestamps.
+  if (hits.length >= MAX_PER_WINDOW) {
+    recent.set(caller, hits);
+    return true;
+  }
   hits.push(now);
   recent.set(caller, hits);
   if (recent.size > 10_000) recent.clear();
-  return hits.length > MAX_PER_WINDOW;
+  return false;
 }
 
 function normalize(address: string): string {
