@@ -9,6 +9,7 @@ import { usePrices } from "@/hooks/dashboard/prices";
 import { YieldOpportunityCard } from "@/components/yield-opportunity-card";
 import { useYieldOpportunities } from "@/hooks/dashboard/yield-opportunities";
 import { yieldFromProvider } from "@/hooks/dashboard/yield-opportunities";
+import HowStakingWorks from "./how-staking-works";
 
 export default function DepositTab() {
   const {
@@ -58,11 +59,13 @@ export default function DepositTab() {
   const amountNum = Number(amount) || 0;
   const newTotal = Math.max(alreadyStaked + amountNum, 0);
 
-  // Convert newTotal to USD before getting yield
+  // Convert newTotal to USD before getting yield. Monthly, to match
+  // currentYield (calculations.monthlyRewards): this used to ask for the full
+  // year, so the summary set a monthly figure against an annual one and the
+  // "difference" between them was mostly that mismatch.
   const newYieldUSD = yieldFromProvider(
     convert(newTotal, config.symbol, "USD") ?? 0,
     selectedYieldProvider,
-    true,
   );
   // Then convert back
   const newYield = convert(newYieldUSD, "USD", config.symbol);
@@ -77,6 +80,8 @@ export default function DepositTab() {
         <h2 className="text-3xl font-bold mb-2">Stake Assets</h2>
         <p className="text-muted-foreground">Stake your assets to earn yield</p>
       </div>
+
+      <HowStakingWorks />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <StakingForm

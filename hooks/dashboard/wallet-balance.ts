@@ -31,7 +31,8 @@ export function useWalletBalance({
   btcAddress: string;
   cardanoBalance: number | undefined;
 }) {
-  const { walletBalances, setWalletBalance } = useDashboardContext();
+  const { walletBalances, setWalletBalance, balanceRefreshKey } =
+    useDashboardContext();
   const [isFetchingBalance, setIsFetchingBalance] = useState(false);
 
   const config = chainConfigs[selectedChain];
@@ -82,7 +83,9 @@ export function useWalletBalance({
     return () => {
       cancelled = true;
     };
-  }, [btcAddress, selectedChain]);
+    // balanceRefreshKey: refetch after a stake is sent or confirmed, so the
+    // balance doesn't sit at its pre-transaction value until a reload.
+  }, [btcAddress, selectedChain, balanceRefreshKey]);
 
   // Sync Cardano wallet balance into dashboard state
   useEffect(() => {

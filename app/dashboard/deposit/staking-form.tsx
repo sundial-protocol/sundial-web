@@ -65,6 +65,9 @@ import {
 } from "@/app/api/btc-withdrawal/types";
 import { useWalletBalance } from "@/hooks/dashboard/wallet-balance";
 import L2StakingForm from "./l2-staking-form";
+import { InfoTip } from "@/components/ui/info-tip";
+import { TxStatusBadge } from "@/components/transactions/tx-status";
+import { yieldFromProvider } from "@/hooks/dashboard/yield-opportunities";
 
 type TransactionType = "deposit" | "withdraw";
 
@@ -88,6 +91,7 @@ export default function StakingForm({
     updateTransactionStatus,
     transactions,
     selectedYieldProvider,
+    refreshWalletBalances,
   } = useDashboardContext();
 
   const { addToast } = useToast();
@@ -514,15 +518,18 @@ export default function StakingForm({
         console.warn("Error updating staked amount:", error);
       }
 
-      // Update transaction status
+      // Sent, not yet mined: it stays pending until TxConfirmationWatcher
+      // sees it in a block. Marking it completed here is what left testers
+      // unsure whether it had actually gone through.
       updateTransactionStatus(
         transactionId,
-        "completed",
+        "pending",
         txid,
         isDeposit && unsignedTransactionData?.locktime
           ? { locktime: unsignedTransactionData.locktime }
           : undefined,
       );
+      refreshWalletBalances();
 
       setStep("done");
       onSuccess?.(txid, selectedChain, amount);
@@ -530,8 +537,8 @@ export default function StakingForm({
 
       addToast({
         type: "success",
-        title: "Transaction Successful",
-        message: `${amount} ${config?.symbol} ${type} completed successfully`,
+        title: "Transaction sent",
+        message: `Your ${amount} ${config?.symbol} ${type} is on the network and waiting for its first confirmation.`,
       });
     } catch (err: any) {
       console.warn("Sign/broadcast error:", err?.message);
@@ -796,13 +803,12 @@ export default function StakingForm({
       return;
     }
 
-    // Add pending transaction to dashboard
-    const transactionId = addPendingTransaction(
-      selectedChain as SupportedChain,
-      Number(amount),
-      type,
-    );
-    setPendingTransactionId(transactionId);
+    // Pressing Enter in a field submits the form. It used to log a pending
+    // transaction here that nothing ever resolved; now it does what the
+    // primary button does, which logs and resolves its own.
+    if (!loading && !isAmountExceedsBalance) {
+      await handleSignInBrowser();
+    }
   };
 
   // ADA transaction logic
@@ -944,6 +950,42 @@ export default function StakingForm({
   const walletStatus = getWalletConnectionStatus();
 
   const isBtcChain = isBitcoinChain(selectedChain);
+
+  // The public key the connected wallet reported for this address, if any.
+  // When there is one the key field collapses to a single line: testers found
+  // the stake form busy, and a 66-character hex field they never needed to
+  // touch, with a warning beneath it that didn't apply, was most of that.
+  const walletPublicKey = isUsingConnectedWallet
+    ? (bitcoinAccounts?.find(
+        (account) => account.address === userAddress && account.publicKey,
+      )?.publicKey ?? null)
+    : null;
+
+  // Network fee of the prepared transaction, in sats: what goes in minus what
+  // comes out. Null when an input lacks its previous output, which a PSBT built
+  // by the staking API always includes.
+  const preparedFeeSats = (() => {
+    if (!unsignedTransactionData?.psbt) return null;
+    try {
+      const psbt = Psbt.fromBase64(unsignedTransactionData.psbt);
+      let inputs = BigInt(0);
+      for (const input of psbt.data.inputs) {
+        if (!input.witnessUtxo) return null;
+        inputs += input.witnessUtxo.value;
+      }
+      const outputs = psbt.txOutputs.reduce(
+        (sum, output) => sum + output.value,
+        BigInt(0),
+      );
+      return Number(inputs - outputs);
+    } catch {
+      return null;
+    }
+  })();
+
+  const lockEndsAt = unsignedTransactionData?.locktime
+    ? new Date(unsignedTransactionData.locktime * 1000)
+    : null;
 
   const renderWalletStatus = () => {
     if (walletStatus.isConnected) {
@@ -1145,8 +1187,21 @@ export default function StakingForm({
         </p>
       </div>
 
-      {/* Public Key Input (Bitcoin only, shown when needed) */}
-      {isBtcChain && (
+      {/* Public key: one line when the wallet supplied it */}
+      {isBtcChain && walletPublicKey && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <CheckCircle className="h-4 w-4 text-green-600" />
+          Public key provided by your wallet
+          <InfoTip label="Why a public key is needed">
+            Your stake is locked in Bitcoin scripts that only your key can
+            unlock. The scripts are built from your public key, which your
+            wallet shares when you connect. It is not secret.
+          </InfoTip>
+        </div>
+      )}
+
+      {/* Public Key Input (Bitcoin only, when the wallet didn't supply one) */}
+      {isBtcChain && !walletPublicKey && (
         <div className="space-y-2">
           <label className="text-sm font-medium">
             Public Key
@@ -1331,6 +1386,95 @@ export default function StakingForm({
           </div>
         )}
 
+      {/* Review: everything the user is agreeing to, before they sign */}
+      {isBtcChain && isDeposit && unsignedTransactionData && (
+        <div className="space-y-3 rounded-md border p-4">
+          <div className="font-medium">Review your stake</div>
+          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+            <dt className="text-muted-foreground">Amount</dt>
+            <dd className="text-right font-mono">
+              {amount} {config?.symbol}
+            </dd>
+
+            {selectedYieldProvider && (
+              <>
+                <dt className="text-muted-foreground">Strategy</dt>
+                <dd className="text-right">
+                  {selectedYieldProvider.name} ({selectedYieldProvider.apy}%
+                  APY)
+                </dd>
+
+                <dt className="flex items-center gap-1 text-muted-foreground">
+                  Estimated yield
+                  <InfoTip label="How estimated yield is worked out">
+                    The strategy&apos;s APY applied to this amount, paid in
+                    monthly instalments. It is an estimate from the
+                    provider&apos;s advertised rate, not a guarantee.
+                  </InfoTip>
+                </dt>
+                <dd className="text-right font-mono">
+                  ≈{" "}
+                  {yieldFromProvider(
+                    Number(amount),
+                    selectedYieldProvider,
+                  ).toFixed(8)}{" "}
+                  {config?.symbol} / month
+                </dd>
+              </>
+            )}
+
+            {lockEndsAt && (
+              <>
+                <dt className="flex items-center gap-1 text-muted-foreground">
+                  Locked until
+                  <InfoTip label="What the lock means">
+                    Bitcoin itself stops anyone, you included, from moving the
+                    staked BTC before this time. After it, you withdraw from the
+                    Withdraw tab.
+                  </InfoTip>
+                </dt>
+                <dd className="text-right">{lockEndsAt.toLocaleString()}</dd>
+              </>
+            )}
+
+            {preparedFeeSats !== null && (
+              <>
+                <dt className="flex items-center gap-1 text-muted-foreground">
+                  Network fee
+                  <InfoTip label="About the network fee">
+                    Paid to Bitcoin miners, not to Sundial, from your wallet on
+                    top of the amount. Your wallet shows the same figure when
+                    you sign.
+                  </InfoTip>
+                </dt>
+                <dd className="text-right font-mono">
+                  {preparedFeeSats.toLocaleString()} sats
+                </dd>
+              </>
+            )}
+          </dl>
+
+          <div className="border-t pt-3 text-xs text-muted-foreground">
+            <div className="mb-1 font-medium text-foreground">
+              Where your BTC goes
+            </div>
+            Three quarters goes to a time-locked script that only your key can
+            spend. One quarter goes to an escrow the yield provider can claim
+            during the lock to earn the yield; if they don&apos;t pay it back,
+            you reclaim it yourself when the lock ends. Both stay on Bitcoin.
+          </div>
+
+          <ol className="list-decimal space-y-0.5 pl-4 text-xs text-muted-foreground">
+            <li>Your wallet asks you to sign. Nothing is sent until you do.</li>
+            <li>
+              The transaction goes to the Bitcoin network and usually confirms
+              in about 10 minutes. You can follow it under Recent Activity.
+            </li>
+            <li>When the lock ends, withdraw from the Withdraw tab.</li>
+          </ol>
+        </div>
+      )}
+
       {/* Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {isBtcChain ? (
@@ -1419,11 +1563,12 @@ export default function StakingForm({
             console.warn("Error updating staked amount:", error);
           }
 
-          // Update transaction status using captured id (avoids stale closure)
+          // Update transaction status using captured id (avoids stale closure).
+          // Pending until mined, as in handleSignInBrowser.
           if (capturedPendingId) {
             updateTransactionStatus(
               capturedPendingId,
-              "completed",
+              "pending",
               txid,
               isDeposit && unsignedTransactionData?.locktime
                 ? { locktime: unsignedTransactionData.locktime }
@@ -1431,6 +1576,7 @@ export default function StakingForm({
             );
           }
 
+          refreshWalletBalances();
           setStep("done");
           onSuccess?.(txid, selectedChain, amount);
         }}
@@ -1449,13 +1595,55 @@ export default function StakingForm({
     );
   };
 
+  // The transaction this form sent, read live from the dashboard's list so the
+  // done screen moves from "confirming" to "confirmed" on its own.
+  const sentTransaction = transactions.find(
+    (tx) => tx.id === pendingTransactionId,
+  );
+  const isConfirming = isBtcChain && sentTransaction?.status === "pending";
+
   const renderDoneStep = () => (
     <div className="space-y-4">
-      <div className="p-4 bg-green-100/20 border border-green-200 rounded-md">
-        <div className="flex items-center gap-2 text-green-700 font-medium mb-2">
-          <CheckCircle className="w-5 h-5" />
-          {getSuccessMessage()}
+      <div
+        className={`p-4 rounded-md border ${
+          isConfirming
+            ? "bg-yellow-100/20 border-yellow-200"
+            : "bg-green-100/20 border-green-200"
+        }`}
+      >
+        <div
+          className={`flex items-center gap-2 font-medium mb-2 ${
+            isConfirming ? "text-yellow-700" : "text-green-700"
+          }`}
+        >
+          {isConfirming ? (
+            <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-yellow-700" />
+          ) : (
+            <CheckCircle className="w-5 h-5" />
+          )}
+          {isConfirming
+            ? `${isDeposit ? "Stake" : "Withdrawal"} sent, waiting for confirmation`
+            : getSuccessMessage()}
         </div>
+        {sentTransaction && (
+          <div className="mb-2 flex items-center gap-2 text-sm">
+            Status: <TxStatusBadge tx={sentTransaction} />
+          </div>
+        )}
+        {isConfirming && (
+          <p className="mb-2 text-sm text-muted-foreground">
+            Your transaction is on the Bitcoin network. The first confirmation
+            usually takes about 10 minutes. This page updates by itself, and you
+            can leave it: the status also shows under Recent Activity on the
+            Portfolio tab.
+          </p>
+        )}
+        {isDeposit && savedLocktime && (
+          <p className="mb-2 text-sm text-muted-foreground">
+            Locked until {new Date(savedLocktime * 1000).toLocaleString()}.
+            After that, withdraw from the Withdraw tab.
+          </p>
+        )}
         <div className="flex items-center gap-2">
           <span className="text-sm">Transaction Hash:</span>
           <a

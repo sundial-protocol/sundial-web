@@ -20,6 +20,7 @@ import { Flags } from "@/lib/flags";
 import ContextProvider from "@/lib/wallet/bitcoin/context";
 import { Button } from "@/components/ui/button";
 import { MessageSquare } from "lucide-react";
+import { TxConfirmationWatcher } from "@/components/btc/tx-confirmation-watcher";
 
 const TESTNET_FEEDBACK_FORM_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLScxils2djgjes3C4XSFM8UDiVs8KiTSgmdDqcvVYSAzQIJ5Yg/viewform?usp=header";
@@ -41,14 +42,32 @@ function DashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // Each tab says what it is for under the tab bar, so a first-time user can
+  // tell where to go without opening every tab.
   const tabs = [
-    { id: "portfolio", label: "Portfolio" },
-    { id: "stake", label: "Stake" },
-    { id: "withdraw", label: "Withdraw" },
+    {
+      id: "portfolio",
+      label: "Portfolio",
+      description: "Your wallets, balances, earnings and recent activity.",
+    },
+    {
+      id: "stake",
+      label: "Stake",
+      description: "Lock BTC with a yield provider to start earning.",
+    },
+    {
+      id: "withdraw",
+      label: "Withdraw",
+      description: "Take your BTC back out once its lock period has ended.",
+    },
     { id: "lend", label: "Lend", disabled: true },
     //{ id: "yield", label: "Yield", disabled: true },
     //{ id: "strategies", label: "Strategies", disabled: true },
-    { id: "history", label: "History" },
+    {
+      id: "history",
+      label: "History",
+      description: "Every transaction you've made here, and its status.",
+    },
   ];
 
   // Validate tab from URL params before setting initial state
@@ -154,6 +173,9 @@ function DashboardContent() {
               </button>
             ))}
           </div>
+          <p className="mt-2 px-1 text-sm text-muted-foreground">
+            {tabs.find((tab) => tab.id === activeTab)?.description}
+          </p>
         </div>
 
         {/* Tab Content */}
@@ -200,6 +222,7 @@ export default function DashboardPage() {
         <DashboardProvider>
           <ConfirmationProvider>
             <ContextProvider>
+              <TxConfirmationWatcher />
               <div className="min-h-screen">
                 <Section className="pb-24">
                   <div className="container mx-auto px-4">

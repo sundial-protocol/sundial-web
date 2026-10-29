@@ -25,8 +25,14 @@ export interface LoggedTx {
   amount: number;
   txHash?: string; // Optional for pending transactions
   timestamp: Date;
+  // A Bitcoin transaction stays "pending" from broadcast until it is mined, so
+  // a pending row with a txHash is on the network and waiting for a block.
   status: "pending" | "completed" | "failed";
   usdValue?: number;
+  // Set when the transaction is mined. See TxConfirmationWatcher.
+  blockHeight?: number;
+  // Absolute locktime (unix seconds) of a deposit's scripts.
+  locktime?: number;
 
   // Lending-specific fields (optional for backward compatibility)
   loanId?: string;
@@ -225,6 +231,10 @@ export function useDashboardData() {
     ),
   );
   const [transactions, setTransactions] = useState<LoggedTx[]>([]);
+  // Bumped after a broadcast or a confirmation, so balance hooks refetch
+  // instead of showing the balance from before the transaction.
+  const [balanceRefreshKey, setBalanceRefreshKey] = useState(0);
+  const refreshWalletBalances = () => setBalanceRefreshKey((k) => k + 1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -336,10 +346,11 @@ export function useDashboardData() {
     return transactionId;
   };
 
-  // Function to update transaction status
+  // Function to update transaction status. Passing "pending" with a txHash
+  // records a broadcast that has not been mined yet.
   const updateTransactionStatus = (
     transactionId: string,
-    status: "completed" | "failed",
+    status: LoggedTx["status"],
     txHash?: string,
     extraData?: { locktime?: number; [key: string]: any },
   ) => {
@@ -349,7 +360,7 @@ export function useDashboardData() {
           const updatedTx = {
             ...tx,
             status,
-            txHash: status === "completed" ? txHash : tx.txHash,
+            txHash: txHash ?? tx.txHash,
             ...(extraData || {}), // Spread any extra data like locktime
           };
 
@@ -495,6 +506,8 @@ export function useDashboardData() {
     // Wallet balances
     walletBalances,
     setWalletBalance,
+    balanceRefreshKey,
+    refreshWalletBalances,
   };
 }
 
