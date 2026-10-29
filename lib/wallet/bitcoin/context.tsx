@@ -3,6 +3,7 @@
 import { bitcoinAdapter, projectId, networks } from "./config";
 import { createAppKit } from "@reown/appkit/react";
 import { useRef, type ReactNode } from "react";
+import { WalletIdentity } from "@/components/analytics/wallet-identity";
 
 if (!projectId) {
   throw new Error("Project ID is not defined");
@@ -39,7 +40,13 @@ function ContextProvider({ children }: { children: ReactNode }) {
   if (!modalRef.current) {
     modalRef.current = initModal();
   }
-  return <>{children}</>;
+  // WalletIdentity reads AppKit state, so it must render after createAppKit.
+  return (
+    <>
+      <WalletIdentity />
+      {children}
+    </>
+  );
 }
 
 export default ContextProvider;
