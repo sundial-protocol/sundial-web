@@ -33,8 +33,16 @@ export function WalletIdentity() {
     });
   }, [address, isConnected, walletInfo?.name]);
 
-  // Invalidate any pending lookup when the component unmounts.
-  useEffect(() => () => void generation.current++, []);
+  // On unmount, invalidate any pending lookup and forget the address, so a
+  // remount (including React Strict Mode's dev-only unmount and remount)
+  // starts the lookup again instead of seeing it as already handled.
+  useEffect(
+    () => () => {
+      generation.current++;
+      current.current = null;
+    },
+    [],
+  );
 
   return null;
 }
