@@ -35,6 +35,9 @@ export function TxConfirmationWatcher() {
   // every change to it.
   const transactionsRef = useRef(transactions);
   transactionsRef.current = transactions;
+  // Transactions already announced, so a confirmation is reported once even if
+  // the list hasn't re-rendered with the new status by the next check.
+  const announced = useRef(new Set<string>());
 
   useEffect(() => {
     let cancelled = false;
@@ -44,6 +47,7 @@ export function TxConfirmationWatcher() {
         (tx) =>
           tx.status === "pending" &&
           tx.txHash &&
+          !announced.current.has(tx.id) &&
           isBitcoinChain(tx.asset as SupportedChain),
       );
 
@@ -57,6 +61,7 @@ export function TxConfirmationWatcher() {
             await res.json();
           if (!status.confirmed || cancelled) continue;
 
+          announced.current.add(tx.id);
           updateTransactionStatus(tx.id, "completed", tx.txHash, {
             blockHeight: status.block_height,
           });
@@ -76,11 +81,17 @@ export function TxConfirmationWatcher() {
       }
     };
 
-    check();
-    const interval = setInterval(check, POLL_INTERVAL_MS);
+    // Each check is scheduled after the previous one finishes, not on a fixed
+    // interval, so a slow mempool.space response can't overlap the next check.
+    let timer: ReturnType<typeof setTimeout>;
+    const loop = async () => {
+      await check();
+      if (!cancelled) timer = setTimeout(loop, POLL_INTERVAL_MS);
+    };
+    loop();
     return () => {
       cancelled = true;
-      clearInterval(interval);
+      clearTimeout(timer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

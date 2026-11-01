@@ -48,14 +48,18 @@ export default function HowStakingWorks() {
               3. Wait for confirmation
             </div>
             The transaction goes to the Bitcoin network and usually confirms in
-            about 10 minutes. Its status shows under Recent Activity.
+            about 10 minutes. While the dashboard is open, its status shows
+            under Recent Activity.
           </li>
           <li>
             <div className="mb-1 font-medium text-foreground">
               4. Earn, then withdraw
             </div>
-            Your BTC stays on Bitcoin in scripts tied to your key. When the lock
-            ends, you withdraw it, with the yield, from the Withdraw tab.
+            Your BTC stays on Bitcoin. Three quarters is locked to your key; the
+            provider can claim the other quarter to earn the yield and pays it
+            back with the yield. When the lock ends the BTC can be withdrawn,
+            though withdrawing from the dashboard isn&apos;t available yet on
+            testnet.
           </li>
         </ol>
       )}

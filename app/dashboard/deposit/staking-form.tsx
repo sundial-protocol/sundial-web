@@ -142,6 +142,19 @@ export default function StakingForm({
   const [psbtCalcFailed, setPsbtCalcFailed] = useState(false);
   const [psbtError, setPsbtError] = useState<string | null>(null);
   const psbtDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // The inputs a prepared transaction depends on. A preparation request
+  // compares this when its response arrives and drops the response if the
+  // user has changed anything since: otherwise a slow response for the old
+  // amount could enable signing while the review shows the new one.
+  const psbtInputsKey = [
+    selectedChain,
+    userAddress,
+    withdrawAddress,
+    amount,
+    manualPublicKey,
+  ].join("|");
+  const psbtInputsKeyRef = useRef(psbtInputsKey);
+  psbtInputsKeyRef.current = psbtInputsKey;
 
   // Ensure selectedChain is always valid - recover if somehow set to invalid value
   const validChain = chainConfigs[selectedChain] ? selectedChain : defaultChain;
@@ -596,6 +609,8 @@ export default function StakingForm({
 
     setIsCalculatingPsbt(true);
     setError(null);
+    const requestedFor = psbtInputsKeyRef.current;
+    const isStale = () => psbtInputsKeyRef.current !== requestedFor;
 
     try {
       const sourceAddress = userAddress; // Always use userAddress for source
@@ -676,6 +691,12 @@ export default function StakingForm({
           "error" in data ? data.error : "Failed to create transaction",
         );
       }
+      // Inputs changed while this was in flight. Dropping it clears
+      // isCalculatingPsbt below, which lets the effect prepare a fresh one.
+      if (isStale()) {
+        setIsCalculatingPsbt(false);
+        return;
+      }
       console.debug("Unsigned transaction calculated:", data);
       setUnsignedTransactionData(data);
       track(`${eventKind}_started`, eventProps());
@@ -685,6 +706,10 @@ export default function StakingForm({
         setDepositAddress(data.timelockScript.address);
       }
     } catch (err: any) {
+      if (isStale()) {
+        setIsCalculatingPsbt(false);
+        return;
+      }
       console.warn("Error calculating PSBT:", err);
       const errorMessage =
         err.message ||
@@ -721,6 +746,9 @@ export default function StakingForm({
       return;
     }
     setSelectedChain(chain);
+    // The amount is cleared below; report that and the new chain to the
+    // parent, which also uses the chain to decide what to explain.
+    onAmountChange?.("", chain);
     setUserAddress(""); // Reset address when changing chains
     setIsUsingConnectedWallet(false);
     setWithdrawAddress("");
@@ -1419,8 +1447,10 @@ export default function StakingForm({
             <div className="font-medium">Review your stake</div>
             <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
               <dt className="text-muted-foreground">Amount</dt>
+              {/* From the prepared transaction, not the input field, so the
+                  review always matches what the wallet will sign. */}
               <dd className="text-right font-mono">
-                {amount} {config?.symbol}
+                {unsignedTransactionData.amount} {config?.symbol}
               </dd>
 
               {selectedYieldProvider && (
@@ -1442,7 +1472,7 @@ export default function StakingForm({
                   <dd className="text-right font-mono">
                     ≈{" "}
                     {yieldFromProvider(
-                      Number(amount),
+                      Number(unsignedTransactionData.amount),
                       selectedYieldProvider,
                     ).toFixed(8)}{" "}
                     {config?.symbol} / month
@@ -1455,9 +1485,10 @@ export default function StakingForm({
                   <dt className="flex items-center gap-1 text-muted-foreground">
                     Locked until
                     <InfoTip label="What the lock means">
-                      Bitcoin itself stops anyone, you included, from moving the
-                      staked BTC before this time. After it, you withdraw from
-                      the Withdraw tab.
+                      Until this time Bitcoin itself stops anyone, you
+                      included, from moving the time-locked three quarters. It
+                      does not lock the escrow quarter: the provider can claim
+                      that during the lock.
                     </InfoTip>
                   </dt>
                   <dd className="text-right">{lockEndsAt.toLocaleString()}</dd>
@@ -1487,8 +1518,10 @@ export default function StakingForm({
               </div>
               Three quarters goes to a time-locked script that only your key can
               spend. One quarter goes to an escrow the yield provider can claim
-              during the lock to earn the yield; if they don&apos;t pay it back,
-              you reclaim it yourself when the lock ends. Both stay on Bitcoin.
+              during the lock to earn the yield. If they never claim it, you can
+              take it back yourself when the lock ends. Once they have claimed
+              it, getting it back, with the yield, depends on the provider
+              paying, so that quarter is at risk if they don&apos;t.
             </div>
 
             <ol className="list-decimal space-y-0.5 pl-4 text-xs text-muted-foreground">
@@ -1499,7 +1532,10 @@ export default function StakingForm({
                 The transaction goes to the Bitcoin network and usually confirms
                 in about 10 minutes. You can follow it under Recent Activity.
               </li>
-              <li>When the lock ends, withdraw from the Withdraw tab.</li>
+              <li>
+                When the lock ends, the BTC can be withdrawn. Withdrawing from
+                the dashboard isn&apos;t available yet on testnet.
+              </li>
             </ol>
           </div>
         )}
@@ -1508,9 +1544,10 @@ export default function StakingForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {isBtcChain ? (
             <>
+              {/* A submit button, so Enter in a field and a click both go
+                  through handleBtcTransaction. */}
               <Button
-                type="button"
-                onClick={handleSignInBrowser}
+                type="submit"
                 disabled={
                   loading || !unsignedTransactionData || isAmountExceedsBalance
                 }
@@ -1663,14 +1700,16 @@ export default function StakingForm({
           <p className="mb-2 text-sm text-muted-foreground">
             Your transaction is on the Bitcoin network. The first confirmation
             usually takes about 10 minutes. This page updates by itself, and you
-            can leave it: the status also shows under Recent Activity on the
-            Portfolio tab.
+            can switch tabs: the status also shows under Recent Activity on the
+            Portfolio tab. Keep the dashboard open until then, since leaving or
+            reloading it stops the tracking here (the transaction itself still
+            confirms).
           </p>
         )}
         {isDeposit && savedLocktime && (
           <p className="mb-2 text-sm text-muted-foreground">
             Locked until {new Date(savedLocktime * 1000).toLocaleString()}.
-            After that, withdraw from the Withdraw tab.
+            Withdrawing from the dashboard isn&apos;t available yet on testnet.
           </p>
         )}
         <div className="flex items-center gap-2">

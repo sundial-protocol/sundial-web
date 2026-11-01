@@ -3,7 +3,11 @@
 import { useState, useEffect } from "react";
 import StakingForm from "./staking-form";
 import StakingSummaryCard from "./staking-summary";
-import { SupportedChain, chainConfigs } from "../../../lib/multichain";
+import {
+  SupportedChain,
+  chainConfigs,
+  isBitcoinChain,
+} from "../../../lib/multichain";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import { usePrices } from "@/hooks/dashboard/prices";
 import { YieldOpportunityCard } from "@/components/yield-opportunity-card";
@@ -81,7 +85,8 @@ export default function DepositTab() {
         <p className="text-muted-foreground">Stake your assets to earn yield</p>
       </div>
 
-      <HowStakingWorks />
+      {/* Describes the Bitcoin flow; the L2 form has no transaction or scripts */}
+      {isBitcoinChain(selectedChain) && <HowStakingWorks />}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <StakingForm

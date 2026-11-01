@@ -98,9 +98,11 @@ export default function AssetAllocation() {
         <CardTitle className="flex items-center gap-2">
           Asset Allocation
           <InfoTip label="What Earning and Idle mean">
-            Earning is BTC you have staked with a yield provider. Idle is BTC in
-            your connected wallet that isn&apos;t staked, so it earns nothing
-            yet. Percentages are shares of your total value in US dollars.
+            These figures come from the stakes you have made on this visit, not
+            from your wallet balance. Earning is what you have staked with a
+            yield provider. Idle is BTC recorded here but not staked, which
+            staking from your wallet doesn&apos;t create, so it is normally
+            empty. Percentages are shares of the total in US dollars.
           </InfoTip>
         </CardTitle>
         <CardDescription>

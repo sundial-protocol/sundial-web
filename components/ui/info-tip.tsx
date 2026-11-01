@@ -25,6 +25,22 @@ export function InfoTip({
   // an open closes when the mouse leaves; a click instead pins it open, so the
   // click that follows the hover doesn't toggle it straight back shut.
   const hoverOpened = React.useRef(false);
+  // A hover-opened tip stays open while the pointer is over the icon or the
+  // text, with a short grace period to cross the gap between them.
+  const closeTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelClose = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = null;
+  };
+  const scheduleClose = (e: React.PointerEvent) => {
+    if (e.pointerType !== "mouse" || !hoverOpened.current) return;
+    cancelClose();
+    closeTimer.current = setTimeout(() => {
+      hoverOpened.current = false;
+      setOpen(false);
+    }, 150);
+  };
+  React.useEffect(() => cancelClose, []);
 
   return (
     <PopoverPrimitive.Root
@@ -39,15 +55,13 @@ export function InfoTip({
         aria-label={label}
         // Mouse only: a tap fires pointer events too, and must act as a click.
         onPointerEnter={(e) => {
-          if (e.pointerType !== "mouse" || open) return;
+          if (e.pointerType !== "mouse") return;
+          cancelClose();
+          if (open) return;
           hoverOpened.current = true;
           setOpen(true);
         }}
-        onPointerLeave={(e) => {
-          if (e.pointerType !== "mouse" || !hoverOpened.current) return;
-          hoverOpened.current = false;
-          setOpen(false);
-        }}
+        onPointerLeave={scheduleClose}
         onClick={(e) => {
           if (!hoverOpened.current) return; // Radix toggles as usual
           e.preventDefault(); // Radix skips its toggle; keep it open, pinned
@@ -67,6 +81,8 @@ export function InfoTip({
           collisionPadding={16}
           // Hover-opened: don't steal focus from whatever the user was doing.
           onOpenAutoFocus={(e) => e.preventDefault()}
+          onPointerEnter={cancelClose}
+          onPointerLeave={scheduleClose}
           className="z-[100] max-w-xs rounded-md border bg-background px-3 py-2 text-xs font-normal leading-relaxed text-foreground shadow-md"
         >
           {children}

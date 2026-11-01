@@ -51,7 +51,7 @@ export function txStatusInfo(
     label: "Completed",
     explanation: tx.txHash
       ? "Sent and recorded."
-      : "Recorded on the Sundial L2, which has no block explorer yet.",
+      : "Marked complete here. There is no transaction hash to look up.",
     className: "bg-green-800/20 text-green-800",
   };
 }

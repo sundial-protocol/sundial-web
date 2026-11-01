@@ -38,7 +38,7 @@ export default function NextStep() {
         ? "Your transaction is waiting for confirmation"
         : `${waiting.length} transactions are waiting for confirmation`;
     body =
-      "It has been sent to the Bitcoin network. The first confirmation usually takes about 10 minutes, and you can leave this page in the meantime.";
+      "It has been sent to the Bitcoin network. The first confirmation usually takes about 10 minutes. Keep the dashboard open to see it confirm here; switching tabs is fine.";
     action = (
       <Button
         variant="outline"
