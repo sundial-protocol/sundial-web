@@ -65,6 +65,7 @@ import {
 } from "@/app/api/btc-withdrawal/types";
 import { useWalletBalance } from "@/hooks/dashboard/wallet-balance";
 import L2StakingForm from "./l2-staking-form";
+import { amountBucket, track } from "@/lib/analytics";
 
 type TransactionType = "deposit" | "withdraw";
 
@@ -147,6 +148,15 @@ export default function StakingForm({
   }
   const config = chainConfigs[validChain];
   const isDeposit = type === "deposit";
+
+  // Analytics: deposit_* or withdrawal_* events (docs-v2 operations/analytics.md).
+  // No addresses, txids or exact amounts.
+  const eventKind = isDeposit ? "deposit" : "withdrawal";
+  const eventProps = () => ({
+    network: selectedChain === "btc_testnet" ? "testnet" : "mainnet",
+    program_id: selectedYieldProvider?.id,
+    amount_bucket: amountBucket(Number(amount)),
+  });
 
   // Recovery: if selectedChain is somehow invalid, reset to defaultChain
   useEffect(() => {
@@ -452,6 +462,11 @@ export default function StakingForm({
       if (!psbtResponse?.psbt) {
         throw new Error("Wallet returned no PSBT data");
       }
+      track(`${eventKind}_signed`, {
+        ...eventProps(),
+        method: "wallet",
+        wallet_name: bitcoinWallet,
+      });
 
       const signedPsbt = Psbt.fromBase64(psbtResponse.psbt);
 
@@ -495,6 +510,7 @@ export default function StakingForm({
 
       const broadcastResult = await broadcastResponse.json();
       const txid = broadcastResult.txid;
+      track(`${eventKind}_broadcast`, { ...eventProps(), method: "wallet" });
 
       setBroadcastResult(txid);
 
@@ -538,6 +554,10 @@ export default function StakingForm({
       const errorMessage =
         err.message || "Error signing transaction in browser";
       setError(errorMessage);
+      track(`${eventKind}_failed`, {
+        ...eventProps(),
+        stage: "sign_or_broadcast",
+      });
 
       // Update transaction as failed
       updateTransactionStatus(transactionId, "failed");
@@ -558,6 +578,8 @@ export default function StakingForm({
       setPendingTransactionId(transactionId);
 
       // Set the unsigned PSBT and go to psbt step for manual signing
+      // Only the choice is tracked: the manual tx watcher is still a mock.
+      track(`${eventKind}_manual_signing_chosen`, eventProps());
       setPsbtBase64(unsignedTransactionData.psbt);
       setStep("psbt");
     }
@@ -650,6 +672,7 @@ export default function StakingForm({
       }
       console.debug("Unsigned transaction calculated:", data);
       setUnsignedTransactionData(data);
+      track(`${eventKind}_started`, eventProps());
 
       // Populate depositAddress from staking response so PsbtSigning can watch it
       if (isDeposit && "timelockScript" in data) {
@@ -661,6 +684,7 @@ export default function StakingForm({
         err.message ||
         "Failed to create transaction. Please check your inputs.";
       setUnsignedTransactionData(null);
+      track(`${eventKind}_failed`, { ...eventProps(), stage: "build" });
       setPsbtCalcFailed(true);
       setPsbtError(errorMessage);
     }
