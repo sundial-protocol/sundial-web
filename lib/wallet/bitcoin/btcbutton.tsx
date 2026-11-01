@@ -7,6 +7,7 @@ import {
   useAppKit,
   useAppKitAccount,
   useAppKitState,
+  useDisconnect,
   useWalletInfo,
 } from "@reown/appkit/react";
 
@@ -36,23 +37,30 @@ export const ConnectButton = ({
   const { address, isConnected } = useAppKitAccount();
   const { loading } = useAppKitState();
   const { walletInfo } = useWalletInfo();
+  const { disconnect } = useDisconnect();
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // const formatAddress = (addr: string) => {
-  //   if (!addr) return "";
-  //   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
-  // };
-
   const handleDisconnect = async () => {
     try {
-      // AppKit should handle disconnection through the modal
-      await open();
+      await disconnect();
     } catch (error) {
       console.error("Failed to disconnect:", error);
     }
+  };
+
+  // Testers whose first connection attempt half-worked (or who picked the
+  // wrong one of several installed wallets) had no way back except reloading.
+  // This drops the current session and reopens the wallet picker.
+  const handleReconnect = async () => {
+    try {
+      await disconnect();
+    } catch (error) {
+      console.error("Failed to disconnect before reconnecting:", error);
+    }
+    await open({ view: "Connect" });
   };
 
   if (!isClient) {
@@ -87,9 +95,10 @@ export const ConnectButton = ({
                 }}
               />
               <span className="font-medium">{walletInfo.name}</span>
-              {/*<span className="ml-2 text-xs text-muted-foreground">
-                {formatAddress(address || "")}
-              </span>*/}
+              <span
+                className="ml-2 h-2 w-2 rounded-full bg-green-500"
+                aria-label="Connected"
+              />
             </>
           ) : (
             <div className="flex items-center gap-2">Connect Wallet</div>
@@ -119,6 +128,9 @@ export const ConnectButton = ({
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => open()}>
               Manage Connection
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleReconnect}>
+              Reconnect or Switch Wallet
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={handleDisconnect}

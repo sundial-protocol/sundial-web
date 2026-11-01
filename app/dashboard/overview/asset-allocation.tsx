@@ -6,6 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { InfoTip } from "@/components/ui/info-tip";
 import { formatCurrency } from "@/hooks/dashboard/dashboard";
 import { usePrices, formatAmount } from "@/hooks/dashboard/prices";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
@@ -94,7 +95,14 @@ export default function AssetAllocation() {
   return (
     <Card className="col-span-5 sm:col-span-3">
       <CardHeader>
-        <CardTitle>Asset Allocation</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          Asset Allocation
+          <InfoTip label="What Earning and Idle mean">
+            Earning is BTC you have staked with a yield provider. Idle is BTC in
+            your connected wallet that isn&apos;t staked, so it earns nothing
+            yet. Percentages are shares of your total value in US dollars.
+          </InfoTip>
+        </CardTitle>
         <CardDescription>
           Your portfolio distributed between staked (earning yield) and unstaked
           holdings
@@ -163,9 +171,20 @@ export default function AssetAllocation() {
                   : "No yield"}
               </span>
               <span>
-                {allocation.type === "staked"
-                  ? `${allocation.risk} Risk`
-                  : "Available to stake"}
+                {allocation.type === "staked" ? (
+                  <span className="inline-flex items-center gap-1">
+                    {allocation.risk} Risk
+                    <InfoTip label="What the risk rating means">
+                      The yield provider&apos;s own rating of its strategy.
+                      Three quarters of a stake sits in a script only your key
+                      can spend. The provider can claim the other quarter during
+                      the lock, so that quarter and the yield depend on the
+                      provider paying back.
+                    </InfoTip>
+                  </span>
+                ) : (
+                  "Available to stake"
+                )}
               </span>
             </div>
           </div>

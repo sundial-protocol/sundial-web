@@ -13,6 +13,41 @@ import { BitcoinSymbol } from "@/components/ui/bitcoin-logo";
 //import { WalletButton } from "@/lib/wallet/cardano/wallet-button";
 import { Button } from "@/components/ui/button";
 import DashboardBtcHoldings from "./btc-holdings";
+import { useAppKitAccount, useWalletInfo } from "@reown/appkit/react";
+import { ConnectButton } from "@/lib/wallet/bitcoin/btcbutton";
+
+// Whether a Bitcoin wallet is connected, said in words and shown outside the
+// breakdown. Testers with several wallets installed couldn't tell from the card
+// whether, or which one, had connected: the connect control sits inside the
+// collapsed breakdown.
+function BitcoinWalletStatus() {
+  const { address, isConnected } = useAppKitAccount({ namespace: "bip122" });
+  const { walletInfo } = useWalletInfo();
+
+  if (isConnected && address) {
+    return (
+      <div className="flex items-center gap-2 text-xs">
+        <span className="h-2 w-2 shrink-0 rounded-full bg-green-500" />
+        <span className="text-muted-foreground">
+          Connected{walletInfo?.name ? ` with ${walletInfo.name}` : ""}:{" "}
+          <span className="font-mono">
+            {address.slice(0, 6)}…{address.slice(-4)}
+          </span>
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-2 text-xs">
+        <span className="h-2 w-2 shrink-0 rounded-full bg-muted-foreground/40" />
+        <span className="text-muted-foreground">No wallet connected</span>
+      </div>
+      <ConnectButton size="sm" />
+    </div>
+  );
+}
 
 export default function WalletsCard() {
   // Other chains yields the card to the breakdown while it is open: it is a
@@ -38,6 +73,7 @@ export default function WalletsCard() {
                 <span className="font-semibold">Bitcoin</span>
               </div>
             </div>
+            <BitcoinWalletStatus />
             <DashboardBtcHoldings onExpandedChange={setBreakdownExpanded} />
           </div>
 

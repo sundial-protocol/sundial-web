@@ -33,6 +33,7 @@ import {
   Legend as ChartLegend,
   Filler,
 } from "chart.js";
+import { InfoTip } from "@/components/ui/info-tip";
 import { formatAmount } from "@/hooks/dashboard/prices";
 import { useState } from "react";
 import {
@@ -150,7 +151,16 @@ export default function EarningsGraph(props: {
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle>Earnings Overview</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                Earnings Overview
+                <InfoTip label="How to read this chart">
+                  Solid areas are earnings you have already received. Dashed
+                  areas are a projection: the selected strategy&apos;s APY
+                  applied to what you have staked now, month by month. Values
+                  are in US dollars at reference prices, and projections are
+                  estimates, not guarantees.
+                </InfoTip>
+              </CardTitle>
               <CardDescription>
                 Historical performance and projected earnings across Bitcoin and
                 other assets (USD values)
@@ -228,7 +238,7 @@ export default function EarningsGraph(props: {
                 />
                 <Area
                   type="monotone"
-                  dataKey="otherProjected"
+                  dataKey="adaProjected"
                   stackId="2"
                   stroke="#3b82f6"
                   fill="#3b82f6"
