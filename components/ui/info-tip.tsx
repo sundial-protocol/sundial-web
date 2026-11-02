@@ -30,6 +30,7 @@ export function InfoTip({
   // whatever the user is typing in. Keyboard and click opens keep Radix's
   // default, so screen-reader users are taken to the text.
   const moveFocus = React.useRef(true);
+  const contentRef = React.useRef<HTMLDivElement>(null);
   // A hover-opened tip stays open while the pointer is over the icon or the
   // text, with a short grace period to cross the gap between them.
   const closeTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -74,6 +75,9 @@ export function InfoTip({
           e.preventDefault(); // Radix skips its toggle; keep it open, pinned
           hoverOpened.current = false;
           moveFocus.current = true; // the click put focus on the icon anyway
+          // Enter or Space while the mouse rests on the icon: the hover open
+          // skipped autofocus, so move focus in now for the keyboard user.
+          if (e.detail === 0) contentRef.current?.focus();
         }}
         className={cn(
           "inline-flex items-center align-middle text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-full",
@@ -84,6 +88,7 @@ export function InfoTip({
       </PopoverPrimitive.Trigger>
       <PopoverPrimitive.Portal>
         <PopoverPrimitive.Content
+          ref={contentRef}
           side="top"
           sideOffset={6}
           collisionPadding={16}

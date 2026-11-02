@@ -63,6 +63,11 @@ export const ConnectButton = ({
     await open({ view: "Connect" });
   };
 
+  // A session can be connected before, or without, the wallet's metadata.
+  // Show it as connected anyway, so Disconnect and Switch stay reachable.
+  const walletName = walletInfo?.name ?? "Bitcoin wallet";
+  const walletIcon = walletInfo?.icon;
+
   if (!isClient) {
     return (
       <div
@@ -84,17 +89,21 @@ export const ConnectButton = ({
         <Button variant="outline" size={size} disabled={loading}>
           {loading ? (
             <Loader2 className="w-4 h-4 animate-spin" />
-          ) : isConnected && walletInfo ? (
+          ) : isConnected ? (
             <>
-              <img
-                src={walletInfo.icon}
-                alt={walletInfo.name}
-                className="w-4 h-4 mr-2 rounded"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/wallets/default.png";
-                }}
-              />
-              <span className="font-medium">{walletInfo.name}</span>
+              {walletIcon ? (
+                <img
+                  src={walletIcon}
+                  alt={walletName}
+                  className="w-4 h-4 mr-2 rounded"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/wallets/default.png";
+                  }}
+                />
+              ) : (
+                <BitcoinSymbol className="w-4 h-4 mr-2" />
+              )}
+              <span className="font-medium">{walletName}</span>
               <span
                 className="ml-2 h-2 w-2 rounded-full bg-green-500"
                 aria-label="Connected"
@@ -107,19 +116,24 @@ export const ConnectButton = ({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent>
-        {isConnected && walletInfo ? (
+        {isConnected ? (
           <>
             <DropdownMenuItem disabled className="flex flex-col items-start">
               <div className="flex items-center gap-2 mb-1">
-                <img
-                  src={walletInfo.icon}
-                  alt={walletInfo.name}
-                  className="w-5 h-5 rounded"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/wallets/default.png";
-                  }}
-                />
-                <span className="font-medium">{walletInfo.name}</span>
+                {walletIcon ? (
+                  <img
+                    src={walletIcon}
+                    alt={walletName}
+                    className="w-5 h-5 rounded"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src =
+                        "/wallets/default.png";
+                    }}
+                  />
+                ) : (
+                  <BitcoinSymbol className="w-5 h-5" />
+                )}
+                <span className="font-medium">{walletName}</span>
               </div>
               <div className="text-xs text-muted-foreground font-mono ml-7">
                 {address}

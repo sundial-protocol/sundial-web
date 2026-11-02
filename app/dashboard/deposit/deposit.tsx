@@ -7,6 +7,7 @@ import {
   SupportedChain,
   chainConfigs,
   isBitcoinChain,
+  isSundialL2,
 } from "../../../lib/multichain";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import { usePrices } from "@/hooks/dashboard/prices";
@@ -36,8 +37,9 @@ export default function DepositTab() {
   }, [selectedYieldProvider, opportunities, setSelectedYieldProvider]);
 
   const alreadyStaked = convert(
-    // Testnet's symbol is tBTC, so check the chain rather than the symbol.
-    isBitcoinChain(selectedChain)
+    // Check the chain rather than the symbol: testnet's symbol is tBTC.
+    // Sundial L2 is BTC-denominated and its stakes are recorded under BTC.
+    isBitcoinChain(selectedChain) || isSundialL2(selectedChain)
       ? calculations.btcValue
       : calculations.adaValue,
     "USD",

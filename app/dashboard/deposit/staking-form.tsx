@@ -142,6 +142,15 @@ export default function StakingForm({
   const [psbtCalcFailed, setPsbtCalcFailed] = useState(false);
   const [psbtError, setPsbtError] = useState<string | null>(null);
   const psbtDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // The public key the connected wallet reported for this address, if any.
+  // When there is one the key field collapses to a single line: testers found
+  // the stake form busy, and a 66-character hex field they never needed to
+  // touch, with a warning beneath it that didn't apply, was most of that.
+  const walletPublicKey = isUsingConnectedWallet
+    ? (bitcoinAccounts?.find(
+        (account) => account.address === userAddress && account.publicKey,
+      )?.publicKey ?? null)
+    : null;
   // The inputs a prepared transaction depends on. A preparation request
   // compares this when its response arrives and drops the response if the
   // user has changed anything since: otherwise a slow response for the old
@@ -152,6 +161,8 @@ export default function StakingForm({
     withdrawAddress,
     amount,
     manualPublicKey,
+    isUsingConnectedWallet,
+    walletPublicKey ?? "",
   ].join("|");
   const psbtInputsKeyRef = useRef(psbtInputsKey);
   psbtInputsKeyRef.current = psbtInputsKey;
@@ -160,6 +171,13 @@ export default function StakingForm({
   // request may still be out, and that request must not then clear the flag
   // of a newer one and let a third start alongside it.
   const psbtRequestId = useRef(0);
+  // A prepared transaction is only good for the inputs it was built from.
+  // Some of those change without going through a handler that clears it
+  // (switching to the connected wallet, the wallet reporting its key), so
+  // drop it whenever they change; the effect below then prepares a new one.
+  useEffect(() => {
+    setUnsignedTransactionData(null);
+  }, [psbtInputsKey]);
 
   // Ensure selectedChain is always valid - recover if somehow set to invalid value
   const validChain = chainConfigs[selectedChain] ? selectedChain : defaultChain;
@@ -423,6 +441,7 @@ export default function StakingForm({
     amount,
     manualPublicKey,
     bitcoinAccounts,
+    isUsingConnectedWallet,
     isDeposit,
     config,
     step,
@@ -1012,15 +1031,6 @@ export default function StakingForm({
 
   const isBtcChain = isBitcoinChain(selectedChain);
 
-  // The public key the connected wallet reported for this address, if any.
-  // When there is one the key field collapses to a single line: testers found
-  // the stake form busy, and a 66-character hex field they never needed to
-  // touch, with a warning beneath it that didn't apply, was most of that.
-  const walletPublicKey = isUsingConnectedWallet
-    ? (bitcoinAccounts?.find(
-        (account) => account.address === userAddress && account.publicKey,
-      )?.publicKey ?? null)
-    : null;
 
   // Network fee of the prepared transaction, in sats: what goes in minus what
   // comes out. Null when an input lacks its previous output, which a PSBT built
