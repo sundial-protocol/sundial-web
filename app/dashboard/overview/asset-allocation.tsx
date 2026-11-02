@@ -178,10 +178,10 @@ export default function AssetAllocation() {
                     {allocation.risk} Risk
                     <InfoTip label="What the risk rating means">
                       The yield provider&apos;s own rating of its strategy.
-                      Three quarters of a stake sits in a script only your key
-                      can spend. The provider can claim the other quarter during
-                      the lock, so that quarter and the yield depend on the
-                      provider paying back.
+                      For a stake on Bitcoin, three quarters sits in a script
+                      only your key can spend, and the provider can claim the
+                      other quarter during the lock, so that quarter and the
+                      yield depend on the provider paying back.
                     </InfoTip>
                   </span>
                 ) : (

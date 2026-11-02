@@ -36,7 +36,10 @@ export default function DepositTab() {
   }, [selectedYieldProvider, opportunities, setSelectedYieldProvider]);
 
   const alreadyStaked = convert(
-    config.symbol === "BTC" ? calculations.btcValue : calculations.adaValue,
+    // Testnet's symbol is tBTC, so check the chain rather than the symbol.
+    isBitcoinChain(selectedChain)
+      ? calculations.btcValue
+      : calculations.adaValue,
     "USD",
     config.symbol,
   );

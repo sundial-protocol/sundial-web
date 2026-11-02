@@ -22,8 +22,13 @@ export default function NextStep() {
   const waiting = transactions.filter(
     (tx) => tx.status === "pending" && tx.txHash,
   );
+  // A deposit counts once it has been sent. One that was only prepared (an
+  // unsigned PSBT copied out) still leaves the user at the stake step.
   const hasStaked = transactions.some(
-    (tx) => tx.type === "deposit" && tx.status !== "failed",
+    (tx) =>
+      tx.type === "deposit" &&
+      tx.status !== "failed" &&
+      (tx.txHash || tx.status === "completed"),
   );
 
   let icon: React.ReactNode;

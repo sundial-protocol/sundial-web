@@ -155,6 +155,11 @@ export default function StakingForm({
   ].join("|");
   const psbtInputsKeyRef = useRef(psbtInputsKey);
   psbtInputsKeyRef.current = psbtInputsKey;
+  // Numbers each preparation request. Only the latest may clear the loading
+  // flag or publish a result: a chain change clears the flag while an older
+  // request may still be out, and that request must not then clear the flag
+  // of a newer one and let a third start alongside it.
+  const psbtRequestId = useRef(0);
 
   // Ensure selectedChain is always valid - recover if somehow set to invalid value
   const validChain = chainConfigs[selectedChain] ? selectedChain : defaultChain;
@@ -609,8 +614,11 @@ export default function StakingForm({
 
     setIsCalculatingPsbt(true);
     setError(null);
+    const requestId = ++psbtRequestId.current;
     const requestedFor = psbtInputsKeyRef.current;
-    const isStale = () => psbtInputsKeyRef.current !== requestedFor;
+    const isLatest = () => psbtRequestId.current === requestId;
+    const isStale = () =>
+      !isLatest() || psbtInputsKeyRef.current !== requestedFor;
 
     try {
       const sourceAddress = userAddress; // Always use userAddress for source
@@ -691,10 +699,11 @@ export default function StakingForm({
           "error" in data ? data.error : "Failed to create transaction",
         );
       }
-      // Inputs changed while this was in flight. Dropping it clears
-      // isCalculatingPsbt below, which lets the effect prepare a fresh one.
+      // Superseded while in flight. If no newer request has started, clearing
+      // isCalculatingPsbt lets the effect prepare a fresh one; if one has,
+      // the flag is that request's to clear.
       if (isStale()) {
-        setIsCalculatingPsbt(false);
+        if (isLatest()) setIsCalculatingPsbt(false);
         return;
       }
       console.debug("Unsigned transaction calculated:", data);
@@ -707,7 +716,7 @@ export default function StakingForm({
       }
     } catch (err: any) {
       if (isStale()) {
-        setIsCalculatingPsbt(false);
+        if (isLatest()) setIsCalculatingPsbt(false);
         return;
       }
       console.warn("Error calculating PSBT:", err);
@@ -720,7 +729,7 @@ export default function StakingForm({
       setPsbtError(errorMessage);
     }
 
-    setIsCalculatingPsbt(false);
+    if (isLatest()) setIsCalculatingPsbt(false);
   };
 
   const resetForm = () => {
@@ -759,6 +768,7 @@ export default function StakingForm({
     setTxHash("");
     setUnsignedTransactionData(null);
     setDepositAddress("");
+    psbtRequestId.current++; // drop any preparation still in flight
     setIsCalculatingPsbt(false);
     setPsbtCalcFailed(false);
     setStep("form");
@@ -1244,9 +1254,10 @@ export default function StakingForm({
             <CheckCircle className="h-4 w-4 text-green-600" />
             Public key provided by your wallet
             <InfoTip label="Why a public key is needed">
-              Your stake is locked in Bitcoin scripts that only your key can
-              unlock. The scripts are built from your public key, which your
-              wallet shares when you connect. It is not secret.
+              Your stake is locked in Bitcoin scripts built from your public
+              key, which your wallet shares when you connect. It is not
+              secret. Three quarters of the stake can only be spent with your
+              key; the provider can claim the other quarter during the lock.
             </InfoTip>
           </div>
         )}

@@ -66,6 +66,8 @@ export function useWalletBalance({
         );
         if (res.ok && !cancelled) {
           const data = await res.json();
+          // A newer request may have started while this one was parsing.
+          if (cancelled) return;
           const funded = data.chain_stats?.funded_txo_sum ?? 0;
           const spent = data.chain_stats?.spent_txo_sum ?? 0;
           const mempoolFunded = data.mempool_stats?.funded_txo_sum ?? 0;

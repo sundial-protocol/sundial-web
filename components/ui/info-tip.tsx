@@ -25,6 +25,11 @@ export function InfoTip({
   // an open closes when the mouse leaves; a click instead pins it open, so the
   // click that follows the hover doesn't toggle it straight back shut.
   const hoverOpened = React.useRef(false);
+  // Whether focus moves into the tip on open and back to the icon on close.
+  // Not for a hover open: the mouse passing over must not pull focus away from
+  // whatever the user is typing in. Keyboard and click opens keep Radix's
+  // default, so screen-reader users are taken to the text.
+  const moveFocus = React.useRef(true);
   // A hover-opened tip stays open while the pointer is over the icon or the
   // text, with a short grace period to cross the gap between them.
   const closeTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -47,6 +52,7 @@ export function InfoTip({
       open={open}
       onOpenChange={(next) => {
         hoverOpened.current = false;
+        if (next) moveFocus.current = true;
         setOpen(next);
       }}
     >
@@ -59,6 +65,7 @@ export function InfoTip({
           cancelClose();
           if (open) return;
           hoverOpened.current = true;
+          moveFocus.current = false;
           setOpen(true);
         }}
         onPointerLeave={scheduleClose}
@@ -66,6 +73,7 @@ export function InfoTip({
           if (!hoverOpened.current) return; // Radix toggles as usual
           e.preventDefault(); // Radix skips its toggle; keep it open, pinned
           hoverOpened.current = false;
+          moveFocus.current = true; // the click put focus on the icon anyway
         }}
         className={cn(
           "inline-flex items-center align-middle text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-full",
@@ -79,8 +87,12 @@ export function InfoTip({
           side="top"
           sideOffset={6}
           collisionPadding={16}
-          // Hover-opened: don't steal focus from whatever the user was doing.
-          onOpenAutoFocus={(e) => e.preventDefault()}
+          onOpenAutoFocus={(e) => {
+            if (!moveFocus.current) e.preventDefault();
+          }}
+          onCloseAutoFocus={(e) => {
+            if (!moveFocus.current) e.preventDefault();
+          }}
           onPointerEnter={cancelClose}
           onPointerLeave={scheduleClose}
           className="z-[100] max-w-xs rounded-md border bg-background px-3 py-2 text-xs font-normal leading-relaxed text-foreground shadow-md"

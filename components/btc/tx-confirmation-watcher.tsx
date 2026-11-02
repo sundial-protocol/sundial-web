@@ -12,6 +12,9 @@ import {
 // Bitcoin blocks come roughly every ten minutes, so checking every 15 seconds
 // shows a confirmation soon after it happens without hammering mempool.space.
 const POLL_INTERVAL_MS = 15_000;
+// Each status check is abandoned after this long, so one stalled request can't
+// hold up the others or the next round.
+const STATUS_TIMEOUT_MS = 10_000;
 
 const esploraBase = (chain: SupportedChain) =>
   chain === "btc_testnet"
@@ -55,6 +58,7 @@ export function TxConfirmationWatcher() {
         try {
           const res = await fetch(
             `${esploraBase(tx.asset as SupportedChain)}/tx/${tx.txHash}/status`,
+            { signal: AbortSignal.timeout(STATUS_TIMEOUT_MS) },
           );
           if (!res.ok || cancelled) continue;
           const status: { confirmed: boolean; block_height?: number } =
@@ -76,7 +80,7 @@ export function TxConfirmationWatcher() {
             }.`,
           });
         } catch {
-          // Network error: try again on the next tick.
+          // Network error or timeout: try again on the next tick.
         }
       }
     };
