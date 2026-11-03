@@ -114,7 +114,7 @@ const yieldOpportunities: YieldOpportunity[] = [
     type: "staking",
     risk: "Low",
     apy: 3.5,
-    minAmount: 0.01,
+    minAmount: 0.00001,
     payments: 12, // Number of payments per year
     publicKey: YIELD_PROVIDER_PUBKEY, // Example public key
     locktime: 60 * 60 * 24 * 30, // 30 days in seconds
