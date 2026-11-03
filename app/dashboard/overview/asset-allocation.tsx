@@ -6,7 +6,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { InfoTip } from "@/components/ui/info-tip";
 import { formatCurrency } from "@/hooks/dashboard/dashboard";
 import { usePrices, formatAmount } from "@/hooks/dashboard/prices";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
@@ -95,16 +94,7 @@ export default function AssetAllocation() {
   return (
     <Card className="col-span-5 sm:col-span-3">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          Asset Allocation
-          <InfoTip label="What Earning and Idle mean">
-            These figures come from the stakes you have made on this visit, not
-            from your wallet balance. Earning is what you have staked with a
-            yield provider. Idle is BTC recorded here but not staked, which
-            staking from your wallet doesn&apos;t create, so it is normally
-            empty. Percentages are shares of the total in US dollars.
-          </InfoTip>
-        </CardTitle>
+        <CardTitle>Asset Allocation</CardTitle>
         <CardDescription>
           Your portfolio distributed between staked (earning yield) and unstaked
           holdings
@@ -173,20 +163,9 @@ export default function AssetAllocation() {
                   : "No yield"}
               </span>
               <span>
-                {allocation.type === "staked" ? (
-                  <span className="inline-flex items-center gap-1">
-                    {allocation.risk} Risk
-                    <InfoTip label="What the risk rating means">
-                      The yield provider&apos;s own rating of its strategy.
-                      For a stake on Bitcoin, three quarters sits in a script
-                      only your key can spend, and the provider can claim the
-                      other quarter during the lock, so that quarter and the
-                      yield depend on the provider paying back.
-                    </InfoTip>
-                  </span>
-                ) : (
-                  "Available to stake"
-                )}
+                {allocation.type === "staked"
+                  ? `${allocation.risk} Risk`
+                  : "Available to stake"}
               </span>
             </div>
           </div>

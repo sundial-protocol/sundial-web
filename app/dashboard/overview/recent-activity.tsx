@@ -2,13 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ArrowDownLeft, ArrowUpRight, ExternalLink } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TxStatusBadge } from "@/components/transactions/tx-status";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
@@ -47,9 +41,6 @@ export default function RecentActivity() {
       <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
         <div>
           <CardTitle>Recent Activity</CardTitle>
-          <CardDescription>
-            Your latest stakes and withdrawals from this visit
-          </CardDescription>
         </div>
         {transactions.length > 0 && (
           <Button
@@ -64,7 +55,7 @@ export default function RecentActivity() {
       <CardContent>
         {recent.length === 0 ? (
           <p className="py-4 text-center text-sm text-muted-foreground">
-            Nothing yet. Stakes and withdrawals you make will show up here.
+            No activity yet.
           </p>
         ) : (
           <ul className="divide-y">

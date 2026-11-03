@@ -66,7 +66,6 @@ import {
 import { useWalletBalance } from "@/hooks/dashboard/wallet-balance";
 import L2StakingForm from "./l2-staking-form";
 import { amountBucket, track } from "@/lib/analytics";
-import { InfoTip } from "@/components/ui/info-tip";
 import { TxStatusBadge } from "@/components/transactions/tx-status";
 import { yieldFromProvider } from "@/hooks/dashboard/yield-opportunities";
 
@@ -590,7 +589,7 @@ export default function StakingForm({
       addToast({
         type: "success",
         title: "Transaction sent",
-        message: `Your ${amount} ${config?.symbol} ${type} is on the network and waiting for its first confirmation.`,
+        message: "Waiting for confirmation.",
       });
     } catch (err: any) {
       console.warn("Sign/broadcast error:", err?.message);
@@ -1262,13 +1261,7 @@ export default function StakingForm({
         {isBtcChain && walletPublicKey && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <CheckCircle className="h-4 w-4 text-green-600" />
-            Public key provided by your wallet
-            <InfoTip label="Why a public key is needed">
-              Your stake is locked in Bitcoin scripts built from your public
-              key, which your wallet shares when you connect. It is not
-              secret. Three quarters of the stake can only be spent with your
-              key; the provider can claim the other quarter during the lock.
-            </InfoTip>
+            Public key from wallet
           </div>
         )}
 
@@ -1482,14 +1475,7 @@ export default function StakingForm({
                     APY)
                   </dd>
 
-                  <dt className="flex items-center gap-1 text-muted-foreground">
-                    Estimated yield
-                    <InfoTip label="How estimated yield is worked out">
-                      The strategy&apos;s APY applied to this amount, paid in
-                      monthly instalments. It is an estimate from the
-                      provider&apos;s advertised rate, not a guarantee.
-                    </InfoTip>
-                  </dt>
+                  <dt className="text-muted-foreground">Est. yield</dt>
                   <dd className="text-right font-mono">
                     ≈{" "}
                     {yieldFromProvider(
@@ -1503,29 +1489,14 @@ export default function StakingForm({
 
               {lockEndsAt && (
                 <>
-                  <dt className="flex items-center gap-1 text-muted-foreground">
-                    Locked until
-                    <InfoTip label="What the lock means">
-                      Until this time Bitcoin itself stops anyone, you
-                      included, from moving the time-locked three quarters. It
-                      does not lock the escrow quarter: the provider can claim
-                      that during the lock.
-                    </InfoTip>
-                  </dt>
+                  <dt className="text-muted-foreground">Locked until</dt>
                   <dd className="text-right">{lockEndsAt.toLocaleString()}</dd>
                 </>
               )}
 
               {preparedFeeSats !== null && (
                 <>
-                  <dt className="flex items-center gap-1 text-muted-foreground">
-                    Network fee
-                    <InfoTip label="About the network fee">
-                      Paid to Bitcoin miners, not to Sundial, from your wallet
-                      on top of the amount. Your wallet shows the same figure
-                      when you sign.
-                    </InfoTip>
-                  </dt>
+                  <dt className="text-muted-foreground">Network fee</dt>
                   <dd className="text-right font-mono">
                     {preparedFeeSats.toLocaleString()} sats
                   </dd>
@@ -1533,31 +1504,10 @@ export default function StakingForm({
               )}
             </dl>
 
-            <div className="border-t pt-3 text-xs text-muted-foreground">
-              <div className="mb-1 font-medium text-foreground">
-                Where your BTC goes
-              </div>
-              Three quarters goes to a time-locked script that only your key can
-              spend. One quarter goes to an escrow the yield provider can claim
-              during the lock to earn the yield. If they never claim it, you can
-              take it back yourself when the lock ends. Once they have claimed
-              it, getting it back, with the yield, depends on the provider
-              paying, so that quarter is at risk if they don&apos;t.
-            </div>
-
-            <ol className="list-decimal space-y-0.5 pl-4 text-xs text-muted-foreground">
-              <li>
-                Your wallet asks you to sign. Nothing is sent until you do.
-              </li>
-              <li>
-                The transaction goes to the Bitcoin network and usually confirms
-                in about 10 minutes. You can follow it under Recent Activity.
-              </li>
-              <li>
-                When the lock ends, the BTC can be withdrawn. Withdrawing from
-                the dashboard isn&apos;t available yet on testnet.
-              </li>
-            </ol>
+            <p className="border-t pt-3 text-xs text-muted-foreground">
+              ¾ is locked to your key. ¼ goes to escrow the provider can claim
+              during the lock.
+            </p>
           </div>
         )}
 
@@ -1719,18 +1669,12 @@ export default function StakingForm({
         )}
         {isConfirming && (
           <p className="mb-2 text-sm text-muted-foreground">
-            Your transaction is on the Bitcoin network. The first confirmation
-            usually takes about 10 minutes. This page updates by itself, and you
-            can switch tabs: the status also shows under Recent Activity on the
-            Portfolio tab. Keep the dashboard open until then, since leaving or
-            reloading it stops the tracking here (the transaction itself still
-            confirms).
+            Usually ~10 min. Keep the dashboard open to track it.
           </p>
         )}
         {isDeposit && savedLocktime && (
           <p className="mb-2 text-sm text-muted-foreground">
             Locked until {new Date(savedLocktime * 1000).toLocaleString()}.
-            Withdrawing from the dashboard isn&apos;t available yet on testnet.
           </p>
         )}
         <div className="flex items-center gap-2">

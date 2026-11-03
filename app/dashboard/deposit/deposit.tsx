@@ -14,7 +14,6 @@ import { usePrices } from "@/hooks/dashboard/prices";
 import { YieldOpportunityCard } from "@/components/yield-opportunity-card";
 import { useYieldOpportunities } from "@/hooks/dashboard/yield-opportunities";
 import { yieldFromProvider } from "@/hooks/dashboard/yield-opportunities";
-import HowStakingWorks from "./how-staking-works";
 
 export default function DepositTab() {
   const {
@@ -89,9 +88,6 @@ export default function DepositTab() {
         <h2 className="text-3xl font-bold mb-2">Stake Assets</h2>
         <p className="text-muted-foreground">Stake your assets to earn yield</p>
       </div>
-
-      {/* Describes the Bitcoin flow; the L2 form has no transaction or scripts */}
-      {isBitcoinChain(selectedChain) && <HowStakingWorks />}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <StakingForm

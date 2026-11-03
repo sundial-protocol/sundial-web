@@ -10,7 +10,6 @@ import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { CurrencyCode } from "@/hooks/dashboard/prices";
 import ValueDisplay from "@/components/ui/value-display";
-import { InfoTip } from "@/components/ui/info-tip";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -96,12 +95,8 @@ export default function StakingSummaryCard({
         {/* Numeric summary */}
         <div className="space-y-4 text-sm">
           <div className="flex justify-between">
-            <span className="flex items-center gap-1 text-sm text-muted-foreground">
+            <span className="text-sm text-muted-foreground">
               Already Staked
-              <InfoTip label="What Already Staked counts">
-                BTC you have staked during this visit, including stakes still
-                waiting for their first confirmation.
-              </InfoTip>
             </span>
             <span className="font-mono">
               <ValueDisplay currency={symbol} value={alreadyStaked} />
@@ -122,13 +117,8 @@ export default function StakingSummaryCard({
             </span>
           </div>
           <div className="flex justify-between mt-4">
-            <span className="flex items-center gap-1 text-sm text-muted-foreground">
+            <span className="text-sm text-muted-foreground">
               Monthly Yield Now
-              <InfoTip label="How monthly yield is worked out">
-                The selected strategy&apos;s APY applied to what you already
-                have staked, divided into 12 monthly payments. An estimate from
-                the advertised rate, not a guarantee.
-              </InfoTip>
             </span>
             <span className="font-mono">
               <ValueDisplay currency={symbol} value={currentYield} />

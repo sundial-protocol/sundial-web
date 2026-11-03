@@ -154,12 +154,8 @@ export default function EarningsGraph(props: {
               <CardTitle className="flex items-center gap-2">
                 Earnings Overview
                 <InfoTip label="How to read this chart">
-                  No earnings history is recorded yet, so past months show
-                  zero. The dashed lines project your balance, not earnings:
-                  what you have staked now, growing month by month at the
-                  selected strategy&apos;s APY. Values are in US dollars at
-                  reference prices, and projections are estimates, not
-                  guarantees.
+                  Dashed lines are projected at the strategy&apos;s APY. No
+                  history yet.
                 </InfoTip>
               </CardTitle>
               <CardDescription>

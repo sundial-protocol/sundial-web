@@ -33,17 +33,16 @@ export default function NextStep() {
 
   let icon: React.ReactNode;
   let title: string;
-  let body: string;
+  let body: string | null;
   let action: React.ReactNode;
 
   if (waiting.length > 0) {
     icon = <Clock className="h-5 w-5 text-yellow-600" />;
     title =
       waiting.length === 1
-        ? "Your transaction is waiting for confirmation"
-        : `${waiting.length} transactions are waiting for confirmation`;
-    body =
-      "It has been sent to the Bitcoin network. The first confirmation usually takes about 10 minutes. Keep the dashboard open to see it confirm here; switching tabs is fine.";
+        ? "Waiting for confirmation"
+        : `${waiting.length} transactions waiting for confirmation`;
+    body = "Usually ~10 min.";
     action = (
       <Button
         variant="outline"
@@ -55,15 +54,13 @@ export default function NextStep() {
     );
   } else if (!isConnected) {
     icon = <Wallet className="h-5 w-5 text-primary" />;
-    title = "Step 1: Connect a Bitcoin wallet";
-    body =
-      "Connect the wallet you want to stake from. Your BTC stays in your wallet until you sign a stake.";
+    title = "Connect a Bitcoin wallet";
+    body = null;
     action = <ConnectButton size="sm" />;
   } else if (!hasStaked) {
     icon = <ArrowRight className="h-5 w-5 text-primary" />;
-    title = "Step 2: Stake some BTC";
-    body =
-      "Your wallet is connected. Choose an amount on the Stake tab, review it, and sign in your wallet.";
+    title = "Stake some BTC";
+    body = null;
     action = (
       <Button size="sm" onClick={() => router.push("/dashboard?tab=stake")}>
         Go to Stake
@@ -79,7 +76,7 @@ export default function NextStep() {
         <div className="mt-0.5 shrink-0">{icon}</div>
         <div>
           <div className="font-medium">{title}</div>
-          <p className="text-sm text-muted-foreground">{body}</p>
+          {body && <p className="text-sm text-muted-foreground">{body}</p>}
         </div>
       </div>
       <div className="shrink-0">{action}</div>

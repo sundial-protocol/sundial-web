@@ -42,32 +42,14 @@ function DashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Each tab says what it is for under the tab bar, so a first-time user can
-  // tell where to go without opening every tab.
   const tabs = [
-    {
-      id: "portfolio",
-      label: "Portfolio",
-      description: "Your wallets, balances, earnings and recent activity.",
-    },
-    {
-      id: "stake",
-      label: "Stake",
-      description: "Lock BTC with a yield provider to start earning.",
-    },
-    {
-      id: "withdraw",
-      label: "Withdraw",
-      description: "Take your BTC back out once its lock period has ended.",
-    },
+    { id: "portfolio", label: "Portfolio" },
+    { id: "stake", label: "Stake" },
+    { id: "withdraw", label: "Withdraw" },
     { id: "lend", label: "Lend", disabled: true },
     //{ id: "yield", label: "Yield", disabled: true },
     //{ id: "strategies", label: "Strategies", disabled: true },
-    {
-      id: "history",
-      label: "History",
-      description: "Every transaction you've made here, and its status.",
-    },
+    { id: "history", label: "History" },
   ];
 
   // Validate tab from URL params before setting initial state
@@ -173,9 +155,6 @@ function DashboardContent() {
               </button>
             ))}
           </div>
-          <p className="mt-2 px-1 text-sm text-muted-foreground">
-            {tabs.find((tab) => tab.id === activeTab)?.description}
-          </p>
         </div>
 
         {/* Tab Content */}

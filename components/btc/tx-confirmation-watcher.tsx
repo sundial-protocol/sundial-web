@@ -73,11 +73,9 @@ export function TxConfirmationWatcher() {
           addToast({
             type: "success",
             title: "Transaction confirmed",
-            message: `Your ${tx.type} of ${tx.amount} ${
+            message: `${tx.amount} ${
               chainConfigs[tx.asset as SupportedChain]?.symbol ?? ""
-            } was confirmed${
-              status.block_height ? ` in block ${status.block_height}` : ""
-            }.`,
+            } ${tx.type}`,
           });
         } catch {
           // Network error or timeout: try again on the next tick.
