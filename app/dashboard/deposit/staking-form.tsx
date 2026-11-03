@@ -28,10 +28,9 @@ import {
   AlertCircle,
 } from "lucide-react";
 import {
-  BTC_CHAIN_ID_MAINNET,
-  BTC_CHAIN_ID_TESTNET,
   chainConfigs,
   isBitcoinChain,
+  bitcoinChainForAddress,
   isSundialL2,
   SupportedChain,
 } from "../../../lib/multichain";
@@ -47,7 +46,6 @@ import {
   AccountType,
   useAppKitAccount,
   useWalletInfo,
-  useAppKitNetwork,
   useAppKitProvider,
 } from "@reown/appkit/react";
 import type { BitcoinConnector } from "@reown/appkit-adapter-bitcoin";
@@ -79,6 +77,9 @@ interface StakingFormProps {
   dashboardData?: ReturnType<typeof useDashboardContext>;
 }
 
+// Chains the selector offers on testnet.
+const selectableChains: SupportedChain[] = ["btc_testnet", "sundial_l2"];
+
 export default function StakingForm({
   type,
   onSuccess,
@@ -104,7 +105,6 @@ export default function StakingForm({
 
   const { address: bitcoinAddress, allAccounts: bitcoinAccounts } =
     useAppKitAccount({ namespace: "bip122" });
-  const { caipNetwork } = useAppKitNetwork();
 
   const {
     selectedWallet: cardanoWallet,
@@ -209,13 +209,12 @@ export default function StakingForm({
 
   // Check if wallet is connected to wrong network
   const isWalletOnWrongNetwork = () => {
-    if (!caipNetwork || !bitcoinAddress) return false;
+    if (!bitcoinAddress) return false;
+    const walletChain = bitcoinChainForAddress(bitcoinAddress);
+    if (!walletChain) return false;
 
-    // The caipNetwork.id is already the chain ID itself (not in CAIP format)
-    const chainId = String(caipNetwork.id || "");
-
-    const isMainnet = chainId === BTC_CHAIN_ID_MAINNET;
-    const isTestnet = chainId === BTC_CHAIN_ID_TESTNET;
+    const isMainnet = walletChain === "btc";
+    const isTestnet = walletChain === "btc_testnet";
 
     const wrongNetwork =
       (selectedChain === "btc" && !isMainnet) ||
@@ -268,24 +267,6 @@ export default function StakingForm({
     const walletStatus = getWalletConnectionStatus();
     return walletStatus.address;
   };
-
-  // Auto-switch to correct network if wallet is on wrong network
-  useEffect(() => {
-    if (bitcoinAddress && caipNetwork && selectedChain) {
-      const chainId = String(caipNetwork.id || "");
-      const isMainnet = chainId === BTC_CHAIN_ID_MAINNET;
-      const isTestnet = chainId === BTC_CHAIN_ID_TESTNET;
-
-      // If wallet is on mainnet but form is set to testnet, switch to mainnet
-      if (isMainnet && selectedChain === "btc_testnet") {
-        setSelectedChain("btc");
-      }
-      // If wallet is on testnet but form is set to mainnet, switch to testnet
-      else if (isTestnet && selectedChain === "btc") {
-        setSelectedChain("btc_testnet");
-      }
-    }
-  }, [bitcoinAddress, caipNetwork]); // Removed selectedChain to prevent state initialization issues
 
   // Check for connected wallet and auto-fill address and public key
   useEffect(() => {
@@ -802,6 +783,26 @@ export default function StakingForm({
     }, 100);
   };
 
+  // Default to the connected wallet's network, once per connected address, so
+  // a later manual choice (e.g. Sundial L2) sticks. Only chains the selector
+  // offers; a mainnet wallet gets the wrong-network notice instead.
+  const appliedWalletAddress = useRef<string | null>(null);
+  useEffect(() => {
+    if (!bitcoinAddress || appliedWalletAddress.current === bitcoinAddress) {
+      return;
+    }
+    appliedWalletAddress.current = bitcoinAddress;
+    const walletChain = bitcoinChainForAddress(bitcoinAddress);
+    if (
+      walletChain &&
+      walletChain !== selectedChain &&
+      selectableChains.includes(walletChain)
+    ) {
+      handleChainChange(walletChain);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bitcoinAddress]);
+
   // Round amount to 8 decimal places to prevent floating-point precision errors
   const roundAmount = (value: number): number => parseFloat(value.toFixed(8));
 
@@ -1154,10 +1155,8 @@ export default function StakingForm({
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {Object.values(chainConfigs)
-            .filter(
-              (chain) => chain.id === "btc_testnet" || isSundialL2(chain.id),
-            )
+          {selectableChains
+            .map((id) => chainConfigs[id])
             .map((chain) => (
               <SelectItem key={chain.id} value={chain.id}>
                 <div className="flex items-center gap-2">

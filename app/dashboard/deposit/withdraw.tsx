@@ -14,7 +14,8 @@ export default function WithdrawTab() {
   const { portfolioData, calculations, isLoading, selectedYieldProvider } =
     useDashboardContext();
   const { convert } = usePrices();
-  const [selectedChain, setSelectedChain] = useState<SupportedChain>("btc");
+  const [selectedChain, setSelectedChain] =
+    useState<SupportedChain>("btc_testnet");
   const [amount, setAmount] = useState("");
   const config = chainConfigs[selectedChain];
 
