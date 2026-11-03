@@ -1172,6 +1172,21 @@ export default function StakingForm({
     </div>
   );
 
+  const signingBlockers = [
+    !userAddress && `Enter a valid ${config?.name || selectedChain} address`,
+    !manualPublicKey &&
+      !isUsingConnectedWallet &&
+      "Provide a 66-character hex public key or connect a wallet",
+    amount &&
+      Number(amount) < (config?.minDeposit || 0) &&
+      `Amount must be at least ${config?.minDeposit || 0} ${
+        config?.symbol || selectedChain
+      }`,
+    amount &&
+      isAmountExceedsBalance &&
+      "Amount exceeds your available balance",
+  ].filter((blocker): blocker is string => Boolean(blocker));
+
   const renderFormStep = () => {
     // Staking on the L2 is a separate flow with its own submission path, so it
     // renders instead of the Bitcoin form rather than threading a second set of
@@ -1421,35 +1436,20 @@ export default function StakingForm({
           </div>
         )}
 
-        {/* Form Validation Status (Bitcoin only) */}
+        {/* Form Validation Status (Bitcoin only), hidden when nothing is wrong */}
         {isBtcChain &&
           !unsignedTransactionData &&
           !psbtCalcFailed &&
-          !isCalculatingPsbt && (
+          !isCalculatingPsbt &&
+          signingBlockers.length > 0 && (
             <div className="p-3 bg-amber-50 border border-amber-200 rounded-md">
               <p className="text-xs text-amber-700 font-medium mb-1">
                 To enable signing:
               </p>
               <ul className="text-xs text-amber-600 space-y-0.5">
-                {userAddress ? null : (
-                  <li>
-                    • Enter a valid {config?.name || selectedChain} address
-                  </li>
-                )}
-                {!manualPublicKey && !isUsingConnectedWallet ? (
-                  <li>
-                    • Provide a 66-character hex public key or connect a wallet
-                  </li>
-                ) : null}
-                {amount && Number(amount) < (config?.minDeposit || 0) ? (
-                  <li>
-                    • Amount must be at least {config?.minDeposit || 0}{" "}
-                    {config?.symbol || selectedChain}
-                  </li>
-                ) : null}
-                {amount && isAmountExceedsBalance ? (
-                  <li>• Amount exceeds your available balance</li>
-                ) : null}
+                {signingBlockers.map((blocker) => (
+                  <li key={blocker}>• {blocker}</li>
+                ))}
               </ul>
             </div>
           )}
