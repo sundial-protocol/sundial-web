@@ -1031,7 +1031,6 @@ export default function StakingForm({
 
   const isBtcChain = isBitcoinChain(selectedChain);
 
-
   // Network fee of the prepared transaction, in sats: what goes in minus what
   // comes out. Null when an input lacks its previous output, which a PSBT built
   // by the staking API always includes.
@@ -1182,9 +1181,7 @@ export default function StakingForm({
       `Amount must be at least ${config?.minDeposit || 0} ${
         config?.symbol || selectedChain
       }`,
-    amount &&
-      isAmountExceedsBalance &&
-      "Amount exceeds your available balance",
+    amount && isAmountExceedsBalance && "Amount exceeds your available balance",
   ].filter((blocker): blocker is string => Boolean(blocker));
 
   const renderFormStep = () => {
@@ -1264,11 +1261,6 @@ export default function StakingForm({
               <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-green-600" />
             )}
           </div>
-          <p className="text-xs text-muted-foreground">
-            {isDeposit
-              ? `Your ${config?.name || selectedChain} wallet address for receiving change or rewards`
-              : `Your ${config?.name || selectedChain} wallet address (source of funds)`}
-          </p>
         </div>
 
         {/* Public key: one line when the wallet supplied it */}
@@ -1502,11 +1494,6 @@ export default function StakingForm({
                 </>
               )}
             </dl>
-
-            <p className="border-t pt-3 text-xs text-muted-foreground">
-              ¾ is locked to your key. ¼ goes to escrow the provider can claim
-              during the lock.
-            </p>
           </div>
         )}
 
