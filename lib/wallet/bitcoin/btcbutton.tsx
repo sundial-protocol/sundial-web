@@ -86,7 +86,12 @@ export const ConnectButton = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size={size} disabled={loading}>
+        <Button
+          variant="outline"
+          size={size}
+          disabled={loading}
+          className="max-w-full"
+        >
           {loading ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : isConnected ? (
@@ -95,17 +100,17 @@ export const ConnectButton = ({
                 <img
                   src={walletIcon}
                   alt={walletName}
-                  className="w-4 h-4 mr-2 rounded"
+                  className="w-4 h-4 mr-2 shrink-0 rounded"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = "/wallets/default.png";
                   }}
                 />
               ) : (
-                <BitcoinSymbol className="w-4 h-4 mr-2" />
+                <BitcoinSymbol className="w-4 h-4 mr-2 shrink-0" />
               )}
-              <span className="font-medium">{walletName}</span>
+              <span className="min-w-0 truncate font-medium">{walletName}</span>
               <span
-                className="ml-2 h-2 w-2 rounded-full bg-green-500"
+                className="ml-2 h-2 w-2 shrink-0 rounded-full bg-green-500"
                 aria-label="Connected"
               />
             </>

@@ -28,7 +28,7 @@ function BitcoinWalletStatus() {
     return (
       <div className="flex items-center gap-2 text-xs">
         <span className="h-2 w-2 shrink-0 rounded-full bg-green-500" />
-        <span className="text-muted-foreground">
+        <span className="min-w-0 break-words text-muted-foreground">
           Connected{walletInfo?.name ? ` with ${walletInfo.name}` : ""}:{" "}
           <span className="font-mono">
             {address.slice(0, 6)}…{address.slice(-4)}
@@ -55,7 +55,7 @@ export default function WalletsCard() {
   const [breakdownExpanded, setBreakdownExpanded] = useState(false);
 
   return (
-    <Card className="col-span-5 sm:col-span-1">
+    <Card className="col-span-5 min-w-0 md:col-span-2 xl:col-span-1">
       <CardHeader>
         <CardTitle>Wallets</CardTitle>
         <CardDescription>
