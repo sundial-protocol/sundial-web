@@ -145,7 +145,7 @@ export default function EarningsGraph(props: {
   })();
 
   return (
-    <div className="col-span-5 min-w-0 md:col-span-3 xl:col-span-4">
+    <div className="col-span-5 min-w-0 md:col-span-3">
       {/* Graph of past and future earnings */}
       <Card>
         <CardHeader>

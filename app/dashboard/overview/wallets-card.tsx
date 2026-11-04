@@ -55,7 +55,7 @@ export default function WalletsCard() {
   const [breakdownExpanded, setBreakdownExpanded] = useState(false);
 
   return (
-    <Card className="col-span-5 min-w-0 md:col-span-2 xl:col-span-1">
+    <Card className="col-span-5 min-w-0 md:col-span-2">
       <CardHeader>
         <CardTitle>Wallets</CardTitle>
         <CardDescription>
