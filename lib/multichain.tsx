@@ -2,6 +2,7 @@ import { Coins, Sun } from "lucide-react";
 import { BitcoinSymbol } from "@/components/ui/bitcoin-logo";
 import { Flags } from "@/lib/flags";
 import { CurrencyCode } from "@/hooks/dashboard/prices";
+import { MIN_STAKE_BTC } from "@/lib/deposit-limits";
 
 export type SupportedChain =
   | "btc"
@@ -37,7 +38,7 @@ export const chainConfigs: Record<SupportedChain, ChainConfig> = {
     symbol: "BTC",
     icon: <BitcoinSymbol className="w-4 h-4" />,
     addressPrefix: "bc1q",
-    minDeposit: 0.00001,
+    minDeposit: MIN_STAKE_BTC,
     decimals: 8,
     explorerBaseUrl: "https://mempool.space/",
     explorerTxSlug: "tx/",
@@ -73,7 +74,7 @@ export const chainConfigs: Record<SupportedChain, ChainConfig> = {
     symbol: "tBTC",
     icon: <BitcoinSymbol className="w-4 h-4" />,
     addressPrefix: "tb1q",
-    minDeposit: 0.000001,
+    minDeposit: MIN_STAKE_BTC,
     decimals: 8,
     explorerBaseUrl: "https://mempool.space/testnet/",
     explorerTxSlug: "tx/",
