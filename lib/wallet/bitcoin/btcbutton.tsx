@@ -7,6 +7,7 @@ import {
   useAppKit,
   useAppKitAccount,
   useAppKitState,
+  useDisconnect,
   useWalletInfo,
 } from "@reown/appkit/react";
 
@@ -36,24 +37,36 @@ export const ConnectButton = ({
   const { address, isConnected } = useAppKitAccount();
   const { loading } = useAppKitState();
   const { walletInfo } = useWalletInfo();
+  const { disconnect } = useDisconnect();
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // const formatAddress = (addr: string) => {
-  //   if (!addr) return "";
-  //   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
-  // };
-
   const handleDisconnect = async () => {
     try {
-      // AppKit should handle disconnection through the modal
-      await open();
+      await disconnect();
     } catch (error) {
       console.error("Failed to disconnect:", error);
     }
   };
+
+  // Testers whose first connection attempt half-worked (or who picked the
+  // wrong one of several installed wallets) had no way back except reloading.
+  // This drops the current session and reopens the wallet picker.
+  const handleReconnect = async () => {
+    try {
+      await disconnect();
+    } catch (error) {
+      console.error("Failed to disconnect before reconnecting:", error);
+    }
+    await open({ view: "Connect" });
+  };
+
+  // A session can be connected before, or without, the wallet's metadata.
+  // Show it as connected anyway, so Disconnect and Switch stay reachable.
+  const walletName = walletInfo?.name ?? "Bitcoin wallet";
+  const walletIcon = walletInfo?.icon;
 
   if (!isClient) {
     return (
@@ -73,23 +86,33 @@ export const ConnectButton = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size={size} disabled={loading}>
+        <Button
+          variant="outline"
+          size={size}
+          disabled={loading}
+          className="max-w-full"
+        >
           {loading ? (
             <Loader2 className="w-4 h-4 animate-spin" />
-          ) : isConnected && walletInfo ? (
+          ) : isConnected ? (
             <>
-              <img
-                src={walletInfo.icon}
-                alt={walletInfo.name}
-                className="w-4 h-4 mr-2 rounded"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/wallets/default.png";
-                }}
+              {walletIcon ? (
+                <img
+                  src={walletIcon}
+                  alt={walletName}
+                  className="w-4 h-4 mr-2 shrink-0 rounded"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/wallets/default.png";
+                  }}
+                />
+              ) : (
+                <BitcoinSymbol className="w-4 h-4 mr-2 shrink-0" />
+              )}
+              <span className="min-w-0 truncate font-medium">{walletName}</span>
+              <span
+                className="ml-2 h-2 w-2 shrink-0 rounded-full bg-green-500"
+                aria-label="Connected"
               />
-              <span className="font-medium">{walletInfo.name}</span>
-              {/*<span className="ml-2 text-xs text-muted-foreground">
-                {formatAddress(address || "")}
-              </span>*/}
             </>
           ) : (
             <div className="flex items-center gap-2">Connect Wallet</div>
@@ -98,19 +121,24 @@ export const ConnectButton = ({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent>
-        {isConnected && walletInfo ? (
+        {isConnected ? (
           <>
             <DropdownMenuItem disabled className="flex flex-col items-start">
               <div className="flex items-center gap-2 mb-1">
-                <img
-                  src={walletInfo.icon}
-                  alt={walletInfo.name}
-                  className="w-5 h-5 rounded"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/wallets/default.png";
-                  }}
-                />
-                <span className="font-medium">{walletInfo.name}</span>
+                {walletIcon ? (
+                  <img
+                    src={walletIcon}
+                    alt={walletName}
+                    className="w-5 h-5 rounded"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src =
+                        "/wallets/default.png";
+                    }}
+                  />
+                ) : (
+                  <BitcoinSymbol className="w-5 h-5" />
+                )}
+                <span className="font-medium">{walletName}</span>
               </div>
               <div className="text-xs text-muted-foreground font-mono ml-7">
                 {address}
@@ -119,6 +147,9 @@ export const ConnectButton = ({
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => open()}>
               Manage Connection
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleReconnect}>
+              Reconnect or Switch Wallet
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={handleDisconnect}

@@ -137,6 +137,17 @@ export const isBitcoinChain = (chain: SupportedChain): boolean =>
 export const isSundialL2 = (chain: SupportedChain): boolean =>
   chain === "sundial_l2";
 
+// The Bitcoin network an address belongs to, read from its prefix. More
+// reliable than the wallet's reported network, which can lag the account.
+export const bitcoinChainForAddress = (
+  address: string | undefined,
+): SupportedChain | null => {
+  if (!address) return null;
+  if (/^(tb1|[mn2])/i.test(address)) return "btc_testnet";
+  if (/^(bc1|[13])/i.test(address)) return "btc";
+  return null;
+};
+
 // Which asset a chain's balance contributes to in the portfolio. The L2 holds
 // bridged BTC, so it rolls up under BTC.
 export const chainAsset = (chain: SupportedChain): "BTC" | "ADA" =>

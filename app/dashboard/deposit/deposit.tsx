@@ -3,7 +3,12 @@
 import { useState, useEffect } from "react";
 import StakingForm from "./staking-form";
 import StakingSummaryCard from "./staking-summary";
-import { SupportedChain, chainConfigs } from "../../../lib/multichain";
+import {
+  SupportedChain,
+  chainConfigs,
+  isBitcoinChain,
+  isSundialL2,
+} from "../../../lib/multichain";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import { usePrices } from "@/hooks/dashboard/prices";
 import { YieldOpportunityCard } from "@/components/yield-opportunity-card";
@@ -19,7 +24,8 @@ export default function DepositTab() {
   } = useDashboardContext();
   const { convert } = usePrices();
   const { opportunities } = useYieldOpportunities();
-  const [selectedChain, setSelectedChain] = useState<SupportedChain>("btc");
+  const [selectedChain, setSelectedChain] =
+    useState<SupportedChain>("btc_testnet");
   const [amount, setAmount] = useState("");
   const config = chainConfigs[selectedChain];
 
@@ -31,7 +37,11 @@ export default function DepositTab() {
   }, [selectedYieldProvider, opportunities, setSelectedYieldProvider]);
 
   const alreadyStaked = convert(
-    config.symbol === "BTC" ? calculations.btcValue : calculations.adaValue,
+    // Check the chain rather than the symbol: testnet's symbol is tBTC.
+    // Sundial L2 is BTC-denominated and its stakes are recorded under BTC.
+    isBitcoinChain(selectedChain) || isSundialL2(selectedChain)
+      ? calculations.btcValue
+      : calculations.adaValue,
     "USD",
     config.symbol,
   );
@@ -58,11 +68,13 @@ export default function DepositTab() {
   const amountNum = Number(amount) || 0;
   const newTotal = Math.max(alreadyStaked + amountNum, 0);
 
-  // Convert newTotal to USD before getting yield
+  // Convert newTotal to USD before getting yield. Monthly, to match
+  // currentYield (calculations.monthlyRewards): this used to ask for the full
+  // year, so the summary set a monthly figure against an annual one and the
+  // "difference" between them was mostly that mismatch.
   const newYieldUSD = yieldFromProvider(
     convert(newTotal, config.symbol, "USD") ?? 0,
     selectedYieldProvider,
-    true,
   );
   // Then convert back
   const newYield = convert(newYieldUSD, "USD", config.symbol);
@@ -75,7 +87,6 @@ export default function DepositTab() {
     <div className="mx-auto p-6">
       <div className="mb-8">
         <h2 className="text-3xl font-bold mb-2">Stake Assets</h2>
-        <p className="text-muted-foreground">Stake your assets to earn yield</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

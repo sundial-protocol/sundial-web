@@ -3,6 +3,7 @@ allowBuilds:
   bufferutil: true
   canvas: true
   chacha-native: true
+  core-js: false
   cpu-features: true
   node-datachannel: true
   sharp: true
