@@ -20,6 +20,7 @@ import { Flags } from "@/lib/flags";
 import ContextProvider from "@/lib/wallet/bitcoin/context";
 import { Button } from "@/components/ui/button";
 import { MessageSquare } from "lucide-react";
+import { TxConfirmationWatcher } from "@/components/btc/tx-confirmation-watcher";
 
 const TESTNET_FEEDBACK_FORM_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLScxils2djgjes3C4XSFM8UDiVs8KiTSgmdDqcvVYSAzQIJ5Yg/viewform?usp=header";
@@ -200,6 +201,7 @@ export default function DashboardPage() {
         <DashboardProvider>
           <ConfirmationProvider>
             <ContextProvider>
+              <TxConfirmationWatcher />
               <div className="min-h-screen">
                 <Section className="pb-24">
                   <div className="container mx-auto px-4">

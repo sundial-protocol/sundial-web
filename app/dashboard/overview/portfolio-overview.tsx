@@ -4,6 +4,8 @@ import QuickActions from "./quick-actions";
 import WalletsCard from "./wallets-card";
 import EarningsGraph from "./earnings-graph";
 import AssetAllocation from "./asset-allocation";
+import NextStep from "./next-step";
+import RecentActivity from "./recent-activity";
 
 export function PortfolioOverview() {
   const { calculations, isLoading, error, selectedYieldProvider } =
@@ -16,6 +18,7 @@ export function PortfolioOverview() {
 
   return (
     <div className="space-y-6">
+      <NextStep />
       <div className="grid grid-cols-5 gap-4">
         <EarningsGraph
           adaValue={calculations.adaValue}
@@ -41,6 +44,8 @@ export function PortfolioOverview() {
         </div>
 
         <AssetAllocation />
+
+        <RecentActivity />
       </div>
     </div>
   );

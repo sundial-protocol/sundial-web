@@ -117,20 +117,24 @@ export default function StakingSummaryCard({
             </span>
           </div>
           <div className="flex justify-between mt-4">
-            <span className="text-sm text-muted-foreground">Current Yield</span>
+            <span className="text-sm text-muted-foreground">
+              Monthly Yield Now
+            </span>
             <span className="font-mono">
               <ValueDisplay currency={symbol} value={currentYield} />
             </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-sm text-muted-foreground">New Yield</span>
+            <span className="text-sm text-muted-foreground">
+              Monthly Yield After
+            </span>
             <span className="font-mono">
               <ValueDisplay currency={symbol} value={newYield} />
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">
-              Yield Difference
+              {type === "deposit" ? "Extra Each Month" : "Change Each Month"}
             </span>
             <span className={`font-mono ${diffColor}`}>
               {yieldDiff > 0 ? "+" : ""}

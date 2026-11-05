@@ -4,7 +4,6 @@ import { useAppKitAccount } from "@reown/appkit/react";
 import { useLocalStorage } from "usehooks-ts";
 
 import BtcHoldings from "@/components/btc/btc-holdings";
-import { ConnectButton } from "@/lib/wallet/bitcoin/btcbutton";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import { useL2Balance } from "@/hooks/dashboard/l2-balance";
 import { useWalletBalance } from "@/hooks/dashboard/wallet-balance";
@@ -71,8 +70,8 @@ export default function DashboardBtcHoldings({
     <BtcHoldings
       holdings={holdings}
       onExpandedChange={onExpandedChange}
+      // The L1 row has no control: the wallets card connects above it.
       controls={{
-        "bitcoin-l1": <ConnectButton size="sm" />,
         "sundial-l2": (
           <L2AddressForm
             address={l2Address}

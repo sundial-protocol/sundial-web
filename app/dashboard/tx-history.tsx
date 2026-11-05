@@ -36,6 +36,7 @@ import {
 import { TransactionType } from "@/hooks/dashboard/dashboard";
 import { useDashboardContext } from "@/lib/contexts/dashboard-context";
 import { Flags } from "@/lib/flags";
+import { TxStatusBadge } from "@/components/transactions/tx-status";
 
 const getTransactionIcon = (type: TransactionType) => {
   switch (type) {
@@ -86,31 +87,6 @@ const getTransactionCategory = (type: TransactionType) => {
   if (["deposit", "withdraw"].includes(type)) return "portfolio";
   if (type === "reward") return "earnings";
   return "other";
-};
-
-const getStatusBadge = (status: string) => {
-  switch (status) {
-    case "completed":
-      return (
-        <Badge variant="secondary" className="bg-green-800/20 text-green-800">
-          Completed
-        </Badge>
-      );
-    case "pending":
-      return (
-        <Badge variant="secondary" className="bg-yellow-800/20 text-yellow-800">
-          Pending
-        </Badge>
-      );
-    case "failed":
-      return (
-        <Badge variant="secondary" className="bg-red-800/20 text-red-800">
-          Failed
-        </Badge>
-      );
-    default:
-      return <Badge variant="secondary">{status}</Badge>;
-  }
 };
 
 // Null when the chain has no block explorer, so callers render no link at all.
@@ -415,7 +391,7 @@ export function TransactionHistory() {
                       >
                         {getTransactionCategory(transaction.type)}
                       </Badge>
-                      {getStatusBadge(transaction.status)}
+                      <TxStatusBadge tx={transaction} />
                     </div>
 
                     {/* Transaction details */}
@@ -465,12 +441,17 @@ export function TransactionHistory() {
                       {/* Transaction hash */}
                       <div className="flex items-center gap-2">
                         <span className="font-mono text-xs">
-                          {!transaction.txHash
-                            ? "Transaction pending..."
-                            : `${transaction.txHash.slice(0, 16)}...`}
+                          {transaction.txHash
+                            ? `${transaction.txHash.slice(0, 16)}...`
+                            : transaction.status === "pending"
+                              ? "Not sent yet"
+                              : "No on-chain hash"}
                         </span>
+                        {/* Linked as soon as it is broadcast, not only once
+                            confirmed: the explorer is where a user watches a
+                            confirming transaction. */}
                         {transaction.txHash &&
-                          transaction.status === "completed" &&
+                          transaction.status !== "failed" &&
                           (() => {
                             // No explorer for this chain → no link.
                             const url = getExplorerUrl(
@@ -512,7 +493,9 @@ export function TransactionHistory() {
                   </div>
                   {transaction.status === "pending" && (
                     <div className="text-xs text-yellow-600 mt-1">
-                      Processing...
+                      {transaction.txHash
+                        ? "Waiting for a block..."
+                        : "Waiting for signature..."}
                     </div>
                   )}
                   {transaction.status === "failed" && (

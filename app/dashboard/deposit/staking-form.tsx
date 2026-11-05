@@ -28,10 +28,9 @@ import {
   AlertCircle,
 } from "lucide-react";
 import {
-  BTC_CHAIN_ID_MAINNET,
-  BTC_CHAIN_ID_TESTNET,
   chainConfigs,
   isBitcoinChain,
+  bitcoinChainForAddress,
   isSundialL2,
   SupportedChain,
 } from "../../../lib/multichain";
@@ -47,7 +46,6 @@ import {
   AccountType,
   useAppKitAccount,
   useWalletInfo,
-  useAppKitNetwork,
   useAppKitProvider,
 } from "@reown/appkit/react";
 import type { BitcoinConnector } from "@reown/appkit-adapter-bitcoin";
@@ -65,6 +63,9 @@ import {
 } from "@/app/api/btc-withdrawal/types";
 import { useWalletBalance } from "@/hooks/dashboard/wallet-balance";
 import L2StakingForm from "./l2-staking-form";
+import { amountBucket, track } from "@/lib/analytics";
+import { TxStatusBadge } from "@/components/transactions/tx-status";
+import { yieldFromProvider } from "@/hooks/dashboard/yield-opportunities";
 
 type TransactionType = "deposit" | "withdraw";
 
@@ -75,6 +76,9 @@ interface StakingFormProps {
   defaultChain?: SupportedChain;
   dashboardData?: ReturnType<typeof useDashboardContext>;
 }
+
+// Chains the selector offers on testnet.
+const selectableChains: SupportedChain[] = ["btc_testnet", "sundial_l2"];
 
 export default function StakingForm({
   type,
@@ -88,6 +92,7 @@ export default function StakingForm({
     updateTransactionStatus,
     transactions,
     selectedYieldProvider,
+    refreshWalletBalances,
   } = useDashboardContext();
 
   const { addToast } = useToast();
@@ -100,7 +105,6 @@ export default function StakingForm({
 
   const { address: bitcoinAddress, allAccounts: bitcoinAccounts } =
     useAppKitAccount({ namespace: "bip122" });
-  const { caipNetwork } = useAppKitNetwork();
 
   const {
     selectedWallet: cardanoWallet,
@@ -137,6 +141,42 @@ export default function StakingForm({
   const [psbtCalcFailed, setPsbtCalcFailed] = useState(false);
   const [psbtError, setPsbtError] = useState<string | null>(null);
   const psbtDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // The public key the connected wallet reported for this address, if any.
+  // When there is one the key field collapses to a single line: testers found
+  // the stake form busy, and a 66-character hex field they never needed to
+  // touch, with a warning beneath it that didn't apply, was most of that.
+  const walletPublicKey = isUsingConnectedWallet
+    ? (bitcoinAccounts?.find(
+        (account) => account.address === userAddress && account.publicKey,
+      )?.publicKey ?? null)
+    : null;
+  // The inputs a prepared transaction depends on. A preparation request
+  // compares this when its response arrives and drops the response if the
+  // user has changed anything since: otherwise a slow response for the old
+  // amount could enable signing while the review shows the new one.
+  const psbtInputsKey = [
+    selectedChain,
+    userAddress,
+    withdrawAddress,
+    amount,
+    manualPublicKey,
+    isUsingConnectedWallet,
+    walletPublicKey ?? "",
+  ].join("|");
+  const psbtInputsKeyRef = useRef(psbtInputsKey);
+  psbtInputsKeyRef.current = psbtInputsKey;
+  // Numbers each preparation request. Only the latest may clear the loading
+  // flag or publish a result: a chain change clears the flag while an older
+  // request may still be out, and that request must not then clear the flag
+  // of a newer one and let a third start alongside it.
+  const psbtRequestId = useRef(0);
+  // A prepared transaction is only good for the inputs it was built from.
+  // Some of those change without going through a handler that clears it
+  // (switching to the connected wallet, the wallet reporting its key), so
+  // drop it whenever they change; the effect below then prepares a new one.
+  useEffect(() => {
+    setUnsignedTransactionData(null);
+  }, [psbtInputsKey]);
 
   // Ensure selectedChain is always valid - recover if somehow set to invalid value
   const validChain = chainConfigs[selectedChain] ? selectedChain : defaultChain;
@@ -147,6 +187,15 @@ export default function StakingForm({
   }
   const config = chainConfigs[validChain];
   const isDeposit = type === "deposit";
+
+  // Analytics: deposit_* or withdrawal_* events (docs-v2 operations/analytics.md).
+  // No addresses, txids or exact amounts.
+  const eventKind = isDeposit ? "deposit" : "withdrawal";
+  const eventProps = () => ({
+    network: selectedChain === "btc_testnet" ? "testnet" : "mainnet",
+    program_id: selectedYieldProvider?.id,
+    amount_bucket: amountBucket(Number(amount)),
+  });
 
   // Recovery: if selectedChain is somehow invalid, reset to defaultChain
   useEffect(() => {
@@ -160,13 +209,12 @@ export default function StakingForm({
 
   // Check if wallet is connected to wrong network
   const isWalletOnWrongNetwork = () => {
-    if (!caipNetwork || !bitcoinAddress) return false;
+    if (!bitcoinAddress) return false;
+    const walletChain = bitcoinChainForAddress(bitcoinAddress);
+    if (!walletChain) return false;
 
-    // The caipNetwork.id is already the chain ID itself (not in CAIP format)
-    const chainId = String(caipNetwork.id || "");
-
-    const isMainnet = chainId === BTC_CHAIN_ID_MAINNET;
-    const isTestnet = chainId === BTC_CHAIN_ID_TESTNET;
+    const isMainnet = walletChain === "btc";
+    const isTestnet = walletChain === "btc_testnet";
 
     const wrongNetwork =
       (selectedChain === "btc" && !isMainnet) ||
@@ -219,24 +267,6 @@ export default function StakingForm({
     const walletStatus = getWalletConnectionStatus();
     return walletStatus.address;
   };
-
-  // Auto-switch to correct network if wallet is on wrong network
-  useEffect(() => {
-    if (bitcoinAddress && caipNetwork && selectedChain) {
-      const chainId = String(caipNetwork.id || "");
-      const isMainnet = chainId === BTC_CHAIN_ID_MAINNET;
-      const isTestnet = chainId === BTC_CHAIN_ID_TESTNET;
-
-      // If wallet is on mainnet but form is set to testnet, switch to mainnet
-      if (isMainnet && selectedChain === "btc_testnet") {
-        setSelectedChain("btc");
-      }
-      // If wallet is on testnet but form is set to mainnet, switch to testnet
-      else if (isTestnet && selectedChain === "btc") {
-        setSelectedChain("btc_testnet");
-      }
-    }
-  }, [bitcoinAddress, caipNetwork]); // Removed selectedChain to prevent state initialization issues
 
   // Check for connected wallet and auto-fill address and public key
   useEffect(() => {
@@ -328,8 +358,7 @@ export default function StakingForm({
   // until the user changes an input.
   useEffect(() => {
     const shouldCalculatePsbt = () => {
-      if (!isBitcoinChain(selectedChain))
-        return false;
+      if (!isBitcoinChain(selectedChain)) return false;
       if (step !== "form") return false;
       if (isCalculatingPsbt || unsignedTransactionData) return false;
       if (psbtCalcFailed) return false;
@@ -392,6 +421,7 @@ export default function StakingForm({
     amount,
     manualPublicKey,
     bitcoinAccounts,
+    isUsingConnectedWallet,
     isDeposit,
     config,
     step,
@@ -452,6 +482,11 @@ export default function StakingForm({
       if (!psbtResponse?.psbt) {
         throw new Error("Wallet returned no PSBT data");
       }
+      track(`${eventKind}_signed`, {
+        ...eventProps(),
+        method: "wallet",
+        wallet_name: bitcoinWallet,
+      });
 
       const signedPsbt = Psbt.fromBase64(psbtResponse.psbt);
 
@@ -495,6 +530,7 @@ export default function StakingForm({
 
       const broadcastResult = await broadcastResponse.json();
       const txid = broadcastResult.txid;
+      track(`${eventKind}_broadcast`, { ...eventProps(), method: "wallet" });
 
       setBroadcastResult(txid);
 
@@ -514,15 +550,18 @@ export default function StakingForm({
         console.warn("Error updating staked amount:", error);
       }
 
-      // Update transaction status
+      // Sent, not yet mined: it stays pending until TxConfirmationWatcher
+      // sees it in a block. Marking it completed here is what left testers
+      // unsure whether it had actually gone through.
       updateTransactionStatus(
         transactionId,
-        "completed",
+        "pending",
         txid,
         isDeposit && unsignedTransactionData?.locktime
           ? { locktime: unsignedTransactionData.locktime }
           : undefined,
       );
+      refreshWalletBalances();
 
       setStep("done");
       onSuccess?.(txid, selectedChain, amount);
@@ -530,14 +569,18 @@ export default function StakingForm({
 
       addToast({
         type: "success",
-        title: "Transaction Successful",
-        message: `${amount} ${config?.symbol} ${type} completed successfully`,
+        title: "Transaction sent",
+        message: "Waiting for confirmation.",
       });
     } catch (err: any) {
       console.warn("Sign/broadcast error:", err?.message);
       const errorMessage =
         err.message || "Error signing transaction in browser";
       setError(errorMessage);
+      track(`${eventKind}_failed`, {
+        ...eventProps(),
+        stage: "sign_or_broadcast",
+      });
 
       // Update transaction as failed
       updateTransactionStatus(transactionId, "failed");
@@ -558,6 +601,8 @@ export default function StakingForm({
       setPendingTransactionId(transactionId);
 
       // Set the unsigned PSBT and go to psbt step for manual signing
+      // Only the choice is tracked: the manual tx watcher is still a mock.
+      track(`${eventKind}_manual_signing_chosen`, eventProps());
       setPsbtBase64(unsignedTransactionData.psbt);
       setStep("psbt");
     }
@@ -568,6 +613,11 @@ export default function StakingForm({
 
     setIsCalculatingPsbt(true);
     setError(null);
+    const requestId = ++psbtRequestId.current;
+    const requestedFor = psbtInputsKeyRef.current;
+    const isLatest = () => psbtRequestId.current === requestId;
+    const isStale = () =>
+      !isLatest() || psbtInputsKeyRef.current !== requestedFor;
 
     try {
       const sourceAddress = userAddress; // Always use userAddress for source
@@ -648,24 +698,37 @@ export default function StakingForm({
           "error" in data ? data.error : "Failed to create transaction",
         );
       }
+      // Superseded while in flight. If no newer request has started, clearing
+      // isCalculatingPsbt lets the effect prepare a fresh one; if one has,
+      // the flag is that request's to clear.
+      if (isStale()) {
+        if (isLatest()) setIsCalculatingPsbt(false);
+        return;
+      }
       console.debug("Unsigned transaction calculated:", data);
       setUnsignedTransactionData(data);
+      track(`${eventKind}_started`, eventProps());
 
       // Populate depositAddress from staking response so PsbtSigning can watch it
       if (isDeposit && "timelockScript" in data) {
         setDepositAddress(data.timelockScript.address);
       }
     } catch (err: any) {
+      if (isStale()) {
+        if (isLatest()) setIsCalculatingPsbt(false);
+        return;
+      }
       console.warn("Error calculating PSBT:", err);
       const errorMessage =
         err.message ||
         "Failed to create transaction. Please check your inputs.";
       setUnsignedTransactionData(null);
+      track(`${eventKind}_failed`, { ...eventProps(), stage: "build" });
       setPsbtCalcFailed(true);
       setPsbtError(errorMessage);
     }
 
-    setIsCalculatingPsbt(false);
+    if (isLatest()) setIsCalculatingPsbt(false);
   };
 
   const resetForm = () => {
@@ -691,6 +754,9 @@ export default function StakingForm({
       return;
     }
     setSelectedChain(chain);
+    // The amount is cleared below; report that and the new chain to the
+    // parent, which also uses the chain to decide what to explain.
+    onAmountChange?.("", chain);
     setUserAddress(""); // Reset address when changing chains
     setIsUsingConnectedWallet(false);
     setWithdrawAddress("");
@@ -701,6 +767,7 @@ export default function StakingForm({
     setTxHash("");
     setUnsignedTransactionData(null);
     setDepositAddress("");
+    psbtRequestId.current++; // drop any preparation still in flight
     setIsCalculatingPsbt(false);
     setPsbtCalcFailed(false);
     setStep("form");
@@ -715,6 +782,26 @@ export default function StakingForm({
       }
     }, 100);
   };
+
+  // Default to the connected wallet's network, once per connected address, so
+  // a later manual choice (e.g. Sundial L2) sticks. Only chains the selector
+  // offers; a mainnet wallet gets the wrong-network notice instead.
+  const appliedWalletAddress = useRef<string | null>(null);
+  useEffect(() => {
+    if (!bitcoinAddress || appliedWalletAddress.current === bitcoinAddress) {
+      return;
+    }
+    appliedWalletAddress.current = bitcoinAddress;
+    const walletChain = bitcoinChainForAddress(bitcoinAddress);
+    if (
+      walletChain &&
+      walletChain !== selectedChain &&
+      selectableChains.includes(walletChain)
+    ) {
+      handleChainChange(walletChain);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bitcoinAddress]);
 
   // Round amount to 8 decimal places to prevent floating-point precision errors
   const roundAmount = (value: number): number => parseFloat(value.toFixed(8));
@@ -796,13 +883,12 @@ export default function StakingForm({
       return;
     }
 
-    // Add pending transaction to dashboard
-    const transactionId = addPendingTransaction(
-      selectedChain as SupportedChain,
-      Number(amount),
-      type,
-    );
-    setPendingTransactionId(transactionId);
+    // Pressing Enter in a field submits the form. It used to log a pending
+    // transaction here that nothing ever resolved; now it does what the
+    // primary button does, which logs and resolves its own.
+    if (!loading && !isAmountExceedsBalance) {
+      await handleSignInBrowser();
+    }
   };
 
   // ADA transaction logic
@@ -945,6 +1031,32 @@ export default function StakingForm({
 
   const isBtcChain = isBitcoinChain(selectedChain);
 
+  // Network fee of the prepared transaction, in sats: what goes in minus what
+  // comes out. Null when an input lacks its previous output, which a PSBT built
+  // by the staking API always includes.
+  const preparedFeeSats = (() => {
+    if (!unsignedTransactionData?.psbt) return null;
+    try {
+      const psbt = Psbt.fromBase64(unsignedTransactionData.psbt);
+      let inputs = BigInt(0);
+      for (const input of psbt.data.inputs) {
+        if (!input.witnessUtxo) return null;
+        inputs += input.witnessUtxo.value;
+      }
+      const outputs = psbt.txOutputs.reduce(
+        (sum, output) => sum + output.value,
+        BigInt(0),
+      );
+      return Number(inputs - outputs);
+    } catch {
+      return null;
+    }
+  })();
+
+  const lockEndsAt = unsignedTransactionData?.locktime
+    ? new Date(unsignedTransactionData.locktime * 1000)
+    : null;
+
   const renderWalletStatus = () => {
     if (walletStatus.isConnected) {
       return (
@@ -1042,10 +1154,8 @@ export default function StakingForm({
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {Object.values(chainConfigs)
-            .filter(
-              (chain) => chain.id === "btc_testnet" || isSundialL2(chain.id),
-            )
+          {selectableChains
+            .map((id) => chainConfigs[id])
             .map((chain) => (
               <SelectItem key={chain.id} value={chain.id}>
                 <div className="flex items-center gap-2">
@@ -1060,6 +1170,19 @@ export default function StakingForm({
       </Select>
     </div>
   );
+
+  const signingBlockers = [
+    !userAddress && `Enter a valid ${config?.name || selectedChain} address`,
+    !manualPublicKey &&
+      !isUsingConnectedWallet &&
+      "Provide a 66-character hex public key or connect a wallet",
+    amount &&
+      Number(amount) < (config?.minDeposit || 0) &&
+      `Amount must be at least ${config?.minDeposit || 0} ${
+        config?.symbol || selectedChain
+      }`,
+    amount && isAmountExceedsBalance && "Amount exceeds your available balance",
+  ].filter((blocker): blocker is string => Boolean(blocker));
 
   const renderFormStep = () => {
     // Staking on the L2 is a separate flow with its own submission path, so it
@@ -1090,305 +1213,349 @@ export default function StakingForm({
     }
 
     return (
-    <form
-      onSubmit={isBtcChain ? handleBtcTransaction : handleAdaTransaction}
-      className="space-y-6"
-    >
-      {chainSelector}
+      <form
+        onSubmit={isBtcChain ? handleBtcTransaction : handleAdaTransaction}
+        className="space-y-6"
+      >
+        {chainSelector}
 
-      {/* Wallet Connection Status */}
-      {renderWalletStatus()}
+        {/* Wallet Connection Status */}
+        {renderWalletStatus()}
 
-      {/* Chain Information */}
-      <div className="p-4 bg-blue-500/20 border border-blue-800/30 rounded-md">
-        <div className="flex items-center gap-2 text-blue-700 font-medium mb-2">
-          {config?.icon}
-          {config?.name || selectedChain} {isDeposit ? "Staking" : "Withdrawal"}{" "}
-          Information
+        {/* Chain Information */}
+        <div className="p-4 bg-blue-500/20 border border-blue-800/30 rounded-md">
+          <div className="flex items-center gap-2 text-blue-700 font-medium mb-2">
+            {config?.icon}
+            {config?.name || selectedChain}{" "}
+            {isDeposit ? "Staking" : "Withdrawal"} Information
+          </div>
+          <ul className="text-sm text-blue-600 space-y-1">
+            {(config?.features || []).map((feature, index) => (
+              <li key={index}>• {feature}</li>
+            ))}
+          </ul>
         </div>
-        <ul className="text-sm text-blue-600 space-y-1">
-          {(config?.features || []).map((feature, index) => (
-            <li key={index}>• {feature}</li>
-          ))}
-        </ul>
-      </div>
 
-      {/* User Address */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium">
-          Your {config?.name || selectedChain} Address
-          {isUsingConnectedWallet && (
-            <span className="text-green-600 text-xs ml-2">
-              (Using Connected Wallet)
-            </span>
-          )}
-        </label>
-        <div className="relative">
-          <Input
-            type="text"
-            value={userAddress}
-            onChange={(e) => handleAddressChange(e.target.value)}
-            placeholder={`${config?.addressPrefix || ""}...`}
-            required
-            className={
-              isUsingConnectedWallet ? "bg-green-500/20 border-green-200" : ""
-            }
-          />
-          {isUsingConnectedWallet && (
-            <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-green-600" />
-          )}
-        </div>
-        <p className="text-xs text-muted-foreground">
-          {isDeposit
-            ? `Your ${config?.name || selectedChain} wallet address for receiving change or rewards`
-            : `Your ${config?.name || selectedChain} wallet address (source of funds)`}
-        </p>
-      </div>
-
-      {/* Public Key Input (Bitcoin only, shown when needed) */}
-      {isBtcChain && (
+        {/* User Address */}
         <div className="space-y-2">
           <label className="text-sm font-medium">
-            Public Key
-            {cachedUserPublicKey && manualPublicKey === cachedUserPublicKey && (
-              <span className="ml-2 text-xs text-green-600">(Cached)</span>
+            Your {config?.name || selectedChain} Address
+            {isUsingConnectedWallet && (
+              <span className="text-green-600 text-xs ml-2">
+                (Using Connected Wallet)
+              </span>
             )}
           </label>
           <div className="relative">
             <Input
               type="text"
-              value={manualPublicKey}
-              onChange={(e) => handleManualPublicKeyChange(e.target.value)}
-              placeholder="Enter your 33-byte public key in hexadecimal format (66 characters)"
-              className={`font-mono text-xs ${
-                cachedUserPublicKey && manualPublicKey === cachedUserPublicKey
-                  ? "bg-green-500/20 border-green-200"
-                  : ""
-              }`}
-              maxLength={66}
+              value={userAddress}
+              onChange={(e) => handleAddressChange(e.target.value)}
+              placeholder={`${config?.addressPrefix || ""}...`}
+              required
+              className={
+                isUsingConnectedWallet ? "bg-green-500/20 border-green-200" : ""
+              }
             />
-            {cachedUserPublicKey && manualPublicKey === cachedUserPublicKey && (
+            {isUsingConnectedWallet && (
               <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-green-600" />
             )}
           </div>
-          <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-            <p className="text-yellow-800 text-xs">
-              <strong>Note:</strong> Your wallet couldn&apos;t provide the
-              public key automatically. Please verify your public key above.
-            </p>
+        </div>
+
+        {/* Public key: one line when the wallet supplied it */}
+        {isBtcChain && walletPublicKey && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <CheckCircle className="h-4 w-4 text-green-600" />
+            Public key from wallet
           </div>
-          {manualPublicKey && !/^[0-9a-fA-F]{66}$/.test(manualPublicKey) && (
-            <p className="text-red-600 text-xs">
-              Invalid format. Public key must be exactly 66 hexadecimal
-              characters.
-            </p>
-          )}
-        </div>
-      )}
-
-      {/* Withdraw Address (only for withdrawals) */}
-      {!isDeposit && (
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Withdrawal Address</label>
-          <Input
-            type="text"
-            value={withdrawAddress}
-            onChange={(e) => handleWithdrawAddressChange(e.target.value)}
-            placeholder={`${config?.addressPrefix || ""}...`}
-            required
-          />
-          <p className="text-xs text-muted-foreground">
-            The address where you want to receive the withdrawn funds
-          </p>
-        </div>
-      )}
-
-      {/* Amount */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-medium">
-            Amount to {isDeposit ? "Deposit" : "Withdraw"} (
-            {config?.symbol || selectedChain})
-          </label>
-          {availableBalance !== null && (
-            <span className="text-xs text-muted-foreground">
-              Available:{" "}
-              <button
-                type="button"
-                className="text-blue-600 hover:text-blue-800 font-medium underline-offset-2 hover:underline"
-                onClick={() => handleAmountChange(String(availableBalance))}
-              >
-                {availableBalance.toFixed(config?.decimals || 8)}{" "}
-                {config?.symbol || selectedChain}
-              </button>
-            </span>
-          )}
-          {isFetchingBalance && availableBalance === null && (
-            <span className="text-xs text-muted-foreground animate-pulse">
-              Fetching balance...
-            </span>
-          )}
-        </div>
-        <Input
-          type="number"
-          step={1 / Math.pow(10, config?.decimals || 8)}
-          min={selectedYieldProvider?.minAmount || config?.minDeposit || 0}
-          max={availableBalance ?? undefined}
-          value={amount}
-          onChange={(e) => handleAmountChange(e.target.value)}
-          onBlur={(e) => handleAmountBlur(e.target.value)}
-          placeholder={(
-            selectedYieldProvider?.minAmount ||
-            config?.minDeposit ||
-            0
-          ).toString()}
-          required
-          className={isAmountExceedsBalance ? "border-red-400" : ""}
-        />
-        {isAmountExceedsBalance && (
-          <p className="text-red-600 text-xs">
-            Amount exceeds your available balance of{" "}
-            {availableBalance?.toFixed(config?.decimals || 8)}{" "}
-            {config?.symbol || selectedChain}
-          </p>
         )}
-        {!isAmountExceedsBalance && (
-          <p className="text-xs text-muted-foreground">
-            Minimum:{" "}
-            {selectedYieldProvider?.minAmount || config?.minDeposit || 0}{" "}
-            {config?.symbol || selectedChain}
-          </p>
-        )}
-      </div>
 
-      {/* PSBT Calculation Status (Bitcoin only) */}
-      {isBtcChain && isCalculatingPsbt && (
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
-          <div className="flex items-center gap-2 text-blue-700">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700"></div>
-            <span className="text-sm font-medium">
-              Preparing transaction...
-            </span>
-          </div>
-        </div>
-      )}
-
-      {/* PSBT Error with Retry (Bitcoin only) */}
-      {isBtcChain && psbtError && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-md">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 text-red-700 font-medium mb-1">
-                <AlertCircle className="w-4 h-4" />
-                <span>PSBT Preparation Failed</span>
-              </div>
-              <p className="text-sm text-red-600">{psbtError}</p>
+        {/* Public Key Input (Bitcoin only, when the wallet didn't supply one) */}
+        {isBtcChain && !walletPublicKey && (
+          <div className="space-y-2">
+            <label className="text-sm font-medium">
+              Public Key
+              {cachedUserPublicKey &&
+                manualPublicKey === cachedUserPublicKey && (
+                  <span className="ml-2 text-xs text-green-600">(Cached)</span>
+                )}
+            </label>
+            <div className="relative">
+              <Input
+                type="text"
+                value={manualPublicKey}
+                onChange={(e) => handleManualPublicKeyChange(e.target.value)}
+                placeholder="Enter your 33-byte public key in hexadecimal format (66 characters)"
+                className={`font-mono text-xs ${
+                  cachedUserPublicKey && manualPublicKey === cachedUserPublicKey
+                    ? "bg-green-500/20 border-green-200"
+                    : ""
+                }`}
+                maxLength={66}
+              />
+              {cachedUserPublicKey &&
+                manualPublicKey === cachedUserPublicKey && (
+                  <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-green-600" />
+                )}
             </div>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setPsbtError(null);
-                setPsbtCalcFailed(false);
-              }}
-              className="shrink-0"
-            >
-              Retry
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Form Validation Status (Bitcoin only) */}
-      {isBtcChain &&
-        !unsignedTransactionData &&
-        !psbtCalcFailed &&
-        !isCalculatingPsbt && (
-          <div className="p-3 bg-amber-50 border border-amber-200 rounded-md">
-            <p className="text-xs text-amber-700 font-medium mb-1">
-              To enable signing:
-            </p>
-            <ul className="text-xs text-amber-600 space-y-0.5">
-              {userAddress ? null : (
-                <li>• Enter a valid {config?.name || selectedChain} address</li>
-              )}
-              {!manualPublicKey && !isUsingConnectedWallet ? (
-                <li>
-                  • Provide a 66-character hex public key or connect a wallet
-                </li>
-              ) : null}
-              {amount && Number(amount) < (config?.minDeposit || 0) ? (
-                <li>
-                  • Amount must be at least {config?.minDeposit || 0}{" "}
-                  {config?.symbol || selectedChain}
-                </li>
-              ) : null}
-              {amount && isAmountExceedsBalance ? (
-                <li>• Amount exceeds your available balance</li>
-              ) : null}
-            </ul>
+            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+              <p className="text-yellow-800 text-xs">
+                <strong>Note:</strong> Your wallet couldn&apos;t provide the
+                public key automatically. Please verify your public key above.
+              </p>
+            </div>
+            {manualPublicKey && !/^[0-9a-fA-F]{66}$/.test(manualPublicKey) && (
+              <p className="text-red-600 text-xs">
+                Invalid format. Public key must be exactly 66 hexadecimal
+                characters.
+              </p>
+            )}
           </div>
         )}
 
-      {/* Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {isBtcChain ? (
-          <>
-            <Button
-              type="button"
-              onClick={handleSignInBrowser}
-              disabled={
-                loading || !unsignedTransactionData || isAmountExceedsBalance
-              }
-              className="flex items-center gap-2"
-            >
-              <Wallet className="w-4 h-4" />
-              {loading
-                ? "Signing..."
-                : `Sign & ${isDeposit ? "Deposit" : "Withdraw"}`}
-            </Button>
+        {/* Withdraw Address (only for withdrawals) */}
+        {!isDeposit && (
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Withdrawal Address</label>
+            <Input
+              type="text"
+              value={withdrawAddress}
+              onChange={(e) => handleWithdrawAddressChange(e.target.value)}
+              placeholder={`${config?.addressPrefix || ""}...`}
+              required
+            />
+            <p className="text-xs text-muted-foreground">
+              The address where you want to receive the withdrawn funds
+            </p>
+          </div>
+        )}
 
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleCopyUnsignedPSBT}
-              disabled={!unsignedTransactionData || isAmountExceedsBalance}
-              className="flex items-center gap-2"
-            >
-              <Copy className="w-4 h-4" />
-              {copied ? "Copied!" : "Copy Unsigned PSBT"}
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button
-              type="submit"
-              disabled={loading || !isFormValid() || isAmountExceedsBalance}
-            >
-              {getButtonText()}
-            </Button>
-            {selectedChain === "ada" && isDeposit && (
+        {/* Amount */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium">
+              Amount to {isDeposit ? "Deposit" : "Withdraw"} (
+              {config?.symbol || selectedChain})
+            </label>
+            {availableBalance !== null && (
+              <span className="text-xs text-muted-foreground">
+                Available:{" "}
+                <button
+                  type="button"
+                  className="text-blue-600 hover:text-blue-800 font-medium underline-offset-2 hover:underline"
+                  onClick={() => handleAmountChange(String(availableBalance))}
+                >
+                  {availableBalance.toFixed(config?.decimals || 8)}{" "}
+                  {config?.symbol || selectedChain}
+                </button>
+              </span>
+            )}
+            {isFetchingBalance && availableBalance === null && (
+              <span className="text-xs text-muted-foreground animate-pulse">
+                Fetching balance...
+              </span>
+            )}
+          </div>
+          <Input
+            type="number"
+            step={1 / Math.pow(10, config?.decimals || 8)}
+            min={selectedYieldProvider?.minAmount || config?.minDeposit || 0}
+            max={availableBalance ?? undefined}
+            value={amount}
+            onChange={(e) => handleAmountChange(e.target.value)}
+            onBlur={(e) => handleAmountBlur(e.target.value)}
+            placeholder={(
+              selectedYieldProvider?.minAmount ||
+              config?.minDeposit ||
+              0
+            ).toString()}
+            required
+            className={isAmountExceedsBalance ? "border-red-400" : ""}
+          />
+          {isAmountExceedsBalance && (
+            <p className="text-red-600 text-xs">
+              Amount exceeds your available balance of{" "}
+              {availableBalance?.toFixed(config?.decimals || 8)}{" "}
+              {config?.symbol || selectedChain}
+            </p>
+          )}
+          {!isAmountExceedsBalance && (
+            <p className="text-xs text-muted-foreground">
+              Minimum:{" "}
+              {selectedYieldProvider?.minAmount || config?.minDeposit || 0}{" "}
+              {config?.symbol || selectedChain}
+            </p>
+          )}
+        </div>
+
+        {/* PSBT Calculation Status (Bitcoin only) */}
+        {isBtcChain && isCalculatingPsbt && (
+          <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
+            <div className="flex items-center gap-2 text-blue-700">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700"></div>
+              <span className="text-sm font-medium">
+                Preparing transaction...
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* PSBT Error with Retry (Bitcoin only) */}
+        {isBtcChain && psbtError && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 text-red-700 font-medium mb-1">
+                  <AlertCircle className="w-4 h-4" />
+                  <span>PSBT Preparation Failed</span>
+                </div>
+                <p className="text-sm text-red-600">{psbtError}</p>
+              </div>
               <Button
                 type="button"
                 variant="outline"
-                onClick={() =>
-                  window.open("https://yoroi-wallet.com", "_blank")
-                }
+                size="sm"
+                onClick={() => {
+                  setPsbtError(null);
+                  setPsbtCalcFailed(false);
+                }}
+                className="shrink-0"
               >
-                Get Yoroi Wallet
+                Retry
               </Button>
-            )}
-          </>
+            </div>
+          </div>
         )}
-      </div>
 
-      {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-red-600 text-sm">{error}</p>
+        {/* Form Validation Status (Bitcoin only), hidden when nothing is wrong */}
+        {isBtcChain &&
+          !unsignedTransactionData &&
+          !psbtCalcFailed &&
+          !isCalculatingPsbt &&
+          signingBlockers.length > 0 && (
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-md">
+              <p className="text-xs text-amber-700 font-medium mb-1">
+                To enable signing:
+              </p>
+              <ul className="text-xs text-amber-600 space-y-0.5">
+                {signingBlockers.map((blocker) => (
+                  <li key={blocker}>• {blocker}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+        {/* Review: everything the user is agreeing to, before they sign */}
+        {isBtcChain && isDeposit && unsignedTransactionData && (
+          <div className="space-y-3 rounded-md border p-4">
+            <div className="font-medium">Review your stake</div>
+            <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+              <dt className="text-muted-foreground">Amount</dt>
+              {/* From the prepared transaction, not the input field, so the
+                  review always matches what the wallet will sign. */}
+              <dd className="text-right font-mono">
+                {unsignedTransactionData.amount} {config?.symbol}
+              </dd>
+
+              {selectedYieldProvider && (
+                <>
+                  <dt className="text-muted-foreground">Strategy</dt>
+                  <dd className="text-right">
+                    {selectedYieldProvider.name} ({selectedYieldProvider.apy}%
+                    APY)
+                  </dd>
+
+                  <dt className="text-muted-foreground">Est. yield</dt>
+                  <dd className="text-right font-mono">
+                    ≈{" "}
+                    {yieldFromProvider(
+                      Number(unsignedTransactionData.amount),
+                      selectedYieldProvider,
+                    ).toFixed(8)}{" "}
+                    {config?.symbol} / month
+                  </dd>
+                </>
+              )}
+
+              {lockEndsAt && (
+                <>
+                  <dt className="text-muted-foreground">Locked until</dt>
+                  <dd className="text-right">{lockEndsAt.toLocaleString()}</dd>
+                </>
+              )}
+
+              {preparedFeeSats !== null && (
+                <>
+                  <dt className="text-muted-foreground">Network fee</dt>
+                  <dd className="text-right font-mono">
+                    {preparedFeeSats.toLocaleString()} sats
+                  </dd>
+                </>
+              )}
+            </dl>
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {isBtcChain ? (
+            <>
+              {/* A submit button, so Enter in a field and a click both go
+                  through handleBtcTransaction. */}
+              <Button
+                type="submit"
+                disabled={
+                  loading || !unsignedTransactionData || isAmountExceedsBalance
+                }
+                className="flex items-center gap-2"
+              >
+                <Wallet className="w-4 h-4" />
+                {loading
+                  ? "Signing..."
+                  : `Sign & ${isDeposit ? "Deposit" : "Withdraw"}`}
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCopyUnsignedPSBT}
+                disabled={!unsignedTransactionData || isAmountExceedsBalance}
+                className="flex items-center gap-2"
+              >
+                <Copy className="w-4 h-4" />
+                {copied ? "Copied!" : "Copy Unsigned PSBT"}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                type="submit"
+                disabled={loading || !isFormValid() || isAmountExceedsBalance}
+              >
+                {getButtonText()}
+              </Button>
+              {selectedChain === "ada" && isDeposit && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() =>
+                    window.open("https://yoroi-wallet.com", "_blank")
+                  }
+                >
+                  Get Yoroi Wallet
+                </Button>
+              )}
+            </>
+          )}
         </div>
-      )}
-    </form>
+
+        {error && (
+          <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+            <p className="text-red-600 text-sm">{error}</p>
+          </div>
+        )}
+      </form>
     );
   };
 
@@ -1419,11 +1586,12 @@ export default function StakingForm({
             console.warn("Error updating staked amount:", error);
           }
 
-          // Update transaction status using captured id (avoids stale closure)
+          // Update transaction status using captured id (avoids stale closure).
+          // Pending until mined, as in handleSignInBrowser.
           if (capturedPendingId) {
             updateTransactionStatus(
               capturedPendingId,
-              "completed",
+              "pending",
               txid,
               isDeposit && unsignedTransactionData?.locktime
                 ? { locktime: unsignedTransactionData.locktime }
@@ -1431,6 +1599,7 @@ export default function StakingForm({
             );
           }
 
+          refreshWalletBalances();
           setStep("done");
           onSuccess?.(txid, selectedChain, amount);
         }}
@@ -1449,13 +1618,51 @@ export default function StakingForm({
     );
   };
 
+  // The transaction this form sent, read live from the dashboard's list so the
+  // done screen moves from "confirming" to "confirmed" on its own.
+  const sentTransaction = transactions.find(
+    (tx) => tx.id === pendingTransactionId,
+  );
+  const isConfirming = isBtcChain && sentTransaction?.status === "pending";
+
   const renderDoneStep = () => (
     <div className="space-y-4">
-      <div className="p-4 bg-green-100/20 border border-green-200 rounded-md">
-        <div className="flex items-center gap-2 text-green-700 font-medium mb-2">
-          <CheckCircle className="w-5 h-5" />
-          {getSuccessMessage()}
+      <div
+        className={`p-4 rounded-md border ${
+          isConfirming
+            ? "bg-yellow-100/20 border-yellow-200"
+            : "bg-green-100/20 border-green-200"
+        }`}
+      >
+        <div
+          className={`flex items-center gap-2 font-medium mb-2 ${
+            isConfirming ? "text-yellow-700" : "text-green-700"
+          }`}
+        >
+          {isConfirming ? (
+            <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-yellow-700" />
+          ) : (
+            <CheckCircle className="w-5 h-5" />
+          )}
+          {isConfirming
+            ? `${isDeposit ? "Stake" : "Withdrawal"} sent, waiting for confirmation`
+            : getSuccessMessage()}
         </div>
+        {sentTransaction && (
+          <div className="mb-2 flex items-center gap-2 text-sm">
+            Status: <TxStatusBadge tx={sentTransaction} />
+          </div>
+        )}
+        {isConfirming && (
+          <p className="mb-2 text-sm text-muted-foreground">
+            Usually ~10 min. Keep the dashboard open to track it.
+          </p>
+        )}
+        {isDeposit && savedLocktime && (
+          <p className="mb-2 text-sm text-muted-foreground">
+            Locked until {new Date(savedLocktime * 1000).toLocaleString()}.
+          </p>
+        )}
         <div className="flex items-center gap-2">
           <span className="text-sm">Transaction Hash:</span>
           <a
