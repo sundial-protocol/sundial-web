@@ -6,7 +6,9 @@ import { fetchWalletId, identify, resetIdentity, track } from "@/lib/analytics";
 
 // Identifies the visitor in PostHog when a Bitcoin wallet connects, and
 // starts a fresh anonymous ID when it disconnects or switches account, so two
-// wallets used in one browser stay two people.
+// wallets used in one browser stay two people. A wallet ID left over from an
+// earlier visit is cleared when PostHog starts (instrumentation-client.ts), so
+// `current` starting empty matches PostHog's state.
 export function WalletIdentity() {
   const { address, isConnected } = useAppKitAccount({ namespace: "bip122" });
   const { walletInfo } = useWalletInfo();

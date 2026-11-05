@@ -26,14 +26,19 @@ function BitcoinWalletStatus() {
 
   if (isConnected && address) {
     return (
-      <div className="flex items-center gap-2 text-xs">
-        <span className="h-2 w-2 shrink-0 rounded-full bg-green-500" />
-        <span className="min-w-0 break-words text-muted-foreground">
-          Connected{walletInfo?.name ? ` with ${walletInfo.name}` : ""}:{" "}
-          <span className="font-mono">
-            {address.slice(0, 6)}…{address.slice(-4)}
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2 text-xs">
+          <span className="h-2 w-2 shrink-0 rounded-full bg-green-500" />
+          <span className="min-w-0 break-words text-muted-foreground">
+            Connected{walletInfo?.name ? ` with ${walletInfo.name}` : ""}:{" "}
+            <span className="font-mono">
+              {address.slice(0, 6)}…{address.slice(-4)}
+            </span>
           </span>
-        </span>
+        </div>
+        {/* The only place on the dashboard a connected wallet can be managed,
+          disconnected or switched. */}
+        <ConnectButton size="sm" />
       </div>
     );
   }

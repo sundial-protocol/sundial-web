@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { MIN_STAKE_BTC } from "@/lib/deposit-limits";
 import { YIELD_PROVIDER_PUBKEY } from "@/lib/yield-provider";
 
 export function getLockPeriod(locktime: number): string {
@@ -114,7 +115,7 @@ const yieldOpportunities: YieldOpportunity[] = [
     type: "staking",
     risk: "Low",
     apy: 3.5,
-    minAmount: 0.00001,
+    minAmount: MIN_STAKE_BTC,
     payments: 12, // Number of payments per year
     publicKey: YIELD_PROVIDER_PUBKEY, // Example public key
     locktime: 60 * 60 * 24 * 30, // 30 days in seconds
