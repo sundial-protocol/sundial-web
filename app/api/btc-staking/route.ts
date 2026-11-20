@@ -5,6 +5,11 @@ import {
   DepositParams,
 } from "@sundial-protocol/btc-locker";
 import { YIELD_PROVIDER_PUBKEY } from "@/lib/yield-provider";
+import {
+  ESCROW_SHARE,
+  MIN_STAKE_BTC,
+  MIN_STAKE_SATS,
+} from "@/lib/deposit-limits";
 import type { BtcStakingResponse } from "./types";
 
 export async function POST(
@@ -41,6 +46,16 @@ export async function POST(
       );
     }
 
+    // Below the minimum the escrow output is dust, and nodes won't relay the
+    // transaction (lib/deposit-limits.ts).
+    const amountSats = Math.round(Number(amount) * 1e8);
+    if (!Number.isFinite(amountSats) || amountSats < MIN_STAKE_SATS) {
+      return NextResponse.json(
+        { error: `Amount must be at least ${MIN_STAKE_BTC} BTC.` },
+        { status: 400 },
+      );
+    }
+
     // Create BTCLocker instance
     const locker = new BTCLocker(network);
 
@@ -60,9 +75,9 @@ export async function POST(
     const stakingParams: DepositParams = {
       sourceAddress: sourceAddress,
       escrowAddress: escrowScriptInfo.address,
-      escrowAmount: Math.trunc((Number(amount) * 1e8) / 4), // Convert to satoshis
+      escrowAmount: Math.trunc(amountSats * ESCROW_SHARE), // satoshis
       timelockAddress: timelockScriptInfo.address,
-      timelockAmount: Math.trunc((Number(amount) * 3 * 1e8) / 4), // Convert to satoshis
+      timelockAmount: Math.trunc(amountSats * (1 - ESCROW_SHARE)), // satoshis
       changeAddress: sourceAddress, // Send change back to source address
     };
 
