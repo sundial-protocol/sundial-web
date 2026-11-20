@@ -80,6 +80,14 @@ interface StakingFormProps {
 // Chains the selector offers on testnet.
 const selectableChains: SupportedChain[] = ["btc_testnet", "sundial_l2"];
 
+// Only deposits have a minimum: it keeps the escrow output above dust
+// (lib/deposit-limits.ts). A withdrawal sweeps the whole stake whatever amount
+// is entered, so it needs only an amount above zero; holding it to the deposit
+// minimum would block stakes made while the minimum was lower.
+function meetsMinimum(amount: number, isDeposit: boolean, minDeposit: number) {
+  return isDeposit ? amount >= minDeposit : amount > 0;
+}
+
 export default function StakingForm({
   type,
   onSuccess,
@@ -364,7 +372,8 @@ export default function StakingForm({
       if (psbtCalcFailed) return false;
       if (!userAddress || !amount) return false;
       if (!isDeposit && !withdrawAddress) return false;
-      if (Number(amount) < config.minDeposit) return false;
+      if (!meetsMinimum(Number(amount), isDeposit, config.minDeposit))
+        return false;
       if (isAmountExceedsBalance) return false;
       if (!userAddress.startsWith(config.addressPrefix)) return false;
       if (!isDeposit && !withdrawAddress.startsWith(config.addressPrefix))
@@ -987,7 +996,7 @@ export default function StakingForm({
     const numAmount = Number(amount);
     const baseValid =
       userAddress &&
-      numAmount >= (config?.minDeposit || 0) &&
+      meetsMinimum(numAmount, isDeposit, config?.minDeposit || 0) &&
       userAddress.startsWith(config?.addressPrefix || "") &&
       !isAmountExceedsBalance;
 
@@ -1171,16 +1180,23 @@ export default function StakingForm({
     </div>
   );
 
+  // The minimum the amount field shows; withdrawals have none (see meetsMinimum).
+  const displayedMinimum = isDeposit
+    ? selectedYieldProvider?.minAmount || config?.minDeposit || 0
+    : undefined;
+
   const signingBlockers = [
     !userAddress && `Enter a valid ${config?.name || selectedChain} address`,
     !manualPublicKey &&
       !isUsingConnectedWallet &&
       "Provide a 66-character hex public key or connect a wallet",
     amount &&
-      Number(amount) < (config?.minDeposit || 0) &&
-      `Amount must be at least ${config?.minDeposit || 0} ${
-        config?.symbol || selectedChain
-      }`,
+      !meetsMinimum(Number(amount), isDeposit, config?.minDeposit || 0) &&
+      (isDeposit
+        ? `Amount must be at least ${config?.minDeposit || 0} ${
+            config?.symbol || selectedChain
+          }`
+        : "Amount must be above zero"),
     amount && isAmountExceedsBalance && "Amount exceeds your available balance",
   ].filter((blocker): blocker is string => Boolean(blocker));
 
@@ -1360,16 +1376,12 @@ export default function StakingForm({
           <Input
             type="number"
             step={1 / Math.pow(10, config?.decimals || 8)}
-            min={selectedYieldProvider?.minAmount || config?.minDeposit || 0}
+            min={displayedMinimum ?? 0}
             max={availableBalance ?? undefined}
             value={amount}
             onChange={(e) => handleAmountChange(e.target.value)}
             onBlur={(e) => handleAmountBlur(e.target.value)}
-            placeholder={(
-              selectedYieldProvider?.minAmount ||
-              config?.minDeposit ||
-              0
-            ).toString()}
+            placeholder={(displayedMinimum ?? 0).toString()}
             required
             className={isAmountExceedsBalance ? "border-red-400" : ""}
           />
@@ -1380,11 +1392,9 @@ export default function StakingForm({
               {config?.symbol || selectedChain}
             </p>
           )}
-          {!isAmountExceedsBalance && (
+          {!isAmountExceedsBalance && displayedMinimum !== undefined && (
             <p className="text-xs text-muted-foreground">
-              Minimum:{" "}
-              {selectedYieldProvider?.minAmount || config?.minDeposit || 0}{" "}
-              {config?.symbol || selectedChain}
+              Minimum: {displayedMinimum} {config?.symbol || selectedChain}
             </p>
           )}
         </div>
